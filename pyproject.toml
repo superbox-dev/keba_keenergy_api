@@ -39,7 +39,7 @@ dynamic = ["version"]
 [project.optional-dependencies]
 build = [
     "setuptools>=65.5.1",
-    "build==1.1.1",
+    "build==1.2.1",
 ]
 audit = [
     "pip-audit==2.7.2",
@@ -48,9 +48,9 @@ format = [
     "black==24.3.0",
 ]
 lint = [
-    "mypy==1.8.0",
+    "mypy==1.10.0",
     "ruff==0.3.4",
-    "types-PyYAML==6.0.12.12",
+    "types-PyYAML==6.0.12.20240311",
     "yamllint==1.35.1",
 ]
 tests = [
