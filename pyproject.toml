@@ -50,7 +50,7 @@ format = [
 lint = [
     "mypy==1.10.0",
     "ruff==0.3.4",
-    "types-PyYAML==6.0.12.12",
+    "types-PyYAML==6.0.12.20240311",
     "yamllint==1.35.1",
 ]
 tests = [
