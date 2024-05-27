@@ -42,7 +42,7 @@ build = [
     "build==1.2.1",
 ]
 audit = [
-    "pip-audit==2.7.2",
+    "pip-audit==2.7.3",
 ]
 format = [
     "black==24.3.0",
