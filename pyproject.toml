@@ -45,7 +45,7 @@ audit = [
     "pip-audit==2.7.2",
 ]
 format = [
-    "black==24.3.0",
+    "black==24.4.2",
 ]
 lint = [
     "mypy==1.10.0",
