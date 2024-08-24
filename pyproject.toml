@@ -42,10 +42,10 @@ build = [
     "build==1.1.1",
 ]
 audit = [
-    "pip-audit==2.7.2",
+    "pip-audit",
 ]
 format = [
-    "black==24.3.0",
+    "black",
 ]
 lint = [
     "mypy",
