@@ -48,19 +48,19 @@ format = [
     "black==24.3.0",
 ]
 lint = [
-    "mypy==1.8.0",
-    "ruff==0.3.4",
-    "types-PyYAML==6.0.12.12",
-    "yamllint==1.35.1",
+    "mypy",
+    "ruff",
+    "types-PyYAML",
+    "yamllint",
 ]
 tests = [
-    "aioresponses~=0.7.6",
-    "coverage~=7.4.3",
-    "coverage-badge~=1.1.0",
-    "pytest>=8.0.1,<8.2.0",
-    "pytest-asyncio~=0.23.5",
-    "pytest-cov~=4.1.0",
-    "pytest-xdist[psutil]~=3.5.0",
+    "aioresponses",
+    "coverage",
+    "coverage-badge",
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "pytest-xdist[psutil]",
 ]
 
 [tool.setuptools]
