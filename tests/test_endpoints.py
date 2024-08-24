@@ -18,7 +18,7 @@ from keba_keenergy_api.error import APIError
 
 
 class TestSystemSection:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_positions(self) -> None:
         """Test get positions for heat pumps, heating circuits and hot water tanks."""
         with aioresponses() as mock_keenergy_api:
@@ -84,7 +84,7 @@ class TestSystemSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_info(self) -> None:
         """Test get system information."""
         with aioresponses() as mock_keenergy_api:
@@ -115,7 +115,7 @@ class TestSystemSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_device_info(self) -> None:
         """Test get device info from hardware."""
         with aioresponses() as mock_keenergy_api:
@@ -152,7 +152,7 @@ class TestSystemSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_number_of_hot_water_tanks(self) -> None:
         """Test get number of hot water tanks."""
         with aioresponses() as mock_keenergy_api:
@@ -188,7 +188,7 @@ class TestSystemSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_number_of_heat_pumps(self) -> None:
         """Test get number of heat pumps."""
         with aioresponses() as mock_keenergy_api:
@@ -224,7 +224,7 @@ class TestSystemSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_number_of_heating_circuits(self) -> None:
         """Test get number of heating circuits."""
         with aioresponses() as mock_keenergy_api:
@@ -260,7 +260,7 @@ class TestSystemSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [(True, 1, "summer"), (False, 2, 2)],
@@ -304,7 +304,7 @@ class TestSystemSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("operating_mode", "expected_value"),
         [("summer", 1), ("AUTO_HEAT", 2), (SystemOperatingMode.AUTO_COOL.value, 3)],
@@ -332,7 +332,7 @@ class TestSystemSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "operating_mode",
         ["INVALID"],
@@ -360,7 +360,7 @@ class TestSystemSection:
 
 
 class TestHotWaterTankSection:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_temperature(self) -> None:
         """Test get temperature for hot water tank."""
         with aioresponses() as mock_keenergy_api:
@@ -395,7 +395,7 @@ class TestHotWaterTankSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [(True, 3, "heat_up"), (False, 3, 3)],
@@ -439,7 +439,7 @@ class TestHotWaterTankSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value"),
         [(True, 10)],
@@ -488,7 +488,7 @@ class TestHotWaterTankSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("operating_mode", "expected_value"),
         [("off", 0), ("OFF", 0), (HotWaterTankOperatingMode.HEAT_UP.value, 3)],
@@ -517,7 +517,7 @@ class TestHotWaterTankSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "operating_mode",
         ["INVALID"],
@@ -543,7 +543,7 @@ class TestHotWaterTankSection:
 
             mock_keenergy_api.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_lower_limit_temperature(self) -> None:
         """Test get lower limit temperature for hot water tank."""
         with aioresponses() as mock_keenergy_api:
@@ -579,7 +579,7 @@ class TestHotWaterTankSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_upper_limit_temperature(self) -> None:
         """Test get upper limit temperature for hot water tank."""
         with aioresponses() as mock_keenergy_api:
@@ -615,7 +615,7 @@ class TestHotWaterTankSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_min_temperature(self) -> None:
         """Test get minimum temperature for hot water tank."""
         with aioresponses() as mock_keenergy_api:
@@ -651,7 +651,7 @@ class TestHotWaterTankSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_set_min_temperature(self) -> None:
         """Test set minimum temperature for hot water tank."""
         with aioresponses() as mock_keenergy_api:
@@ -671,7 +671,7 @@ class TestHotWaterTankSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_max_temperature(self) -> None:
         """Test get maximum temperature for hot water tank."""
         with aioresponses() as mock_keenergy_api:
@@ -707,7 +707,7 @@ class TestHotWaterTankSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_set_max_temperature(self) -> None:
         """Test set maximum temperature for hot water tank."""
         with aioresponses() as mock_keenergy_api:
@@ -727,7 +727,7 @@ class TestHotWaterTankSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [
@@ -772,7 +772,7 @@ class TestHotWaterTankSection:
 
 
 class TestHeatPumpSection:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_name(self) -> None:
         """Test get name for heat pump."""
         with aioresponses() as mock_keenergy_api:
@@ -803,7 +803,7 @@ class TestHeatPumpSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [(True, 1, "flow"), (False, 1, 1)],
@@ -847,7 +847,7 @@ class TestHeatPumpSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_circulation_pump(self) -> None:
         """Test get circulation pump for heat pump."""
         with aioresponses() as mock_keenergy_api:
@@ -882,7 +882,7 @@ class TestHeatPumpSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_inflow_temperature(self) -> None:
         """Test get inflow temperature for heat pump."""
         with aioresponses() as mock_keenergy_api:
@@ -915,7 +915,7 @@ class TestHeatPumpSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_reflux_temperature(self) -> None:
         """Test get reflux temperature for heat pump."""
         with aioresponses() as mock_keenergy_api:
@@ -948,7 +948,7 @@ class TestHeatPumpSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_source_input_temperature(self) -> None:
         """Test get source input temperature for heat pump."""
         with aioresponses() as mock_keenergy_api:
@@ -981,7 +981,7 @@ class TestHeatPumpSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_source_output_temperature(self) -> None:
         """Test get source output temperature for heat pump."""
         with aioresponses() as mock_keenergy_api:
@@ -1014,7 +1014,7 @@ class TestHeatPumpSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_compressor_input_temperature(self) -> None:
         """Test get compressor input temperature for heat pump."""
         with aioresponses() as mock_keenergy_api:
@@ -1047,7 +1047,7 @@ class TestHeatPumpSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_compressor_output_temperature(self) -> None:
         """Test get compressor output temperature for heat pump."""
         with aioresponses() as mock_keenergy_api:
@@ -1080,7 +1080,7 @@ class TestHeatPumpSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_compressor(self) -> None:
         """Test get compressor for heat pump."""
         with aioresponses() as mock_keenergy_api:
@@ -1115,7 +1115,7 @@ class TestHeatPumpSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_high_pressure(self) -> None:
         """Test get high pressure for heat pump."""
         with aioresponses() as mock_keenergy_api:
@@ -1148,7 +1148,7 @@ class TestHeatPumpSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_low_pressure(self) -> None:
         """Test get low pressure for heat pump."""
         with aioresponses() as mock_keenergy_api:
@@ -1181,7 +1181,7 @@ class TestHeatPumpSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [
@@ -1224,7 +1224,7 @@ class TestHeatPumpSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [(True, 0, "off"), (False, 2, 2)],
@@ -1268,7 +1268,7 @@ class TestHeatPumpSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("operating_mode", "expected_value"),
         [("off", 0), ("ON", 1), (HeatPumpOperatingMode.BACKUP.value, 2)],
@@ -1297,7 +1297,7 @@ class TestHeatPumpSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "operating_mode",
         ["INVALID"],
@@ -1325,7 +1325,7 @@ class TestHeatPumpSection:
 
 
 class TestHeatCircuitSection:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_name(self) -> None:
         """Test get name for heat circuit."""
         with aioresponses() as mock_keenergy_api:
@@ -1356,7 +1356,7 @@ class TestHeatCircuitSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_temperature(self) -> None:
         """Test get temperature for heat circuit."""
         with aioresponses() as mock_keenergy_api:
@@ -1391,7 +1391,7 @@ class TestHeatCircuitSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_day_temperature(self) -> None:
         """Test get day temperature for heat circuit."""
         with aioresponses() as mock_keenergy_api:
@@ -1426,7 +1426,7 @@ class TestHeatCircuitSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_set_day_temperature(self) -> None:
         """Test set day temperature for heat circuit."""
         with aioresponses() as mock_keenergy_api:
@@ -1446,7 +1446,7 @@ class TestHeatCircuitSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_day_temperature_threshold(self) -> None:
         """Test get day temperature threshold for heat circuit."""
         with aioresponses() as mock_keenergy_api:
@@ -1481,7 +1481,7 @@ class TestHeatCircuitSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_night_temperature(self) -> None:
         """Test get night temperature for heat circuit."""
         with aioresponses() as mock_keenergy_api:
@@ -1516,7 +1516,7 @@ class TestHeatCircuitSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_set_night_temperature(self) -> None:
         """Test set night temperature for heat circuit."""
         with aioresponses() as mock_keenergy_api:
@@ -1536,7 +1536,7 @@ class TestHeatCircuitSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_night_temperature_threshold(self) -> None:
         """Test get bight temperature threshold for heat circuit."""
         with aioresponses() as mock_keenergy_api:
@@ -1571,7 +1571,7 @@ class TestHeatCircuitSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_holiday_temperature(self) -> None:
         """Test get holiday temperature for heat circuit."""
         with aioresponses() as mock_keenergy_api:
@@ -1606,7 +1606,7 @@ class TestHeatCircuitSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_set_holiday_temperature(self) -> None:
         """Test set holiday temperature for heat circuit."""
         with aioresponses() as mock_keenergy_api:
@@ -1626,7 +1626,7 @@ class TestHeatCircuitSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_temperature_offset(self) -> None:
         """Test get temperature offset for heat circuit."""
         with aioresponses() as mock_keenergy_api:
@@ -1661,7 +1661,7 @@ class TestHeatCircuitSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_set_temperature_offset(self) -> None:
         """Test set temperature offset for heat circuit."""
         with aioresponses() as mock_keenergy_api:
@@ -1681,7 +1681,7 @@ class TestHeatCircuitSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [(True, 3, "night"), (False, 3, 3)],
@@ -1725,7 +1725,7 @@ class TestHeatCircuitSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("operating_mode", "expected_value"),
         [
@@ -1759,7 +1759,7 @@ class TestHeatCircuitSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "operating_mode",
         ["INVALID"],
@@ -1785,7 +1785,7 @@ class TestHeatCircuitSection:
 
             mock_keenergy_api.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [
@@ -1836,7 +1836,7 @@ class TestHeatCircuitSection:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value"),
         [(True, "16")],
@@ -1891,7 +1891,7 @@ class TestHeatCircuitSection:
             (False, HeatCircuitExternalCoolRequest.OFF.value, 0),
         ],
     )
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_external_cool_request(
         self,
         human_readable: bool,  # noqa: FBT001
@@ -1934,7 +1934,7 @@ class TestHeatCircuitSection:
             (False, HeatCircuitExternalHeatRequest.OFF.value, 0),
         ],
     )
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_external_heat_request(
         self,
         human_readable: bool,  # noqa: FBT001
