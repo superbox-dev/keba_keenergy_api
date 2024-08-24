@@ -17,7 +17,7 @@ from keba_keenergy_api.error import InvalidJsonError
 
 
 class TestKebaKeEnergyAPI:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_api(self) -> None:
         """Test api without session."""
         with aioresponses() as mock_keenergy_api:
@@ -52,7 +52,7 @@ class TestKebaKeEnergyAPI:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_api_with_session(self) -> None:
         """Test api with seassion."""
         with aioresponses() as mock_keenergy_api:
@@ -91,7 +91,7 @@ class TestKebaKeEnergyAPI:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         (
             "section",
@@ -417,7 +417,7 @@ class TestKebaKeEnergyAPI:
                 ssl=False,
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("section", "expected_data"),
         [
