@@ -327,7 +327,8 @@ class TestSystemSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.param.operatingMode", "value": "%s"}]' % expected_value,
+                data='[{"name": "APPL.CtrlAppl.sParam.param.operatingMode", "value": "%s"}]'  # noqa: UP031
+                % expected_value,
                 method="POST",
                 ssl=False,
             )
@@ -511,7 +512,7 @@ class TestHotWaterTankSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode", "value": "%s"}]'
+                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode", "value": "%s"}]'  # noqa: UP031
                 % expected_value,
                 method="POST",
                 ssl=False,
@@ -1291,7 +1292,7 @@ class TestHeatPumpSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].param.operatingMode", "value": "%s"}]'
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].param.operatingMode", "value": "%s"}]'  # noqa: UP031
                 % expected_value,
                 method="POST",
                 ssl=False,
@@ -1753,7 +1754,7 @@ class TestHeatCircuitSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.operatingMode", "value": "%s"}]'
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.operatingMode", "value": "%s"}]'  # noqa: UP031
                 % expected_value,
                 method="POST",
                 ssl=False,
