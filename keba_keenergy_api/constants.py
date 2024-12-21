@@ -20,89 +20,89 @@ class EndpointPath:
 class SystemOperatingMode(IntEnum):
     """Available system operating modes."""
 
-    SETUP: Final[int] = -1
-    STANDBY: Final[int] = 0
-    SUMMER: Final[int] = 1
-    AUTO_HEAT: Final[int] = 2
-    AUTO_COOL: Final[int] = 3
-    AUTO: Final[int] = 4
+    SETUP = -1
+    STANDBY = 0
+    SUMMER = 1
+    AUTO_HEAT = 2
+    AUTO_COOL = 3
+    AUTO = 4
 
 
 class HotWaterTankOperatingMode(IntEnum):
     """Available hot water tank operating modes."""
 
-    OFF: Final[int] = 0
-    AUTO: Final[int] = 1
-    ON: Final[int] = 2
-    HEAT_UP: Final[int] = 3
+    OFF = 0
+    AUTO = 1
+    ON = 2
+    HEAT_UP = 3
 
 
 class HeatPumpState(IntEnum):
     """Available heat pump stats."""
 
-    STANDBY: Final[int] = 0
-    FLOW: Final[int] = 1
-    AUTO_HEAT: Final[int] = 2
-    DEFROST: Final[int] = 3
-    AUTO_COOL: Final[int] = 4
-    INFLOW: Final[int] = 5
+    STANDBY = 0
+    FLOW = 1
+    AUTO_HEAT = 2
+    DEFROST = 3
+    AUTO_COOL = 4
+    INFLOW = 5
 
 
 class HeatPumpOperatingMode(IntEnum):
     """Available heat pump operating modes."""
 
-    OFF: Final[int] = 0
-    ON: Final[int] = 1
-    BACKUP: Final[int] = 2
+    OFF = 0
+    ON = 1
+    BACKUP = 2
 
 
 class HeatCircuitOperatingMode(IntEnum):
     """Available heat circuit operating modes."""
 
-    OFF: Final[int] = 0
-    AUTO: Final[int] = 1
-    DAY: Final[int] = 2
-    NIGHT: Final[int] = 3
-    HOLIDAY: Final[int] = 4
-    PARTY: Final[int] = 5
-    EXTERN: Final[int] = 8
+    OFF = 0
+    AUTO = 1
+    DAY = 2
+    NIGHT = 3
+    HOLIDAY = 4
+    PARTY = 5
+    EXTERN = 8
 
 
 class HotWaterTankHeatRequest(str, Enum):
     """Available hot water tank heat request stats."""
 
-    OFF: Final[str] = "false"
-    ON: Final[str] = "true"
+    OFF = "false"
+    ON = "true"
 
 
 class HeatPumpHeatRequest(str, Enum):
     """Available heat pump heat request stats."""
 
-    OFF: Final[str] = "false"
-    ON: Final[str] = "true"
+    OFF = "false"
+    ON = "true"
 
 
 class HeatCircuitHeatRequest(str, Enum):
     """Available heat circuit heat request stats."""
 
-    OFF: Final[str] = "0"
-    ON: Final[str] = "1"
-    TEMPORARY_OFF: Final[str] = "3"
-    OUTDOOR_TEMPERATURE_OFF: Final[str] = "5"
+    OFF = "0"
+    ON = "1"
+    TEMPORARY_OFF = "3"
+    OUTDOOR_TEMPERATURE_OFF = "5"
 
 
 class HeatCircuitExternalCoolRequest(str, Enum):
     """Available heat circuit external cool request stats."""
 
-    OFF: Final[str] = "false"
-    ON: Final[str] = "true"
+    OFF = "false"
+    ON = "true"
 
 
 class HeatCircuitExternalHeatRequest(str, Enum):
     """Available heat circuit external heat request stats."""
 
-    OFF: Final[str] = "false"
-    ON: Final[str] = "true"
+    OFF = "false"
+    ON = "true"
 
 
 SYSTEM_PREFIX: Final[str] = "APPL.CtrlAppl.sParam"
@@ -123,25 +123,25 @@ class EndpointProperties(NamedTuple):
 class System(Enum):
     """The system endpoint settings."""
 
-    HOT_WATER_TANK_NUMBERS: Final[EndpointProperties] = EndpointProperties(
+    HOT_WATER_TANK_NUMBERS = EndpointProperties(
         "options.systemNumberOfHotWaterTanks",
         value_type=int,
     )
-    HEAT_PUMP_NUMBERS: Final[EndpointProperties] = EndpointProperties(
+    HEAT_PUMP_NUMBERS = EndpointProperties(
         "options.systemNumberOfHeatPumps",
         value_type=int,
     )
-    HEAT_CIRCUIT_NUMBERS: Final[EndpointProperties] = EndpointProperties(
+    HEAT_CIRCUIT_NUMBERS = EndpointProperties(
         "options.systemNumberOfHeatingCircuits",
         value_type=int,
     )
-    OPERATING_MODE: Final[EndpointProperties] = EndpointProperties(
+    OPERATING_MODE = EndpointProperties(
         "param.operatingMode",
         value_type=int,
         read_only=False,
         human_readable=SystemOperatingMode,
     )
-    OUTDOOR_TEMPERATURE: Final[EndpointProperties] = EndpointProperties(
+    OUTDOOR_TEMPERATURE = EndpointProperties(
         "outdoorTemp.values.actValue",
         value_type=float,
     )
@@ -150,24 +150,24 @@ class System(Enum):
 class HotWaterTank(Enum):
     """The hot water tank endpoint settings."""
 
-    TEMPERATURE: Final[EndpointProperties] = EndpointProperties("topTemp.values.actValue", float)
-    OPERATING_MODE: Final[EndpointProperties] = EndpointProperties(
+    TEMPERATURE = EndpointProperties("topTemp.values.actValue", float)
+    OPERATING_MODE = EndpointProperties(
         "param.operatingMode",
         value_type=int,
         read_only=False,
         human_readable=HotWaterTankOperatingMode,
     )
-    MIN_TEMPERATURE: Final[EndpointProperties] = EndpointProperties(
+    MIN_TEMPERATURE = EndpointProperties(
         "param.reducedSetTempMax.value",
         float,
         read_only=False,
     )
-    MAX_TEMPERATURE: Final[EndpointProperties] = EndpointProperties(
+    MAX_TEMPERATURE = EndpointProperties(
         "param.normalSetTempMax.value",
         float,
         read_only=False,
     )
-    HEAT_REQUEST: Final[EndpointProperties] = EndpointProperties(
+    HEAT_REQUEST = EndpointProperties(
         "values.heatRequestTop",
         value_type=str,
         human_readable=HotWaterTankHeatRequest,
@@ -177,60 +177,60 @@ class HotWaterTank(Enum):
 class HeatPump(Enum):
     """The heat pump endpoint settings."""
 
-    NAME: Final[EndpointProperties] = EndpointProperties("param.name", value_type=str)
-    STATE: Final[EndpointProperties] = EndpointProperties(
+    NAME = EndpointProperties("param.name", value_type=str)
+    STATE = EndpointProperties(
         "values.heatpumpState",
         value_type=int,
         read_only=False,
         human_readable=HeatPumpState,
     )
-    OPERATING_MODE: Final[EndpointProperties] = EndpointProperties(
+    OPERATING_MODE = EndpointProperties(
         "param.operatingMode",
         value_type=int,
         read_only=False,
         human_readable=HeatPumpOperatingMode,
     )
-    CIRCULATION_PUMP: Final[EndpointProperties] = EndpointProperties(
+    CIRCULATION_PUMP = EndpointProperties(
         "CircPump.values.setValueScaled",
         value_type=float,
     )
-    INFLOW_TEMPERATURE: Final[EndpointProperties] = EndpointProperties(
+    INFLOW_TEMPERATURE = EndpointProperties(
         "TempHeatFlow.values.actValue",
         value_type=float,
     )
-    REFLUX_TEMPERATURE: Final[EndpointProperties] = EndpointProperties(
+    REFLUX_TEMPERATURE = EndpointProperties(
         "TempHeatReflux.values.actValue",
         value_type=float,
     )
-    SOURCE_INPUT_TEMPERATURE: Final[EndpointProperties] = EndpointProperties(
+    SOURCE_INPUT_TEMPERATURE = EndpointProperties(
         "TempSourceIn.values.actValue",
         value_type=float,
     )
-    SOURCE_OUTPUT_TEMPERATURE: Final[EndpointProperties] = EndpointProperties(
+    SOURCE_OUTPUT_TEMPERATURE = EndpointProperties(
         "TempSourceOut.values.actValue",
         value_type=float,
     )
-    COMPRESSOR_INPUT_TEMPERATURE: Final[EndpointProperties] = EndpointProperties(
+    COMPRESSOR_INPUT_TEMPERATURE = EndpointProperties(
         "TempCompressorIn.values.actValue",
         value_type=float,
     )
-    COMPRESSOR_OUTPUT_TEMPERATURE: Final[EndpointProperties] = EndpointProperties(
+    COMPRESSOR_OUTPUT_TEMPERATURE = EndpointProperties(
         "TempCompressorOut.values.actValue",
         value_type=float,
     )
-    COMPRESSOR: Final[EndpointProperties] = EndpointProperties(
+    COMPRESSOR = EndpointProperties(
         "Compressor.values.setValueScaled",
         value_type=float,
     )
-    HIGH_PRESSURE: Final[EndpointProperties] = EndpointProperties(
+    HIGH_PRESSURE = EndpointProperties(
         "HighPressure.values.actValue",
         value_type=float,
     )
-    LOW_PRESSURE: Final[EndpointProperties] = EndpointProperties(
+    LOW_PRESSURE = EndpointProperties(
         "LowPressure.values.actValue",
         value_type=float,
     )
-    HEAT_REQUEST: Final[EndpointProperties] = EndpointProperties(
+    HEAT_REQUEST = EndpointProperties(
         "values.request",
         value_type=str,
         human_readable=HeatPumpHeatRequest,
@@ -240,58 +240,58 @@ class HeatPump(Enum):
 class HeatCircuit(Enum):
     """The heat circuit endpoint settings."""
 
-    NAME: Final[EndpointProperties] = EndpointProperties(
+    NAME = EndpointProperties(
         "param.name",
         value_type=str,
     )
-    TEMPERATURE: Final[EndpointProperties] = EndpointProperties(
+    TEMPERATURE = EndpointProperties(
         "values.setValue",
         value_type=float,
     )
-    DAY_TEMPERATURE: Final[EndpointProperties] = EndpointProperties(
+    DAY_TEMPERATURE = EndpointProperties(
         "param.normalSetTemp",
         value_type=float,
         read_only=False,
     )
-    DAY_TEMPERATURE_THRESHOLD: Final[EndpointProperties] = EndpointProperties(
+    DAY_TEMPERATURE_THRESHOLD = EndpointProperties(
         "param.thresholdDayTemp.value",
         value_type=float,
     )
-    NIGHT_TEMPERATURE: Final[EndpointProperties] = EndpointProperties(
+    NIGHT_TEMPERATURE = EndpointProperties(
         "param.reducedSetTemp",
         value_type=float,
         read_only=False,
     )
-    NIGHT_TEMPERATURE_THRESHOLD: Final[EndpointProperties] = EndpointProperties(
+    NIGHT_TEMPERATURE_THRESHOLD = EndpointProperties(
         "param.thresholdNightTemp.value",
         value_type=float,
     )
-    HOLIDAY_TEMPERATURE: Final[EndpointProperties] = EndpointProperties(
+    HOLIDAY_TEMPERATURE = EndpointProperties(
         "param.holidaySetTemp",
         value_type=float,
         read_only=False,
     )
-    TEMPERATURE_OFFSET: Final[EndpointProperties] = EndpointProperties(
+    TEMPERATURE_OFFSET = EndpointProperties(
         "param.offsetRoomTemp",
         value_type=float,
         read_only=False,
     )
-    HEAT_REQUEST: Final[EndpointProperties] = EndpointProperties(
+    HEAT_REQUEST = EndpointProperties(
         "values.heatRequest",
         value_type=str,
         human_readable=HeatCircuitHeatRequest,
     )
-    EXTERNAL_COOL_REQUEST: Final[EndpointProperties] = EndpointProperties(
+    EXTERNAL_COOL_REQUEST = EndpointProperties(
         "param.external.coolRequest",
         value_type=str,
         human_readable=HeatCircuitExternalCoolRequest,
     )
-    EXTERNAL_HEAT_REQUEST: Final[EndpointProperties] = EndpointProperties(
+    EXTERNAL_HEAT_REQUEST = EndpointProperties(
         "param.external.heatRequest",
         value_type=str,
         human_readable=HeatCircuitExternalHeatRequest,
     )
-    OPERATING_MODE: Final[EndpointProperties] = EndpointProperties(
+    OPERATING_MODE = EndpointProperties(
         "param.operatingMode",
         value_type=int,
         read_only=False,
@@ -302,9 +302,9 @@ class HeatCircuit(Enum):
 class SectionPrefix(str, Enum):
     """Section prefixes."""
 
-    SYSTEM: Final[str] = "system"
-    HOT_WATER_TANK: Final[str] = "hot_water_tank"
-    HEAT_PUMP: Final[str] = "heat_pump"
+    SYSTEM = "system"
+    HOT_WATER_TANK = "hot_water_tank"
+    HEAT_PUMP = "heat_pump"
     HEAT_CIRCUIT = "heat_circuit"
 
 

@@ -87,8 +87,6 @@ line-length = 120
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "ANN101",  # missing-type-self
-    "ANN102",  # missing-type-cls
     "D100",    # undocumented-public-module
     "D101",    # undocumented-public-class
     "D104",    # undocumented-public-package

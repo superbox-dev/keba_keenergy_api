@@ -184,10 +184,10 @@ class BaseEndpoints:
         converted_attributes: dict[str, Any] = {}
         re_pattern: Pattern[str] = re.compile(r"(?<!^)(?=[A-Z])")
 
-        for attr_key in attributes:
-            if attr_key not in ["unitId", "longText", "formatId", "dynLowerLimit", "dynUpperLimit"]:
-                new_attr_key: str = re_pattern.sub("_", attr_key).lower()
-                converted_attributes[new_attr_key] = attributes[attr_key]
+        for key, value in attributes.items():
+            if key not in ["unitId", "longText", "formatId", "dynLowerLimit", "dynUpperLimit"]:
+                new_attr_key: str = re_pattern.sub("_", key).lower()
+                converted_attributes[new_attr_key] = value
 
         return converted_attributes
 
