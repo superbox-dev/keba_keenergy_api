@@ -29,17 +29,17 @@ jobs:
       package-name: ${{ needs.parameters.outputs.package-name }}
       python-versions: ${{ needs.parameters.outputs.python-versions }}
 
-  coverage:
-    name: Coverage
-    uses: superbox-dev/python-package-workflows/.github/workflows/coverage.yml@main
-    needs:
-      - parameters
-      - unit-testing
-    with:
-      # Workaround: coverage-badge not working with Python 3.12
-      # Maybe we need an alternative package in the future!
-      # latest-python-version: ${{ needs.parameters.outputs.latest-python-version }}
-      latest-python-version: '3.11'
+#  coverage:
+#    name: Coverage
+#    uses: superbox-dev/python-package-workflows/.github/workflows/coverage.yml@main
+#    needs:
+#      - parameters
+#      - unit-testing
+#    with:
+#      # Workaround: coverage-badge not working with Python 3.12
+#      # Maybe we need an alternative package in the future!
+#      # latest-python-version: ${{ needs.parameters.outputs.latest-python-version }}
+#      latest-python-version: '3.11'
 
   code-analyse:
     name: Code analyse
