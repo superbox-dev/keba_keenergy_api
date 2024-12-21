@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.9] - 2024-12-21
+
+### Added
+
+- Add support for Python 3.13 (required for the Home Assistant 2024.12)
+
 ## [1.12.8] - 2024-12-21
 
 ### Changed
