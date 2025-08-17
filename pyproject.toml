@@ -13,7 +13,23 @@ maintainers = [
     { name = "Michael Hacker", email = "mh@superbox.one" },
 ]
 license = {text = "Apache-2.0 license"}
-keywords = ["api", "keba", "keenergy"]
+keywords = [
+    "api",
+    "component",
+    "custom component",
+    "custom integration",
+    "keba",
+    "keenergy",
+    "hacs-component",
+    "hacs-integration",
+    "hacs-repository",
+    "hacs",
+    "hass",
+    "home assistant",
+    "home-assistant",
+    "homeassistant",
+    "integration",
+]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: Apache Software License",
@@ -37,7 +53,14 @@ dynamic = ["version"]
 "Repository" = "https://github.com/superbox-dev/keba_keenergy_api"
 "Issues" = "https://github.com/superbox-dev/keba_keenergy_api/issues"
 
-[project.optional-dependencies]
+[dependency-groups]
+dev = [
+    {include-group = "build"},
+    {include-group = "audit"},
+    {include-group = "lint"},
+    {include-group = "test"},
+]
+
 build = [
     "setuptools>=65.5.1",
     "build==1.1.1",
@@ -45,16 +68,17 @@ build = [
 audit = [
     "pip-audit",
 ]
-format = [
-    "black",
-]
+
 lint = [
+    "black",
     "mypy",
+    "pre-commit",
+    "pre-commit-hooks",
     "ruff",
     "types-PyYAML",
     "yamllint",
 ]
-tests = [
+test = [
     "aioresponses",
     "coverage",
     "coverage-badge",
@@ -72,13 +96,10 @@ write_to = "keba_keenergy_api/version.py"
 
 [tool.black]
 line-length = 120
-target-version = ["py310", "py311", "py312", "py313"]
 
 [tool.mypy]
 strict = true
 python_version = "3.10"
-ignore_missing_imports = true
-disallow_untyped_calls = false
 junit_xml = "reports/mypy.xml"
 
 [tool.ruff]
