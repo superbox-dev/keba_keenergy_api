@@ -34,8 +34,8 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-"Source code" = "https://github.com/superbox-dev/keba_keenergy_api"
-"Issue tracker" = "https://github.com/superbox-dev/keba_keenergy_api/issues"
+"Repository" = "https://github.com/superbox-dev/keba_keenergy_api"
+"Issues" = "https://github.com/superbox-dev/keba_keenergy_api/issues"
 
 [project.optional-dependencies]
 build = [
