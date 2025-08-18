@@ -6,6 +6,10 @@ permissions:
 
 on:
   workflow_dispatch:
+    inputs:
+      build-python-package:
+        description: Build python package
+        type: boolean
   pull_request:
   push:
     branches:
@@ -133,3 +137,37 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.head_ref }}
+
+  build-python-package:
+    name: Build python package
+    runs-on: ubuntu-latest
+    if: |
+      github.ref_type == 'tag'
+      || (
+        github.ref_type == 'branch'
+        && inputs.build-python-package
+      )
+      && !endsWith(github.ref_name, '/merge')
+    needs:
+      - configure
+      - tests
+      - code-analysis
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up project
+        uses: ./.github/actions/setup-project
+        with:
+          python-version: ${{ fromJson(needs.configure.outputs.environments).python-version[0] }}
+
+      - name: Build package
+        run: uv run python -m build
+
+      - name: Upload package files
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package
+          path: dist
+          if-no-files-found: error
