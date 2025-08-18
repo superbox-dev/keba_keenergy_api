@@ -14,11 +14,7 @@ jobs:
     strategy:
       fail-fast: False
       matrix:
-        python-version:
-          - '3.10'
-          - '3.11'
-          - '3.12'
-          - '3.13'
+        python-version: ${{ fromJson(needs.configure.outputs.config).python-version }}
 
     steps:
       - name: Check out repository
