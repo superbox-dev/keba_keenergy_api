@@ -23,7 +23,7 @@ jobs:
 
       - name: Set matrix data
         id: set-matrix
-        run: echo "config=$(jq -c . < ./config.json)" >> $GITHUB_OUTPUT
+        run: echo "config=$(jq -c . < ./.github/config.json)" >> $GITHUB_OUTPUT
 
   code-analysis:
     name: Code analysis using Python ${{ matrix.python-version }}
