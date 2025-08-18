@@ -9,7 +9,7 @@
       <excludeFolder url="file://$MODULE_DIR$/keba_keenergy_api.egg-info" />
       <excludeFolder url="file://$MODULE_DIR$/reports" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.11 (KEBA-KeEnergy-API)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.12 virtualenv at ~/Documents/Projects/keba_keenergy_api/.venv" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">
