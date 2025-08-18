@@ -2,8 +2,6 @@ name: Set up project
 inputs:
   python-version:
     description: Python version
-  python-version-file:
-    description: Python version
 
 runs:
   using: composite
@@ -13,7 +11,6 @@ runs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.python-version }}
-        python-version-file: ${{ inputs.python-version-file }}
 
     - name: Install uv
       uses: astral-sh/setup-uv@v6
