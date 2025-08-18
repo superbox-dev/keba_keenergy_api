@@ -2,10 +2,6 @@ name: CI
 
 on:
   workflow_dispatch:
-    inputs:
-      build-python-package:
-        description: Build python package
-        type: boolean
   pull_request:
   push:
     branches:
@@ -14,83 +10,40 @@ on:
       - v*
 
 jobs:
-  parameters:
-    name: Parameters
-    uses: superbox-dev/python-package-workflows/.github/workflows/parameters.yml@main
-    with:
-      json: ./.github/workflows/parameters.json
+  code-analysis:
+    name: Code analysis using Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
 
-  unit-testing:
-    name: Unit testing
-    uses: superbox-dev/python-package-workflows/.github/workflows/unit-testing.yml@main
-    needs:
-      - parameters
-    with:
-      package-name: ${{ needs.parameters.outputs.package-name }}
-      python-versions: ${{ needs.parameters.outputs.python-versions }}
+    strategy:
+      fail-fast: False
+      matrix:
+        python-version:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
 
-#  coverage:
-#    name: Coverage
-#    uses: superbox-dev/python-package-workflows/.github/workflows/coverage.yml@main
-#    needs:
-#      - parameters
-#      - unit-testing
-#    with:
-#      # Workaround: coverage-badge not working with Python 3.12
-#      # Maybe we need an alternative package in the future!
-#      # latest-python-version: ${{ needs.parameters.outputs.latest-python-version }}
-#      latest-python-version: '3.11'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
 
-  code-analyse:
-    name: Code analyse
-    uses: superbox-dev/python-package-workflows/.github/workflows/code-analyse.yml@main
-    needs:
-      - parameters
-    with:
-      python-versions: ${{ needs.parameters.outputs.python-versions }}
+      - name: Set up project
+        uses: ./.github/actions/setup-project
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Lint python files with black
+        run: uv run black --diff --check $(git ls-files '*.py')
+
+      - name: Lint python files with mypy
+        run: uv run mypy $(git ls-files '*.py')
+
+      - name: Lint python files with ruff
+        run: uv run ruff check $(git ls-files '*.py')
+
+      - name: Lint YAML files with yamllint
+        run: uv run yamllint $(git ls-files '*.yml' '*.yaml')
 
   security:
     name: Security
-    uses: superbox-dev/python-package-workflows/.github/workflows/security.yml@main
-    needs:
-      - parameters
-    with:
-      latest-python-version: ${{ needs.parameters.outputs.latest-python-version }}
-
-  build-python-package:
-    name: Build python package
-    if: |
-      github.ref_type == 'tag'
-      || (
-        github.ref_type == 'branch'
-        && inputs.build-python-package
-      )
-      && !endsWith(github.ref_name, '/merge')
-    uses: superbox-dev/python-package-workflows/.github/workflows/build-python-package.yml@main
-    needs:
-      - parameters
-      - unit-testing
-      - code-analyse
-    with:
-      latest-python-version: ${{ needs.parameters.outputs.latest-python-version }}
-      package-version: ${{ needs.parameters.outputs.package-version }}
-
-  release:
-    name: Release on GitHub
-    if: github.ref_type == 'tag'
-    uses: superbox-dev/python-package-workflows/.github/workflows/release.yml@main
-    needs:
-      - parameters
-      - build-python-package
-    with:
-      package-name: ${{ needs.parameters.outputs.package-name }}
-      package-version: ${{ needs.parameters.outputs.package-version }}
-
-  publish-on-pypi:
-    name: Publish
-    if: github.ref_type == 'tag'
-    needs:
-      - release
-    uses: superbox-dev/python-package-workflows/.github/workflows/publish-on-pypi.yml@main
-    secrets:
-      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+    uses: ./.github/workflows/security.yml
