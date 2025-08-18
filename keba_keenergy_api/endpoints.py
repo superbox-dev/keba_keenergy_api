@@ -56,7 +56,7 @@ class Value(TypedDict, total=False):
 
 ValueResponse: TypeAlias = dict[str, list[Value] | Value]
 Payload: TypeAlias = list[ReadPayload | WritePayload]
-Response: TypeAlias = list[dict[str, str]]
+Response: TypeAlias = list[dict[str, Any]]
 
 
 class BaseEndpoints:
@@ -164,7 +164,7 @@ class BaseEndpoints:
         return payload
 
     @staticmethod
-    def _convert_value(section: Section, response: list[dict[str, Any]], *, human_readable: bool) -> float | int | str:
+    def _convert_value(section: Section, response: Response, *, human_readable: bool) -> float | int | str:
         value: float | int | str = section.value.value_type(response[0]["value"])
         value = round(value, 2) if isinstance(value, float) else value
 
@@ -179,7 +179,7 @@ class BaseEndpoints:
         return value
 
     @staticmethod
-    def _clean_attributes(response: list[dict[str, Any]]) -> dict[str, Any]:
+    def _clean_attributes(response: Response) -> dict[str, Any]:
         attributes: dict[str, Any] = response[0].get("attributes", {})
         converted_attributes: dict[str, Any] = {}
         re_pattern: Pattern[str] = re.compile(r"(?<!^)(?=[A-Z])")
@@ -217,7 +217,7 @@ class BaseEndpoints:
             extra_attributes=extra_attributes,
         )
 
-        _response: list[dict[str, Any]] = await self._post(
+        _response: Response = await self._post(
             payload=json.dumps(payload),
             endpoint=EndpointPath.READ_WRITE_VARS,
         )
