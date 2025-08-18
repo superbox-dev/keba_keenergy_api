@@ -21,6 +21,10 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v5
 
+      - name: Show matrix data
+        id: set-matrix
+        run: echo "config=$(jq -c . < ./.github/config.json)"
+
       - name: Set matrix data
         id: set-matrix
         run: echo "config=$(jq -c . < ./.github/config.json)" >> $GITHUB_OUTPUT
