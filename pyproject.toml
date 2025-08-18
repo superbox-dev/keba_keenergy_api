@@ -1,5 +1,8 @@
 [build-system]
-requires = ["setuptools >= 65", "setuptools-scm >= 7"]
+requires = [
+    "setuptools >= 65",
+    "setuptools-scm >= 7",
+]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -12,7 +15,7 @@ authors = [
 maintainers = [
     { name = "Michael Hacker", email = "mh@superbox.one" },
 ]
-license = {text = "Apache-2.0 license"}
+license = { text = "Apache-2.0 license" }
 keywords = [
     "api",
     "component",
@@ -55,37 +58,33 @@ dynamic = ["version"]
 
 [dependency-groups]
 dev = [
-    {include-group = "build"},
-    {include-group = "audit"},
-    {include-group = "lint"},
-    {include-group = "test"},
+    { include-group = "build" },
+    { include-group = "audit" },
+    { include-group = "lint" },
+    { include-group = "test" },
 ]
-
 build = [
     "setuptools>=65.5.1",
     "build==1.1.1",
 ]
 audit = [
-    "pip-audit",
+    "pip-audit>=2.9.0",
 ]
-
 lint = [
-    "black",
-    "mypy",
-    "pre-commit",
-    "pre-commit-hooks",
-    "ruff",
-    "types-PyYAML",
-    "yamllint",
+    "black>=25.1.0",
+    "mypy>=1.17.1",
+    "ruff>=0.12.9",
+    "types-PyYAML>=6.0.12.20250809",
+    "yamllint>=1.37.1",
 ]
+# TODO: https://smarie.github.io/python-genbadge/
 test = [
-    "aioresponses",
-    "coverage",
-    "coverage-badge",
-    "pytest",
-    "pytest-asyncio",
-    "pytest-cov",
-    "pytest-xdist[psutil]",
+    "aioresponses>=0.7.8",
+    "coverage>=7.10.4",
+    "pytest>=8.4.1",
+    "pytest-asyncio>=1.1.0",
+    "pytest-cov>=6.2.1",
+    "pytest-xdist[psutil]>=3.8.0",
 ]
 
 [tool.setuptools]
