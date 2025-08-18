@@ -105,6 +105,7 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           name: coverage-xml-${{ fromJson(needs.configure.outputs.environments).python-version[0] }}
+          path: reports
 
       - name: Create coverage badge
         run: uv run genbadge coverage --input-file reports/coverage.xml
