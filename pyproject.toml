@@ -98,11 +98,10 @@ line-length = 120
 
 [tool.mypy]
 strict = true
-python_version = "3.10"
 junit_xml = "reports/mypy.xml"
+untyped_calls_exclude = "aioresponses"
 
 [tool.ruff]
-target-version = "py310"
 line-length = 120
 
 [tool.ruff.lint]
