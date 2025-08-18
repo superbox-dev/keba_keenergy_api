@@ -77,6 +77,13 @@ jobs:
       - name: Run tests
         run: uv run pytest -n auto
 
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: reports/coverage.xml
+          if-no-files-found: error
+
   coverage:
     name: Generate coverage badge
     runs-on: ubuntu-latest
@@ -90,3 +97,32 @@ jobs:
         uses: ./.github/actions/setup-project
         with:
           python-version-file: pyproject.toml
+
+      - name: Download coverage
+        uses: actions/download-artifact@v5
+        with:
+          name: coverage-xml
+
+      - name: Create coverage badge
+        run:  uv run genbadge coverage --input-file reports/coverage.xml
+
+      - name: Verify coverage badge changed
+        uses: tj-actions/verify-changed-files@v20
+        id: changed-files
+        with:
+          files: coverage-badge.svg
+
+      - name: Commit coverage badge
+        if: steps.changed-files.outputs.files_changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add coverage-badge.svg
+          git commit -m "Updated coverage-badge.svg"
+
+      - name: Push changes
+        if: steps.changed-files.outputs.files_changed == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.head_ref }}

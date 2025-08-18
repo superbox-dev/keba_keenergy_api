@@ -1,7 +1,7 @@
 [build-system]
 requires = [
-    "setuptools >= 65",
-    "setuptools-scm >= 7",
+    "setuptools~=80.9.0",
+    "setuptools-scm>=7",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -64,7 +64,7 @@ dev = [
     { include-group = "test" },
 ]
 build = [
-    "setuptools>=65.5.1",
+    "setuptools~=80.9.0",
     "build==1.1.1",
 ]
 audit = [
@@ -77,10 +77,10 @@ lint = [
     "types-PyYAML>=6.0.12.20250809",
     "yamllint>=1.37.1",
 ]
-# TODO: https://smarie.github.io/python-genbadge/
 test = [
     "aioresponses>=0.7.8",
     "coverage>=7.10.4",
+    "genbadge[coverage]>=1.1.2",
     "pytest>=8.4.1",
     "pytest-asyncio>=1.1.0",
     "pytest-cov>=6.2.1",
@@ -125,7 +125,7 @@ log_cli = true
 log_cli_level = "DEBUG"
 log_cli_format = "%(levelname)-8s | %(asctime)s: %(message)s"
 # https://docs.pytest.org/en/latest/reference/reference.html#ini-options-ref
-addopts = "--cov=keba_keenergy_api --cov-report=term-missing --color=yes --exitfirst --failed-first --strict-config --strict-markers --junitxml=reports/pytest.xml"
+addopts = "--cov=keba_keenergy_api --cov-report=term-missing --cov-report=xml:reports/coverage.xml --color=yes --exitfirst --failed-first --strict-config --strict-markers --junitxml=reports/pytest.xml"
 
 [tool.coverage.run] # https://coverage.readthedocs.io/en/latest/config.html#run
 branch = false
