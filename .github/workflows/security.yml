@@ -2,6 +2,10 @@ name: Security
 
 on:
   workflow_call:
+    inputs:
+      environments:
+        required: True
+        type: string
   schedule:
     - cron: 30 5 * * *
 
@@ -14,7 +18,7 @@ jobs:
     strategy:
       fail-fast: False
       matrix:
-        python-version: ${{ fromJson(needs.configure.outputs.config).python-version }}
+        python-version: ${{ fromJson(inputs.environments).python-version }}
 
     steps:
       - name: Check out repository

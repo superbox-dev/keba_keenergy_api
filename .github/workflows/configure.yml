@@ -1,0 +1,23 @@
+name: Configure
+
+on:
+  workflow_call:
+    outputs:
+      environments:
+        value: ${{ jobs.configure.outputs.environments }}
+
+jobs:
+  configure:
+    name: Configure
+    runs-on: ubuntu-latest
+
+    outputs:
+      environments: ${{ steps.set-environments.outputs.environments }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set environments
+        id: set-environments
+        run: echo "environments=$(jq -c . < ./.github/environments.json)" >> $GITHUB_OUTPUT
