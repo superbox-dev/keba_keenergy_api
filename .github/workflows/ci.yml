@@ -150,8 +150,9 @@ jobs:
       && !endsWith(github.ref_name, '/merge')
     needs:
       - configure
-      - tests
       - code-analysis
+      - security
+      - tests
 
     steps:
       - name: Check out repository
@@ -171,3 +172,36 @@ jobs:
           name: python-package
           path: dist
           if-no-files-found: error
+
+  release:
+    name: Release on GitHub
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag'
+    needs:
+      - configure
+      - build-python-package
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up project
+        uses: ./.github/actions/setup-project
+        with:
+          python-version: ${{ fromJson(needs.configure.outputs.environments).python-version[0] }}
+
+      - name: Download files
+        uses: actions/download-artifact@v5
+        with:
+          name: python-package
+          path: dist
+
+      - name: Release on GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.tar.gz
+            dist/*.whl
