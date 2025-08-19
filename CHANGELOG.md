@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.9] - 2025-08-19
+
+### Added
+
+- Add [py.typed](keba_keenergy_api/py.typed) to support static type checking e.g. with mypy
+
 ## [1.12.9] - 2024-12-21
 
 ### Added
