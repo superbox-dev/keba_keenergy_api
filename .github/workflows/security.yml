@@ -10,8 +10,6 @@ on:
       environments:
         required: True
         type: string
-  schedule:
-    - cron: 30 5 * * *
 
 jobs:
   security:
