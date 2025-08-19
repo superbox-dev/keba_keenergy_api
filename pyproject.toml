@@ -74,6 +74,7 @@ lint = [
     "black>=25.1.0",
     "mypy>=1.17.1",
     "ruff>=0.12.9",
+    "rumdl>=0.0.120",
     "types-PyYAML>=6.0.12.20250809",
     "yamllint>=1.37.1",
 ]
@@ -119,6 +120,16 @@ ignore = [
     "PLR0913", # too-many-arguments
     "S101",    # assert-used
 ]
+
+[tool.rumdl]
+line-length = 120
+disable = [
+    "MD052",   # Fix broken reference links and images
+]
+respect-gitignore = true
+
+[tool.rumdl.MD024]
+siblings_only = true
 
 [tool.pytest.ini_options]
 log_cli = true

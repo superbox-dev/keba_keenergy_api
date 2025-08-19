@@ -18,20 +18,16 @@ jobs:
     name: Audit packages using Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     continue-on-error: True
-
     strategy:
       fail-fast: False
       matrix:
         python-version: ${{ fromJson(inputs.environments).python-version }}
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
-
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
           python-version: ${{ matrix.python-version }}
-
       - name: Audit python packages
         run: uv run pip-audit

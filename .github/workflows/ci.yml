@@ -26,7 +26,6 @@ jobs:
     name: Code analysis using Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     needs: configure
-
     strategy:
       fail-fast: False
       matrix:
@@ -34,23 +33,20 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
-
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
           python-version: ${{ matrix.python-version }}
-
       - name: Lint python files with black
         run: uv run black --diff --check $(git ls-files '*.py')
-
       - name: Lint python files with mypy
         run: uv run mypy $(git ls-files '*.py')
-
       - name: Lint python files with ruff
         run: uv run ruff check $(git ls-files '*.py')
-
-      - name: Lint YAML files with yamllint
+      - name: Lint YAML files
         run: uv run yamllint $(git ls-files '*.yml' '*.yaml')
+      - name: Lint Markdown files
+        run: uv run rumdl check $(git ls-files '*.md')
 
   security:
     name: Security
@@ -63,24 +59,19 @@ jobs:
     name: Tests using Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     needs: configure
-
     strategy:
       fail-fast: False
       matrix:
         python-version: ${{ fromJson(needs.configure.outputs.environments).python-version }}
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
-
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
           python-version: ${{ matrix.python-version }}
-
       - name: Run tests
         run: uv run pytest -n auto
-
       - name: Upload coverage
         uses: actions/upload-artifact@v4
         with:
@@ -95,34 +86,27 @@ jobs:
     needs:
       - configure
       - tests
-
     permissions:
       contents: write
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
-
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
           python-version: ${{ fromJson(needs.configure.outputs.environments).python-version[0] }}
-
       - name: Download coverage
         uses: actions/download-artifact@v5
         with:
           name: coverage-xml-${{ fromJson(needs.configure.outputs.environments).python-version[0] }}
           path: reports
-
       - name: Create coverage badge
         run: uv run genbadge coverage --input-file reports/coverage.xml
-
       - name: Verify coverage badge changed
         uses: tj-actions/verify-changed-files@v20
         id: changed-files
         with:
           files: coverage-badge.svg
-
       - name: Commit coverage badge
         if: steps.changed-files.outputs.files_changed == 'true'
         run: |
@@ -130,7 +114,6 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add coverage-badge.svg
           git commit -m "Updated coverage-badge.svg"
-
       - name: Push changes
         if: steps.changed-files.outputs.files_changed == 'true'
         uses: ad-m/github-push-action@master
@@ -153,19 +136,15 @@ jobs:
       - code-analysis
       - security
       - tests
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
-
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
           python-version: ${{ fromJson(needs.configure.outputs.environments).python-version[0] }}
-
       - name: Build package
         run: uv run python -m build
-
       - name: Upload package files
         uses: actions/upload-artifact@v4
         with:
@@ -180,28 +159,41 @@ jobs:
     needs:
       - configure
       - build-python-package
-
     permissions:
       contents: write
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
-
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
           python-version: ${{ fromJson(needs.configure.outputs.environments).python-version[0] }}
-
       - name: Download files
         uses: actions/download-artifact@v5
         with:
           name: python-package
           path: dist
-
       - name: Release on GitHub
         uses: softprops/action-gh-release@v2
         with:
           files: |
             dist/*.tar.gz
             dist/*.whl
+
+  publish-on-pypi:
+    name: Publish
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag'
+    needs:
+      - release
+    steps:
+      - name: Download files
+        uses: actions/download-artifact@v5
+        with:
+          name: python-package
+          path: dist
+      - name: Publish on PyPi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages-dir: dist
