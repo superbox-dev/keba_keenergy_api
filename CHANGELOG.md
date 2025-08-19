@@ -97,7 +97,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.10.1] - 2023-10-24
 
-### Changed 
+### Changed
 
 - Refactor `SystemPrefix` enum variables.
 
@@ -129,8 +129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add `read_values_grouped_by_section()` endpoint.
-- Add `attributes` to `read_values()` response. 
-
+- Add `attributes` to `read_values()` response.
 
 ## [1.7.0] - 2023-10-19
 
@@ -157,7 +156,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `heat_pump.get_name()` to read the **heat pump** name.
 - Add `heat_circuit.get_name()` to read the **heat circuit** name.
-- Add `human_readable` attribute to `read_values()` to get a human-readable name and not a number as response e.g. for `hot_water_tank.get_operating_mode()`
+- Add `human_readable` attribute to `read_values()` to get a human-readable name and not a number as response e.g.
+  for `hot_water_tank.get_operating_mode()`
 
 ## [1.5.0] - 2023-10-13
 
@@ -196,7 +196,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `get_number_of_hot_water_tanks()` to read number of hot water tanks.
 - Add `get_number_of_heat_pumps()` to read number of heat pumps.
 - Add `get_number_of_heating_circuits()` to read number of heating circuits.
-- Add automatic set of position numbers for `read_values()` dependent on hardware. 
+- Add automatic set of position numbers for `read_values()` dependent on hardware.
 
 ## [1.2.0] - 2023-10-09
 

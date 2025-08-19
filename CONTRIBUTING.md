@@ -8,19 +8,7 @@ Clone the `KEBA-KeEnergy-API` repository.
 Inside the repository, create a virtual environment:
 
 ```bash
-python3 -m venv .venv
-```
-
-Activate the virtual environment:
-
-```bash
-source .venv/bin/activate
-```
-
-Install the development dependencies:
-
-```bash
-pip install -e ".[lint,format,audit,tests]"
+uv sync --locked --all-extras --dev
 ```
 
 ## Testing
@@ -28,13 +16,7 @@ pip install -e ".[lint,format,audit,tests]"
 To test the code we use [pytest](https://docs.pytest.org):
 
 ```bash
-pytest -n auto
-```
-
-To get the full test coverage report of `KEBA-KeEnergy-API`, run the following command:
-
-```bash
-pytest --cov-report term-missing --cov=keba_keenergy_api
+uv run pytest -n auto
 ```
 
 ## Making a pull request

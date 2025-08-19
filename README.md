@@ -1,3 +1,7 @@
+# KEBA KeEnergy API
+
+A Python wrapper for the KEBA KeEnergy API.
+
 ![coverage-badge](https://raw.githubusercontent.com/superbox-dev/KEBA-KeEnergy-API/main/coverage-badge.svg)
 [![CI](https://github.com/superbox-dev/KEBA-KeEnergy-API/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/superbox-dev/keba_keenergy_api/actions/workflows/ci.yml)
 [![Version](https://img.shields.io/pypi/pyversions/keba-keenergy-api.svg)](https://pypi.python.org/pypi/keba-keenergy-api)
@@ -6,10 +10,6 @@
 ![Typing: strict](https://img.shields.io/badge/typing-strict-green.svg)
 ![Code style: black](https://img.shields.io/badge/code%20style-black-black)
 ![Code style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json)
-
-# KEBA KeEnergy API
-
-A Python wrapper for the KEBA KeEnergy API.
 
 ## Getting started
 
@@ -59,8 +59,8 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
-By default, the library creates a new connection to `KEBA KeEnergy API` with each coroutine. If you are calling a large number of coroutines, an `aiohttp ClientSession()` can be used for connection pooling:
-
+By default, the library creates a new connection to `KEBA KeEnergy API` with each coroutine. If you are calling a large
+number of coroutines, an `aiohttp ClientSession()` can be used for connection pooling:
 
 ```python
 import asyncio
@@ -76,7 +76,6 @@ async def main() -> None:
 
 asyncio.run(main())
 ```
-
 
 ### API endpoints
 
@@ -94,7 +93,6 @@ asyncio.run(main())
 | `.get_outdoor_temperature()`                       | `float`        | Get outdoor temperature.                                                                                           |
 | `.get_operating_mode(position, human_readable)`    | `int` or `str` | Get operating mode as integer (0 is `STANDBY`, 1 is `SUMMER`, 2 is `AUTO_HEAT`, 3 is `AUTO_COOL` and 4 is `AUTO`). |
 | `.set_operating_mode(0, position, human_readable)` | `int` or `str` | Set operating mode.                                                                                                |
-
 
 #### Hot water tank
 
