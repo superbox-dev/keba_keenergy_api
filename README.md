@@ -2,7 +2,7 @@
 
 A Python wrapper for the KEBA KeEnergy API.
 
-![coverage-badge](https://raw.githubusercontent.com/superbox-dev/KEBA-KeEnergy-API/main/coverage-badge.svg)
+![coverage-badge](https://raw.githubusercontent.com/superbox-dev/keba_keenergy_api/main/coverage-badge.svg)
 [![CI](https://github.com/superbox-dev/KEBA-KeEnergy-API/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/superbox-dev/keba_keenergy_api/actions/workflows/ci.yml)
 [![Version](https://img.shields.io/pypi/pyversions/keba-keenergy-api.svg)](https://pypi.python.org/pypi/keba-keenergy-api)
 
