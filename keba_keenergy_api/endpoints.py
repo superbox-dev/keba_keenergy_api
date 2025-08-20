@@ -252,7 +252,7 @@ class BaseEndpoints:
         for endpoint_properties, values in request.items():
             if not endpoint_properties.value.read_only:
                 if isinstance(values, list | tuple):
-                     for idx, value in enumerate(values):
+                    for idx, value in enumerate(values):
                         if value is not None:
                             payload += [
                                 WritePayload(
