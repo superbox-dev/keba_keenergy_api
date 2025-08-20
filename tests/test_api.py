@@ -450,7 +450,7 @@ class TestKebaKeEnergyAPI:
             ),
         ],
     )
-    async def test_write_data(self, section: dict[Section, list[Any]], expected_data: str) -> None:
+    async def test_write_data(self, section: dict[Section, Any], expected_data: str) -> None:
         """Test write multiple data."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(

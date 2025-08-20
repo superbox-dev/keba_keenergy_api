@@ -1,5 +1,4 @@
 """Client to interact with KEBA KeEnergy API."""
-
 from typing import Any
 
 from aiohttp import ClientSession
@@ -98,6 +97,6 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         return data
 
-    async def write_data(self, request: dict[Section, list[Any]]) -> None:
+    async def write_data(self, request: dict[Section, Any]) -> None:
         """Write multiple data to API with one request."""
         await self._write_values(request=request)

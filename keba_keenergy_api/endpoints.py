@@ -246,13 +246,13 @@ class BaseEndpoints:
 
         return response
 
-    def _generate_write_payload(self, request: dict[Section, list[Any]]) -> Payload:
+    def _generate_write_payload(self, request: dict[Section, Any]) -> Payload:
         payload: Payload = []
 
         for endpoint_properties, values in request.items():
             if not endpoint_properties.value.read_only:
                 if isinstance(values, list | tuple):
-                    for idx, value in enumerate(values):
+                     for idx, value in enumerate(values):
                         if value is not None:
                             payload += [
                                 WritePayload(
@@ -273,7 +273,7 @@ class BaseEndpoints:
 
         return payload
 
-    async def _write_values(self, request: dict[Section, list[Any] | Any]) -> None:
+    async def _write_values(self, request: dict[Section, Any]) -> None:
         payload: Payload = self._generate_write_payload(request)
 
         await self._post(
