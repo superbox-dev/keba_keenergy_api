@@ -1453,7 +1453,7 @@ class TestHeatCircuitSection:
             data: float = await client.heat_circuit.get_dew_point()
 
             assert isinstance(data, float)
-            assert data == 13.10 # noqa: PLR2004
+            assert data == 13.10  # noqa: PLR2004
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
