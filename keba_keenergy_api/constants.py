@@ -244,6 +244,18 @@ class HeatCircuit(Enum):
         "param.name",
         value_type=str,
     )
+    ROOM_TEMPERATURE = EndpointProperties(
+        "tempRoom.values.actValue",
+        value_type=float,
+    )
+    ROOM_HUMIDITY = EndpointProperties(
+        "humidityRoom.values.actValue",
+        value_type=float,
+    )
+    DEW_POINT = EndpointProperties(
+        "dewPoint.values.actValue",
+        value_type=float,
+    )
     TEMPERATURE = EndpointProperties(
         "values.setValue",
         value_type=float,

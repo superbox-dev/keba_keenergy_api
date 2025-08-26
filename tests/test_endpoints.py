@@ -1358,6 +1358,111 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
+    async def test_get_room_temperature(self) -> None:
+        """Test get room temperature."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].tempRoom.values.actValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Room temp. act.",
+                            "unitId": "Temp",
+                            "upperLimit": "80",
+                            "lowerLimit": "0",
+                        },
+                        "value": "22.426912",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_circuit.get_room_temperature()
+
+            assert isinstance(data, float)
+            assert data == 22.43  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].tempRoom.values.actValue", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_room_humidity(self) -> None:
+        """Test get room humidity."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].humidityRoom.values.actValue",
+                        "attributes": {
+                            "formatId": "fmt3p0",
+                            "longText": "Room humidity act.",
+                            "unitId": "Pct",
+                            "upperLimit": "100",
+                            "lowerLimit": "0",
+                        },
+                        "value": "53",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_circuit.get_room_humidity()
+
+            assert isinstance(data, float)
+            assert data == 53  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].humidityRoom.values.actValue", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_dew_point(self) -> None:
+        """Test get dew point."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].dewPoint.values.actValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Dew Point",
+                            "unitId": "Temp",
+                            "upperLimit": "50.0",
+                            "lowerLimit": "-20.0",
+                        },
+                        "value": "13.100544",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_circuit.get_dew_point()
+
+            assert isinstance(data, float)
+            assert data == 13.10 # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].dewPoint.values.actValue", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     async def test_get_temperature(self) -> None:
         """Test get temperature for heat circuit."""
         with aioresponses() as mock_keenergy_api:

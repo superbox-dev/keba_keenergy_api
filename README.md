@@ -132,6 +132,9 @@ asyncio.run(main())
 
 | Endpoint                                        | Request/Response | Description                                         |
 |-------------------------------------------------|----------------|-----------------------------------------------------|
+| `.get_room_temperature(position)`               | `float`        | Get room temperature.                               |
+| `.get_room_humidity(position)`                  | `float`        | Get humidity temperature.                           |
+| `.get_dew_point(position)`                      | `float`        | Get dew point.                                      |
 | `.get_temperature(position)`                    | `float`        | Get temperature.                                    |
 | `.get_day_temperature(position)`                | `float`        | Get day temperature.                                |
 | `.set_day_temperature(20, position)`            | `float`        | Set day temperature.                                |

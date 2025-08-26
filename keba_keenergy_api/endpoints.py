@@ -717,6 +717,39 @@ class HeatCircuitEndpoints(BaseEndpoints):
         _key: str = self._get_real_key(HeatCircuit.NAME)
         return str(response[_key][_idx]["value"])
 
+    async def get_room_temperature(self, position: int | None = 1) -> float:
+        """Get room temperature."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatCircuit.ROOM_TEMPERATURE,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatCircuit.ROOM_TEMPERATURE)
+        return float(response[_key][_idx]["value"])
+
+    async def get_room_humidity(self, position: int | None = 1) -> float:
+        """Get room humidity."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatCircuit.ROOM_HUMIDITY,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatCircuit.ROOM_HUMIDITY)
+        return float(response[_key][_idx]["value"])
+
+    async def get_dew_point(self, position: int | None = 1) -> float:
+        """Get dew point."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatCircuit.DEW_POINT,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatCircuit.DEW_POINT)
+        return float(response[_key][_idx]["value"])
+
     async def get_temperature(self, position: int | None = 1) -> float:
         """Get temperature."""
         response: dict[str, list[Value]] = await self._read_data(

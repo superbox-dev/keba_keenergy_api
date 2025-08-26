@@ -473,8 +473,8 @@ class TestKebaKeEnergyAPI:
         """Test invalid json error."""
         loop = asyncio.get_event_loop()
 
-        with aioresponses() as mocked:
-            mocked.post(
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
                 body="bad-json",
                 headers={"Content-Type": "application/json;charset=utf-8"},
@@ -490,8 +490,8 @@ class TestKebaKeEnergyAPI:
         """Test api error."""
         loop = asyncio.get_event_loop()
 
-        with aioresponses() as mocked:
-            mocked.post(
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
                 payload={"developerMessage": "mocked-error"},
                 headers={"Content-Type": "application/json;charset=utf-8"},
