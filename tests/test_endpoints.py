@@ -1409,7 +1409,7 @@ class TestHeatCircuitSection:
                             "lowerLimit": "0",
                         },
                         "value": "53",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -1444,7 +1444,7 @@ class TestHeatCircuitSection:
                             "lowerLimit": "-20.0",
                         },
                         "value": "13.100544",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
