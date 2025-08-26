@@ -15,7 +15,9 @@ authors = [
 maintainers = [
     { name = "Michael Hacker", email = "mh@superbox.one" },
 ]
-license = { text = "Apache-2.0 license" }
+license-files = [
+    "LICENSE"
+]
 keywords = [
     "api",
     "component",
@@ -35,7 +37,6 @@ keywords = [
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
-    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -58,17 +59,17 @@ dynamic = ["version"]
 
 [dependency-groups]
 dev = [
-    { include-group = "build" },
     { include-group = "audit" },
+    { include-group = "build" },
     { include-group = "lint" },
     { include-group = "test" },
+]
+audit = [
+    "pip-audit>=2.9.0",
 ]
 build = [
     "setuptools~=80.9.0",
     "build==1.1.1",
-]
-audit = [
-    "pip-audit>=2.9.0",
 ]
 lint = [
     "black>=25.1.0",
