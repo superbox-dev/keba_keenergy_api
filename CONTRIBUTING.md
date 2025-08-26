@@ -22,7 +22,7 @@ Pull requests are the best way to propose changes to the codebase.
 ### Create a virtual environment
 
 ```bash
-uv sync --locked --all-extras --dev
+uv sync --all-extras --dev
 ```
 
 ### Lint your code

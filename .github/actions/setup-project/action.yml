@@ -13,5 +13,5 @@ runs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
     - name: Install the project
-      run: uv sync --locked --all-extras --dev
+      run: uv sync --all-extras --dev
       shell: bash
