@@ -56,6 +56,20 @@ class HeatPumpOperatingMode(IntEnum):
     BACKUP = 2
 
 
+class HeatCircuitHasRoomTemperature(str, Enum):
+    """Available has room temperature stats."""
+
+    OFF = "false"
+    ON = "true"
+
+
+class HeatCircuitHasRoomHumidity(str, Enum):
+    """Available has room humidity stats."""
+
+    OFF = "false"
+    ON = "true"
+
+
 class HeatCircuitOperatingMode(IntEnum):
     """Available heat circuit operating modes."""
 
@@ -105,10 +119,7 @@ class HeatCircuitExternalHeatRequest(str, Enum):
     ON = "true"
 
 
-SYSTEM_PREFIX: Final[str] = "APPL.CtrlAppl.sParam"
-HOT_WATER_TANK_PREFIX: Final[str] = f"{SYSTEM_PREFIX}.hotWaterTank"
-HEAT_PUMP_PREFIX: Final[str] = f"{SYSTEM_PREFIX}.heatpump"
-HEAT_CIRCUIT_PREFIX: Final[str] = f"{SYSTEM_PREFIX}.heatCircuit"
+PAYLOAD_PREFIX: Final[str] = "APPL.CtrlAppl.sParam"
 
 
 class EndpointProperties(NamedTuple):
@@ -124,25 +135,25 @@ class System(Enum):
     """The system endpoint settings."""
 
     HOT_WATER_TANK_NUMBERS = EndpointProperties(
-        "options.systemNumberOfHotWaterTanks",
+        f"{PAYLOAD_PREFIX}.options.systemNumberOfHotWaterTanks",
         value_type=int,
     )
     HEAT_PUMP_NUMBERS = EndpointProperties(
-        "options.systemNumberOfHeatPumps",
+        f"{PAYLOAD_PREFIX}.options.systemNumberOfHeatPumps",
         value_type=int,
     )
     HEAT_CIRCUIT_NUMBERS = EndpointProperties(
-        "options.systemNumberOfHeatingCircuits",
+        f"{PAYLOAD_PREFIX}.options.systemNumberOfHeatingCircuits",
         value_type=int,
     )
     OPERATING_MODE = EndpointProperties(
-        "param.operatingMode",
+        f"{PAYLOAD_PREFIX}.param.operatingMode",
         value_type=int,
         read_only=False,
         human_readable=SystemOperatingMode,
     )
     OUTDOOR_TEMPERATURE = EndpointProperties(
-        "outdoorTemp.values.actValue",
+        f"{PAYLOAD_PREFIX}.outdoorTemp.values.actValue",
         value_type=float,
     )
 
@@ -150,25 +161,28 @@ class System(Enum):
 class HotWaterTank(Enum):
     """The hot water tank endpoint settings."""
 
-    TEMPERATURE = EndpointProperties("topTemp.values.actValue", float)
+    TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.hotWaterTank[%s].topTemp.values.actValue",
+        value_type=float,
+    )
     OPERATING_MODE = EndpointProperties(
-        "param.operatingMode",
+        f"{PAYLOAD_PREFIX}.hotWaterTank[%s].param.operatingMode",
         value_type=int,
         read_only=False,
         human_readable=HotWaterTankOperatingMode,
     )
     MIN_TEMPERATURE = EndpointProperties(
-        "param.reducedSetTempMax.value",
+        f"{PAYLOAD_PREFIX}.hotWaterTank[%s].param.reducedSetTempMax.value",
         float,
         read_only=False,
     )
     MAX_TEMPERATURE = EndpointProperties(
-        "param.normalSetTempMax.value",
+        f"{PAYLOAD_PREFIX}.hotWaterTank[%s].param.normalSetTempMax.value",
         float,
         read_only=False,
     )
     HEAT_REQUEST = EndpointProperties(
-        "values.heatRequestTop",
+        f"{PAYLOAD_PREFIX}.hotWaterTank[%s].values.heatRequestTop",
         value_type=str,
         human_readable=HotWaterTankHeatRequest,
     )
@@ -177,61 +191,64 @@ class HotWaterTank(Enum):
 class HeatPump(Enum):
     """The heat pump endpoint settings."""
 
-    NAME = EndpointProperties("param.name", value_type=str)
+    NAME = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.heatpump[%s].param.name",
+        value_type=str,
+    )
     STATE = EndpointProperties(
-        "values.heatpumpState",
+        f"{PAYLOAD_PREFIX}.heatpump[%s].values.heatpumpState",
         value_type=int,
         read_only=False,
         human_readable=HeatPumpState,
     )
     OPERATING_MODE = EndpointProperties(
-        "param.operatingMode",
+        f"{PAYLOAD_PREFIX}.heatpump[%s].param.operatingMode",
         value_type=int,
         read_only=False,
         human_readable=HeatPumpOperatingMode,
     )
     CIRCULATION_PUMP = EndpointProperties(
-        "CircPump.values.setValueScaled",
+        f"{PAYLOAD_PREFIX}.heatpump[%s].CircPump.values.setValueScaled",
         value_type=float,
     )
     INFLOW_TEMPERATURE = EndpointProperties(
-        "TempHeatFlow.values.actValue",
+        f"{PAYLOAD_PREFIX}.heatpump[%s].TempHeatFlow.values.actValue",
         value_type=float,
     )
     REFLUX_TEMPERATURE = EndpointProperties(
-        "TempHeatReflux.values.actValue",
+        f"{PAYLOAD_PREFIX}.heatpump[%s].TempHeatReflux.values.actValue",
         value_type=float,
     )
     SOURCE_INPUT_TEMPERATURE = EndpointProperties(
-        "TempSourceIn.values.actValue",
+        f"{PAYLOAD_PREFIX}.heatpump[%s].TempSourceIn.values.actValue",
         value_type=float,
     )
     SOURCE_OUTPUT_TEMPERATURE = EndpointProperties(
-        "TempSourceOut.values.actValue",
+        f"{PAYLOAD_PREFIX}.heatpump[%s].TempSourceOut.values.actValue",
         value_type=float,
     )
     COMPRESSOR_INPUT_TEMPERATURE = EndpointProperties(
-        "TempCompressorIn.values.actValue",
+        f"{PAYLOAD_PREFIX}.heatpump[%s].TempCompressorIn.values.actValue",
         value_type=float,
     )
     COMPRESSOR_OUTPUT_TEMPERATURE = EndpointProperties(
-        "TempCompressorOut.values.actValue",
+        f"{PAYLOAD_PREFIX}.heatpump[%s].TempCompressorOut.values.actValue",
         value_type=float,
     )
     COMPRESSOR = EndpointProperties(
-        "Compressor.values.setValueScaled",
+        f"{PAYLOAD_PREFIX}.heatpump[%s].Compressor.values.setValueScaled",
         value_type=float,
     )
     HIGH_PRESSURE = EndpointProperties(
-        "HighPressure.values.actValue",
+        f"{PAYLOAD_PREFIX}.heatpump[%s].HighPressure.values.actValue",
         value_type=float,
     )
     LOW_PRESSURE = EndpointProperties(
-        "LowPressure.values.actValue",
+        f"{PAYLOAD_PREFIX}.heatpump[%s].LowPressure.values.actValue",
         value_type=float,
     )
     HEAT_REQUEST = EndpointProperties(
-        "values.request",
+        f"{PAYLOAD_PREFIX}.heatpump[%s].values.request",
         value_type=str,
         human_readable=HeatPumpHeatRequest,
     )
@@ -241,70 +258,80 @@ class HeatCircuit(Enum):
     """The heat circuit endpoint settings."""
 
     NAME = EndpointProperties(
-        "param.name",
+        f"{PAYLOAD_PREFIX}.heatCircuit[%s].param.name",
         value_type=str,
     )
+    HAS_ROOM_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.options.heatCircuit[%s].hasRoomTemp",
+        value_type=str,
+        human_readable=HeatCircuitHasRoomTemperature,
+    )
     ROOM_TEMPERATURE = EndpointProperties(
-        "tempRoom.values.actValue",
+        f"{PAYLOAD_PREFIX}.heatCircuit[%s].tempRoom.values.actValue",
         value_type=float,
     )
+    HAS_ROOM_HUMIDITY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.options.heatCircuit[%s].hasRoomHumidity",
+        value_type=str,
+        human_readable=HeatCircuitHasRoomHumidity,
+    )
     ROOM_HUMIDITY = EndpointProperties(
-        "humidityRoom.values.actValue",
+        f"{PAYLOAD_PREFIX}.heatCircuit[%s].humidityRoom.values.actValue",
         value_type=float,
     )
     DEW_POINT = EndpointProperties(
-        "dewPoint.values.actValue",
+        f"{PAYLOAD_PREFIX}.heatCircuit[%s].dewPoint.values.actValue",
         value_type=float,
     )
     TEMPERATURE = EndpointProperties(
-        "values.setValue",
+        f"{PAYLOAD_PREFIX}.heatCircuit[%s].values.setValue",
         value_type=float,
     )
     DAY_TEMPERATURE = EndpointProperties(
-        "param.normalSetTemp",
+        f"{PAYLOAD_PREFIX}.heatCircuit[%s].param.normalSetTemp",
         value_type=float,
         read_only=False,
     )
     DAY_TEMPERATURE_THRESHOLD = EndpointProperties(
-        "param.thresholdDayTemp.value",
+        f"{PAYLOAD_PREFIX}.heatCircuit[%s].param.thresholdDayTemp.value",
         value_type=float,
     )
     NIGHT_TEMPERATURE = EndpointProperties(
-        "param.reducedSetTemp",
+        f"{PAYLOAD_PREFIX}.heatCircuit[%s].param.reducedSetTemp",
         value_type=float,
         read_only=False,
     )
     NIGHT_TEMPERATURE_THRESHOLD = EndpointProperties(
-        "param.thresholdNightTemp.value",
+        f"{PAYLOAD_PREFIX}.heatCircuit[%s].param.thresholdNightTemp.value",
         value_type=float,
     )
     HOLIDAY_TEMPERATURE = EndpointProperties(
-        "param.holidaySetTemp",
+        f"{PAYLOAD_PREFIX}.heatCircuit[%s].param.holidaySetTemp",
         value_type=float,
         read_only=False,
     )
     TEMPERATURE_OFFSET = EndpointProperties(
-        "param.offsetRoomTemp",
+        f"{PAYLOAD_PREFIX}.heatCircuit[%s].param.offsetRoomTemp",
         value_type=float,
         read_only=False,
     )
     HEAT_REQUEST = EndpointProperties(
-        "values.heatRequest",
+        f"{PAYLOAD_PREFIX}.heatCircuit[%s].values.heatRequest",
         value_type=str,
         human_readable=HeatCircuitHeatRequest,
     )
     EXTERNAL_COOL_REQUEST = EndpointProperties(
-        "param.external.coolRequest",
+        f"{PAYLOAD_PREFIX}.heatCircuit[%s].param.external.coolRequest",
         value_type=str,
         human_readable=HeatCircuitExternalCoolRequest,
     )
     EXTERNAL_HEAT_REQUEST = EndpointProperties(
-        "param.external.heatRequest",
+        f"{PAYLOAD_PREFIX}.heatCircuit[%s].param.external.heatRequest",
         value_type=str,
         human_readable=HeatCircuitExternalHeatRequest,
     )
     OPERATING_MODE = EndpointProperties(
-        "param.operatingMode",
+        f"{PAYLOAD_PREFIX}.heatCircuit[%s].param.operatingMode",
         value_type=int,
         read_only=False,
         human_readable=HeatCircuitOperatingMode,

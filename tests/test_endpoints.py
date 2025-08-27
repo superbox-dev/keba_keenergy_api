@@ -6,6 +6,7 @@ from aioresponses.core import aioresponses
 from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.constants import HeatCircuitExternalCoolRequest
 from keba_keenergy_api.constants import HeatCircuitExternalHeatRequest
+from keba_keenergy_api.constants import HeatCircuitHasRoomTemperature
 from keba_keenergy_api.constants import HeatCircuitHeatRequest
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
 from keba_keenergy_api.constants import HeatPumpHeatRequest
@@ -1358,6 +1359,49 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (False, HeatCircuitHasRoomTemperature.ON.value, 1),
+            (True, "false", "off"),
+            (False, HeatCircuitHasRoomTemperature.OFF.value, 0),
+        ],
+    )
+    async def test_has_room_temperature(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+        """Test has room temperature."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.heatCircuit[0].hasRoomTemp",
+                        "attributes": {"longText": "With room temp. sensor"},
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_circuit.has_room_temperature(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.options.heatCircuit[0].hasRoomTemp", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     async def test_get_room_temperature(self) -> None:
         """Test get room temperature."""
         with aioresponses() as mock_keenergy_api:
@@ -1388,6 +1432,49 @@ class TestHeatCircuitSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].tempRoom.values.actValue", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (False, HeatCircuitHasRoomTemperature.ON.value, 1),
+            (True, "false", "off"),
+            (False, HeatCircuitHasRoomTemperature.OFF.value, 0),
+        ],
+    )
+    async def test_has_room_humidity(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+        """Test has room humidity."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.heatCircuit[0].hasRoomHumidity",
+                        "attributes": {"longText": "With room humidity sensor"},
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_circuit.has_room_humidity(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.options.heatCircuit[0].hasRoomHumidity", "attr": "1"}]',
                 method="POST",
                 ssl=False,
             )

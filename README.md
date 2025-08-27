@@ -131,26 +131,28 @@ asyncio.run(main())
 ### Heat circuit
 
 | Endpoint                                        | Request/Response | Description                                         |
-|-------------------------------------------------|----------------|-----------------------------------------------------|
-| `.get_room_temperature(position)`               | `float`        | Get room temperature.                               |
-| `.get_room_humidity(position)`                  | `float`        | Get humidity temperature.                           |
-| `.get_dew_point(position)`                      | `float`        | Get dew point.                                      |
-| `.get_temperature(position)`                    | `float`        | Get temperature.                                    |
-| `.get_day_temperature(position)`                | `float`        | Get day temperature.                                |
-| `.set_day_temperature(20, position)`            | `float`        | Set day temperature.                                |
-| `.get_day_temperature_threshold(position)`      | `float`        | Get day temperature threshold.                      |
-| `.get_night_temperature(position)`              | `float`        | Get night temperature.                              |
-| `.set_night_temperature(16, position)`          | `float`        | Set night temperature.                              |
-| `.get_night_temperature_threshold(position)`    | `float`        | Get night temperature threshold.                    |
-| `.get_holiday_temperature(position)`            | `float`        | Get holiday temperature.                            |
-| `.set_holiday_temperature(14, position)`        | `float`        | Set holiday temperature.                            |
-| `.get_temperature_offset(position)`             | `float`        | Get temperature offset.                             |
-| `.set_temperature_offset(2, position)`          | `float`        | Set temperature offset.                             |
-| `.get_operating_mode(position, human_readable)` | `int` or `str` | Get operating mode (0 is `OFF` and 3 is `HEAT_UP`). |
-| `.set_operating_mode(3, position)`              | `int` or `str` | Set operating mode.                                 |
-| `.get_heat_request(position)`                   | `int` or `str` | Get heat request.                                   |
-| `.get_external_cool_request(position)`          | `int` or `str` | Get external cool request.                          |
-| `.get_external_heat_request(position)`          | `int` or `str` | Get external heat request.                          |
+|-------------------------------------------------|------------------|-----------------------------------------------------|
+| `.has_room_temperature(position)`               | `int` or `str`   | Has room temperature.                               |
+| `.get_room_temperature(position)`               | `float`          | Get room temperature.                               |
+| `.has_room_humidity(position)`                  | `int` or `str`   | Has room humidity.                                  |
+| `.get_room_humidity(position)`                  | `float`          | Get room humidity.                                  |
+| `.get_dew_point(position)`                      | `float`          | Get dew point.                                      |
+| `.get_temperature(position)`                    | `float`          | Get temperature.                                    |
+| `.get_day_temperature(position)`                | `float`          | Get day temperature.                                |
+| `.set_day_temperature(20, position)`            | `float`          | Set day temperature.                                |
+| `.get_day_temperature_threshold(position)`      | `float`          | Get day temperature threshold.                      |
+| `.get_night_temperature(position)`              | `float`          | Get night temperature.                              |
+| `.set_night_temperature(16, position)`          | `float`          | Set night temperature.                              |
+| `.get_night_temperature_threshold(position)`    | `float`          | Get night temperature threshold.                    |
+| `.get_holiday_temperature(position)`            | `float`          | Get holiday temperature.                            |
+| `.set_holiday_temperature(14, position)`        | `float`          | Set holiday temperature.                            |
+| `.get_temperature_offset(position)`             | `float`          | Get temperature offset.                             |
+| `.set_temperature_offset(2, position)`          | `float`          | Set temperature offset.                             |
+| `.get_operating_mode(position, human_readable)` | `int` or `str`   | Get operating mode (0 is `OFF` and 3 is `HEAT_UP`). |
+| `.set_operating_mode(3, position)`              | `int` or `str`   | Set operating mode.                                 |
+| `.get_heat_request(position)`                   | `int` or `str`   | Get heat request.                                   |
+| `.get_external_cool_request(position)`          | `int` or `str`   | Get external cool request.                          |
+| `.get_external_heat_request(position)`          | `int` or `str`   | Get external heat request.                          |
 
 ## Changelog
 

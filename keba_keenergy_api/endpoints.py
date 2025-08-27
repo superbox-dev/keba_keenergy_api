@@ -1,6 +1,5 @@
 """Retrieve hot water tank data."""
 
-import importlib
 import json
 import re
 from enum import Enum
@@ -8,7 +7,6 @@ from json import JSONDecodeError
 from re import Pattern
 from typing import Any
 from typing import NamedTuple
-from typing import TYPE_CHECKING
 from typing import TypeAlias
 from typing import TypedDict
 
@@ -28,9 +26,6 @@ from keba_keenergy_api.constants import System
 from keba_keenergy_api.constants import SystemOperatingMode
 from keba_keenergy_api.error import APIError
 from keba_keenergy_api.error import InvalidJsonError
-
-if TYPE_CHECKING:
-    from types import ModuleType
 
 
 class ReadPayload(TypedDict):
@@ -116,17 +111,6 @@ class BaseEndpoints:
 
         return _real_key
 
-    def _get_key_prefix(self, key: Section) -> str:
-        module: ModuleType = importlib.import_module("keba_keenergy_api.constants")
-        class_name: str = key.__class__.__name__
-        prefix: str = getattr(module, f"{self.KEY_PATTERN.sub('_', class_name).upper()}_PREFIX", "")
-        return prefix
-
-    @staticmethod
-    def _get_position(idx: int | None) -> str:
-        _position: str = "" if idx is None else f"[{idx}]"
-        return _position
-
     def _get_position_index(self, section: Section, position: Position | list[int | None]) -> list[int | None]:
         idx: list[int | None] = []
 
@@ -156,7 +140,7 @@ class BaseEndpoints:
                 for idx in self._get_position_index(section=section, position=position):
                     payload += [
                         ReadPayload(
-                            name=f"{self._get_key_prefix(section)}{self._get_position(idx)}.{section.value.value}",
+                            name=section.value.value if idx is None else section.value.value % idx,
                             attr=str(int(extra_attributes is True)),
                         ),
                     ]
@@ -256,17 +240,14 @@ class BaseEndpoints:
                         if value is not None:
                             payload += [
                                 WritePayload(
-                                    name=(
-                                        f"{self._get_key_prefix(endpoint_properties)}{self._get_position(idx)}."
-                                        f"{endpoint_properties.value.value}"
-                                    ),
+                                    name=endpoint_properties.value.value % idx,
                                     value=str(value),
                                 ),
                             ]
                 else:
                     payload += [
                         WritePayload(
-                            name=f"{self._get_key_prefix(endpoint_properties)}.{endpoint_properties.value.value}",
+                            name=endpoint_properties.value.value,
                             value=str(values),
                         ),
                     ]
@@ -717,6 +698,23 @@ class HeatCircuitEndpoints(BaseEndpoints):
         _key: str = self._get_real_key(HeatCircuit.NAME)
         return str(response[_key][_idx]["value"])
 
+    async def has_room_temperature(self, position: int | None = 1, *, human_readable: bool = True) -> int | str:
+        """Has room temperature."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatCircuit.HAS_ROOM_TEMPERATURE,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatCircuit.HAS_ROOM_TEMPERATURE)
+        _value: int | str = str(response[_key][_idx]["value"])
+
+        if _value in ["true", "false"]:
+            _value = 1 if _value == "true" else 0
+
+        return _value
+
     async def get_room_temperature(self, position: int | None = 1) -> float:
         """Get room temperature."""
         response: dict[str, list[Value]] = await self._read_data(
@@ -727,6 +725,23 @@ class HeatCircuitEndpoints(BaseEndpoints):
         _idx: int = position - 1 if position else 0
         _key: str = self._get_real_key(HeatCircuit.ROOM_TEMPERATURE)
         return float(response[_key][_idx]["value"])
+
+    async def has_room_humidity(self, position: int | None = 1, *, human_readable: bool = True) -> int | str:
+        """Has room humidity."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatCircuit.HAS_ROOM_HUMIDITY,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatCircuit.HAS_ROOM_HUMIDITY)
+        _value: int | str = str(response[_key][_idx]["value"])
+
+        if _value in ["true", "false"]:
+            _value = 1 if _value == "true" else 0
+
+        return _value
 
     async def get_room_humidity(self, position: int | None = 1) -> float:
         """Get room humidity."""
