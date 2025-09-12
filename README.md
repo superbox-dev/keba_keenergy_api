@@ -109,7 +109,7 @@ asyncio.run(main())
 | `.set_max_temperature(22, position)`               | `float`          | Set maximum temperature.                                                              |
 | `.get_heat_request(position)`                      | `int` or `str`   | Get heat request.                                                                     |
 
-### Heat pump
+#### Heat pump
 
 | Endpoint                                         | Response       | Description                                                                   |
 |--------------------------------------------------|----------------|-------------------------------------------------------------------------------|
@@ -128,7 +128,7 @@ asyncio.run(main())
 | `.get_low_pressure(position)`                    | `float`        | Get low pressure.                                                             |
 | `.get_heat_request(position)`                    | `int` or `str` | Get heat request.                                                             |
 
-### Heat circuit
+#### Heat circuit
 
 | Endpoint                                        | Request/Response | Description                                         |
 |-------------------------------------------------|------------------|-----------------------------------------------------|
