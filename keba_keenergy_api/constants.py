@@ -276,7 +276,7 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.heating.electricalenergy",
         value_type=float,
     )
-    HEADING_SPF = EndpointProperties(
+    HEATING_SPF = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatioHeat",
         value_type=float,
     )

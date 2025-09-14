@@ -749,12 +749,12 @@ class HeatPumpEndpoints(BaseEndpoints):
     async def get_heating_spf(self, position: int | None = 1) -> float:
         """Get heating SPF."""
         response: dict[str, list[Value]] = await self._read_data(
-            request=HeatPump.HEADING_SPF,
+            request=HeatPump.HEATING_SPF,
             position=position,
             extra_attributes=True,
         )
         _idx: int = position - 1 if position else 0
-        _key: str = self._get_real_key(HeatPump.HEADING_SPF)
+        _key: str = self._get_real_key(HeatPump.HEATING_SPF)
         return float(response[_key][_idx]["value"])
 
     async def get_cooling_energy(self, position: int | None = 1) -> float:
