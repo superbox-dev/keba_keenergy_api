@@ -1325,6 +1325,527 @@ class TestHeatPumpSection:
 
             mock_keenergy_api.assert_not_called()
 
+    @pytest.mark.asyncio
+    async def test_get_electrical_power(self) -> None:
+        """Test get electrical power."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].ElectricEnergyMeter.values.power",
+                        "attributes": {
+                            "formatId": "fmt3p2",
+                            "longText": "Power input",
+                            "unitId": "Pwr",
+                        },
+                        "value": "5.52",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_electrical_power()
+
+            assert isinstance(data, float)
+            assert data == 5.52  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].ElectricEnergyMeter.values.power", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_heating_power(self) -> None:
+        """Test get heating power."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].HeatMeter.values.power",
+                        "attributes": {
+                            "formatId": "fmt3p2",
+                            "longText": "Heating power",
+                            "unitId": "Pwr",
+                        },
+                        "value": "3.22",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_heating_power()
+
+            assert isinstance(data, float)
+            assert data == 3.22  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatMeter.values.power", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_hot_water_power(self) -> None:
+        """Test get hot water power."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].HotWaterMeter.values.power",
+                        "attributes": {
+                            "formatId": "fmt3p2",
+                            "longText": "Hot water power",
+                            "unitId": "Pwr",
+                        },
+                        "value": "2.77",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_hot_water_power()
+
+            assert isinstance(data, float)
+            assert data == 2.77  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HotWaterMeter.values.power", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_cop(self) -> None:
+        """Test get COP."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].values.COP",
+                        "attributes": {
+                            "formatId": "fmt3p2",
+                            "longText": "COP",
+                        },
+                        "value": "2.55",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_cop()
+
+            assert isinstance(data, float)
+            assert data == 2.55  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].values.COP", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_heating_energy(self) -> None:
+        """Test get heating energy."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.heating.energy",
+                        "attributes": {
+                            "formatId": "fmt4p0",
+                            "longText": "Heating energy",
+                            "unitId": "kWhwithoutConv",
+                        },
+                        "value": "8.43",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_heating_energy()
+
+            assert isinstance(data, float)
+            assert data == 8.43  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.heating.energy", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_electrical_heating_energy(self) -> None:
+        """Test get electrical heating energy."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.heating.electricalenergy",
+                        "attributes": {
+                            "formatId": "fmt4p0",
+                            "longText": "Heat el. energy",
+                            "unitId": "kWhwithoutConv",
+                        },
+                        "value": "7.33",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_electrical_heating_energy()
+
+            assert isinstance(data, float)
+            assert data == 7.33  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.heating.electricalenergy", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_heating_spf(self) -> None:
+        """Test get heating SPF."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].EnergyEfficiencyRatioHeat",
+                        "attributes": {
+                            "longText": "SPF heating",
+                        },
+                        "value": "3.32",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_heating_spf()
+
+            assert isinstance(data, float)
+            assert data == 3.32  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].EnergyEfficiencyRatioHeat", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_cooling_energy(self) -> None:
+        """Test get cooling energy."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.cooling.energy",
+                        "attributes": {
+                            "formatId": "fmt4p0",
+                            "longText": "Cooling energy",
+                            "unitId": "kWhwithoutConv",
+                        },
+                        "value": "7.21",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_cooling_energy()
+
+            assert isinstance(data, float)
+            assert data == 7.21  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.cooling.energy", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_electrical_cooling_energy(self) -> None:
+        """Test get electrical cooling energy."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.cooling.electricalenergy",
+                        "attributes": {
+                            "formatId": "fmt4p0",
+                            "longText": "Cool el. energy",
+                            "unitId": "kWhwithoutConv",
+                        },
+                        "value": "8.72",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_electrical_cooling_energy()
+
+            assert isinstance(data, float)
+            assert data == 8.72  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.cooling.electricalenergy", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_cooling_spf(self) -> None:
+        """Test get cooling SPF."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].EnergyEfficiencyRatioCool",
+                        "attributes": {
+                            "formatId": "fmt3p2",
+                            "longText": "SPF cooling",
+                        },
+                        "value": "4.22",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_cooling_spf()
+
+            assert isinstance(data, float)
+            assert data == 4.22  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].EnergyEfficiencyRatioCool", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_hot_water_energy(self) -> None:
+        """Test get hot water energy."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.domHotWater.energy",
+                        "attributes": {
+                            "formatId": "fmt4p0",
+                            "longText": "Dom. HW energy",
+                            "unitId": "kWhwithoutConv",
+                        },
+                        "value": "7.86",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_hot_water_energy()
+
+            assert isinstance(data, float)
+            assert data == 7.86  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.domHotWater.energy", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_electrical_hot_water_energy(self) -> None:
+        """Test get electrical hot water energy."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.domHotWater.electricalenergy",
+                        "attributes": {
+                            "formatId": "fmt4p0",
+                            "longText": "Dom.HW el. energy",
+                            "unitId": "kWhwithoutConv",
+                        },
+                        "value": "2.77",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_electrical_hot_water_energy()
+
+            assert isinstance(data, float)
+            assert data == 2.77  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.domHotWater.electricalenergy", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_hot_water_spf(self) -> None:
+        """Test get hot water SPF."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].EnergyEfficiencyRatioDomHotWater",
+                        "attributes": {
+                            "longText": "SPF DHW",
+                        },
+                        "value": "2.50",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_hot_water_spf()
+
+            assert isinstance(data, float)
+            assert data == 2.50  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].EnergyEfficiencyRatioDomHotWater", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_energy(self) -> None:
+        """Test get energy."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.energy",
+                        "attributes": {
+                            "formatId": "fmt4p0",
+                            "longText": "Energy",
+                            "unitId": "kWhwithoutConv",
+                        },
+                        "value": "8.22",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_energy()
+
+            assert isinstance(data, float)
+            assert data == 8.22  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.energy", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_electrical_energy(self) -> None:
+        """Test get energy."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.electricalenergy",
+                        "attributes": {
+                            "formatId": "fmt4p0",
+                            "longText": "El. energy",
+                            "unitId": "kWhwithoutConv",
+                        },
+                        "value": "5.21",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_electrical_energy()
+
+            assert isinstance(data, float)
+            assert data == 5.21  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.electricalenergy", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_spf(self) -> None:
+        """Test get SPF."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].EnergyEfficiencyRatio",
+                        "attributes": {
+                            "formatId": "fmt3p2",
+                            "longText": "SPF general",
+                        },
+                        "value": "2.43",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_spf()
+
+            assert isinstance(data, float)
+            assert data == 2.43  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].EnergyEfficiencyRatio", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
 
 class TestHeatCircuitSection:
     @pytest.mark.asyncio

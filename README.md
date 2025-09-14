@@ -111,22 +111,38 @@ asyncio.run(main())
 
 #### Heat pump
 
-| Endpoint                                         | Response       | Description                                                                   |
-|--------------------------------------------------|----------------|-------------------------------------------------------------------------------|
-| `.get_name(position)`                            | `str`          | Get head pump model name.                                                     |
-| `.get_state(position, human_readable)`           | `int` or `str` | Get heat pump state as integer (0 is `STANDBY`, 1 is `FLOW` and 2 is `AUTO`). |
-| `.get_operating_mode(position, human_readable)`  | `int` or `str` | Get operating mode as integer (0 is `OFF`, 1 is `ON`, 2 is `BACKUP`).         |
-| `.get_circulation_pump(position)`                | `float`        | Get circulation pump in percent.                                              |
-| `.get_inflow_temperature(position)`              | `float`        | Get inflow temperature.                                                       |
-| `.get_reflux_temperature(position)`              | `float`        | Get reflux temperature.                                                       |
-| `.get_source_input_temperature(position)`        | `float`        | Get source input temperature.                                                 |
-| `.get_source_output_temperature(position)`       | `float`        | Get source output temperature.                                                |
-| `.get_compressor_input_temperature(position)`    | `float`        | Get compressor input temperature.                                             |
-| `.get_compressor_output_temperature(position)`   | `float`        | Get compressor output temperature.                                            |
-| `.get_compressor(position)`                      | `float`        | Get compressor in percent.                                                    |
-| `.get_high_pressure(position)`                   | `float`        | Get high pressure.                                                            |
-| `.get_low_pressure(position)`                    | `float`        | Get low pressure.                                                             |
-| `.get_heat_request(position)`                    | `int` or `str` | Get heat request.                                                             |
+| Endpoint                                        | Response       | Description                                                                   |
+|-------------------------------------------------|----------------|-------------------------------------------------------------------------------|
+| `.get_name(position)`                           | `str`          | Get head pump model name.                                                     |
+| `.get_state(position, human_readable)`          | `int` or `str` | Get heat pump state as integer (0 is `STANDBY`, 1 is `FLOW` and 2 is `AUTO`). |
+| `.get_operating_mode(position, human_readable)` | `int` or `str` | Get operating mode as integer (0 is `OFF`, 1 is `ON`, 2 is `BACKUP`).         |
+| `.get_circulation_pump(position)`               | `float`        | Get circulation pump in percent.                                              |
+| `.get_inflow_temperature(position)`             | `float`        | Get inflow temperature.                                                       |
+| `.get_reflux_temperature(position)`             | `float`        | Get reflux temperature.                                                       |
+| `.get_source_input_temperature(position)`       | `float`        | Get source input temperature.                                                 |
+| `.get_source_output_temperature(position)`      | `float`        | Get source output temperature.                                                |
+| `.get_compressor_input_temperature(position)`   | `float`        | Get compressor input temperature.                                             |
+| `.get_compressor_output_temperature(position)`  | `float`        | Get compressor output temperature.                                            |
+| `.get_compressor(position)`                     | `float`        | Get compressor in percent.                                                    |
+| `.get_high_pressure(position)`                  | `float`        | Get high pressure.                                                            |
+| `.get_low_pressure(position)`                   | `float`        | Get low pressure.                                                             |
+| `.get_heat_request(position)`                   | `int` or `str` | Get heat request.                                                             |
+| `.get_electrical_power(position)`               | `float`        | Get electrical power.                                                         |
+| `.get_heating_power(position)`                  | `float`        | Get heating power.                                                            |
+| `.get_hot_water_power(position)`                | `float`        | Get hot water power.                                                          |
+| `.get_cop(position)`                            | `float`        | Get coefficient of performance.                                               |
+| `.get_heating_energy(position)`                 | `float`        | Get heating energy.                                                           |
+| `.get_electrical_heating_energy(position)`      | `float`        | Get electrical heating energy.                                                |
+| `.get_heating_spf(position)`                    | `float`        | Get heating seasonal performance factor.                                      |
+| `.get_cooling_energy(position)`                 | `float`        | Get cooling energy.                                                           |
+| `.get_electrical_cooling_energy(position)`      | `float`        | Get electrical cooling energy.                                                |
+| `.get_cooling_spf(position)`                    | `float`        | Get cooling seasonal performance factor.                                      |
+| `.get_hot_water_energy(position)`               | `float`        | Get hot water energy.                                                         |
+| `.get_electrical_hot_water_energy(position)`    | `float`        | Get electrical hot water energy.                                              |
+| `.get_hot_water_spf(position)`                  | `float`        | Get hot water seasonal performance factor.                                    |
+| `.get_energy(position)`                         | `float`        | Get energy.                                                                   |
+| `.get_electrical_energy(position)`              | `float`        | Get electrical energy.                                                        |
+| `.get_spf(position)`                            | `float`        | Get seasonal performance factor.                                              |
 
 #### Heat circuit
 

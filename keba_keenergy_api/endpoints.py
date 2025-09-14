@@ -680,6 +680,182 @@ class HeatPumpEndpoints(BaseEndpoints):
 
         return _value
 
+    async def get_electrical_power(self, position: int | None = 1) -> float:
+        """Get electrical power."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.ELECTRICAL_ENERGY_METER,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatPump.ELECTRICAL_ENERGY_METER)
+        return float(response[_key][_idx]["value"])
+
+    async def get_heating_power(self, position: int | None = 1) -> float:
+        """Get heating power."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.HEAT_METER,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatPump.HEAT_METER)
+        return float(response[_key][_idx]["value"])
+
+    async def get_hot_water_power(self, position: int | None = 1) -> float:
+        """Get hot_water_power."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.HOT_WATER_METER,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatPump.HOT_WATER_METER)
+        return float(response[_key][_idx]["value"])
+
+    async def get_cop(self, position: int | None = 1) -> float:
+        """Get COP."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.COP,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatPump.COP)
+        return float(response[_key][_idx]["value"])
+
+    async def get_heating_energy(self, position: int | None = 1) -> float:
+        """Get heating energy."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.CONSUMPTION_HEATING_ENERGY,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatPump.CONSUMPTION_HEATING_ENERGY)
+        return float(response[_key][_idx]["value"])
+
+    async def get_electrical_heating_energy(self, position: int | None = 1) -> float:
+        """Get electrical heating energy."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.CONSUMPTION_HEATING_ELECTRICAL_ENERGY,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatPump.CONSUMPTION_HEATING_ELECTRICAL_ENERGY)
+        return float(response[_key][_idx]["value"])
+
+    async def get_heating_spf(self, position: int | None = 1) -> float:
+        """Get heating SPF."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.ENERGY_EFFICIENCY_RATIO_HEAT,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatPump.ENERGY_EFFICIENCY_RATIO_HEAT)
+        return float(response[_key][_idx]["value"])
+
+    async def get_cooling_energy(self, position: int | None = 1) -> float:
+        """Get cooling energy."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.CONSUMPTION_COOLING_ENERGY,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatPump.CONSUMPTION_COOLING_ENERGY)
+        return float(response[_key][_idx]["value"])
+
+    async def get_electrical_cooling_energy(self, position: int | None = 1) -> float:
+        """Get electrical cooling energy."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.CONSUMPTION_COOLING_ELECTRICAL_ENERGY,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatPump.CONSUMPTION_COOLING_ELECTRICAL_ENERGY)
+        return float(response[_key][_idx]["value"])
+
+    async def get_cooling_spf(self, position: int | None = 1) -> float:
+        """Get cooling SPF."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.ENERGY_EFFICIENCY_RATIO_COOL,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatPump.ENERGY_EFFICIENCY_RATIO_COOL)
+        return float(response[_key][_idx]["value"])
+
+    async def get_hot_water_energy(self, position: int | None = 1) -> float:
+        """Get hot water energy."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.CONSUMPTION_DOM_HOT_WATER_ENERGY,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatPump.CONSUMPTION_DOM_HOT_WATER_ENERGY)
+        return float(response[_key][_idx]["value"])
+
+    async def get_electrical_hot_water_energy(self, position: int | None = 1) -> float:
+        """Get electrical hot water energy."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.CONSUMPTION_DOM_HOT_WATER_ELECTRICAL_ENERGY,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatPump.CONSUMPTION_DOM_HOT_WATER_ELECTRICAL_ENERGY)
+        return float(response[_key][_idx]["value"])
+
+    async def get_hot_water_spf(self, position: int | None = 1) -> float:
+        """Get hot water SPF."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.ENERGY_EFFICIENCY_RATIO_DOM_HOT_WATER,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatPump.ENERGY_EFFICIENCY_RATIO_DOM_HOT_WATER)
+        return float(response[_key][_idx]["value"])
+
+    async def get_energy(self, position: int | None = 1) -> float:
+        """Get energy."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.CONSUMPTION_ENERGY,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatPump.CONSUMPTION_ENERGY)
+        return float(response[_key][_idx]["value"])
+
+    async def get_electrical_energy(self, position: int | None = 1) -> float:
+        """Get electrical energy."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.CONSUMPTION_ELECTRICAL_ENERGY,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatPump.CONSUMPTION_ELECTRICAL_ENERGY)
+        return float(response[_key][_idx]["value"])
+
+    async def get_spf(self, position: int | None = 1) -> float:
+        """Get SPF."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.ENERGY_EFFICIENCY_RATIO,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatPump.ENERGY_EFFICIENCY_RATIO)
+        return float(response[_key][_idx]["value"])
+
 
 class HeatCircuitEndpoints(BaseEndpoints):
     """Class to send and retrieve the heat pump data."""
