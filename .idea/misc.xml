@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Black">
-    <option name="sdkName" value="Python 3.11 (KEBA-KeEnergy-API)" />
+    <option name="enabledOnReformat" value="true" />
+    <option name="enabledOnSave" value="true" />
+    <option name="sdkName" value="keba_keenergy_api" />
   </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="keba_keenergy_api" project-jdk-type="Python SDK" />
   <component name="PythonCompatibilityInspectionAdvertiser">
