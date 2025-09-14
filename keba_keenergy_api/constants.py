@@ -252,15 +252,15 @@ class HeatPump(Enum):
         value_type=str,
         human_readable=HeatPumpHeatRequest,
     )
-    ELECTRICAL_ENERGY_METER = EndpointProperties(
+    ELECTRICAL_POWER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.power",
         value_type=float,
     )
-    HEAT_METER = EndpointProperties(
+    HEATING_POWER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.power",
         value_type=float,
     )
-    HOT_WATER_METER = EndpointProperties(
+    HOT_WATER_POWER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.power",
         value_type=float,
     )
@@ -268,51 +268,51 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].values.COP",
         value_type=float,
     )
-    CONSUMPTION_HEATING_ENERGY = EndpointProperties(
+    HEATING_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.heating.energy",
         value_type=float,
     )
-    CONSUMPTION_HEATING_ELECTRICAL_ENERGY = EndpointProperties(
+    HEATING_ELECTRICAL_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.heating.electricalenergy",
         value_type=float,
     )
-    ENERGY_EFFICIENCY_RATIO_HEAT = EndpointProperties(
+    HEADING_SPF = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatioHeat",
         value_type=float,
     )
-    CONSUMPTION_COOLING_ENERGY = EndpointProperties(
+    COOLING_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.cooling.energy",
         value_type=float,
     )
-    CONSUMPTION_COOLING_ELECTRICAL_ENERGY = EndpointProperties(
+    COOLING_ELECTRICAL_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.cooling.electricalenergy",
         value_type=float,
     )
-    ENERGY_EFFICIENCY_RATIO_COOL = EndpointProperties(
+    COOLING_SPF = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatioCool",
         value_type=float,
     )
-    CONSUMPTION_DOM_HOT_WATER_ENERGY = EndpointProperties(
+    DOMESTIC_HOT_WATER_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.domHotWater.energy",
         value_type=float,
     )
-    CONSUMPTION_DOM_HOT_WATER_ELECTRICAL_ENERGY = EndpointProperties(
+    DOMESTIC_HOT_WATER_ELECTRICAL_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.domHotWater.electricalenergy",
         value_type=float,
     )
-    ENERGY_EFFICIENCY_RATIO_DOM_HOT_WATER = EndpointProperties(
+    DOMESTIC_HOT_WATER_SPF = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatioDomHotWater",
         value_type=float,
     )
-    CONSUMPTION_ENERGY = EndpointProperties(
+    ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.energy",
         value_type=float,
     )
-    CONSUMPTION_ELECTRICAL_ENERGY = EndpointProperties(
+    ELECTRICAL_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.electricalenergy",
         value_type=float,
     )
-    ENERGY_EFFICIENCY_RATIO = EndpointProperties(
+    SPF = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatio",
         value_type=float,
     )
