@@ -135,13 +135,13 @@ asyncio.run(main())
 | `.get_heating_electrical_energy(position)`            | `float`        | Get heating electrical energy.                                                |
 | `.get_heating_spf(position)`                          | `float`        | Get heating seasonal performance factor.                                      |
 | `.get_cooling_energy(position)`                       | `float`        | Get cooling energy.                                                           |
-| `.get_cooling_electrical_energy(position)`            | `float`        | Get cooling electrical energy.                                               |
+| `.get_cooling_electrical_energy(position)`            | `float`        | Get cooling electrical energy.                                                |
 | `.get_cooling_spf(position)`                          | `float`        | Get cooling seasonal performance factor.                                      |
 | `.get_domestic_hot_water_energy(position)`            | `float`        | Get domestic hot water energy.                                                |
 | `.get_domestic_hot_water_electrical_energy(position)` | `float`        | Get domestic hot water electrical energy.                                     |
 | `.get_hot_water_spf(position)`                        | `float`        | Get domestic hot water seasonal performance factor.                           |
-| `.get_energy(position)`                               | `float`        | Get energy.                                                                   |
-| `.get_electrical_energy(position)`                    | `float`        | Get electrical energy.                                                        |
+| `.get_total_energy(position)`                         | `float`        | Get total energy.                                                             |
+| `.get_total_electrical_energy(position)`              | `float`        | Get total electrical energy.                                                  |
 | `.get_spf(position)`                                  | `float`        | Get seasonal performance factor.                                              |
 
 #### Heat circuit

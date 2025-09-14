@@ -1769,7 +1769,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_pump.get_energy()
+            data: float = await client.heat_pump.get_total_energy()
 
             assert isinstance(data, float)
             assert data == 8.22  # noqa: PLR2004
@@ -1802,7 +1802,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_pump.get_electrical_energy()
+            data: float = await client.heat_pump.get_total_electrical_energy()
 
             assert isinstance(data, float)
             assert data == 5.21  # noqa: PLR2004

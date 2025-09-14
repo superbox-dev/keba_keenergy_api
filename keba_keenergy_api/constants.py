@@ -304,11 +304,11 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatioDomHotWater",
         value_type=float,
     )
-    ENERGY = EndpointProperties(
+    TOTAL_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.energy",
         value_type=float,
     )
-    ELECTRICAL_ENERGY = EndpointProperties(
+    TOTAL_ELECTRICAL_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.electricalenergy",
         value_type=float,
     )

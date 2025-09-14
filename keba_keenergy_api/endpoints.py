@@ -823,26 +823,26 @@ class HeatPumpEndpoints(BaseEndpoints):
         _key: str = self._get_real_key(HeatPump.DOMESTIC_HOT_WATER_SPF)
         return float(response[_key][_idx]["value"])
 
-    async def get_energy(self, position: int | None = 1) -> float:
-        """Get energy."""
+    async def get_total_energy(self, position: int | None = 1) -> float:
+        """Get total energy."""
         response: dict[str, list[Value]] = await self._read_data(
-            request=HeatPump.ENERGY,
+            request=HeatPump.TOTAL_ENERGY,
             position=position,
             extra_attributes=True,
         )
         _idx: int = position - 1 if position else 0
-        _key: str = self._get_real_key(HeatPump.ENERGY)
+        _key: str = self._get_real_key(HeatPump.TOTAL_ENERGY)
         return float(response[_key][_idx]["value"])
 
-    async def get_electrical_energy(self, position: int | None = 1) -> float:
-        """Get electrical energy."""
+    async def get_total_electrical_energy(self, position: int | None = 1) -> float:
+        """Get total electrical energy."""
         response: dict[str, list[Value]] = await self._read_data(
-            request=HeatPump.ELECTRICAL_ENERGY,
+            request=HeatPump.TOTAL_ELECTRICAL_ENERGY,
             position=position,
             extra_attributes=True,
         )
         _idx: int = position - 1 if position else 0
-        _key: str = self._get_real_key(HeatPump.ELECTRICAL_ENERGY)
+        _key: str = self._get_real_key(HeatPump.TOTAL_ELECTRICAL_ENERGY)
         return float(response[_key][_idx]["value"])
 
     async def get_spf(self, position: int | None = 1) -> float:
