@@ -1471,7 +1471,7 @@ class TestHeatPumpSection:
                             "unitId": "kWhwithoutConv",
                         },
                         "value": "8.43",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -1504,7 +1504,7 @@ class TestHeatPumpSection:
                             "unitId": "kWhwithoutConv",
                         },
                         "value": "7.33",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -1517,7 +1517,7 @@ class TestHeatPumpSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.heating.electricalenergy", "attr": "1"}]',
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.heating.electricalenergy", "attr": "1"}]',  # noqa: E501
                 method="POST",
                 ssl=False,
             )
@@ -1535,7 +1535,7 @@ class TestHeatPumpSection:
                             "longText": "SPF heating",
                         },
                         "value": "3.32",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -1568,7 +1568,7 @@ class TestHeatPumpSection:
                             "unitId": "kWhwithoutConv",
                         },
                         "value": "7.21",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -1601,7 +1601,7 @@ class TestHeatPumpSection:
                             "unitId": "kWhwithoutConv",
                         },
                         "value": "8.72",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -1614,7 +1614,7 @@ class TestHeatPumpSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.cooling.electricalenergy", "attr": "1"}]',
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.cooling.electricalenergy", "attr": "1"}]',  # noqa: E501
                 method="POST",
                 ssl=False,
             )
@@ -1633,7 +1633,7 @@ class TestHeatPumpSection:
                             "longText": "SPF cooling",
                         },
                         "value": "4.22",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -1666,7 +1666,7 @@ class TestHeatPumpSection:
                             "unitId": "kWhwithoutConv",
                         },
                         "value": "7.86",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -1679,7 +1679,7 @@ class TestHeatPumpSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.domHotWater.energy", "attr": "1"}]',
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.domHotWater.energy", "attr": "1"}]',  # noqa: E501
                 method="POST",
                 ssl=False,
             )
@@ -1699,7 +1699,7 @@ class TestHeatPumpSection:
                             "unitId": "kWhwithoutConv",
                         },
                         "value": "2.77",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -1712,7 +1712,7 @@ class TestHeatPumpSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.domHotWater.electricalenergy", "attr": "1"}]',
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.domHotWater.electricalenergy", "attr": "1"}]',  # noqa: E501
                 method="POST",
                 ssl=False,
             )
@@ -1730,7 +1730,7 @@ class TestHeatPumpSection:
                             "longText": "SPF DHW",
                         },
                         "value": "2.50",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -1743,7 +1743,7 @@ class TestHeatPumpSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].EnergyEfficiencyRatioDomHotWater", "attr": "1"}]',
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].EnergyEfficiencyRatioDomHotWater", "attr": "1"}]',  # noqa: E501
                 method="POST",
                 ssl=False,
             )
@@ -1763,7 +1763,7 @@ class TestHeatPumpSection:
                             "unitId": "kWhwithoutConv",
                         },
                         "value": "8.22",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -1796,7 +1796,7 @@ class TestHeatPumpSection:
                             "unitId": "kWhwithoutConv",
                         },
                         "value": "5.21",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -1809,7 +1809,7 @@ class TestHeatPumpSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.electricalenergy", "attr": "1"}]',
+                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.electricalenergy", "attr": "1"}]',  # noqa: E501
                 method="POST",
                 ssl=False,
             )
@@ -1828,7 +1828,7 @@ class TestHeatPumpSection:
                             "longText": "SPF general",
                         },
                         "value": "2.43",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
