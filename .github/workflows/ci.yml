@@ -14,6 +14,7 @@ on:
   push:
     branches:
       - main
+      - develop
     tags:
       - v*
 
@@ -173,12 +174,26 @@ jobs:
         with:
           name: python-package
           path: dist
+      - name: Check if prerelease
+        id: check_prerelease
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          echo "Tag: $TAG_NAME"
+
+          if [[ "$TAG_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+b[0-9]+$ ]]; then
+            echo "🟡 Pre-release detected"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "🟢 Regular release"
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Release on GitHub
         uses: softprops/action-gh-release@v2
         with:
           files: |
             dist/*.tar.gz
             dist/*.whl
+          prerelease: ${{ steps.check_prerelease.outputs.prerelease }}
 
   publish-on-pypi:
     name: Publish
