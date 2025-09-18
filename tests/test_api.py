@@ -140,12 +140,12 @@ class TestKebaKeEnergyAPI:
                 ),
                 {
                     "system": {
-                        "hot_water_tank_numbers": {"value": 2, "attributes": {"lower_limit": "0", "upper_limit": "4"}}
+                        "hot_water_tank_numbers": {"value": 2, "attributes": {"lower_limit": "0", "upper_limit": "4"}},
                     },
                     "hot_water_tank": {
                         "current_temperature": [
-                            {"value": 40.81, "attributes": {"lower_limit": "20", "upper_limit": "90"}}
-                        ]
+                            {"value": 40.81, "attributes": {"lower_limit": "20", "upper_limit": "90"}},
+                        ],
                     },
                     "heat_pump": {},
                     "heat_circuit": {},
@@ -207,13 +207,13 @@ class TestKebaKeEnergyAPI:
                     "system": {},
                     "hot_water_tank": {},
                     "heat_pump": {
-                        "flow_temperature": [{"value": 24.2, "attributes": {}}, {"value": 23.2, "attributes": {}}]
+                        "flow_temperature": [{"value": 24.2, "attributes": {}}, {"value": 23.2, "attributes": {}}],
                     },
                     "heat_circuit": {
                         "target_temperature": [
                             {"value": 10.81, "attributes": {"lower_limit": "10", "upper_limit": "90"}},
                             {"value": 11.81, "attributes": {"lower_limit": "10", "upper_limit": "90"}},
-                        ]
+                        ],
                     },
                 },
             ),
@@ -311,16 +311,16 @@ class TestKebaKeEnergyAPI:
                         "outdoor_temperature": {
                             "value": 17.54,
                             "attributes": {"lower_limit": "-100", "upper_limit": "100"},
-                        }
+                        },
                     },
                     "hot_water_tank": {},
                     "heat_pump": {
-                        "flow_temperature": [{"value": 24.2, "attributes": {}}, {"value": 23.2, "attributes": {}}]
+                        "flow_temperature": [{"value": 24.2, "attributes": {}}, {"value": 23.2, "attributes": {}}],
                     },
                     "heat_circuit": {
                         "target_temperature": [
-                            {"value": 10.81, "attributes": {"lower_limit": "10", "upper_limit": "90"}}
-                        ]
+                            {"value": 10.81, "attributes": {"lower_limit": "10", "upper_limit": "90"}},
+                        ],
                     },
                 },
             ),

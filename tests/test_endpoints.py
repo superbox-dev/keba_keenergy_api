@@ -363,8 +363,8 @@ class TestSystemSection:
 
 class TestHotWaterTankSection:
     @pytest.mark.asyncio
-    async def test_get_temperature(self) -> None:
-        """Test get temperature for hot water tank."""
+    async def test_get_current_temperature(self) -> None:
+        """Test get current temperature."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -408,7 +408,7 @@ class TestHotWaterTankSection:
         payload_value: int,
         expected_value: str,
     ) -> None:
-        """Test get operating mode for hot water tank."""
+        """Test get operating mode."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -451,7 +451,7 @@ class TestHotWaterTankSection:
         human_readable: bool,  # noqa: FBT001
         payload_value: int,
     ) -> None:
-        """Test get invalid human readable operating mode for hot water tank."""
+        """Test get invalid human readable operating mode."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -500,7 +500,7 @@ class TestHotWaterTankSection:
         operating_mode: int | str,
         expected_value: int,
     ) -> None:
-        """Test set operating mode for hot water tank."""
+        """Test set operating mode."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -528,7 +528,7 @@ class TestHotWaterTankSection:
         self,
         operating_mode: int | str,
     ) -> None:
-        """Test set operating mode for hot water tank."""
+        """Test set operating mode."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -546,8 +546,8 @@ class TestHotWaterTankSection:
             mock_keenergy_api.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_get_lower_limit_temperature(self) -> None:
-        """Test get lower limit temperature for hot water tank."""
+    async def test_get_min_target_temperature(self) -> None:
+        """Test get min target temperature."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -582,8 +582,8 @@ class TestHotWaterTankSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_upper_limit_temperature(self) -> None:
-        """Test get upper limit temperature for hot water tank."""
+    async def test_get_max_target_temperature(self) -> None:
+        """Test get max target temperature."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -618,8 +618,8 @@ class TestHotWaterTankSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_min_temperature(self) -> None:
-        """Test get minimum temperature for hot water tank."""
+    async def test_get_standby_temperature(self) -> None:
+        """Test get standby temperature."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -654,8 +654,8 @@ class TestHotWaterTankSection:
             )
 
     @pytest.mark.asyncio
-    async def test_set_min_temperature(self) -> None:
-        """Test set minimum temperature for hot water tank."""
+    async def test_set_standby_temperature(self) -> None:
+        """Test set standby temperature."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -674,8 +674,8 @@ class TestHotWaterTankSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_max_temperature(self) -> None:
-        """Test get maximum temperature for hot water tank."""
+    async def test_get_target_temperature(self) -> None:
+        """Test get target temperature."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -710,8 +710,8 @@ class TestHotWaterTankSection:
             )
 
     @pytest.mark.asyncio
-    async def test_set_max_temperature(self) -> None:
-        """Test set maximum temperature for hot water tank."""
+    async def test_set_target_temperature(self) -> None:
+        """Test set target temperature."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -745,7 +745,7 @@ class TestHotWaterTankSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
-        """Test get heat request for hot water tank."""
+        """Test get heat request."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -776,7 +776,7 @@ class TestHotWaterTankSection:
 class TestHeatPumpSection:
     @pytest.mark.asyncio
     async def test_get_name(self) -> None:
-        """Test get name for heat pump."""
+        """Test get name."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -810,13 +810,13 @@ class TestHeatPumpSection:
         ("human_readable", "payload_value", "expected_value"),
         [(True, 1, "flow"), (False, 1, 1)],
     )
-    async def test_get_status(
+    async def test_get_state(
         self,
         human_readable: bool,  # noqa: FBT001
         payload_value: int,
         expected_value: int | str,
     ) -> None:
-        """Test get status for heat pump."""
+        """Test get state."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -851,7 +851,7 @@ class TestHeatPumpSection:
 
     @pytest.mark.asyncio
     async def test_get_circulation_pump(self) -> None:
-        """Test get circulation pump for heat pump."""
+        """Test get circulation pump."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -885,8 +885,8 @@ class TestHeatPumpSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_inflow_temperature(self) -> None:
-        """Test get inflow temperature for heat pump."""
+    async def test_get_flow_temperature(self) -> None:
+        """Test get flow temperature."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -918,8 +918,8 @@ class TestHeatPumpSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_reflux_temperature(self) -> None:
-        """Test get reflux temperature for heat pump."""
+    async def test_get_return_flow_temperature(self) -> None:
+        """Test get return flow temperature."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -952,7 +952,7 @@ class TestHeatPumpSection:
 
     @pytest.mark.asyncio
     async def test_get_source_input_temperature(self) -> None:
-        """Test get source input temperature for heat pump."""
+        """Test get source input temperature."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -985,7 +985,7 @@ class TestHeatPumpSection:
 
     @pytest.mark.asyncio
     async def test_get_source_output_temperature(self) -> None:
-        """Test get source output temperature for heat pump."""
+        """Test get source output temperature."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1018,7 +1018,7 @@ class TestHeatPumpSection:
 
     @pytest.mark.asyncio
     async def test_get_compressor_input_temperature(self) -> None:
-        """Test get compressor input temperature for heat pump."""
+        """Test get compressor input temperature."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1051,7 +1051,7 @@ class TestHeatPumpSection:
 
     @pytest.mark.asyncio
     async def test_get_compressor_output_temperature(self) -> None:
-        """Test get compressor output temperature for heat pump."""
+        """Test get compressor output temperature."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1084,7 +1084,7 @@ class TestHeatPumpSection:
 
     @pytest.mark.asyncio
     async def test_get_compressor(self) -> None:
-        """Test get compressor for heat pump."""
+        """Test get compressor."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1119,7 +1119,7 @@ class TestHeatPumpSection:
 
     @pytest.mark.asyncio
     async def test_get_high_pressure(self) -> None:
-        """Test get high pressure for heat pump."""
+        """Test get high pressure."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1152,7 +1152,7 @@ class TestHeatPumpSection:
 
     @pytest.mark.asyncio
     async def test_get_low_pressure(self) -> None:
-        """Test get low pressure for heat pump."""
+        """Test get low pressure."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1199,7 +1199,7 @@ class TestHeatPumpSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
-        """Test get heat request for heat pump."""
+        """Test get heat request."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1237,7 +1237,7 @@ class TestHeatPumpSection:
         payload_value: int,
         expected_value: str,
     ) -> None:
-        """Test get operating mode for heat pump."""
+        """Test get operating mode."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1308,7 +1308,7 @@ class TestHeatPumpSection:
         self,
         operating_mode: int | str,
     ) -> None:
-        """Test set operating mode for heat pump."""
+        """Test set operating mode."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -1326,8 +1326,8 @@ class TestHeatPumpSection:
             mock_keenergy_api.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_get_electrical_power(self) -> None:
-        """Test get electrical power."""
+    async def test_get_compressor_power(self) -> None:
+        """Test get compressor power."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1346,7 +1346,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_pump.get_power()
+            data: float = await client.heat_pump.get_compressor_power()
 
             assert isinstance(data, float)
             assert data == 5.52  # noqa: PLR2004
@@ -1490,8 +1490,8 @@ class TestHeatPumpSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_electrical_heating_energy(self) -> None:
-        """Test get electrical heating energy."""
+    async def test_get_heating_energy_consumption(self) -> None:
+        """Test get heating energy consumption."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1587,8 +1587,8 @@ class TestHeatPumpSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_electrical_cooling_energy(self) -> None:
-        """Test get electrical cooling energy."""
+    async def test_get_cooling_energy_consumption(self) -> None:
+        """Test get colling energy consumption."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1685,8 +1685,8 @@ class TestHeatPumpSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_electrical_hot_water_energy(self) -> None:
-        """Test get electrical hot water energy."""
+    async def test_get_hot_water_energy_consumption(self) -> None:
+        """Test get hot water energy consumption."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1749,8 +1749,8 @@ class TestHeatPumpSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_energy(self) -> None:
-        """Test get energy."""
+    async def test_get_total_thermal_energy(self) -> None:
+        """Test get total thermal energy."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1782,8 +1782,8 @@ class TestHeatPumpSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_electrical_energy(self) -> None:
-        """Test get energy."""
+    async def test_get_total_energy_consumption(self) -> None:
+        """Test get total energy consumption."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1815,8 +1815,8 @@ class TestHeatPumpSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_spf(self) -> None:
-        """Test get SPF."""
+    async def test_get_total_spf(self) -> None:
+        """Test get total SPF."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1850,7 +1850,7 @@ class TestHeatPumpSection:
 class TestHeatCircuitSection:
     @pytest.mark.asyncio
     async def test_get_name(self) -> None:
-        """Test get name for heat circuit."""
+        """Test get name."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -2071,8 +2071,8 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_temperature(self) -> None:
-        """Test get temperature for heat circuit."""
+    async def test_get_target_temperature(self) -> None:
+        """Test get target temperature."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -2106,8 +2106,8 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_day_temperature(self) -> None:
-        """Test get day temperature for heat circuit."""
+    async def test_get_target_temperature_day(self) -> None:
+        """Test get target temperature for the day."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -2141,8 +2141,8 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_set_day_temperature(self) -> None:
-        """Test set day temperature for heat circuit."""
+    async def test_set_target_temperature_day(self) -> None:
+        """Test set target temperature for the day."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -2161,8 +2161,8 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_day_temperature_threshold(self) -> None:
-        """Test get day temperature threshold for heat circuit."""
+    async def test_get_heating_limit_day(self) -> None:
+        """Test get day heating limit for the day."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -2196,8 +2196,8 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_night_temperature(self) -> None:
-        """Test get night temperature for heat circuit."""
+    async def test_get_target_temperature_night(self) -> None:
+        """Test get target temperature for the night."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -2231,8 +2231,8 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_set_night_temperature(self) -> None:
-        """Test set night temperature for heat circuit."""
+    async def test_set_target_temperature_night(self) -> None:
+        """Test set target temperature for the night."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -2251,8 +2251,8 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_night_temperature_threshold(self) -> None:
-        """Test get bight temperature threshold for heat circuit."""
+    async def test_get_heating_limit_night(self) -> None:
+        """Test get heating limit for the night."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -2286,8 +2286,8 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_holiday_temperature(self) -> None:
-        """Test get holiday temperature for heat circuit."""
+    async def test_get_target_temperature_away(self) -> None:
+        """Test get target temperature when away."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -2321,8 +2321,8 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_set_holiday_temperature(self) -> None:
-        """Test set holiday temperature for heat circuit."""
+    async def test_set_target_temperature_away(self) -> None:
+        """Test set target temperature when away."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -2341,8 +2341,8 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_temperature_offset(self) -> None:
-        """Test get temperature offset for heat circuit."""
+    async def test_get_target_temperature_offset(self) -> None:
+        """Test get target temperature offset."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -2376,8 +2376,8 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_set_temperature_offset(self) -> None:
-        """Test set temperature offset for heat circuit."""
+    async def test_set_target_temperature_offset(self) -> None:
+        """Test set target temperature offset."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -2406,7 +2406,7 @@ class TestHeatCircuitSection:
         payload_value: int,
         expected_value: str,
     ) -> None:
-        """Test get operating mode for heat circuit."""
+        """Test get operating mode."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -2519,7 +2519,7 @@ class TestHeatCircuitSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
-        """Test get heat request for heat circuit."""
+        """Test get heat request."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -2560,7 +2560,7 @@ class TestHeatCircuitSection:
         human_readable: bool,  # noqa: FBT001
         payload_value: str,
     ) -> None:
-        """Test get heat request for heat circuit."""
+        """Test get heat request."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -2612,7 +2612,7 @@ class TestHeatCircuitSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
-        """Test get external cool request for heat circuit."""
+        """Test get external cool request."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -2655,7 +2655,7 @@ class TestHeatCircuitSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
-        """Test get external heat request for heat circuit."""
+        """Test get external heat request."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
