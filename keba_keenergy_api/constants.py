@@ -161,7 +161,7 @@ class System(Enum):
 class HotWaterTank(Enum):
     """The hot water tank endpoint settings."""
 
-    TEMPERATURE = EndpointProperties(
+    CURRENT_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].topTemp.values.actValue",
         value_type=float,
     )
@@ -171,12 +171,12 @@ class HotWaterTank(Enum):
         read_only=False,
         human_readable=HotWaterTankOperatingMode,
     )
-    MIN_TEMPERATURE = EndpointProperties(
+    STANDBY_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.reducedSetTempMax.value",
         float,
         read_only=False,
     )
-    MAX_TEMPERATURE = EndpointProperties(
+    TARGET_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.normalSetTempMax.value",
         float,
         read_only=False,
@@ -211,11 +211,11 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CircPump.values.setValueScaled",
         value_type=float,
     )
-    INFLOW_TEMPERATURE = EndpointProperties(
+    FLOW_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempHeatFlow.values.actValue",
         value_type=float,
     )
-    REFLUX_TEMPERATURE = EndpointProperties(
+    RETURN_FLOW_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempHeatReflux.values.actValue",
         value_type=float,
     )
@@ -252,7 +252,7 @@ class HeatPump(Enum):
         value_type=str,
         human_readable=HeatPumpHeatRequest,
     )
-    ELECTRICAL_POWER = EndpointProperties(
+    COMPRESSOR_POWER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.power",
         value_type=float,
     )
@@ -272,7 +272,7 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.heating.energy",
         value_type=float,
     )
-    HEATING_ELECTRICAL_ENERGY = EndpointProperties(
+    HEATING_ENERGY_CONSUMPTION = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.heating.electricalenergy",
         value_type=float,
     )
@@ -284,7 +284,7 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.cooling.energy",
         value_type=float,
     )
-    COOLING_ELECTRICAL_ENERGY = EndpointProperties(
+    COOLING_ENERGY_CONSUMPTION = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.cooling.electricalenergy",
         value_type=float,
     )
@@ -292,27 +292,27 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatioCool",
         value_type=float,
     )
-    DOMESTIC_HOT_WATER_ENERGY = EndpointProperties(
+    HOT_WATER_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.domHotWater.energy",
         value_type=float,
     )
-    DOMESTIC_HOT_WATER_ELECTRICAL_ENERGY = EndpointProperties(
+    HOT_WATER_ENERGY_CONSUMPTION = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.domHotWater.electricalenergy",
         value_type=float,
     )
-    DOMESTIC_HOT_WATER_SPF = EndpointProperties(
+    HOT_WATER_SPF = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatioDomHotWater",
         value_type=float,
     )
-    TOTAL_ENERGY = EndpointProperties(
+    TOTAL_THERMAL_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.energy",
         value_type=float,
     )
-    TOTAL_ELECTRICAL_ENERGY = EndpointProperties(
+    TOTAL_ENERGY_CONSUMPTION = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.electricalenergy",
         value_type=float,
     )
-    SPF = EndpointProperties(
+    TOTAL_SPF = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatio",
         value_type=float,
     )
@@ -347,34 +347,34 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].dewPoint.values.actValue",
         value_type=float,
     )
-    TEMPERATURE = EndpointProperties(
+    TARGET_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.setValue",
         value_type=float,
     )
-    DAY_TEMPERATURE = EndpointProperties(
+    TARGET_TEMPERATURE_DAY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.normalSetTemp",
         value_type=float,
         read_only=False,
     )
-    DAY_TEMPERATURE_THRESHOLD = EndpointProperties(
+    HEATING_LIMIT_DAY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdDayTemp.value",
         value_type=float,
     )
-    NIGHT_TEMPERATURE = EndpointProperties(
+    TARGET_TEMPERATURE_NIGHT = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.reducedSetTemp",
         value_type=float,
         read_only=False,
     )
-    NIGHT_TEMPERATURE_THRESHOLD = EndpointProperties(
+    HEATING_LIMIT_NIGHT = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdNightTemp.value",
         value_type=float,
     )
-    HOLIDAY_TEMPERATURE = EndpointProperties(
+    TARGET_TEMPERATURE_AWAY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.holidaySetTemp",
         value_type=float,
         read_only=False,
     )
-    TEMPERATURE_OFFSET = EndpointProperties(
+    TARGET_TEMPERATURE_OFFSET = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.offsetRoomTemp",
         value_type=float,
         read_only=False,

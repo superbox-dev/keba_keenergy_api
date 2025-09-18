@@ -105,7 +105,7 @@ class TestKebaKeEnergyAPI:
             (
                 [
                     System.HOT_WATER_TANK_NUMBERS,
-                    HotWaterTank.TEMPERATURE,
+                    HotWaterTank.CURRENT_TEMPERATURE,
                 ],
                 1,
                 None,
@@ -140,31 +140,19 @@ class TestKebaKeEnergyAPI:
                 ),
                 {
                     "system": {
-                        "hot_water_tank_numbers": {
-                            "attributes": {
-                                "lower_limit": "0",
-                                "upper_limit": "4",
-                            },
-                            "value": 2,
-                        },
+                        "hot_water_tank_numbers": {"value": 2, "attributes": {"lower_limit": "0", "upper_limit": "4"}}
                     },
                     "hot_water_tank": {
-                        "temperature": [
-                            {
-                                "value": 40.81,
-                                "attributes": {
-                                    "lower_limit": "20",
-                                    "upper_limit": "90",
-                                },
-                            },
-                        ],
+                        "current_temperature": [
+                            {"value": 40.81, "attributes": {"lower_limit": "20", "upper_limit": "90"}}
+                        ]
                     },
                     "heat_pump": {},
                     "heat_circuit": {},
                 },
             ),
             (
-                [HeatCircuit.TEMPERATURE, HeatPump.INFLOW_TEMPERATURE],
+                [HeatCircuit.TARGET_TEMPERATURE, HeatPump.FLOW_TEMPERATURE],
                 [1, 3],
                 None,
                 [
@@ -218,40 +206,19 @@ class TestKebaKeEnergyAPI:
                 {
                     "system": {},
                     "hot_water_tank": {},
-                    "heat_circuit": {
-                        "temperature": [
-                            {
-                                "value": 10.81,
-                                "attributes": {
-                                    "lower_limit": "10",
-                                    "upper_limit": "90",
-                                },
-                            },
-                            {
-                                "value": 11.81,
-                                "attributes": {
-                                    "lower_limit": "10",
-                                    "upper_limit": "90",
-                                },
-                            },
-                        ],
-                    },
                     "heat_pump": {
-                        "inflow_temperature": [
-                            {
-                                "value": 24.2,
-                                "attributes": {},
-                            },
-                            {
-                                "value": 23.2,
-                                "attributes": {},
-                            },
-                        ],
+                        "flow_temperature": [{"value": 24.2, "attributes": {}}, {"value": 23.2, "attributes": {}}]
+                    },
+                    "heat_circuit": {
+                        "target_temperature": [
+                            {"value": 10.81, "attributes": {"lower_limit": "10", "upper_limit": "90"}},
+                            {"value": 11.81, "attributes": {"lower_limit": "10", "upper_limit": "90"}},
+                        ]
                     },
                 },
             ),
             (
-                [System.OUTDOOR_TEMPERATURE, HeatCircuit.TEMPERATURE, HeatPump.INFLOW_TEMPERATURE],
+                [System.OUTDOOR_TEMPERATURE, HeatCircuit.TARGET_TEMPERATURE, HeatPump.FLOW_TEMPERATURE],
                 None,
                 [
                     {
@@ -343,35 +310,17 @@ class TestKebaKeEnergyAPI:
                     "system": {
                         "outdoor_temperature": {
                             "value": 17.54,
-                            "attributes": {
-                                "lower_limit": "-100",
-                                "upper_limit": "100",
-                            },
-                        },
+                            "attributes": {"lower_limit": "-100", "upper_limit": "100"},
+                        }
                     },
                     "hot_water_tank": {},
                     "heat_pump": {
-                        "inflow_temperature": [
-                            {
-                                "value": 24.2,
-                                "attributes": {},
-                            },
-                            {
-                                "value": 23.2,
-                                "attributes": {},
-                            },
-                        ],
+                        "flow_temperature": [{"value": 24.2, "attributes": {}}, {"value": 23.2, "attributes": {}}]
                     },
                     "heat_circuit": {
-                        "temperature": [
-                            {
-                                "value": 10.81,
-                                "attributes": {
-                                    "lower_limit": "10",
-                                    "upper_limit": "90",
-                                },
-                            },
-                        ],
+                        "target_temperature": [
+                            {"value": 10.81, "attributes": {"lower_limit": "10", "upper_limit": "90"}}
+                        ]
                     },
                 },
             ),
@@ -423,16 +372,16 @@ class TestKebaKeEnergyAPI:
         [
             (
                 {
-                    HotWaterTank.MIN_TEMPERATURE: (10,),
+                    HotWaterTank.STANDBY_TEMPERATURE: (10,),
                 },
                 '[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.reducedSetTempMax.value", "value": "10"}]',
             ),
             (
                 {
-                    HotWaterTank.MIN_TEMPERATURE: [
+                    HotWaterTank.STANDBY_TEMPERATURE: [
                         10,
                     ],
-                    HotWaterTank.MAX_TEMPERATURE: (
+                    HotWaterTank.TARGET_TEMPERATURE: (
                         45,
                         44,
                     ),

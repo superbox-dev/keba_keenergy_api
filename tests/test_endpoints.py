@@ -385,7 +385,7 @@ class TestHotWaterTankSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.hot_water_tank.get_temperature()
+            data: float = await client.hot_water_tank.get_current_temperature()
 
             assert isinstance(data, float)
             assert data == 58.9  # noqa: PLR2004
@@ -569,7 +569,7 @@ class TestHotWaterTankSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int = await client.hot_water_tank.get_lower_limit_temperature()
+            data: int = await client.hot_water_tank.get_min_target_temperature()
 
             assert isinstance(data, int)
             assert data == 0
@@ -605,7 +605,7 @@ class TestHotWaterTankSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int = await client.hot_water_tank.get_upper_limit_temperature()
+            data: int = await client.hot_water_tank.get_max_target_temperature()
 
             assert isinstance(data, int)
             assert data == 52  # noqa: PLR2004
@@ -641,7 +641,7 @@ class TestHotWaterTankSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.hot_water_tank.get_min_temperature()
+            data: float = await client.hot_water_tank.get_standby_temperature()
 
             assert isinstance(data, float)
             assert data == 0.0
@@ -664,7 +664,7 @@ class TestHotWaterTankSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            await client.hot_water_tank.set_min_temperature(10)
+            await client.hot_water_tank.set_standby_temperature(10)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
@@ -697,7 +697,7 @@ class TestHotWaterTankSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.hot_water_tank.get_max_temperature()
+            data: float = await client.hot_water_tank.get_target_temperature()
 
             assert isinstance(data, float)
             assert data == 47.0  # noqa: PLR2004
@@ -720,7 +720,7 @@ class TestHotWaterTankSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            await client.hot_water_tank.set_max_temperature(47)
+            await client.hot_water_tank.set_target_temperature(47)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
@@ -905,7 +905,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_pump.get_inflow_temperature()
+            data: float = await client.heat_pump.get_flow_temperature()
 
             assert isinstance(data, float)
             assert data == 24.2  # noqa: PLR2004
@@ -938,7 +938,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_pump.get_reflux_temperature()
+            data: float = await client.heat_pump.get_return_flow_temperature()
 
             assert isinstance(data, float)
             assert data == 23.2  # noqa: PLR2004
@@ -1346,7 +1346,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_pump.get_electrical_power()
+            data: float = await client.heat_pump.get_power()
 
             assert isinstance(data, float)
             assert data == 5.52  # noqa: PLR2004
@@ -1510,7 +1510,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_pump.get_heating_electrical_energy()
+            data: float = await client.heat_pump.get_heating_energy_consumption()
 
             assert isinstance(data, float)
             assert data == 7.33  # noqa: PLR2004
@@ -1607,7 +1607,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_pump.get_cooling_electrical_energy()
+            data: float = await client.heat_pump.get_cooling_energy_consumption()
 
             assert isinstance(data, float)
             assert data == 8.72  # noqa: PLR2004
@@ -1672,7 +1672,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_pump.get_domestic_hot_water_energy()
+            data: float = await client.heat_pump.get_hot_water_energy()
 
             assert isinstance(data, float)
             assert data == 7.86  # noqa: PLR2004
@@ -1705,7 +1705,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_pump.get_domestic_hot_water_electrical_energy()
+            data: float = await client.heat_pump.get_hot_water_energy_consumption()
 
             assert isinstance(data, float)
             assert data == 2.77  # noqa: PLR2004
@@ -1736,7 +1736,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_pump.get_domestic_hot_water_spf()
+            data: float = await client.heat_pump.get_hot_water_spf()
 
             assert isinstance(data, float)
             assert data == 2.50  # noqa: PLR2004
@@ -1769,7 +1769,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_pump.get_total_energy()
+            data: float = await client.heat_pump.get_total_thermal_energy()
 
             assert isinstance(data, float)
             assert data == 8.22  # noqa: PLR2004
@@ -1802,7 +1802,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_pump.get_total_electrical_energy()
+            data: float = await client.heat_pump.get_total_energy_consumption()
 
             assert isinstance(data, float)
             assert data == 5.21  # noqa: PLR2004
@@ -1834,7 +1834,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_pump.get_spf()
+            data: float = await client.heat_pump.get_total_spf()
 
             assert isinstance(data, float)
             assert data == 2.43  # noqa: PLR2004
@@ -2093,7 +2093,7 @@ class TestHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_circuit.get_temperature()
+            data: float = await client.heat_circuit.get_target_temperature()
 
             assert isinstance(data, float)
             assert data == 22.0  # noqa: PLR2004
@@ -2128,7 +2128,7 @@ class TestHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float | None = await client.heat_circuit.get_day_temperature()
+            data: float | None = await client.heat_circuit.get_target_temperature_day()
 
             assert isinstance(data, float)
             assert data == 23.0  # noqa: PLR2004
@@ -2151,7 +2151,7 @@ class TestHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            await client.heat_circuit.set_day_temperature(23)
+            await client.heat_circuit.set_target_temperature_day(23)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
@@ -2183,7 +2183,7 @@ class TestHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float | None = await client.heat_circuit.get_day_temperature_threshold()
+            data: float | None = await client.heat_circuit.get_heating_limit_day()
 
             assert isinstance(data, float)
             assert data == 16.0  # noqa: PLR2004
@@ -2218,7 +2218,7 @@ class TestHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float | None = await client.heat_circuit.get_night_temperature()
+            data: float | None = await client.heat_circuit.get_target_temperature_night()
 
             assert isinstance(data, float)
             assert data == 23.0  # noqa: PLR2004
@@ -2241,7 +2241,7 @@ class TestHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            await client.heat_circuit.set_night_temperature(23)
+            await client.heat_circuit.set_target_temperature_night(23)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
@@ -2273,7 +2273,7 @@ class TestHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float | None = await client.heat_circuit.get_night_temperature_threshold()
+            data: float | None = await client.heat_circuit.get_heating_limit_night()
 
             assert isinstance(data, float)
             assert data == 16.0  # noqa: PLR2004
@@ -2308,7 +2308,7 @@ class TestHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float | None = await client.heat_circuit.get_holiday_temperature()
+            data: float | None = await client.heat_circuit.get_target_temperature_away()
 
             assert isinstance(data, float)
             assert data == 14.0  # noqa: PLR2004
@@ -2331,7 +2331,7 @@ class TestHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            await client.heat_circuit.set_holiday_temperature(14)
+            await client.heat_circuit.set_target_temperature_away(14)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
@@ -2363,7 +2363,7 @@ class TestHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float | None = await client.heat_circuit.get_temperature_offset()
+            data: float | None = await client.heat_circuit.get_target_temperature_offset()
 
             assert isinstance(data, float)
             assert data == 2.0  # noqa: PLR2004
@@ -2386,7 +2386,7 @@ class TestHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            await client.heat_circuit.set_temperature_offset(2)
+            await client.heat_circuit.set_target_temperature_offset(2)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
