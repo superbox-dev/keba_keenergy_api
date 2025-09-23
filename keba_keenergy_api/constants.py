@@ -181,12 +181,12 @@ class HotWaterTank(Enum):
     )
     STANDBY_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.reducedSetTempMax.value",
-        float,
+        value_type=float,
         read_only=False,
     )
     TARGET_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.normalSetTempMax.value",
-        float,
+        value_type=float,
         read_only=False,
     )
     HEAT_REQUEST = EndpointProperties(
@@ -198,6 +198,10 @@ class HotWaterTank(Enum):
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterFlow.values.actValue",
         value_type=str,
         human_readable=HotWaterTankHotWaterFlow,
+    )
+    FRESH_WATER_MODULE_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterTemp.values.actValue",
+        value_type=float,
     )
 
 

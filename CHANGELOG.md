@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added endpoint `get_flow_temperature_setpoint()` to get the calculated flow temperature setpoint
 - Added endpoint `get_hot_water_flow()` to see if the fresh water module is activated and hot water flow
+- Added endpoint `get_fresh_water_module_temperature()` to get the temperature from the fresh water module
 
 ### Changed
 

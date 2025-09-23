@@ -101,14 +101,15 @@ asyncio.run(main())
 | `.get_current_temperature(position)`               | `float`          | Get current temperature.                                                              |
 | `.get_operating_mode(position, human_readable)`    | `int` or `str`   | Get operating mode as integer (0 is `OFF`, 1 is `AUTO`, 2 is `DAY` and 3 is `NIGHT`). |
 | `.set_operating_mode(0, position, human_readable)` | `int` or `str`   | Set operating mode.                                                                   |
-| `.get_min_target_temperature(position)`            | `int`          | Get minimum possible target temperature.                                                |
-| `.get_max_target_temperature(position)`            | `int`          | Get maximum possible target temperature.                                                |
+| `.get_min_target_temperature(position)`            | `int`            | Get minimum possible target temperature.                                              |
+| `.get_max_target_temperature(position)`            | `int`            | Get maximum possible target temperature.                                              |
 | `.get_standby_temperature(position)`               | `float`          | Get standby temperature.                                                              |
 | `.set_standby_temperature(20, position)`           | `float`          | Set standby temperature.                                                              |
 | `.get_target_temperature(position)`                | `float`          | Get target temperature.                                                               |
 | `.set_target_temperature(22, position)`            | `float`          | Set target temperature.                                                               |
 | `.get_heat_request(position)`                      | `int` or `str`   | Get heat request.                                                                     |
 | `.get_hot_water_flow(position)`                    | `int` or `str`   | Get hot water flow.                                                                   |
+| `.get_fresh_water_module_temperature(position)`    | `float`          | Get fresh water module temperature.                                                   |
 
 #### Heat pump
 

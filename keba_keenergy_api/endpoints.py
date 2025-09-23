@@ -504,6 +504,17 @@ class HotWaterTankEndpoints(BaseEndpoints):
 
         return _value
 
+    async def get_fresh_water_module_temperature(self, position: int | None = 1) -> float:
+        """Get fresh water module temperature."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HotWaterTank.FRESH_WATER_MODULE_TEMPERATURE,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HotWaterTank.FRESH_WATER_MODULE_TEMPERATURE)
+        return float(response[_key][_idx]["value"])
+
 
 class HeatPumpEndpoints(BaseEndpoints):
     """Class to retrieve the heat pump data."""
