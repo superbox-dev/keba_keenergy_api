@@ -102,6 +102,7 @@ class HeatCircuitHeatRequest(str, Enum):
     OFF = "0"
     ON = "1"
     TEMPORARY_OFF = "3"
+    ROOM_OFF = "4"
     OUTDOOR_TEMPERATURE_OFF = "5"
 
 

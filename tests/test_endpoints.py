@@ -2509,6 +2509,8 @@ class TestHeatCircuitSection:
             (False, HeatCircuitHeatRequest.OFF.value, 0),
             (True, "3", "temporary_off"),
             (False, HeatCircuitHeatRequest.TEMPORARY_OFF.value, 3),
+            (True, "4", "room_off"),
+            (False, HeatCircuitHeatRequest.ROOM_OFF.value, 4),
             (True, "5", "outdoor_temperature_off"),
             (False, HeatCircuitHeatRequest.OUTDOOR_TEMPERATURE_OFF.value, 5),
         ],

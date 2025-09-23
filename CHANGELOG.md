@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.0.0b] - 2025-09-18
+## [2.0.1b] - 2025-09-23
 
 ### Changed
 
-- Many endpoint function names have been given more technically accurate names (breaking changes)
+- Changed many endpoint function names have been given more technically accurate names (breaking changes)
+
+### Fixed
+
+- Added missing humanreadable value `room_off` for heat circuit heat request status `4`
 
 ## [1.15.0] - 2025-09-14
 
