@@ -108,6 +108,7 @@ asyncio.run(main())
 | `.get_target_temperature(position)`                | `float`          | Get target temperature.                                                               |
 | `.set_target_temperature(22, position)`            | `float`          | Set target temperature.                                                               |
 | `.get_heat_request(position)`                      | `int` or `str`   | Get heat request.                                                                     |
+| `.get_hot_water_flow(position)`                    | `int` or `str`   | Get hot water flow.                                                                   |
 
 #### Heat pump
 

@@ -487,6 +487,23 @@ class HotWaterTankEndpoints(BaseEndpoints):
 
         return _value
 
+    async def get_hot_water_flow(self, position: int | None = 1, *, human_readable: bool = True) -> int | str:
+        """Get hot water flow."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HotWaterTank.HOT_WATER_FLOW,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HotWaterTank.HOT_WATER_FLOW)
+        _value: int | str = str(response[_key][_idx]["value"])
+
+        if _value in ["true", "false"]:
+            _value = 1 if _value == "true" else 0
+
+        return _value
+
 
 class HeatPumpEndpoints(BaseEndpoints):
     """Class to retrieve the heat pump data."""

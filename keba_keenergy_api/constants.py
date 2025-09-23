@@ -89,6 +89,13 @@ class HotWaterTankHeatRequest(str, Enum):
     ON = "true"
 
 
+class HotWaterTankHotWaterFlow(str, Enum):
+    """Available hot water tank hot water flow stats."""
+
+    OFF = "false"
+    ON = "true"
+
+
 class HeatPumpHeatRequest(str, Enum):
     """Available heat pump heat request stats."""
 
@@ -186,6 +193,11 @@ class HotWaterTank(Enum):
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].values.heatRequestTop",
         value_type=str,
         human_readable=HotWaterTankHeatRequest,
+    )
+    HOT_WATER_FLOW = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterFlow.values.actValue",
+        value_type=str,
+        human_readable=HotWaterTankHotWaterFlow,
     )
 
 
