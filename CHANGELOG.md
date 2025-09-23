@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.0b2] - 2025-09-23
 
+### Added
+
+- Added endpoint `get_flow_temperature_setpoint()` to get the calculated flow temperature setpoint 
+
 ### Changed
 
 - Changed many endpoint function names have been given more technically accurate names (breaking changes)

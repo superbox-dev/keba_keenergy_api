@@ -941,6 +941,17 @@ class HeatCircuitEndpoints(BaseEndpoints):
         _key: str = self._get_real_key(HeatCircuit.DEW_POINT)
         return float(response[_key][_idx]["value"])
 
+    async def get_flow_temperature_setpoint(self, position: int | None = 1) -> float:
+        """Get flow temperature setpoint."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatCircuit.FLOW_TEMPERATURE_SETPOINT,
+            position=position,
+            extra_attributes=True,
+        )
+        _idx: int = position - 1 if position else 0
+        _key: str = self._get_real_key(HeatCircuit.FLOW_TEMPERATURE_SETPOINT)
+        return float(response[_key][_idx]["value"])
+
     async def get_target_temperature(self, position: int | None = 1) -> float:
         """Get target temperature."""
         response: dict[str, list[Value]] = await self._read_data(
