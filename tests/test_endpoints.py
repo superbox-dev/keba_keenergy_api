@@ -812,7 +812,7 @@ class TestHotWaterTankSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterFlow.values.actValue", "attr": "1"}]',
+                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterFlow.values.actValue", "attr": "1"}]',  # noqa: E501
                 method="POST",
                 ssl=False,
             )
@@ -834,7 +834,7 @@ class TestHotWaterTankSection:
                             "lowerLimit": "0",
                         },
                         "value": "30",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -847,7 +847,7 @@ class TestHotWaterTankSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterTemp.values.actValue", "attr": "1"}]',
+                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterTemp.values.actValue", "attr": "1"}]',  # noqa: E501
                 method="POST",
                 ssl=False,
             )
@@ -2167,7 +2167,7 @@ class TestHeatCircuitSection:
                             "lowerLimit": "0",
                         },
                         "value": "26.254391",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
