@@ -46,6 +46,9 @@ class HeatPumpState(IntEnum):
     DEFROST = 3
     AUTO_COOL = 4
     INFLOW = 5
+    PUMP_DOWN = 6
+    SHUTDOWN = 7
+    ERROR = 8
 
 
 class HeatPumpOperatingMode(IntEnum):
@@ -80,6 +83,7 @@ class HeatCircuitOperatingMode(IntEnum):
     HOLIDAY = 4
     PARTY = 5
     EXTERN = 8
+    ROOM_CONTROL = 9
 
 
 class HotWaterTankHeatRequest(str, Enum):
@@ -108,9 +112,11 @@ class HeatCircuitHeatRequest(str, Enum):
 
     OFF = "0"
     ON = "1"
+    FLOW_OFF = "2"
     TEMPORARY_OFF = "3"
     ROOM_OFF = "4"
-    OUTDOOR_TEMPERATURE_OFF = "5"
+    OUTDOOR_OFF = "5"
+    INFLOW_OFF = "6"
 
 
 class HeatCircuitExternalCoolRequest(str, Enum):
