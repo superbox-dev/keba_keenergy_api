@@ -1140,6 +1140,131 @@ class TestHeatPumpSection:
             mock_keenergy_api.assert_not_called()
 
     @pytest.mark.asyncio
+    async def test_get_compressor_night_speed(self) -> None:
+        """Test get compressor night speed."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight",
+                        "attributes": {
+                            "formatId": "fmt3p0",
+                            "longText": "Max. pwr. limit night",
+                            "unitId": "Pct100",
+                            "upperLimit": "1",
+                            "lowerLimit": "0.5",
+                        },
+                        "value": "0.5",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_compressor_night_speed()
+
+            assert isinstance(data, float)
+            assert data == 0.5  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight", "attr": "1"}]',  # noqa: E501
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_set_compressor_night_speed(self) -> None:
+        """Test set compressor night speed."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_pump.set_compressor_night_speed(0.6)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight", "value": "0.6"}]',  # noqa: E501
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_min_compressor_night_speed(self) -> None:
+        """Test get min compressor night speed."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight",
+                        "attributes": {
+                            "formatId": "fmt3p0",
+                            "longText": "Max. pwr. limit night",
+                            "unitId": "Pct100",
+                            "upperLimit": "1",
+                            "lowerLimit": "0.5",
+                        },
+                        "value": "0.5",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_min_compressor_night_speed()
+
+            assert isinstance(data, float)
+            assert data == 0.5  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight", "attr": "1"}]',  # noqa: E501
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_max_compressor_night_speed(self) -> None:
+        """Test get max compressor night speed."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight",
+                        "attributes": {
+                            "formatId": "fmt3p0",
+                            "longText": "Max. pwr. limit night",
+                            "unitId": "Pct100",
+                            "upperLimit": "1",
+                            "lowerLimit": "0.5",
+                        },
+                        "value": "0.5",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_max_compressor_night_speed()
+
+            assert isinstance(data, float)
+            assert data == 1
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight", "attr": "1"}]',  # noqa: E501
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     async def test_get_circulation_pump(self) -> None:
         """Test get circulation pump."""
         with aioresponses() as mock_keenergy_api:

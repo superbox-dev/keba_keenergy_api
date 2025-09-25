@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added endpoint `get_compressor_use_night_speed()` to get the compressor night speed state
 - Added endpoint `set_compressor_use_night_speed()` to get the compressor night speed
+- Added endpoint `set_compressor_use_night_speed()` to get the compressor night speed
+- Added endpoint `get_compressor_night_speed()` to get the compressor night speed
+- Added endpoint `set_compressor_night_speed()` to set the compressor night speed
+- Added endpoint `get_max_compressor_night_speed()` to get the maximum compressor night speed
+- Added endpoint `get_min_compressor_night_speed()` to get the minimum compressor night speed
 - Added endpoint `get_flow_temperature_setpoint()` to get the calculated flow temperature setpoint
 - Added endpoint `get_hot_water_flow()` to see if the fresh water module is activated and hot water flow
 - Added endpoint `get_fresh_water_module_temperature()` to get the temperature from the fresh water module

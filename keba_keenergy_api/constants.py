@@ -243,6 +243,11 @@ class HeatPump(Enum):
         read_only=False,
         human_readable=HeatPumpCompressorUseNightSpeed,
     )
+    COMPRESSOR_NIGHT_SPEED = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatPumpPowerCtrl.param.maxPowerScaledNight",
+        value_type=float,
+        read_only=False,
+    )
     CIRCULATION_PUMP = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CircPump.values.setValueScaled",
         value_type=float,

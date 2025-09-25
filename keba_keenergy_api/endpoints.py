@@ -295,10 +295,11 @@ class BaseEndpoints:
         *,
         section: Section,
         position: int | None = None,
+        attribute: str | None = None,
     ) -> float:
         _idx: int = position - 1 if position else 0
         _key: str = self._get_real_key(section)
-        return float(response[_key][_idx]["value"])
+        return float(response[_key][_idx]["attributes"][attribute] if attribute else response[_key][_idx]["value"])
 
     def _get_int_value(
         self,
@@ -466,7 +467,7 @@ class HotWaterTankEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_int_value(
-            response, section=HotWaterTank.TARGET_TEMPERATURE, position=position, attribute="lower_limit"
+            response, section=HotWaterTank.TARGET_TEMPERATURE, position=position, attribute="lower_limit",
         )
 
     async def get_max_target_temperature(self, position: int | None = 1) -> int:
@@ -477,7 +478,7 @@ class HotWaterTankEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_int_value(
-            response, section=HotWaterTank.TARGET_TEMPERATURE, position=position, attribute="upper_limit"
+            response, section=HotWaterTank.TARGET_TEMPERATURE, position=position, attribute="upper_limit",
         )
 
     async def get_standby_temperature(self, position: int | None = 1) -> float:
@@ -612,6 +613,48 @@ class HeatPumpEndpoints(BaseEndpoints):
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
 
         await self._write_values(request={HeatPump.COMPRESSOR_USE_NIGHT_SPEED: modes})
+
+    async def get_compressor_night_speed(
+        self,
+        position: int | None = 1,
+        *,
+        human_readable: bool = True,
+    ) -> float:
+        """Get compressor night speed."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.COMPRESSOR_NIGHT_SPEED,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatPump.COMPRESSOR_NIGHT_SPEED, position=position)
+
+    async def set_compressor_night_speed(self, speed: float, position: int = 1) -> None:
+        """Set compressor night speed."""
+        speeds: list[float | None] = [speed if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={HeatPump.COMPRESSOR_NIGHT_SPEED: speeds})
+
+    async def get_min_compressor_night_speed(self, position: int | None = 1) -> float:
+        """Get min possible compressor night speed."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.COMPRESSOR_NIGHT_SPEED,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(
+            response, section=HeatPump.COMPRESSOR_NIGHT_SPEED, position=position, attribute="lower_limit",
+        )
+
+    async def get_max_compressor_night_speed(self, position: int | None = 1) -> float:
+        """Get max possible compressor night speed."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.COMPRESSOR_NIGHT_SPEED,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(
+            response, section=HeatPump.COMPRESSOR_NIGHT_SPEED, position=position, attribute="upper_limit",
+        )
 
     async def get_circulation_pump(self, position: int | None = 1) -> float:
         """Get circulation pump."""
