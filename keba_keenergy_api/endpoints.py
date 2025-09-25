@@ -467,7 +467,10 @@ class HotWaterTankEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_int_value(
-            response, section=HotWaterTank.TARGET_TEMPERATURE, position=position, attribute="lower_limit",
+            response,
+            section=HotWaterTank.TARGET_TEMPERATURE,
+            position=position,
+            attribute="lower_limit",
         )
 
     async def get_max_target_temperature(self, position: int | None = 1) -> int:
@@ -478,7 +481,10 @@ class HotWaterTankEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_int_value(
-            response, section=HotWaterTank.TARGET_TEMPERATURE, position=position, attribute="upper_limit",
+            response,
+            section=HotWaterTank.TARGET_TEMPERATURE,
+            position=position,
+            attribute="upper_limit",
         )
 
     async def get_standby_temperature(self, position: int | None = 1) -> float:
@@ -642,7 +648,10 @@ class HeatPumpEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_float_value(
-            response, section=HeatPump.COMPRESSOR_NIGHT_SPEED, position=position, attribute="lower_limit",
+            response,
+            section=HeatPump.COMPRESSOR_NIGHT_SPEED,
+            position=position,
+            attribute="lower_limit",
         )
 
     async def get_max_compressor_night_speed(self, position: int | None = 1) -> float:
@@ -653,7 +662,10 @@ class HeatPumpEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_float_value(
-            response, section=HeatPump.COMPRESSOR_NIGHT_SPEED, position=position, attribute="upper_limit",
+            response,
+            section=HeatPump.COMPRESSOR_NIGHT_SPEED,
+            position=position,
+            attribute="upper_limit",
         )
 
     async def get_circulation_pump(self, position: int | None = 1) -> float:
