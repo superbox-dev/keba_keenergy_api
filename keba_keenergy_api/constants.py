@@ -59,18 +59,25 @@ class HeatPumpOperatingMode(IntEnum):
     BACKUP = 2
 
 
-class HeatCircuitHasRoomTemperature(str, Enum):
+class HeatPumpCompressorUseNightSpeed(IntEnum):
+    """Available compressor use night speed stats."""
+
+    OFF = 0
+    ON = 1
+
+
+class HeatCircuitHasRoomTemperature(IntEnum):
     """Available has room temperature stats."""
 
-    OFF = "false"
-    ON = "true"
+    OFF = 0
+    ON = 1
 
 
-class HeatCircuitHasRoomHumidity(str, Enum):
+class HeatCircuitHasRoomHumidity(IntEnum):
     """Available has room humidity stats."""
 
-    OFF = "false"
-    ON = "true"
+    OFF = 0
+    ON = 1
 
 
 class HeatCircuitOperatingMode(IntEnum):
@@ -86,51 +93,51 @@ class HeatCircuitOperatingMode(IntEnum):
     ROOM_CONTROL = 9
 
 
-class HotWaterTankHeatRequest(str, Enum):
+class HotWaterTankHeatRequest(IntEnum):
     """Available hot water tank heat request stats."""
 
-    OFF = "false"
-    ON = "true"
+    OFF = 0
+    ON = 1
 
 
-class HotWaterTankHotWaterFlow(str, Enum):
+class HotWaterTankHotWaterFlow(IntEnum):
     """Available hot water tank hot water flow stats."""
 
-    OFF = "false"
-    ON = "true"
+    OFF = 0
+    ON = 1
 
 
-class HeatPumpHeatRequest(str, Enum):
+class HeatPumpHeatRequest(IntEnum):
     """Available heat pump heat request stats."""
 
-    OFF = "false"
-    ON = "true"
+    OFF = 0
+    ON = 1
 
 
-class HeatCircuitHeatRequest(str, Enum):
+class HeatCircuitHeatRequest(IntEnum):
     """Available heat circuit heat request stats."""
 
-    OFF = "0"
-    ON = "1"
-    FLOW_OFF = "2"
-    TEMPORARY_OFF = "3"
-    ROOM_OFF = "4"
-    OUTDOOR_OFF = "5"
-    INFLOW_OFF = "6"
+    OFF = 0
+    ON = 1
+    FLOW_OFF = 2
+    TEMPORARY_OFF = 3
+    ROOM_OFF = 4
+    OUTDOOR_OFF = 5
+    INFLOW_OFF = 6
 
 
-class HeatCircuitExternalCoolRequest(str, Enum):
+class HeatCircuitExternalCoolRequest(IntEnum):
     """Available heat circuit external cool request stats."""
 
-    OFF = "false"
-    ON = "true"
+    OFF = 0
+    ON = 1
 
 
-class HeatCircuitExternalHeatRequest(str, Enum):
+class HeatCircuitExternalHeatRequest(IntEnum):
     """Available heat circuit external heat request stats."""
 
-    OFF = "false"
-    ON = "true"
+    OFF = 0
+    ON = 1
 
 
 PAYLOAD_PREFIX: Final[str] = "APPL.CtrlAppl"
@@ -229,6 +236,12 @@ class HeatPump(Enum):
         value_type=int,
         read_only=False,
         human_readable=HeatPumpOperatingMode,
+    )
+    COMPRESSOR_USE_NIGHT_SPEED = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatPumpPowerCtrl.param.useDayNightSpeed",
+        value_type=str,
+        read_only=False,
+        human_readable=HeatPumpCompressorUseNightSpeed,
     )
     CIRCULATION_PUMP = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CircPump.values.setValueScaled",
@@ -408,7 +421,7 @@ class HeatCircuit(Enum):
     )
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.heatRequest",
-        value_type=str,
+        value_type=int,
         human_readable=HeatCircuitHeatRequest,
     )
     EXTERNAL_COOL_REQUEST = EndpointProperties(
