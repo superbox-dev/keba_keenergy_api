@@ -89,7 +89,7 @@ class HeatCircuitOperatingMode(IntEnum):
     NIGHT = 3
     HOLIDAY = 4
     PARTY = 5
-    EXTERN = 8
+    EXTERNAL = 8
     ROOM_CONTROL = 9
 
 

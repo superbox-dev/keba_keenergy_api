@@ -2848,7 +2848,7 @@ class TestHeatCircuitSection:
 
             assert str(error.value) == (
                 "Invalid value! Allowed values are "
-                "['OFF', '0', 'AUTO', '1', 'DAY', '2', 'NIGHT', '3', 'HOLIDAY', '4', 'PARTY', '5', 'EXTERN', '8', "
+                "['OFF', '0', 'AUTO', '1', 'DAY', '2', 'NIGHT', '3', 'HOLIDAY', '4', 'PARTY', '5', 'EXTERNAL', '8', "
                 "'ROOM_CONTROL', '9']"
             )
 
