@@ -912,6 +912,16 @@ class HeatPumpEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatPump.TOTAL_SPF, position=position)
 
+    async def has_passive_cooling(self, position: int | None = 1, *, human_readable: bool = True) -> int | str:
+        """Has passive cooling."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.HAS_PASSIVE_COOLING,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HeatPump.HAS_PASSIVE_COOLING, position=position)
+
 
 class HeatCircuitEndpoints(BaseEndpoints):
     """Class to send and retrieve the heat pump data."""

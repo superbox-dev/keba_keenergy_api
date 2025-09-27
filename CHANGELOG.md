@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.0.0b5] - 2025-09-25
+## [2.0.0b6] - 2025-09-25
 
 ### Added
 
+- Added endpoint `has_passive_cooling()` to detect if the heat pump support passive cooling
 - Added endpoint `get_compressor_use_night_speed()` to get the compressor night speed state
 - Added endpoint `set_compressor_use_night_speed()` to get the compressor night speed
 - Added endpoint `set_compressor_use_night_speed()` to get the compressor night speed

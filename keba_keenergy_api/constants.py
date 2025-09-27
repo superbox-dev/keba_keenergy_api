@@ -66,6 +66,13 @@ class HeatPumpCompressorUseNightSpeed(IntEnum):
     ON = 1
 
 
+class HeatPumpHasPassiveCooling(IntEnum):
+    """Available has passive cooling stats."""
+
+    OFF = 0
+    ON = 1
+
+
 class HeatCircuitHasRoomTemperature(IntEnum):
     """Available has room temperature stats."""
 
@@ -356,6 +363,11 @@ class HeatPump(Enum):
     TOTAL_SPF = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatio",
         value_type=float,
+    )
+    HAS_PASSIVE_COOLING = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.options.heatpump[%s].hasPassiveCooling",
+        value_type=str,
+        human_readable=HeatPumpHasPassiveCooling,
     )
 
 
