@@ -372,6 +372,12 @@ class TestKebaKeEnergyAPI:
         [
             (
                 {
+                    System.OPERATING_MODE: 1,
+                },
+                '[{"name": "APPL.CtrlAppl.sParam.param.operatingMode", "value": "1"}]',
+            ),
+            (
+                {
                     HotWaterTank.STANDBY_TEMPERATURE: (10,),
                 },
                 '[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.reducedSetTempMax.value", "value": "10"}]',
