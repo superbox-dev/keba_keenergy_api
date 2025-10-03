@@ -27,5 +27,8 @@ jobs:
         uses: ./.github/actions/setup-project
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Create requirements.txt
+        run: uv export --quiet --locked --all-extras --dev --no-hashes --no-editable --output-file=requirements.txt
       - name: Audit python packages
-        run: uv run pip-audit
+        run: uv run pip-audit --requirement=requirements.txt
+
