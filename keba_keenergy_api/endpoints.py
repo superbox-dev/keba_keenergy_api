@@ -333,6 +333,30 @@ class SystemEndpoints(BaseEndpoints):
     def __init__(self, base_url: str, *, ssl: bool, session: ClientSession | None = None) -> None:
         super().__init__(base_url=base_url, ssl=ssl, session=session)
 
+    async def api_endpoint_exist(self, /, *, section: Section, position: int | None = None) -> bool:
+        """Check if the API endpoint exist."""
+        _idx: int = position - 1 if position else 0
+        payload: str
+
+        if isinstance(section, System):
+            payload = f'{{"parent": {section.value.value}}}'
+        else:
+            payload = f'{{"parent": {section.value.value % _idx}}}'
+
+        response: Response = await self._post(
+            endpoint=f"{EndpointPath.READ_VAR_CHILDREN}",
+            payload=payload,
+        )
+
+        api_endpoint_exist: bool = response[0]["ret"] == "OK"
+        return api_endpoint_exist
+
+    async def reboot(self) -> None:
+        """Reboot the KEBA KeEnergy device."""
+        await self._post(
+            endpoint=f"{EndpointPath.SW_UPDATE}?action=reboot",
+        )
+
     async def get_positions(self) -> Position:
         """Get number of heat pump, heating circuit and hot water tank."""
         response: dict[str, list[Value]] = await self._read_data(
