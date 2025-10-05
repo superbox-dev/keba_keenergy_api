@@ -351,12 +351,6 @@ class SystemEndpoints(BaseEndpoints):
         api_endpoint_exist: bool = response[0]["ret"] == "OK"
         return api_endpoint_exist
 
-    async def reboot(self) -> None:
-        """Reboot the KEBA KeEnergy device."""
-        await self._post(
-            endpoint=f"{EndpointPath.SW_UPDATE}?action=reboot",
-        )
-
     async def get_positions(self) -> Position:
         """Get number of heat pump, heating circuit and hot water tank."""
         response: dict[str, list[Value]] = await self._read_data(
