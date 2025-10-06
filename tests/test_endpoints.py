@@ -9,63 +9,18 @@ from keba_keenergy_api.constants import HeatCircuitExternalHeatRequest
 from keba_keenergy_api.constants import HeatCircuitHasRoomTemperature
 from keba_keenergy_api.constants import HeatCircuitHeatRequest
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
-from keba_keenergy_api.constants import HeatPump
 from keba_keenergy_api.constants import HeatPumpCompressorUseNightSpeed
 from keba_keenergy_api.constants import HeatPumpHasPassiveCooling
 from keba_keenergy_api.constants import HeatPumpHeatRequest
 from keba_keenergy_api.constants import HeatPumpOperatingMode
 from keba_keenergy_api.constants import HotWaterTankHeatRequest
 from keba_keenergy_api.constants import HotWaterTankOperatingMode
-from keba_keenergy_api.constants import Section
-from keba_keenergy_api.constants import System
 from keba_keenergy_api.constants import SystemOperatingMode
 from keba_keenergy_api.endpoints import Position
 from keba_keenergy_api.error import APIError
 
 
 class TestSystemSection:
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("section", "expected"),
-        [
-            (
-                HeatPump.COMPRESSOR_USE_NIGHT_SPEED,
-                '{"parent": APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.useDayNightSpeed}',
-            ),
-            (
-                System.OPERATING_MODE,
-                '{"parent": APPL.CtrlAppl.sParam.param.operatingMode}',
-            ),
-        ],
-    )
-    async def test_api_endpoint_exist(self, section: Section, expected: str) -> None:
-        """Test API endpoint exist."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readVarChildren",
-                payload=[
-                    {
-                        "ret": "OK",
-                        "children": [],
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: bool = await client.system.api_endpoint_exist(section=section)
-
-            assert isinstance(data, bool)
-            assert data is True
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readVarChildren",
-                data=expected,
-                method="POST",
-                ssl=False,
-            )
-
     @pytest.mark.asyncio
     async def test_get_positions(self) -> None:
         """Test get positions for heat pumps, heating circuits and hot water tanks."""

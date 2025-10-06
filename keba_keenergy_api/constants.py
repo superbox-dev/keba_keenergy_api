@@ -13,7 +13,6 @@ class EndpointPath:
     """The endpoint paths."""
 
     READ_WRITE_VARS: Final[str] = "/var/readWriteVars"
-    READ_VAR_CHILDREN: Final[str] = "/var/readVarChildren"
     DEVICE_CONTROL: Final[str] = "/deviceControl"
     SW_UPDATE: Final[str] = "/swupdate"
 
