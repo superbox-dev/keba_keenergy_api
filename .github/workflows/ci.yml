@@ -84,6 +84,7 @@ jobs:
   coverage:
     name: Generate coverage badge
     runs-on: ubuntu-latest
+    if: github.ref_type != 'tag'
     needs:
       - configure
       - tests
@@ -120,7 +121,7 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.head_ref }}
+          branch: ${{ github.ref }}
 
   build-python-package:
     name: Build python package
@@ -137,7 +138,6 @@ jobs:
       - code-analysis
       - security
       - tests
-      - coverage
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
