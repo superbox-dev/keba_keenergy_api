@@ -165,6 +165,8 @@ asyncio.run(main())
 | `.get_room_humidity(position)`                  | `float`          | Get room humidity.                                  |
 | `.get_dew_point(position)`                      | `float`          | Get dew point.                                      |
 | `.get_flow_temperature_setpoint(position)`      | `float`          | Get flow temperature setpoint.                      |
+| `.get_flow_temperature(position)`               | `float`          | Get flow temperature.                               |
+| `.get_return_flow_temperature(position)`        | `float`          | Get return flow temperature.                        |
 | `.get_target_temperature(position)`             | `float`          | Get target temperature.                             |
 | `.get_target_temperature_day(position)`         | `float`          | Get taget temperature for the day.                  |
 | `.set_target_temperature_day(20, position)`     | `float`          | Set taget temperature for the day.                  |

@@ -404,6 +404,14 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.flowSetTemp",
         value_type=float,
     )
+    FLOW_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.flowTemp.values.actValue",
+        value_type=float,
+    )
+    RETURN_FLOW_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].tempReflux.values.actValue",
+        value_type=float,
+    )
     TARGET_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.setValue",
         value_type=float,
@@ -436,6 +444,12 @@ class HeatCircuit(Enum):
         value_type=float,
         read_only=False,
     )
+    OPERATING_MODE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.operatingMode",
+        value_type=int,
+        read_only=False,
+        human_readable=HeatCircuitOperatingMode,
+    )
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.heatRequest",
         value_type=int,
@@ -450,12 +464,6 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.external.heatRequest",
         value_type=str,
         human_readable=HeatCircuitExternalHeatRequest,
-    )
-    OPERATING_MODE = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.operatingMode",
-        value_type=int,
-        read_only=False,
-        human_readable=HeatCircuitOperatingMode,
     )
 
 

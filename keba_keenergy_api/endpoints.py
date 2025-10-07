@@ -333,12 +333,6 @@ class SystemEndpoints(BaseEndpoints):
     def __init__(self, base_url: str, *, ssl: bool, session: ClientSession | None = None) -> None:
         super().__init__(base_url=base_url, ssl=ssl, session=session)
 
-    async def reboot(self) -> None:
-        """Reboot the KEBA KeEnergy device."""
-        await self._post(
-            endpoint=f"{EndpointPath.SW_UPDATE}?action=reboot",
-        )
-
     async def get_positions(self) -> Position:
         """Get number of heat pump, heating circuit and hot water tank."""
         response: dict[str, list[Value]] = await self._read_data(
@@ -999,6 +993,25 @@ class HeatCircuitEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_float_value(response, section=HeatCircuit.FLOW_TEMPERATURE_SETPOINT, position=position)
+
+    async def get_flow_temperature(self, position: int | None = 1) -> float:
+        """Get flow temperature."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatCircuit.FLOW_TEMPERATURE,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatCircuit.FLOW_TEMPERATURE, position=position)
+
+    async def get_return_flow_temperature(self, position: int | None = 1) -> float:
+        """Get return flow temperature."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatCircuit.RETURN_FLOW_TEMPERATURE,
+            position=position,
+            extra_attributes=True,
+        )
+
+        return self._get_float_value(response, section=HeatCircuit.RETURN_FLOW_TEMPERATURE, position=position)
 
     async def get_target_temperature(self, position: int | None = 1) -> float:
         """Get target temperature."""

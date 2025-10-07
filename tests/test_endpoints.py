@@ -2466,6 +2466,74 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
+    async def test_get_flow_temperature(self) -> None:
+        """Test get flow temperature."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].heatCircuitMixer.flowTemp.values.actValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Inflow temp. act.",
+                            "unitId": "Temp",
+                            "upperLimit": "100",
+                            "lowerLimit": "0",
+                        },
+                        "value": "26.254391",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_circuit.get_flow_temperature()
+
+            assert isinstance(data, float)
+            assert data == 26.25  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].heatCircuitMixer.flowTemp.values.actValue", "attr": "1"}]',  # noqa: E501
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_return_flow_temperature(self) -> None:
+        """Test get return temperature."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].tempReflux.values.actValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Reflux temp. act.",
+                            "unitId": "Temp",
+                        },
+                        "value": "19",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_circuit.get_return_flow_temperature()
+
+            assert isinstance(data, float)
+            assert data == 19.0  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].tempReflux.values.actValue", "attr": "1"}]',
+                method="POST",
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     async def test_get_target_temperature(self) -> None:
         """Test get target temperature."""
         with aioresponses() as mock_keenergy_api:
