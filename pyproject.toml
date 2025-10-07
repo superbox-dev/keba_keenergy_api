@@ -129,6 +129,10 @@ disable = [
 ]
 respect-gitignore = true
 
+[tool.rumdl.MD013]
+code_blocks = false
+tables = false
+
 [tool.rumdl.MD024]
 siblings_only = true
 
