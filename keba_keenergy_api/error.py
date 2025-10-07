@@ -2,8 +2,12 @@
 
 
 class APIError(Exception):
-    """API Error."""
+    """API error."""
 
 
 class InvalidJsonError(APIError):
-    """Invalid JSON Data Error."""
+    """Invalid JSON data error."""
+
+
+class AuthenticationError(APIError):
+    """Invalid credentials error."""

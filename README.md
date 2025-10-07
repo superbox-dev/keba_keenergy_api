@@ -28,10 +28,10 @@ from keba_keenergy_api.constants import HeatCircuit
 
 
 async def main() -> None:
-    client = KebaKeEnergyAPI(host="YOUR-IP-OR-HOSTNAME", ssl=True)
+    client = KebaKeEnergyAPI(host="YOUR-IP-OR-HOSTNAME", username="test", password="test", ssl=True)
 
     # Get current outdoor temperature
-    outdoor_temperature: float = await client.get_outdoor_temperature()
+    outdoor_temperature: float = await client.system.get_outdoor_temperature()
 
     # Get heat circuit temperature from heat circuit 2
     heat_circuit_temperature: float = await client.heat_circuit.get_target_temperature(position=2)

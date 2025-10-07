@@ -2,7 +2,9 @@ import asyncio
 from typing import Any
 
 import pytest
+from aiohttp import BasicAuth
 from aiohttp import ClientSession
+from aiohttp import ServerTimeoutError
 from aioresponses import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
@@ -13,6 +15,7 @@ from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import System
 from keba_keenergy_api.endpoints import ValueResponse
 from keba_keenergy_api.error import APIError
+from keba_keenergy_api.error import AuthenticationError
 from keba_keenergy_api.error import InvalidJsonError
 
 
@@ -49,6 +52,7 @@ class TestKebaKeEnergyAPI:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "attr": "1"}]',
                 method="POST",
+                auth=None,
                 ssl=False,
             )
 
@@ -80,6 +84,7 @@ class TestKebaKeEnergyAPI:
 
             assert not session.closed
             await session.close()
+            assert session.closed
 
             assert isinstance(data, float)
             assert data == 10.81  # noqa: PLR2004
@@ -88,6 +93,47 @@ class TestKebaKeEnergyAPI:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "attr": "1"}]',
                 method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_api_with_basic_auth(self) -> None:
+        """Test api with basic auth."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Exterior temp.",
+                            "lowerLimit": "-100",
+                            "unitId": "Temp",
+                            "upperLimit": "100",
+                        },
+                        "value": "10.808357",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(
+                host="mocked-host",
+                username="test",
+                password="test",  # noqa: S106
+            )
+            response: float = await client.system.get_outdoor_temperature()
+
+            assert isinstance(response, float)
+            assert response == 10.81  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "attr": "1"}]',
+                method="POST",
+                auth=BasicAuth(login="test", password="test", encoding="latin1"),  # noqa: S106
                 ssl=False,
             )
 
@@ -363,6 +409,7 @@ class TestKebaKeEnergyAPI:
                 url="http://mocked-host/var/readWriteVars",
                 data=expected_data,
                 method="POST",
+                auth=None,
                 ssl=False,
             )
 
@@ -421,6 +468,7 @@ class TestKebaKeEnergyAPI:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data=expected_data,
                 method="POST",
+                auth=None,
                 ssl=False,
             )
 
@@ -441,6 +489,66 @@ class TestKebaKeEnergyAPI:
 
             assert str(error.value) == "bad-json"
 
+    def test_invalid_credentials(self) -> None:
+        """Test invalid credentials."""
+        loop = asyncio.get_event_loop()
+
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload={},
+                headers={"Content-Type": "text/html"},
+                status=401,
+            )
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(
+                host="mocked-host",
+                username="test",
+                password="invalid",  # noqa: S106
+            )
+
+            with pytest.raises(AuthenticationError) as error:
+                loop.run_until_complete(client.system.get_outdoor_temperature())
+
+            assert str(error.value) == "401 Unauthorized: Access denied"
+
+    def test_api_status_4xx(self) -> None:
+        """Test api status 4xx."""
+        loop = asyncio.get_event_loop()
+
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload={},
+                headers={"Content-Type": "text/html"},
+                status=405,
+            )
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(
+                host="mocked-host",
+                username="test",
+                password="test",  # noqa: S106
+            )
+
+            with pytest.raises(APIError) as error:
+                loop.run_until_complete(client.system.get_outdoor_temperature())
+
+            assert str(error.value) == "405 Error: {}"
+
+    def test_api_client_error(self) -> None:
+        """Test api client error."""
+        loop = asyncio.get_event_loop()
+
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                exception=ServerTimeoutError("Server took too long to respond"),
+            )
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(APIError) as error:
+                loop.run_until_complete(client.system.get_outdoor_temperature())
+
+            assert str(error.value) == "Server took too long to respond"
+
     def test_api_error(self) -> None:
         """Test api error."""
         loop = asyncio.get_event_loop()
@@ -450,10 +558,11 @@ class TestKebaKeEnergyAPI:
                 "http://mocked-host/var/readWriteVars",
                 payload={"developerMessage": "mocked-error"},
                 headers={"Content-Type": "application/json;charset=utf-8"},
+                status=500,
             )
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
             with pytest.raises(APIError) as error:
                 loop.run_until_complete(client.system.get_outdoor_temperature())
 
-            assert str(error.value) == "mocked-error"
+            assert str(error.value) == "500 Error: mocked-error"

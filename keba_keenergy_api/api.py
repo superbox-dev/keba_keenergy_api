@@ -2,6 +2,7 @@
 
 from typing import Any
 
+from aiohttp import BasicAuth
 from aiohttp import ClientSession
 
 from keba_keenergy_api.constants import Section
@@ -19,15 +20,36 @@ from keba_keenergy_api.endpoints import ValueResponse
 class KebaKeEnergyAPI(BaseEndpoints):
     """Client to interact with KEBA KeEnergy API."""
 
-    def __init__(self, host: str, *, ssl: bool = False, session: ClientSession | None = None) -> None:
+    def __init__(
+        self,
+        host: str,
+        username: str | None = None,
+        password: str | None = None,
+        *,
+        ssl: bool = False,
+        skip_ssl_verification: bool = False,
+        session: ClientSession | None = None,
+    ) -> None:
         """Initialize with Client Session and host."""
         self.host: str = host
         self.schema: str = "https" if ssl else "http"
 
+        self.auth: BasicAuth | None = None
+
+        if username and password:
+            self.auth = BasicAuth(login=username, password=password)
+
         self.ssl: bool = ssl
+        self.skip_ssl_verification: bool = skip_ssl_verification
         self.session: ClientSession | None = session
 
-        super().__init__(base_url=self.device_url, ssl=ssl, session=session)
+        super().__init__(
+            base_url=self.device_url,
+            auth=self.auth,
+            ssl=ssl,
+            skip_ssl_verification=skip_ssl_verification,
+            session=session,
+        )
 
     @property
     def device_url(self) -> str:
@@ -37,22 +59,46 @@ class KebaKeEnergyAPI(BaseEndpoints):
     @property
     def system(self) -> SystemEndpoints:
         """Get system endpoints."""
-        return SystemEndpoints(base_url=self.device_url, ssl=self.ssl, session=self.session)
+        return SystemEndpoints(
+            base_url=self.device_url,
+            auth=self.auth,
+            ssl=self.ssl,
+            skip_ssl_verification=self.skip_ssl_verification,
+            session=self.session,
+        )
 
     @property
     def hot_water_tank(self) -> HotWaterTankEndpoints:
         """Get hot water tank endpoints."""
-        return HotWaterTankEndpoints(base_url=self.device_url, ssl=self.ssl, session=self.session)
+        return HotWaterTankEndpoints(
+            base_url=self.device_url,
+            auth=self.auth,
+            ssl=self.ssl,
+            skip_ssl_verification=self.skip_ssl_verification,
+            session=self.session,
+        )
 
     @property
     def heat_pump(self) -> HeatPumpEndpoints:
         """Get heat pump endpoints."""
-        return HeatPumpEndpoints(base_url=self.device_url, ssl=self.ssl, session=self.session)
+        return HeatPumpEndpoints(
+            base_url=self.device_url,
+            auth=self.auth,
+            ssl=self.ssl,
+            skip_ssl_verification=self.skip_ssl_verification,
+            session=self.session,
+        )
 
     @property
     def heat_circuit(self) -> HeatCircuitEndpoints:
         """Get heat circuit endpoints."""
-        return HeatCircuitEndpoints(base_url=self.device_url, ssl=self.ssl, session=self.session)
+        return HeatCircuitEndpoints(
+            base_url=self.device_url,
+            auth=self.auth,
+            ssl=self.ssl,
+            skip_ssl_verification=self.skip_ssl_verification,
+            session=self.session,
+        )
 
     async def read_data(
         self,

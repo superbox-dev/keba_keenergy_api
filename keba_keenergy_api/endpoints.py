@@ -10,8 +10,14 @@ from typing import NamedTuple
 from typing import TypeAlias
 from typing import TypedDict
 
+from aiohttp import BasicAuth
+from aiohttp import ClientError
 from aiohttp import ClientSession
 from aiohttp import ClientTimeout
+from aiohttp.web_exceptions import HTTPBadRequest
+from aiohttp.web_exceptions import HTTPInternalServerError
+from aiohttp.web_exceptions import HTTPMultipleChoices
+from aiohttp.web_exceptions import HTTPUnauthorized
 
 from keba_keenergy_api.constants import API_DEFAULT_TIMEOUT
 from keba_keenergy_api.constants import EndpointPath
@@ -26,6 +32,7 @@ from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import System
 from keba_keenergy_api.constants import SystemOperatingMode
 from keba_keenergy_api.error import APIError
+from keba_keenergy_api.error import AuthenticationError
 from keba_keenergy_api.error import InvalidJsonError
 
 
@@ -64,11 +71,15 @@ class BaseEndpoints:
         self,
         base_url: str,
         *,
+        auth: BasicAuth | None,
         ssl: bool,
+        skip_ssl_verification: bool,
         session: ClientSession | None = None,
     ) -> None:
         self._base_url: str = base_url
+        self._auth: BasicAuth | None = auth
         self._ssl: bool = ssl
+        self._skip_ssl_verification: bool = skip_ssl_verification
         self._session: ClientSession | None = session
 
     async def _post(self, payload: str | None = None, endpoint: str | None = None) -> Response:
@@ -80,28 +91,44 @@ class BaseEndpoints:
         )
 
         try:
+            url: str = f"{self._base_url}{endpoint if endpoint else ''}"
+
             async with session.post(
-                f"{self._base_url}{endpoint if endpoint else ''}",
-                ssl=self._ssl,
+                url,
+                auth=self._auth,
+                ssl=False if self._skip_ssl_verification else self._ssl,
                 data=payload,
             ) as resp:
-                response: list[dict[str, Any]] = await resp.json(
-                    content_type="application/json;charset=utf-8",
-                )
-        except JSONDecodeError as error:
-            response_text = await resp.text()
-            raise InvalidJsonError(response_text) from error
+                if resp.status <= HTTPMultipleChoices.status_code or resp.status == HTTPInternalServerError.status_code:
+                    try:
+                        response: list[dict[str, Any]] = await resp.json()
+                    except JSONDecodeError as error:
+                        response_text = await resp.text()
+                        raise InvalidJsonError(response_text) from error
+
+                    if (
+                        resp.status == HTTPInternalServerError.status_code
+                        and isinstance(response, dict)
+                        and "developerMessage" in response
+                    ):
+                        msg_500: str = f"{resp.status} Error: {response['developerMessage']}"
+                        raise APIError(msg_500)
+                if resp.status == HTTPUnauthorized.status_code:
+                    msg_401: str = "401 Unauthorized: Access denied"
+                    raise AuthenticationError(msg_401)
+                if resp.status >= HTTPBadRequest.status_code:
+                    msg_default: str = f"{resp.status} Error: {await resp.text()}"
+                    raise APIError(msg_default)
+
+                if isinstance(response, dict):
+                    response = [response]
+
+                return response
+        except ClientError as error:
+            raise APIError(str(error)) from error
         finally:
             if not self._session:
                 await session.close()
-
-        if isinstance(response, dict) and "developerMessage" in response:
-            raise APIError(response["developerMessage"])
-
-        if isinstance(response, dict):
-            response = [response]
-
-        return response
 
     def _get_real_key(self, key: Section, /, *, key_prefix: bool = True) -> str:
         class_name: str = key.__class__.__name__
@@ -330,8 +357,22 @@ class BaseEndpoints:
 class SystemEndpoints(BaseEndpoints):
     """Class to retrieve the system data."""
 
-    def __init__(self, base_url: str, *, ssl: bool, session: ClientSession | None = None) -> None:
-        super().__init__(base_url=base_url, ssl=ssl, session=session)
+    def __init__(
+        self,
+        base_url: str,
+        *,
+        auth: BasicAuth | None = None,
+        ssl: bool,
+        skip_ssl_verification: bool,
+        session: ClientSession | None = None,
+    ) -> None:
+        super().__init__(
+            base_url=base_url,
+            auth=auth,
+            ssl=ssl,
+            skip_ssl_verification=skip_ssl_verification,
+            session=session,
+        )
 
     async def get_positions(self) -> Position:
         """Get number of heat pump, heating circuit and hot water tank."""
@@ -425,8 +466,22 @@ class SystemEndpoints(BaseEndpoints):
 class HotWaterTankEndpoints(BaseEndpoints):
     """Class to send and retrieve the hot water tank data."""
 
-    def __init__(self, base_url: str, *, ssl: bool, session: ClientSession | None = None) -> None:
-        super().__init__(base_url=base_url, ssl=ssl, session=session)
+    def __init__(
+        self,
+        base_url: str,
+        *,
+        auth: BasicAuth | None = None,
+        ssl: bool,
+        skip_ssl_verification: bool,
+        session: ClientSession | None = None,
+    ) -> None:
+        super().__init__(
+            base_url=base_url,
+            auth=auth,
+            ssl=ssl,
+            skip_ssl_verification=skip_ssl_verification,
+            session=session,
+        )
 
     async def get_current_temperature(self, position: int | None = 1) -> float:
         """Get current temperature."""
@@ -548,8 +603,22 @@ class HotWaterTankEndpoints(BaseEndpoints):
 class HeatPumpEndpoints(BaseEndpoints):
     """Class to retrieve the heat pump data."""
 
-    def __init__(self, base_url: str, *, ssl: bool, session: ClientSession | None = None) -> None:
-        super().__init__(base_url=base_url, ssl=ssl, session=session)
+    def __init__(
+        self,
+        base_url: str,
+        *,
+        auth: BasicAuth | None = None,
+        ssl: bool,
+        skip_ssl_verification: bool,
+        session: ClientSession | None = None,
+    ) -> None:
+        super().__init__(
+            base_url=base_url,
+            auth=auth,
+            ssl=ssl,
+            skip_ssl_verification=skip_ssl_verification,
+            session=session,
+        )
 
     async def get_name(self, position: int | None = 1) -> str:
         """Get heat pump name."""
@@ -926,8 +995,22 @@ class HeatPumpEndpoints(BaseEndpoints):
 class HeatCircuitEndpoints(BaseEndpoints):
     """Class to send and retrieve the heat pump data."""
 
-    def __init__(self, base_url: str, *, ssl: bool, session: ClientSession | None = None) -> None:
-        super().__init__(base_url=base_url, ssl=ssl, session=session)
+    def __init__(
+        self,
+        base_url: str,
+        *,
+        auth: BasicAuth | None = None,
+        ssl: bool,
+        skip_ssl_verification: bool,
+        session: ClientSession | None = None,
+    ) -> None:
+        super().__init__(
+            base_url=base_url,
+            auth=auth,
+            ssl=ssl,
+            skip_ssl_verification=skip_ssl_verification,
+            session=session,
+        )
 
     async def get_name(self, position: int | None = 1) -> str:
         """Get heat circuit name."""
