@@ -3,7 +3,6 @@
 import json
 import re
 from enum import Enum
-from json import JSONDecodeError
 from re import Pattern
 from typing import Any
 from typing import NamedTuple
@@ -33,7 +32,6 @@ from keba_keenergy_api.constants import System
 from keba_keenergy_api.constants import SystemOperatingMode
 from keba_keenergy_api.error import APIError
 from keba_keenergy_api.error import AuthenticationError
-from keba_keenergy_api.error import InvalidJsonError
 
 
 class ReadPayload(TypedDict):
@@ -100,25 +98,21 @@ class BaseEndpoints:
                 data=payload,
             ) as resp:
                 if resp.status <= HTTPMultipleChoices.status_code or resp.status == HTTPInternalServerError.status_code:
-                    try:
-                        response: list[dict[str, Any]] = await resp.json()
-                    except JSONDecodeError as error:
-                        response_text = await resp.text()
-                        raise InvalidJsonError(response_text) from error
+                    response: list[dict[str, Any]] = await resp.json()
 
                     if (
                         resp.status == HTTPInternalServerError.status_code
                         and isinstance(response, dict)
                         and "developerMessage" in response
                     ):
-                        msg_500: str = f"{resp.status} Error: {response['developerMessage']}"
-                        raise APIError(msg_500)
+                        developer_message: str = f"Error: {response['developerMessage']}"
+                        raise APIError(developer_message, status=resp.status)
                 if resp.status == HTTPUnauthorized.status_code:
-                    msg_401: str = "401 Unauthorized: Access denied"
-                    raise AuthenticationError(msg_401)
+                    access_denied_message: str = "Unauthorized: Access denied"
+                    raise AuthenticationError(access_denied_message, status=resp.status)
                 if resp.status >= HTTPBadRequest.status_code:
-                    msg_default: str = f"{resp.status} Error: {await resp.text()}"
-                    raise APIError(msg_default)
+                    default_message: str = f"Error: {await resp.text()}"
+                    raise APIError(default_message, status=resp.status)
 
                 if isinstance(response, dict):
                     response = [response]
@@ -187,9 +181,8 @@ class BaseEndpoints:
             try:
                 value = section.value.human_readable(value).name.lower()
             except ValueError as error:
-                msg: str = f"Can't convert value to human readable value! {response[0]}"
-
-                raise APIError(msg) from error
+                message: str = f"Can't convert value to human readable value! {response[0]}"
+                raise APIError(message) from error
 
         return value
 
@@ -457,8 +450,8 @@ class SystemEndpoints(BaseEndpoints):
         try:
             _mode: int | None = mode if isinstance(mode, int) else SystemOperatingMode[mode.upper()].value
         except KeyError as error:
-            msg: str = f"Invalid value! Allowed values are {self._get_allowed_values(SystemOperatingMode)}"
-            raise APIError(msg) from error
+            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(SystemOperatingMode)}"
+            raise APIError(message) from error
 
         await self._write_values(request={System.OPERATING_MODE: _mode})
 
@@ -507,8 +500,8 @@ class HotWaterTankEndpoints(BaseEndpoints):
         try:
             _mode: int | None = mode if isinstance(mode, int) else HotWaterTankOperatingMode[mode.upper()].value
         except KeyError as error:
-            msg: str = f"Invalid value! Allowed values are {self._get_allowed_values(HotWaterTankOperatingMode)}"
-            raise APIError(msg) from error
+            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(HotWaterTankOperatingMode)}"
+            raise APIError(message) from error
 
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
 
@@ -654,8 +647,8 @@ class HeatPumpEndpoints(BaseEndpoints):
         try:
             _mode: int | None = mode if isinstance(mode, int) else HeatPumpOperatingMode[mode.upper()].value
         except KeyError as error:
-            msg: str = f"Invalid value! Allowed values are {self._get_allowed_values(HeatPumpOperatingMode)}"
-            raise APIError(msg) from error
+            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(HeatPumpOperatingMode)}"
+            raise APIError(message) from error
 
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
 
@@ -681,9 +674,10 @@ class HeatPumpEndpoints(BaseEndpoints):
         try:
             _mode: int | None = mode if isinstance(mode, int) else HeatPumpCompressorUseNightSpeed[mode.upper()].value
         except KeyError as error:
-            msg: str = f"Invalid value! Allowed values are {self._get_allowed_values(HeatPumpCompressorUseNightSpeed)}"
-
-            raise APIError(msg) from error
+            message: str = (
+                f"Invalid value! Allowed values are {self._get_allowed_values(HeatPumpCompressorUseNightSpeed)}"
+            )
+            raise APIError(message) from error
 
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
 
@@ -1194,8 +1188,8 @@ class HeatCircuitEndpoints(BaseEndpoints):
         try:
             _mode: int | None = mode if isinstance(mode, int) else HeatCircuitOperatingMode[mode.upper()].value
         except KeyError as error:
-            msg: str = f"Invalid value! Allowed values are {self._get_allowed_values(HeatCircuitOperatingMode)}"
-            raise APIError(msg) from error
+            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(HeatCircuitOperatingMode)}"
+            raise APIError(message) from error
 
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
 

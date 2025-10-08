@@ -16,7 +16,6 @@ from keba_keenergy_api.constants import System
 from keba_keenergy_api.endpoints import ValueResponse
 from keba_keenergy_api.error import APIError
 from keba_keenergy_api.error import AuthenticationError
-from keba_keenergy_api.error import InvalidJsonError
 
 
 class TestKebaKeEnergyAPI:
@@ -471,23 +470,6 @@ class TestKebaKeEnergyAPI:
                 auth=None,
                 ssl=False,
             )
-
-    def test_invalid_json_error(self) -> None:
-        """Test invalid json error."""
-        loop = asyncio.get_event_loop()
-
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                body="bad-json",
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(InvalidJsonError) as error:
-                loop.run_until_complete(client.system.get_outdoor_temperature())
-
-            assert str(error.value) == "bad-json"
 
     def test_invalid_credentials(self) -> None:
         """Test invalid credentials."""
