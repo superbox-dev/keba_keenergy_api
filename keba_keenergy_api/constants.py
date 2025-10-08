@@ -121,6 +121,18 @@ class HeatPumpHeatRequest(IntEnum):
     ON = 1
 
 
+class HeatCircuitCoolRequest(IntEnum):
+    """Available heat circuit cool request stats."""
+
+    OFF = 0
+    ON = 1
+    FLOW_OFF = 2
+    TEMPORARY_OFF = 3
+    ROOM_OFF = 4
+    OUTDOOR_OFF = 5
+    INFLOW_OFF = 6
+
+
 class HeatCircuitHeatRequest(IntEnum):
     """Available heat circuit heat request stats."""
 
@@ -449,6 +461,11 @@ class HeatCircuit(Enum):
         value_type=int,
         read_only=False,
         human_readable=HeatCircuitOperatingMode,
+    )
+    COOL_REQUEST = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.coolRequest",
+        value_type=int,
+        human_readable=HeatCircuitCoolRequest,
     )
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.heatRequest",

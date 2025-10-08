@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.0.1b5] - 2025-10-08
+## [2.1.0b1] - 2025-10-08
 
 ### Added
 
+- Added endpoint `get_cool_request()` to the heat circuit
 - Added endpoint `get_flow_temperature()` to the heat circuit
 - Added endpoint `get_return_flow_temperature()` to the heat circuit
 - Added support for authentication (It's required for newer KeEnergy.WebHmi versions)

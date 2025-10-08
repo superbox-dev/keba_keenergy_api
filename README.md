@@ -179,6 +179,7 @@ asyncio.run(main())
 | `.set_target_temperature_offset(2, position)`   | `float`          | Set target temperature offset.                      |
 | `.get_operating_mode(position, human_readable)` | `int` or `str`   | Get operating mode (0 is `OFF` and 3 is `HEAT_UP`). |
 | `.set_operating_mode(3, position)`              | `int` or `str`   | Set operating mode.                                 |
+| `.get_cool_request(position)`                   | `int` or `str`   | Get cool request.                                   |
 | `.get_heat_request(position)`                   | `int` or `str`   | Get heat request.                                   |
 | `.get_external_cool_request(position)`          | `int` or `str`   | Get external cool request.                          |
 | `.get_external_heat_request(position)`          | `int` or `str`   | Get external heat request.                          |
