@@ -22,6 +22,7 @@ class APIError(Exception):
                 _message = f"{_message} - {message}"
 
         self.message: str = _message
+        self.status: int | None = status
 
     def __str__(self) -> str:
         return self.message
