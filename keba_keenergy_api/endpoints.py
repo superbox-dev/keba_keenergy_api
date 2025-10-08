@@ -3,6 +3,7 @@
 import json
 import re
 from enum import Enum
+from http import HTTPStatus
 from re import Pattern
 from typing import Any
 from typing import NamedTuple
@@ -13,10 +14,6 @@ from aiohttp import BasicAuth
 from aiohttp import ClientError
 from aiohttp import ClientSession
 from aiohttp import ClientTimeout
-from aiohttp.web_exceptions import HTTPBadRequest
-from aiohttp.web_exceptions import HTTPInternalServerError
-from aiohttp.web_exceptions import HTTPMultipleChoices
-from aiohttp.web_exceptions import HTTPUnauthorized
 
 from keba_keenergy_api.constants import API_DEFAULT_TIMEOUT
 from keba_keenergy_api.constants import EndpointPath
@@ -97,22 +94,21 @@ class BaseEndpoints:
                 ssl=False if self._skip_ssl_verification else self._ssl,
                 data=payload,
             ) as resp:
-                if resp.status <= HTTPMultipleChoices.status_code or resp.status == HTTPInternalServerError.status_code:
+                if resp.status <= HTTPStatus.MULTIPLE_CHOICES or resp.status == HTTPStatus.INTERNAL_SERVER_ERROR:
                     response: list[dict[str, Any]] = await resp.json()
 
                     if (
-                        resp.status == HTTPInternalServerError.status_code
+                        resp.status == HTTPStatus.INTERNAL_SERVER_ERROR
                         and isinstance(response, dict)
                         and "developerMessage" in response
                     ):
-                        developer_message: str = f"Error: {response['developerMessage']}"
-                        raise APIError(developer_message, status=resp.status)
-                if resp.status == HTTPUnauthorized.status_code:
-                    access_denied_message: str = "Unauthorized: Access denied"
-                    raise AuthenticationError(access_denied_message, status=resp.status)
-                if resp.status >= HTTPBadRequest.status_code:
-                    default_message: str = f"Error: {await resp.text()}"
-                    raise APIError(default_message, status=resp.status)
+                        developer_message: str = response["developerMessage"]
+                        raise APIError(developer_message, status=HTTPStatus(resp.status))
+                if resp.status == HTTPStatus.UNAUTHORIZED:
+                    raise AuthenticationError(status=HTTPStatus.UNAUTHORIZED)
+                if resp.status >= HTTPStatus.BAD_REQUEST:
+                    default_message: str = await resp.text()
+                    raise APIError(default_message, status=HTTPStatus(resp.status))
 
                 if isinstance(response, dict):
                     response = [response]

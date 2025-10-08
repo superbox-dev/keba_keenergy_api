@@ -491,7 +491,7 @@ class TestKebaKeEnergyAPI:
             with pytest.raises(AuthenticationError) as error:
                 loop.run_until_complete(client.system.get_outdoor_temperature())
 
-            assert str(error.value) == "401 Unauthorized: Access denied"
+            assert str(error.value) == "401 Unauthorized: No permission -- see authorization schemes"
 
     def test_api_status_4xx(self) -> None:
         """Test api status 4xx."""
@@ -513,7 +513,7 @@ class TestKebaKeEnergyAPI:
             with pytest.raises(APIError) as error:
                 loop.run_until_complete(client.system.get_outdoor_temperature())
 
-            assert str(error.value) == "405 Error: {}"
+            assert str(error.value) == "405 Method Not Allowed: Specified method is invalid for this resource - {}"
 
     def test_api_client_error(self) -> None:
         """Test api client error."""
@@ -547,4 +547,4 @@ class TestKebaKeEnergyAPI:
             with pytest.raises(APIError) as error:
                 loop.run_until_complete(client.system.get_outdoor_temperature())
 
-            assert str(error.value) == "500 Error: mocked-error"
+            assert str(error.value) == "500 Internal Server Error: Server got itself in trouble - mocked-error"

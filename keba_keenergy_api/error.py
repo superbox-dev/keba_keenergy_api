@@ -1,5 +1,7 @@
 """KEBA KeEnergy API error classes."""
 
+from http import HTTPStatus
+
 
 class APIError(Exception):
     """API error."""
@@ -9,13 +11,20 @@ class APIError(Exception):
         message: str = "",
         /,
         *,
-        status: int | None = None,
+        status: HTTPStatus | None = None,
     ) -> None:
-        self.message: str = message
-        self.status: int | None = status
+        _message: str = message
+
+        if status:
+            _message = f"{status} {status.phrase}: {status.description}"
+
+            if message:
+                _message = f"{_message} - {message}"
+
+        self.message: str = _message
 
     def __str__(self) -> str:
-        return f"{self.status} {self.message}" if self.status else self.message
+        return self.message
 
 
 class InvalidJsonError(APIError):
