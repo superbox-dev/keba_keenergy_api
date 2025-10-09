@@ -28,6 +28,13 @@ class SystemOperatingMode(IntEnum):
     AUTO = 4
 
 
+class SystemHasPhotovoltaics(IntEnum):
+    """Available has photovoltaics stats."""
+
+    OFF = 0
+    ON = 1
+
+
 class HotWaterTankOperatingMode(IntEnum):
     """Available hot water tank operating modes."""
 
@@ -159,6 +166,13 @@ class HeatCircuitExternalHeatRequest(IntEnum):
     ON = 1
 
 
+class ExternalHeatSourcesOperatingMode(IntEnum):
+    """Available external heat sources operating modes."""
+
+    OFF = 0
+    ON = 1
+
+
 PAYLOAD_PREFIX: Final[str] = "APPL.CtrlAppl"
 
 
@@ -185,6 +199,15 @@ class System(Enum):
     HEAT_CIRCUIT_NUMBERS = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfHeatingCircuits",
         value_type=int,
+    )
+    EXTERNAL_HEAT_SOURCES_NUMBERS = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfExtHeatSources",
+        value_type=int,
+    )
+    HAS_PHOTOVOLTAICS = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.options.hasPhotovoltaics",
+        value_type=str,
+        human_readable=SystemHasPhotovoltaics,
     )
     OPERATING_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.param.operatingMode",
@@ -484,6 +507,34 @@ class HeatCircuit(Enum):
     )
 
 
+class ExternalHeatSources(Enum):
+    OPERATING_MODE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.operatingMode",
+        value_type=int,
+        read_only=False,
+        human_readable=ExternalHeatSourcesOperatingMode,
+    )
+    TARGET_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].values.setTemp",
+        value_type=float,
+    )
+
+
+class Photovoltaics(Enum):
+    EXCESS_POWER = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.photovoltaics.ElectricEnergyMeter.values.power",
+        value_type=float,
+    )
+    DAILY_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.photovoltaics.ElectricEnergyMeter.values.heatDay",
+        value_type=float,
+    )
+    TOTAL_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.photovoltaics.ElectricEnergyMeter.values.accumulatedHeat",
+        value_type=float,
+    )
+
+
 class SectionPrefix(str, Enum):
     """Section prefixes."""
 
@@ -491,6 +542,8 @@ class SectionPrefix(str, Enum):
     HOT_WATER_TANK = "hot_water_tank"
     HEAT_PUMP = "heat_pump"
     HEAT_CIRCUIT = "heat_circuit"
+    EXTERNAL_HEAT_SOURCE = "external_heat_source"
+    PHOTOVOLTAICS = "photovoltaics"
 
 
-Section: TypeAlias = System | HotWaterTank | HeatPump | HeatCircuit
+Section: TypeAlias = System | HotWaterTank | HeatPump | HeatCircuit | ExternalHeatSources | Photovoltaics

@@ -302,6 +302,16 @@ class TestKebaKeEnergyAPI:
                         },
                         "value": "1",
                     },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfExtHeatSources",
+                        "attributes": {
+                            "formatId": "fmt2p0",
+                            "longText": "Qty ext. heat sources",
+                            "upperLimit": "1",
+                            "lowerLimit": "0",
+                        },
+                        "value": "1",
+                    },
                 ],
                 [
                     {

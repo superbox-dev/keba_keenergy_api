@@ -7,15 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.1.0b1] - 2025-10-08
+## [2.1.0b2] - 2025-10-09
 
 ### Added
 
+- Added endpoint `get_operget_excess_powerating_mode()` to the photovoltaics
+- Added endpoint `get_daily_energy()` to the photovoltaics
+- Added endpoint `get_total_energy()` to the photovoltaics
+- Added endpoint `get_operating_mode()` to the external heat sources
+- Added endpoint `set_operating_mode()` to the external heat sources
+- Added endpoint `get_target_temperature()` to the external heat sources
+- Added endpoint `has_photovoltaics()` to the system
+- Added endpoint `get_number_of_external_heat_sources()` to the system
 - Added endpoint `get_cool_request()` to the heat circuit
 - Added endpoint `get_flow_temperature()` to the heat circuit
 - Added endpoint `get_return_flow_temperature()` to the heat circuit
 - Added support for authentication (It's required for newer KeEnergy.WebHmi versions)
-- Added http status code to `APIError()` exceptiongit push
+- Added http status code to `APIError()` exception
 
 ## [2.0.0] - 2025-09-30
 

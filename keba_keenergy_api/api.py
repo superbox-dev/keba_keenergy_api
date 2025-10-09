@@ -8,9 +8,11 @@ from aiohttp import ClientSession
 from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import SectionPrefix
 from keba_keenergy_api.endpoints import BaseEndpoints
+from keba_keenergy_api.endpoints import ExternalHeatSourcesEndpoints
 from keba_keenergy_api.endpoints import HeatCircuitEndpoints
 from keba_keenergy_api.endpoints import HeatPumpEndpoints
 from keba_keenergy_api.endpoints import HotWaterTankEndpoints
+from keba_keenergy_api.endpoints import PhotovoltaicsEndpoints
 from keba_keenergy_api.endpoints import Position
 from keba_keenergy_api.endpoints import SystemEndpoints
 from keba_keenergy_api.endpoints import Value
@@ -93,6 +95,28 @@ class KebaKeEnergyAPI(BaseEndpoints):
     def heat_circuit(self) -> HeatCircuitEndpoints:
         """Get heat circuit endpoints."""
         return HeatCircuitEndpoints(
+            base_url=self.device_url,
+            auth=self.auth,
+            ssl=self.ssl,
+            skip_ssl_verification=self.skip_ssl_verification,
+            session=self.session,
+        )
+
+    @property
+    def external_heat_sources(self) -> ExternalHeatSourcesEndpoints:
+        """Get external heat source endpoints."""
+        return ExternalHeatSourcesEndpoints(
+            base_url=self.device_url,
+            auth=self.auth,
+            ssl=self.ssl,
+            skip_ssl_verification=self.skip_ssl_verification,
+            session=self.session,
+        )
+
+    @property
+    def photovoltaics(self) -> PhotovoltaicsEndpoints:
+        """Get photovoltaics endpoints."""
+        return PhotovoltaicsEndpoints(
             base_url=self.device_url,
             auth=self.auth,
             ssl=self.ssl,

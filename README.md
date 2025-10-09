@@ -89,6 +89,11 @@ asyncio.run(main())
 |----------------------------------------------------|----------------|--------------------------------------------------------------------------------------------------------------------|
 | `.get_info()`                                      | `str`          | Get system information.                                                                                            |
 | `.get_device_info()`                               | `str`          | Get device information.                                                                                            |
+| `.get_number_of_hot_water_tanks()`                 | `int`          | Get number of hot water tanks.                                                                                     |
+| `.get_number_of_heat_pumps()`                      | `int`          | Get number of heat pumps.                                                                                          |
+| `.get_number_of_heating_circuits()`                | `int`          | Get number of heating circuits.                                                                                    |
+| `.get_number_of_external_heat_sources()`           | `int`          | Get number of external heat sources.                                                                               |
+| `.has_photovoltaics()`                             | `int` or `str` | Has photovoltacis.                                                                                                 |
 | `.get_outdoor_temperature()`                       | `float`        | Get outdoor temperature.                                                                                           |
 | `.get_operating_mode(position, human_readable)`    | `int` or `str` | Get operating mode as integer (0 is `STANDBY`, 1 is `SUMMER`, 2 is `AUTO_HEAT`, 3 is `AUTO_COOL` and 4 is `AUTO`). |
 | `.set_operating_mode(0, position, human_readable)` | `int` or `str` | Set operating mode.                                                                                                |
@@ -183,6 +188,22 @@ asyncio.run(main())
 | `.get_heat_request(position)`                   | `int` or `str`   | Get heat request.                                   |
 | `.get_external_cool_request(position)`          | `int` or `str`   | Get external cool request.                          |
 | `.get_external_heat_request(position)`          | `int` or `str`   | Get external heat request.                          |
+
+#### External heat source
+
+| Endpoint                                           | Request/Response | Description                                               |
+|----------------------------------------------------|------------------|-----------------------------------------------------------|
+| `.get_operating_mode(position, human_readable)`    | `int` or `str`   | Get operating mode as integer (0 is `OFF` and 1 is `ON`). |
+| `.set_operating_mode(0, position, human_readable)` | `int` or `str`   | Set operating mode.                                       |
+| `.get_target_temperature(position)`                | `float`          | Get target temperature.                                   |
+
+#### Photovoltaics
+
+| Endpoint                 | Request/Response | Description       |
+|--------------------------|------------------|-------------------|
+| `.get_excess_power()`    | `float`          | Get excess power. |
+| `.get_daily_energy()`    | `float`          | Get daily energy. |
+| `.get_total_energy()`    | `float`          | Get total energy. |
 
 ## Changelog
 
