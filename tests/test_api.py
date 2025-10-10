@@ -207,7 +207,7 @@ class TestKebaKeEnergyAPI:
                     '[{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks", "attr": "1"}, '
                     '{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].topTemp.values.actValue", "attr": "1"}, '
                     '{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].values.setTemp", "attr": "1"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.accumulatedHeat", "attr": "1"}]'
+                    '{"name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.accumulatedHeat", "attr": "1"}]'  # noqa: E501
                 ),
                 {
                     "system": {
@@ -228,14 +228,14 @@ class TestKebaKeEnergyAPI:
                             {
                                 "attributes": {"lower_limit": "20", "upper_limit": "90"},
                                 "value": 22.56,
-                            }
-                        ]
+                            },
+                        ],
                     },
                     "photovoltaic": {
                         "total_energy": {
                             "attributes": {},
                             "value": 349442.23,
-                        }
+                        },
                     },
                 },
             ),

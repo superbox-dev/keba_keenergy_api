@@ -136,7 +136,7 @@ class BaseEndpoints:
     def _get_position_index(self, section: Section, position: Position | list[int | None]) -> list[int | None]:
         idx: list[int | None] = []
 
-        if isinstance(section, System) or isinstance(section, Photovoltaic):
+        if isinstance(section, System | Photovoltaic):
             idx = [None]
         elif isinstance(position, Position):
             position_key: str = f"{self.KEY_PATTERN.sub('_', section.__class__.__name__).lower()}"
