@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.1.0b2] - 2025-10-09
+## [2.1.0b3] - 2025-10-09
 
 ### Added
 
-- Added endpoint `get_operget_excess_powerating_mode()` to the photovoltaics
+- Added endpoint `get_excess_powerating_mode()` to the photovoltaics
 - Added endpoint `get_daily_energy()` to the photovoltaics
 - Added endpoint `get_total_energy()` to the photovoltaics
 - Added endpoint `get_operating_mode()` to the external heat sources
