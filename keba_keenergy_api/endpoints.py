@@ -437,7 +437,7 @@ class SystemEndpoints(BaseEndpoints):
         return self._get_int_value(response, section=System.EXTERNAL_HEAT_SOURCE_NUMBERS)
 
     async def has_photovoltaics(self, *, human_readable: bool = True) -> int | str:
-        """Has passive cooling."""
+        """Has photovoltaics."""
         response: dict[str, list[Value]] = await self._read_data(
             request=System.HAS_PHOTOVOLTAICS,
             position=None,

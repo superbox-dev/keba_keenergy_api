@@ -3533,7 +3533,7 @@ class TestExternalHeatSourceSection:
             )
 
 
-class TestPhotovoltaicsSection:
+class TestPhotovoltaicSection:
     @pytest.mark.asyncio
     async def test_get_excess_power(self) -> None:
         """Test get excess power."""
