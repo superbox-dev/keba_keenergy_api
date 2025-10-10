@@ -166,7 +166,7 @@ class HeatCircuitExternalHeatRequest(IntEnum):
     ON = 1
 
 
-class ExternalHeatSourcesOperatingMode(IntEnum):
+class ExternalHeatSourceOperatingMode(IntEnum):
     """Available external heat sources operating modes."""
 
     OFF = 0
@@ -200,7 +200,7 @@ class System(Enum):
         f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfHeatingCircuits",
         value_type=int,
     )
-    EXTERNAL_HEAT_SOURCES_NUMBERS = EndpointProperties(
+    EXTERNAL_HEAT_SOURCE_NUMBERS = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfExtHeatSources",
         value_type=int,
     )
@@ -507,12 +507,12 @@ class HeatCircuit(Enum):
     )
 
 
-class ExternalHeatSources(Enum):
+class ExternalHeatSource(Enum):
     OPERATING_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.operatingMode",
         value_type=int,
         read_only=False,
-        human_readable=ExternalHeatSourcesOperatingMode,
+        human_readable=ExternalHeatSourceOperatingMode,
     )
     TARGET_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].values.setTemp",
@@ -520,7 +520,7 @@ class ExternalHeatSources(Enum):
     )
 
 
-class Photovoltaics(Enum):
+class Photovoltaic(Enum):
     EXCESS_POWER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.photovoltaics.ElectricEnergyMeter.values.power",
         value_type=float,
@@ -543,7 +543,7 @@ class SectionPrefix(str, Enum):
     HEAT_PUMP = "heat_pump"
     HEAT_CIRCUIT = "heat_circuit"
     EXTERNAL_HEAT_SOURCE = "external_heat_source"
-    PHOTOVOLTAICS = "photovoltaics"
+    PHOTOVOLTAIC = "photovoltaic"
 
 
-Section: TypeAlias = System | HotWaterTank | HeatPump | HeatCircuit | ExternalHeatSources | Photovoltaics
+Section: TypeAlias = System | HotWaterTank | HeatPump | HeatCircuit | ExternalHeatSource | Photovoltaic

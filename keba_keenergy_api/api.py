@@ -8,7 +8,7 @@ from aiohttp import ClientSession
 from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import SectionPrefix
 from keba_keenergy_api.endpoints import BaseEndpoints
-from keba_keenergy_api.endpoints import ExternalHeatSourcesEndpoints
+from keba_keenergy_api.endpoints import ExternalHeatSourceEndpoints
 from keba_keenergy_api.endpoints import HeatCircuitEndpoints
 from keba_keenergy_api.endpoints import HeatPumpEndpoints
 from keba_keenergy_api.endpoints import HotWaterTankEndpoints
@@ -103,9 +103,9 @@ class KebaKeEnergyAPI(BaseEndpoints):
         )
 
     @property
-    def external_heat_sources(self) -> ExternalHeatSourcesEndpoints:
+    def external_heat_source(self) -> ExternalHeatSourceEndpoints:
         """Get external heat source endpoints."""
-        return ExternalHeatSourcesEndpoints(
+        return ExternalHeatSourceEndpoints(
             base_url=self.device_url,
             auth=self.auth,
             ssl=self.ssl,
@@ -148,6 +148,8 @@ class KebaKeEnergyAPI(BaseEndpoints):
             SectionPrefix.HOT_WATER_TANK.value: {},
             SectionPrefix.HEAT_PUMP.value: {},
             SectionPrefix.HEAT_CIRCUIT.value: {},
+            SectionPrefix.EXTERNAL_HEAT_SOURCE.value: {},
+            SectionPrefix.PHOTOVOLTAIC.value: {},
         }
 
         for key, value in response.items():
@@ -165,6 +167,12 @@ class KebaKeEnergyAPI(BaseEndpoints):
             elif key.startswith(SectionPrefix.HEAT_CIRCUIT):
                 _key = key.lower().replace(f"{SectionPrefix.HEAT_CIRCUIT.value}_", "")
                 data[SectionPrefix.HEAT_CIRCUIT][_key] = value
+            elif key.startswith(SectionPrefix.EXTERNAL_HEAT_SOURCE):
+                _key = key.lower().replace(f"{SectionPrefix.EXTERNAL_HEAT_SOURCE.value}_", "")
+                data[SectionPrefix.EXTERNAL_HEAT_SOURCE][_key] = value
+            elif key.startswith(SectionPrefix.PHOTOVOLTAIC):
+                _key = key.lower().replace(f"{SectionPrefix.PHOTOVOLTAIC.value}_", "")
+                data[SectionPrefix.PHOTOVOLTAIC][_key] = value[0]
 
         return data
 

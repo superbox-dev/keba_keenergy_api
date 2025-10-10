@@ -4,7 +4,7 @@ import pytest
 from aioresponses.core import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
-from keba_keenergy_api.constants import ExternalHeatSourcesOperatingMode
+from keba_keenergy_api.constants import ExternalHeatSourceOperatingMode
 from keba_keenergy_api.constants import HeatCircuitExternalCoolRequest
 from keba_keenergy_api.constants import HeatCircuitExternalHeatRequest
 from keba_keenergy_api.constants import HeatCircuitHasRoomTemperature
@@ -3393,7 +3393,7 @@ class TestHeatCircuitSection:
             )
 
 
-class TestExternalHeatSourcesSection:
+class TestExternalHeatSourceSection:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -3427,7 +3427,7 @@ class TestExternalHeatSourcesSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.external_heat_sources.get_operating_mode(human_readable=human_readable)
+            data: int | str = await client.external_heat_source.get_operating_mode(human_readable=human_readable)
 
             assert isinstance(data, (int | str))
             assert data == expected_value
@@ -3443,7 +3443,7 @@ class TestExternalHeatSourcesSection:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("operating_mode", "expected_value"),
-        [("on", 1), ("OFF", 0), (ExternalHeatSourcesOperatingMode.ON.value, 1)],
+        [("on", 1), ("OFF", 0), (ExternalHeatSourceOperatingMode.ON.value, 1)],
     )
     async def test_set_operating_mode(
         self,
@@ -3459,7 +3459,7 @@ class TestExternalHeatSourcesSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            await client.external_heat_sources.set_operating_mode(operating_mode)
+            await client.external_heat_source.set_operating_mode(operating_mode)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
@@ -3490,7 +3490,7 @@ class TestExternalHeatSourcesSection:
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
             with pytest.raises(APIError) as error:
-                await client.external_heat_sources.set_operating_mode(operating_mode)
+                await client.external_heat_source.set_operating_mode(operating_mode)
 
             assert str(error.value) == ("Invalid value! Allowed values are ['OFF', '0', 'ON', '1']")
 
@@ -3519,7 +3519,7 @@ class TestExternalHeatSourcesSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.external_heat_sources.get_target_temperature()
+            data: float = await client.external_heat_source.get_target_temperature()
 
             assert isinstance(data, float)
             assert data == 22.56  # noqa: PLR2004

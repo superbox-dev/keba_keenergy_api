@@ -8,9 +8,11 @@ from aiohttp import ServerTimeoutError
 from aioresponses import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
+from keba_keenergy_api.constants import ExternalHeatSource
 from keba_keenergy_api.constants import HeatCircuit
 from keba_keenergy_api.constants import HeatPump
 from keba_keenergy_api.constants import HotWaterTank
+from keba_keenergy_api.constants import Photovoltaic
 from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import System
 from keba_keenergy_api.endpoints import ValueResponse
@@ -151,6 +153,8 @@ class TestKebaKeEnergyAPI:
                 [
                     System.HOT_WATER_TANK_NUMBERS,
                     HotWaterTank.CURRENT_TEMPERATURE,
+                    ExternalHeatSource.TARGET_TEMPERATURE,
+                    Photovoltaic.TOTAL_ENERGY,
                 ],
                 1,
                 None,
@@ -178,10 +182,32 @@ class TestKebaKeEnergyAPI:
                         },
                         "value": "40.808357",
                     },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.extHeatSource[0].values.setTemp",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Temp. nom.",
+                            "unitId": "Temp",
+                            "upperLimit": "90",
+                            "lowerLimit": "20",
+                        },
+                        "value": "22.56",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.accumulatedHeat",
+                        "attributes": {
+                            "formatId": "fmt6p0",
+                            "longText": "Acc. energy",
+                            "unitId": "kWh",
+                        },
+                        "value": "349442.23",
+                    },
                 ],
                 (
                     '[{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks", "attr": "1"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].topTemp.values.actValue", "attr": "1"}]'
+                    '{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].topTemp.values.actValue", "attr": "1"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].values.setTemp", "attr": "1"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.accumulatedHeat", "attr": "1"}]'
                 ),
                 {
                     "system": {
@@ -189,11 +215,28 @@ class TestKebaKeEnergyAPI:
                     },
                     "hot_water_tank": {
                         "current_temperature": [
-                            {"value": 40.81, "attributes": {"lower_limit": "20", "upper_limit": "90"}},
+                            {
+                                "attributes": {"lower_limit": "20", "upper_limit": "90"},
+                                "value": 40.81,
+                            },
                         ],
                     },
                     "heat_pump": {},
                     "heat_circuit": {},
+                    "external_heat_source": {
+                        "target_temperature": [
+                            {
+                                "attributes": {"lower_limit": "20", "upper_limit": "90"},
+                                "value": 22.56,
+                            }
+                        ]
+                    },
+                    "photovoltaic": {
+                        "total_energy": {
+                            "attributes": {},
+                            "value": 349442.23,
+                        }
+                    },
                 },
             ),
             (
@@ -260,6 +303,8 @@ class TestKebaKeEnergyAPI:
                             {"value": 11.81, "attributes": {"lower_limit": "10", "upper_limit": "90"}},
                         ],
                     },
+                    "external_heat_source": {},
+                    "photovoltaic": {},
                 },
             ),
             (
@@ -377,6 +422,8 @@ class TestKebaKeEnergyAPI:
                             {"value": 10.81, "attributes": {"lower_limit": "10", "upper_limit": "90"}},
                         ],
                     },
+                    "external_heat_source": {},
+                    "photovoltaic": {},
                 },
             ),
         ],

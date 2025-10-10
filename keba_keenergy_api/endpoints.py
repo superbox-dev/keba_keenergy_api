@@ -17,8 +17,8 @@ from aiohttp import ClientTimeout
 
 from keba_keenergy_api.constants import API_DEFAULT_TIMEOUT
 from keba_keenergy_api.constants import EndpointPath
-from keba_keenergy_api.constants import ExternalHeatSources
-from keba_keenergy_api.constants import ExternalHeatSourcesOperatingMode
+from keba_keenergy_api.constants import ExternalHeatSource
+from keba_keenergy_api.constants import ExternalHeatSourceOperatingMode
 from keba_keenergy_api.constants import HeatCircuit
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
 from keba_keenergy_api.constants import HeatPump
@@ -26,7 +26,7 @@ from keba_keenergy_api.constants import HeatPumpCompressorUseNightSpeed
 from keba_keenergy_api.constants import HeatPumpOperatingMode
 from keba_keenergy_api.constants import HotWaterTank
 from keba_keenergy_api.constants import HotWaterTankOperatingMode
-from keba_keenergy_api.constants import Photovoltaics
+from keba_keenergy_api.constants import Photovoltaic
 from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import System
 from keba_keenergy_api.constants import SystemOperatingMode
@@ -48,7 +48,7 @@ class Position(NamedTuple):
     heat_pump: int
     heat_circuit: int
     hot_water_tank: int
-    external_heat_sources: int
+    external_heat_source: int
 
 
 class Value(TypedDict, total=False):
@@ -136,7 +136,7 @@ class BaseEndpoints:
     def _get_position_index(self, section: Section, position: Position | list[int | None]) -> list[int | None]:
         idx: list[int | None] = []
 
-        if isinstance(section, System):
+        if isinstance(section, System) or isinstance(section, Photovoltaic):
             idx = [None]
         elif isinstance(position, Position):
             position_key: str = f"{self.KEY_PATTERN.sub('_', section.__class__.__name__).lower()}"
@@ -209,7 +209,7 @@ class BaseEndpoints:
         human_readable: bool = True,
         extra_attributes: bool = False,
     ) -> dict[str, list[Value]]:
-        if isinstance(request, System | HotWaterTank | HeatPump | HeatCircuit | ExternalHeatSources | Photovoltaics):
+        if isinstance(request, System | HotWaterTank | HeatPump | HeatCircuit | ExternalHeatSource | Photovoltaic):
             request = [request]
 
         if isinstance(position, int) or position is None:
@@ -374,7 +374,7 @@ class SystemEndpoints(BaseEndpoints):
                 System.HEAT_PUMP_NUMBERS,
                 System.HEAT_CIRCUIT_NUMBERS,
                 System.HOT_WATER_TANK_NUMBERS,
-                System.EXTERNAL_HEAT_SOURCES_NUMBERS,
+                System.EXTERNAL_HEAT_SOURCE_NUMBERS,
             ],
             position=None,
             key_prefix=False,
@@ -430,11 +430,11 @@ class SystemEndpoints(BaseEndpoints):
     async def get_number_of_external_heat_sources(self) -> int:
         """Get number of external heat sources."""
         response: dict[str, list[Value]] = await self._read_data(
-            request=System.EXTERNAL_HEAT_SOURCES_NUMBERS,
+            request=System.EXTERNAL_HEAT_SOURCE_NUMBERS,
             position=None,
             extra_attributes=True,
         )
-        return self._get_int_value(response, section=System.EXTERNAL_HEAT_SOURCES_NUMBERS)
+        return self._get_int_value(response, section=System.EXTERNAL_HEAT_SOURCE_NUMBERS)
 
     async def has_photovoltaics(self, *, human_readable: bool = True) -> int | str:
         """Has passive cooling."""
@@ -1256,7 +1256,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=HeatCircuit.EXTERNAL_HEAT_REQUEST, position=position)
 
 
-class ExternalHeatSourcesEndpoints(BaseEndpoints):
+class ExternalHeatSourceEndpoints(BaseEndpoints):
     """Class to send and retrieve the external heat source data."""
 
     def __init__(
@@ -1279,35 +1279,35 @@ class ExternalHeatSourcesEndpoints(BaseEndpoints):
     async def get_operating_mode(self, position: int | None = 1, *, human_readable: bool = True) -> int | str:
         """Get operating mode."""
         response: dict[str, list[Value]] = await self._read_data(
-            request=ExternalHeatSources.OPERATING_MODE,
+            request=ExternalHeatSource.OPERATING_MODE,
             position=position,
             human_readable=human_readable,
             extra_attributes=True,
         )
-        return self._get_int_or_str_value(response, section=ExternalHeatSources.OPERATING_MODE)
+        return self._get_int_or_str_value(response, section=ExternalHeatSource.OPERATING_MODE)
 
     async def set_operating_mode(self, mode: int | str, position: int = 1) -> None:
         """Set operating mode."""
         try:
-            _mode: int | None = mode if isinstance(mode, int) else ExternalHeatSourcesOperatingMode[mode.upper()].value
+            _mode: int | None = mode if isinstance(mode, int) else ExternalHeatSourceOperatingMode[mode.upper()].value
         except KeyError as error:
             message: str = (
-                f"Invalid value! Allowed values are {self._get_allowed_values(ExternalHeatSourcesOperatingMode)}"
+                f"Invalid value! Allowed values are {self._get_allowed_values(ExternalHeatSourceOperatingMode)}"
             )
             raise APIError(message) from error
 
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
 
-        await self._write_values(request={ExternalHeatSources.OPERATING_MODE: modes})
+        await self._write_values(request={ExternalHeatSource.OPERATING_MODE: modes})
 
     async def get_target_temperature(self, position: int | None = 1) -> float:
         """Get target temperature."""
         response: dict[str, list[Value]] = await self._read_data(
-            request=ExternalHeatSources.TARGET_TEMPERATURE,
+            request=ExternalHeatSource.TARGET_TEMPERATURE,
             position=position,
             extra_attributes=True,
         )
-        return self._get_float_value(response, section=ExternalHeatSources.TARGET_TEMPERATURE, position=position)
+        return self._get_float_value(response, section=ExternalHeatSource.TARGET_TEMPERATURE, position=position)
 
 
 class PhotovoltaicsEndpoints(BaseEndpoints):
@@ -1333,26 +1333,26 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
     async def get_excess_power(self) -> float:
         """Get excess power."""
         response: dict[str, list[Value]] = await self._read_data(
-            request=Photovoltaics.EXCESS_POWER,
+            request=Photovoltaic.EXCESS_POWER,
             position=None,
             extra_attributes=True,
         )
-        return self._get_float_value(response, section=Photovoltaics.EXCESS_POWER)
+        return self._get_float_value(response, section=Photovoltaic.EXCESS_POWER)
 
     async def get_daily_energy(self) -> float:
         """Get daily power."""
         response: dict[str, list[Value]] = await self._read_data(
-            request=Photovoltaics.DAILY_ENERGY,
+            request=Photovoltaic.DAILY_ENERGY,
             position=None,
             extra_attributes=True,
         )
-        return self._get_float_value(response, section=Photovoltaics.DAILY_ENERGY)
+        return self._get_float_value(response, section=Photovoltaic.DAILY_ENERGY)
 
     async def get_total_energy(self) -> float:
         """Get total energy."""
         response: dict[str, list[Value]] = await self._read_data(
-            request=Photovoltaics.TOTAL_ENERGY,
+            request=Photovoltaic.TOTAL_ENERGY,
             position=None,
             extra_attributes=True,
         )
-        return self._get_float_value(response, section=Photovoltaics.TOTAL_ENERGY)
+        return self._get_float_value(response, section=Photovoltaic.TOTAL_ENERGY)

@@ -197,7 +197,7 @@ asyncio.run(main())
 | `.set_operating_mode(0, position, human_readable)` | `int` or `str`   | Set operating mode.                                       |
 | `.get_target_temperature(position)`                | `float`          | Get target temperature.                                   |
 
-#### Photovoltaics
+#### Photovoltaic
 
 | Endpoint                 | Request/Response | Description       |
 |--------------------------|------------------|-------------------|
