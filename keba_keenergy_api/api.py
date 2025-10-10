@@ -136,8 +136,6 @@ class KebaKeEnergyAPI(BaseEndpoints):
         if position is None:
             position = await self.system.get_positions()
 
-        has_photovoltaics: int | str = await self.system.has_photovoltaics(human_readable=False)
-
         response: dict[str, list[Value]] = await self._read_data(
             request=request,
             position=position,
@@ -172,9 +170,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
             elif key.startswith(SectionPrefix.EXTERNAL_HEAT_SOURCE):
                 _key = key.lower().replace(f"{SectionPrefix.EXTERNAL_HEAT_SOURCE.value}_", "")
                 data[SectionPrefix.EXTERNAL_HEAT_SOURCE][_key] = value
-            elif (
-                key.startswith(SectionPrefix.PHOTOVOLTAIC) and isinstance(has_photovoltaics, int) and has_photovoltaics
-            ):
+            elif key.startswith(SectionPrefix.PHOTOVOLTAIC):
                 _key = key.lower().replace(f"{SectionPrefix.PHOTOVOLTAIC.value}_", "")
                 data[SectionPrefix.PHOTOVOLTAIC][_key] = value[0]
 

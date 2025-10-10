@@ -144,7 +144,6 @@ class TestKebaKeEnergyAPI:
             "section",
             "position",
             "option_payload",
-            "photovoltaics_payload",
             "payload",
             "expected_data",
             "expected_response",
@@ -159,13 +158,6 @@ class TestKebaKeEnergyAPI:
                 ],
                 1,
                 None,
-                [
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.hasPhotovoltaics",
-                        "attributes": {"longText": "With photovoltaics"},
-                        "value": "true",
-                    },
-                ],
                 [
                     {
                         "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks",
@@ -251,13 +243,6 @@ class TestKebaKeEnergyAPI:
                 [HeatCircuit.TARGET_TEMPERATURE, HeatPump.FLOW_TEMPERATURE],
                 [1, 3],
                 None,
-                [
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.hasPhotovoltaics",
-                        "attributes": {"longText": "With photovoltaics"},
-                        "value": "false",
-                    },
-                ],
                 [
                     {
                         "name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.setValue",
@@ -375,13 +360,6 @@ class TestKebaKeEnergyAPI:
                 ],
                 [
                     {
-                        "name": "APPL.CtrlAppl.sParam.options.hasPhotovoltaics",
-                        "attributes": {"longText": "With photovoltaics"},
-                        "value": "false",
-                    },
-                ],
-                [
-                    {
                         "name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue",
                         "attributes": {
                             "formatId": "fmtTemp",
@@ -455,7 +433,6 @@ class TestKebaKeEnergyAPI:
         section: Section,
         position: int | None | list[int | None],
         option_payload: list[dict[str, str]] | None,
-        photovoltaics_payload: list[dict[str, str]],
         payload: list[dict[str, str]],
         expected_data: str,
         expected_response: dict[str, ValueResponse],
@@ -468,12 +445,6 @@ class TestKebaKeEnergyAPI:
                     payload=option_payload,
                     headers={"Content-Type": "application/json;charset=utf-8"},
                 )
-
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=photovoltaics_payload,
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
 
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
