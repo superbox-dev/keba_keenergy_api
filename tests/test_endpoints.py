@@ -2373,7 +2373,7 @@ class TestHeatPumpSection:
                             "unitId": "TimeHour",
                         },
                         "value": "65037217",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -2407,7 +2407,7 @@ class TestHeatPumpSection:
                             "unitId": "TimeHour",
                         },
                         "value": "8836597",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -2440,7 +2440,7 @@ class TestHeatPumpSection:
                             "longText": "Turn-on cycles",
                         },
                         "value": "1197",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -3661,7 +3661,7 @@ class TestExternalHeatSourceSection:
                             "longText": "Dig. request",
                         },
                         "value": payload_value,
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -3695,7 +3695,7 @@ class TestExternalHeatSourceSection:
                             "unitId": "TimeHour",
                         },
                         "value": "3809028",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -3708,7 +3708,7 @@ class TestExternalHeatSourceSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.operationalData.operationalTimeS", "attr": "1"}]',
+                data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.operationalData.operationalTimeS", "attr": "1"}]',  # noqa: E501
                 method="POST",
                 auth=None,
                 ssl=False,
@@ -3729,7 +3729,7 @@ class TestExternalHeatSourceSection:
                             "unitId": "TimeHour",
                         },
                         "value": "602403",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -3762,7 +3762,7 @@ class TestExternalHeatSourceSection:
                             "longText": "Turn-on cycles",
                         },
                         "value": "477",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -3775,7 +3775,7 @@ class TestExternalHeatSourceSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.operationalData.activationCounter", "attr": "1"}]',
+                data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.operationalData.activationCounter", "attr": "1"}]',  # noqa: E501
                 method="POST",
                 auth=None,
                 ssl=False,
