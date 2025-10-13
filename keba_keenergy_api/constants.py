@@ -167,7 +167,14 @@ class HeatCircuitExternalHeatRequest(IntEnum):
 
 
 class ExternalHeatSourceOperatingMode(IntEnum):
-    """Available external heat sources operating modes."""
+    """Available external heat source operating modes."""
+
+    OFF = 0
+    ON = 1
+
+
+class ExternalHeatSourceHeatRequest(IntEnum):
+    """Available external heat source heat request stats."""
 
     OFF = 0
     ON = 1
@@ -404,6 +411,18 @@ class HeatPump(Enum):
         value_type=str,
         human_readable=HeatPumpHasPassiveCooling,
     )
+    OPERATING_TIME = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalData.operationalTimeS",
+        value_type=int,
+    )
+    MAX_RUNTIME = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalData.maxRunTimeS",
+        value_type=int,
+    )
+    ACTIVATION_COUNTER = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalData.activationCounter",
+        value_type=int,
+    )
 
 
 class HeatCircuit(Enum):
@@ -517,6 +536,23 @@ class ExternalHeatSource(Enum):
     TARGET_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].values.setTemp",
         value_type=float,
+    )
+    HEAT_REQUEST = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].DO.values.setValueB",
+        value_type=str,
+        human_readable=ExternalHeatSourceHeatRequest,
+    )
+    OPERATING_TIME = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].DO.operationalData.operationalTimeS",
+        value_type=int,
+    )
+    MAX_RUNTIME = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].DO.operationalData.maxRunTimeS",
+        value_type=int,
+    )
+    ACTIVATION_COUNTER = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].DO.operationalData.activationCounter",
+        value_type=int,
     )
 
 

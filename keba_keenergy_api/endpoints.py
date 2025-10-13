@@ -1005,6 +1005,33 @@ class HeatPumpEndpoints(BaseEndpoints):
         )
         return self._get_int_or_str_value(response, section=HeatPump.HAS_PASSIVE_COOLING, position=position)
 
+    async def get_operating_time(self, position: int | None = 1) -> int:
+        """Get the operating time."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.OPERATING_TIME,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=HeatPump.OPERATING_TIME, position=position)
+
+    async def get_max_runtime(self, position: int | None = 1) -> int:
+        """Get the maximum runtime."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.MAX_RUNTIME,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=HeatPump.MAX_RUNTIME, position=position)
+
+    async def get_activation_counter(self, position: int | None = 1) -> int:
+        """Get the activation counter."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=HeatPump.ACTIVATION_COUNTER,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=HeatPump.ACTIVATION_COUNTER, position=position)
+
 
 class HeatCircuitEndpoints(BaseEndpoints):
     """Class to send and retrieve the heating circuit data."""
@@ -1308,6 +1335,43 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_float_value(response, section=ExternalHeatSource.TARGET_TEMPERATURE, position=position)
+
+    async def get_heat_request(self, position: int | None = 1, *, human_readable: bool = True) -> int | str:
+        """Get heat request."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=ExternalHeatSource.HEAT_REQUEST,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=ExternalHeatSource.HEAT_REQUEST, position=position)
+
+    async def get_operating_time(self, position: int | None = 1) -> int:
+        """Get the operating time."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=ExternalHeatSource.OPERATING_TIME,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=ExternalHeatSource.OPERATING_TIME, position=position)
+
+    async def get_max_runtime(self, position: int | None = 1) -> int:
+        """Get the maximum runtime."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=ExternalHeatSource.MAX_RUNTIME,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=ExternalHeatSource.MAX_RUNTIME, position=position)
+
+    async def get_activation_counter(self, position: int | None = 1) -> int:
+        """Get the activation counter."""
+        response: dict[str, list[Value]] = await self._read_data(
+            request=ExternalHeatSource.ACTIVATION_COUNTER,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=ExternalHeatSource.ACTIVATION_COUNTER, position=position)
 
 
 class PhotovoltaicsEndpoints(BaseEndpoints):

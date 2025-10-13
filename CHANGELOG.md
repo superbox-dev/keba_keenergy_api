@@ -7,7 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.1.0b3] - 2025-10-09
+## [2.2.0] - 2025-10-13
+
+### Added
+
+- Added endpoint `get_heat_request()` to the external heat sources
+- Added endpoint `get_operating_time()` to the external heat sources
+- Added endpoint `get_max_runtime()` to the external heat sources
+- Added endpoint `get_activation_counter()` to the external heat sources
+- Added endpoint `get_operating_time()` to the heat pump
+- Added endpoint `get_max_runtime()` to the heat pump
+- Added endpoint `get_activation_counter()` to the heat pump
+
+## [2.1.0] - 2025-10-11
 
 ### Added
 
