@@ -27,7 +27,7 @@ from keba_keenergy_api.constants import HeatCircuit
 
 
 async def main() -> None:
-    client = KebaKeEnergyAPI(host="YOUR-IP-OR-HOSTNAME", username="test", password="test", ssl=True)
+    client = KebaKeEnergyAPI(host="YOUR-IP-OR-HOSTNAME", username="test", password="test", ssl=True, skip_ssl_verification=True)
 
     # Get current outdoor temperature
     outdoor_temperature: float = await client.system.get_outdoor_temperature()
