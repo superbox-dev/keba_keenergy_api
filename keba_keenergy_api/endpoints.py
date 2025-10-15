@@ -81,24 +81,20 @@ class BaseEndpoints:
         self._skip_ssl_verification: bool = skip_ssl_verification
         self._session: ClientSession | None = session
 
-    @property
-    def _api_session(self) -> ClientSession:
-        return (
-            self._session
-            if self._session and not self._session.closed
-            else ClientSession(
-                auth=self._auth,
-                timeout=ClientTimeout(total=API_DEFAULT_TIMEOUT),
-            )
-        )
-
     async def _post(self, payload: str | None = None, endpoint: str | None = None) -> Response:
         """Run a POST request against the API."""
+        session: ClientSession = (
+            self._session
+            if self._session and not self._session.closed
+            else ClientSession(timeout=ClientTimeout(total=API_DEFAULT_TIMEOUT))
+        )
+
         try:
             url: str = f"{self._base_url}{endpoint if endpoint else ''}"
 
-            async with self._api_session.post(
+            async with session.post(
                 url,
+                auth=self._auth,
                 ssl=False if self._skip_ssl_verification else self._ssl,
                 data=payload,
             ) as resp:
@@ -126,7 +122,7 @@ class BaseEndpoints:
             raise APIError(str(error)) from error
         finally:
             if not self._session:
-                await self._api_session.close()
+                await session.close()
 
     def _get_real_key(self, key: Section, /, *, key_prefix: bool = True) -> str:
         class_name: str = key.__class__.__name__
