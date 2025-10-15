@@ -53,7 +53,6 @@ class TestKebaKeEnergyAPI:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -94,7 +93,6 @@ class TestKebaKeEnergyAPI:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -124,17 +122,19 @@ class TestKebaKeEnergyAPI:
                 host="mocked-host",
                 username="test",
                 password="test",  # noqa: S106
+                skip_ssl_verification=True,
             )
             response: float = await client.system.get_outdoor_temperature()
 
             assert isinstance(response, float)
             assert response == 10.81  # noqa: PLR2004
 
+            assert client.api_session._default_auth == BasicAuth(login="test", password="test", encoding="latin1")
+
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=BasicAuth(login="test", password="test", encoding="latin1"),  # noqa: S106
                 ssl=False,
             )
 
@@ -465,7 +465,6 @@ class TestKebaKeEnergyAPI:
                 url="http://mocked-host/var/readWriteVars",
                 data=expected_data,
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -524,7 +523,6 @@ class TestKebaKeEnergyAPI:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data=expected_data,
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 

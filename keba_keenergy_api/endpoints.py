@@ -81,22 +81,24 @@ class BaseEndpoints:
         self._skip_ssl_verification: bool = skip_ssl_verification
         self._session: ClientSession | None = session
 
-    async def _post(self, payload: str | None = None, endpoint: str | None = None) -> Response:
-        """Run a POST request against the API."""
-        session: ClientSession = (
+    @property
+    def api_session(self) -> ClientSession:
+        return (
             self._session
             if self._session and not self._session.closed
-            else ClientSession(timeout=ClientTimeout(total=API_DEFAULT_TIMEOUT))
+            else ClientSession(
+                auth=self._auth,
+                timeout=ClientTimeout(total=API_DEFAULT_TIMEOUT),
+            )
         )
 
+    async def _post(self, payload: str | None = None, endpoint: str | None = None) -> Response:
+        """Run a POST request against the API."""
         try:
             url: str = f"{self._base_url}{endpoint if endpoint else ''}"
 
-            async with session.post(
-                url,
-                auth=self._auth,
-                ssl=False if self._skip_ssl_verification else self._ssl,
-                data=payload,
+            async with self.api_session.post(
+                url, ssl=False if self._skip_ssl_verification else self._ssl, data=payload
             ) as resp:
                 if resp.status <= HTTPStatus.MULTIPLE_CHOICES or resp.status == HTTPStatus.INTERNAL_SERVER_ERROR:
                     response: list[dict[str, Any]] = await resp.json()
@@ -122,7 +124,7 @@ class BaseEndpoints:
             raise APIError(str(error)) from error
         finally:
             if not self._session:
-                await session.close()
+                await self.api_session.close()
 
     def _get_real_key(self, key: Section, /, *, key_prefix: bool = True) -> str:
         class_name: str = key.__class__.__name__

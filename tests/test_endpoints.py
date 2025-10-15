@@ -98,7 +98,6 @@ class TestSystemSection:
                     '{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfExtHeatSources", "attr": "1"}]'
                 ),
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -130,7 +129,6 @@ class TestSystemSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/swupdate?action=getSystemInstalled",
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -168,7 +166,6 @@ class TestSystemSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/deviceControl?action=getDeviceInfo",
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -205,7 +202,6 @@ class TestSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -242,7 +238,6 @@ class TestSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatPumps", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -279,7 +274,6 @@ class TestSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatingCircuits", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -314,7 +308,6 @@ class TestSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfExtHeatSources", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -358,7 +351,6 @@ class TestSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.hasPhotovoltaics", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -403,7 +395,6 @@ class TestSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.param.operatingMode", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -433,7 +424,6 @@ class TestSystemSection:
                 data='[{"name": "APPL.CtrlAppl.sParam.param.operatingMode", "value": "%s"}]'  # noqa: UP031
                 % expected_value,
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -500,7 +490,6 @@ class TestHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].topTemp.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -545,7 +534,6 @@ class TestHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -595,7 +583,6 @@ class TestHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -625,7 +612,6 @@ class TestHotWaterTankSection:
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode", "value": "%s"}]'  # noqa: UP031
                 % expected_value,
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -690,7 +676,6 @@ class TestHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -727,7 +712,6 @@ class TestHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -764,7 +748,6 @@ class TestHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.reducedSetTempMax.value", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -785,7 +768,6 @@ class TestHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.reducedSetTempMax.value", "value": "10"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -822,7 +804,6 @@ class TestHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -843,7 +824,6 @@ class TestHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value", "value": "47"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -887,7 +867,6 @@ class TestHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].values.heatRequestTop", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -933,7 +912,6 @@ class TestHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterFlow.values.actValue", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -969,7 +947,6 @@ class TestHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterTemp.values.actValue", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1003,7 +980,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].param.name", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1048,7 +1024,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].values.heatpumpState", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1093,7 +1068,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].param.operatingMode", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1123,7 +1097,6 @@ class TestHeatPumpSection:
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].param.operatingMode", "value": "%s"}]'  # noqa: UP031
                 % expected_value,
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1195,7 +1168,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.useDayNightSpeed", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1230,7 +1202,6 @@ class TestHeatPumpSection:
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.useDayNightSpeed", "value": "%s"}]'  # noqa: E501, UP031
                 % expected_value,
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1292,7 +1263,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1313,7 +1283,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight", "value": "0.6"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1349,7 +1318,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1385,7 +1353,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1421,7 +1388,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].CircPump.values.setValueScaled", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1455,7 +1421,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].TempHeatFlow.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1489,7 +1454,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].TempHeatReflux.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1523,7 +1487,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].TempSourceIn.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1557,7 +1520,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].TempSourceOut.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1591,7 +1553,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].TempCompressorIn.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1625,7 +1586,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].TempCompressorOut.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1661,7 +1621,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].Compressor.values.setValueScaled", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1695,7 +1654,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HighPressure.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1729,7 +1687,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].LowPressure.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1773,7 +1730,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].values.request", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1807,7 +1763,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].ElectricEnergyMeter.values.power", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1841,7 +1796,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatMeter.values.power", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1875,7 +1829,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HotWaterMeter.values.power", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1908,7 +1861,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].values.COP", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1942,7 +1894,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.heating.energy", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -1976,7 +1927,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.heating.electricalenergy", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2008,7 +1958,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].EnergyEfficiencyRatioHeat", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2042,7 +1991,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.cooling.energy", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2076,7 +2024,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.cooling.electricalenergy", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2109,7 +2056,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].EnergyEfficiencyRatioCool", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2143,7 +2089,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.domHotWater.energy", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2177,7 +2122,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.domHotWater.electricalenergy", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2209,7 +2153,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].EnergyEfficiencyRatioDomHotWater", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2243,7 +2186,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.energy", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2277,7 +2219,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.electricalenergy", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2310,7 +2251,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].EnergyEfficiencyRatio", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2354,7 +2294,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.heatpump[0].hasPassiveCooling", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2388,7 +2327,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].operationalData.operationalTimeS", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2422,7 +2360,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].operationalData.maxRunTimeS", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2455,7 +2392,6 @@ class TestHeatPumpSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].operationalData.activationCounter", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2489,7 +2425,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.name", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2533,7 +2468,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.heatCircuit[0].hasRoomTemp", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2569,7 +2503,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].tempRoom.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2613,7 +2546,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.heatCircuit[0].hasRoomHumidity", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2649,7 +2581,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].humidityRoom.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2685,7 +2616,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].dewPoint.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2721,7 +2651,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.flowSetTemp", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2757,7 +2686,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].heatCircuitMixer.flowTemp.values.actValue", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2791,7 +2719,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].tempReflux.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2827,7 +2754,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.setValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2863,7 +2789,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.normalSetTemp", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2884,7 +2809,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.normalSetTemp", "value": "23"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2920,7 +2844,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.thresholdDayTemp.value", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2956,7 +2879,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.reducedSetTemp", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -2977,7 +2899,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.reducedSetTemp", "value": "23"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3013,7 +2934,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.thresholdNightTemp.value", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3049,7 +2969,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.holidaySetTemp", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3070,7 +2989,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.holidaySetTemp", "value": "14"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3106,7 +3024,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.offsetRoomTemp", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3127,7 +3044,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.offsetRoomTemp", "value": "2"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3172,7 +3088,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.operatingMode", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3207,7 +3122,6 @@ class TestHeatCircuitSection:
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.operatingMode", "value": "%s"}]'  # noqa: UP031
                 % expected_value,
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3297,7 +3211,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.coolRequest", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3344,7 +3257,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.heatRequest", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3402,7 +3314,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.heatRequest", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3446,7 +3357,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.external.coolRequest", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3490,7 +3400,6 @@ class TestHeatCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.external.heatRequest", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3538,7 +3447,6 @@ class TestExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].param.operatingMode", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3568,7 +3476,6 @@ class TestExternalHeatSourceSection:
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].param.operatingMode", "value": "%s"}]'  # noqa: UP031
                 % expected_value,
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3630,7 +3537,6 @@ class TestExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].values.setTemp", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3676,7 +3582,6 @@ class TestExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.values.setValueB", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3710,7 +3615,6 @@ class TestExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.operationalData.operationalTimeS", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3744,7 +3648,6 @@ class TestExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.operationalData.maxRunTimeS", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3777,7 +3680,6 @@ class TestExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.operationalData.activationCounter", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3813,7 +3715,6 @@ class TestPhotovoltaicSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.power", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3847,7 +3748,6 @@ class TestPhotovoltaicSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.heatDay", "attr": "1"}]',
                 method="POST",
-                auth=None,
                 ssl=False,
             )
 
@@ -3881,6 +3781,5 @@ class TestPhotovoltaicSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.accumulatedHeat", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
                 ssl=False,
             )

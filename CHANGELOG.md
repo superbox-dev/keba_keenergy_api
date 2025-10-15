@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Move the basic auth to the client season
+
 ## [2.2.0] - 2025-10-13
 
 ### Added
