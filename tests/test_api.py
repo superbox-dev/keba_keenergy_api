@@ -129,7 +129,11 @@ class TestKebaKeEnergyAPI:
             assert isinstance(response, float)
             assert response == 10.81  # noqa: PLR2004
 
-            assert client.api_session._default_auth == BasicAuth(login="test", password="test", encoding="latin1")
+            assert client._api_session._default_auth == BasicAuth(  # noqa: SLF001
+                login="test",
+                password="test",  # noqa: S106
+                encoding="latin1",
+            )
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
