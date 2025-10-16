@@ -89,6 +89,7 @@ asyncio.run(main())
 | Endpoint                                           | Response       | Description                                                                                                        |
 |----------------------------------------------------|----------------|--------------------------------------------------------------------------------------------------------------------|
 | `.get_info()`                                      | `str`          | Get system information.                                                                                            |
+| `.get_hmi_info()`                                  | `str`          | Get IMI information.                                                                                               |
 | `.get_device_info()`                               | `str`          | Get device information.                                                                                            |
 | `.get_number_of_hot_water_tanks()`                 | `int`          | Get number of hot water tanks.                                                                                     |
 | `.get_number_of_heat_pumps()`                      | `int`          | Get number of heat pumps.                                                                                          |
@@ -98,6 +99,12 @@ asyncio.run(main())
 | `.get_outdoor_temperature()`                       | `float`        | Get outdoor temperature.                                                                                           |
 | `.get_operating_mode(position, human_readable)`    | `int` or `str` | Get operating mode as integer (0 is `STANDBY`, 1 is `SUMMER`, 2 is `AUTO_HEAT`, 3 is `AUTO_COOL` and 4 is `AUTO`). |
 | `.set_operating_mode(0, position, human_readable)` | `int` or `str` | Set operating mode.                                                                                                |
+| `.get_cpu_usage()`                                 | `float`        | Get CPU usage.                                                                                                     |
+| `.get_webview_cpu_usage()`                         | `float`        | Get webview CPU usage.                                                                                             |
+| `.get_webserver_cpu_usage()`                       | `float`        | Get webserver CPU usage.                                                                                           |
+| `.get_control_cpu_usage()`                         | `float`        | Get control CPU usage.                                                                                             |
+| `.get_ram_usage()`                                 | `int`          | Get RAM usage.                                                                                                     |
+| `.get_free_ram()`                                  | `int`          | Get free RAM.                                                                                                      |
 
 #### Hot water tank
 

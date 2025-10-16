@@ -392,6 +392,14 @@ class SystemEndpoints(BaseEndpoints):
         response[0].pop("ret")
         return response[0]
 
+    async def get_hmi_info(self) -> dict[str, Any]:
+        """Get HMI information."""
+        response: Response = await self._post(
+            endpoint=f"{EndpointPath.SW_UPDATE}?action=getHmiInstalled",
+        )
+        response[0].pop("ret")
+        return response[0]
+
     async def get_device_info(self) -> dict[str, Any]:
         """Get device information."""
         response: Response = await self._post(
@@ -474,6 +482,60 @@ class SystemEndpoints(BaseEndpoints):
             raise APIError(message) from error
 
         await self._write_values(request={System.OPERATING_MODE: _mode})
+
+    async def get_cpu_usage(self) -> float:
+        """Get CPU usage in percentage."""
+        response: dict[str, Any] = await self._read_data(
+            request=System.CPU_USAGE,
+            position=None,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=System.CPU_USAGE) / 10
+
+    async def get_webview_cpu_usage(self) -> float:
+        """Get webview CPU usage in percentage."""
+        response: dict[str, Any] = await self._read_data(
+            request=System.WEBVIEW_CPU_USAGE,
+            position=None,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=System.WEBVIEW_CPU_USAGE) / 10
+
+    async def get_webserver_cpu_usage(self) -> float:
+        """Get webserver CPU usage in percentage."""
+        response: dict[str, Any] = await self._read_data(
+            request=System.WEBSERVER_CPU_USAGE,
+            position=None,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=System.WEBSERVER_CPU_USAGE) / 10
+
+    async def get_control_cpu_usage(self) -> float:
+        """Get control CPU usage in percentage."""
+        response: dict[str, Any] = await self._read_data(
+            request=System.CONTROL_CPU_USAGE,
+            position=None,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=System.CONTROL_CPU_USAGE) / 10
+
+    async def get_ram_usage(self) -> int:
+        """Get RAM usage in kilobyte."""
+        response: dict[str, Any] = await self._read_data(
+            request=System.RAM_USAGE,
+            position=None,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=System.RAM_USAGE)
+
+    async def get_free_ram(self) -> int:
+        """Get free ram in kilobyte."""
+        response: dict[str, Any] = await self._read_data(
+            request=System.FREE_RAM,
+            position=None,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=System.FREE_RAM)
 
 
 class HotWaterTankEndpoints(BaseEndpoints):

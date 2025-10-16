@@ -226,6 +226,30 @@ class System(Enum):
         f"{PAYLOAD_PREFIX}.sParam.outdoorTemp.values.actValue",
         value_type=float,
     )
+    CPU_USAGE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sProcData.globalCpuTimePercent",
+        value_type=float,
+    )
+    WEBVIEW_CPU_USAGE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sProcData.processStatus[0].cpuTimePercent",
+        value_type=float,
+    )
+    WEBSERVER_CPU_USAGE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sProcData.processStatus[1].cpuTimePercent",
+        value_type=float,
+    )
+    CONTROL_CPU_USAGE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sProcData.processStatus[2].cpuTimePercent",
+        value_type=float,
+    )
+    RAM_USAGE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sProcData.RAMstatus.tmpfs",
+        value_type=int,
+    )
+    FREE_RAM = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sProcData.totFreeRAM",
+        value_type=int,
+    )
 
 
 class HotWaterTank(Enum):

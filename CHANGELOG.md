@@ -7,7 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2025-10-16
+
 ## [2.2.0] - 2025-10-13
+
+### Added
+
+- Added endpoint `get_hmi_info()` to system
+- Added endpoint `get_cpu_usage()` to system
+- Added endpoint `get_webview_cpu_usage()` to system
+- Added endpoint `get_webserver_cpu_usage()` to system
+- Added endpoint `get_control_cpu_usage()` to system
+- Added endpoint `get_ram_usage()` to system
+- Added endpoint `get_free_ram()` to system
 
 ### Added
 

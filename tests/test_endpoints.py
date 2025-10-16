@@ -135,6 +135,36 @@ class TestSystemSection:
             )
 
     @pytest.mark.asyncio
+    async def test_get_hmi_info(self) -> None:
+        """Test get HMI information."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/swupdate?action=getHmiInstalled",
+                payload=[
+                    {
+                        "ret": "OK",
+                        "name": "KeEnergy.WebHmi_2.2.0.0",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: dict[str, Any] = await client.system.get_hmi_info()
+
+            assert isinstance(data, dict)
+            assert data == {
+                "name": "KeEnergy.WebHmi_2.2.0.0",
+            }
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/swupdate?action=getHmiInstalled",
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     async def test_device_info(self) -> None:
         """Test get device info from hardware."""
         with aioresponses() as mock_keenergy_api:
@@ -465,6 +495,210 @@ class TestSystemSection:
             )
 
             mock_keenergy_api.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_get_cpu_usage(self) -> None:
+        """Test get CPU usage in percentage."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sProcData.globalCpuTimePercent",
+                        "attributes": {
+                            "formatId": "fmt3p1",
+                            "longText": "CPU usage",
+                            "unitId": "Pct10",
+                        },
+                        "value": "27",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.system.get_cpu_usage()
+
+            assert isinstance(data, float)
+            assert data == 2.7  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sProcData.globalCpuTimePercent", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_webview_cpu_usage(self) -> None:
+        """Test get webview CPU usage in percentage."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sProcData.processStatus[0].cpuTimePercent",
+                        "attributes": {
+                            "formatId": "fmt3p1",
+                            "longText": "WebView CPU",
+                            "unitId": "Pct10",
+                        },
+                        "value": "34",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.system.get_webview_cpu_usage()
+
+            assert isinstance(data, float)
+            assert data == 3.4  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sProcData.processStatus[0].cpuTimePercent", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_webserver_cpu_usage(self) -> None:
+        """Test get webserver CPU usage in percentage."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sProcData.processStatus[1].cpuTimePercent",
+                        "attributes": {
+                            "formatId": "fmt3p1",
+                            "longText": "WebServer CPU",
+                            "unitId": "Pct10",
+                        },
+                        "value": "67",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.system.get_webserver_cpu_usage()
+
+            assert isinstance(data, float)
+            assert data == 6.7  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sProcData.processStatus[1].cpuTimePercent", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_control_cpu_usage(self) -> None:
+        """Test get control CPU usage in percentage."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sProcData.processStatus[2].cpuTimePercent",
+                        "attributes": {
+                            "formatId": "fmt3p1",
+                            "longText": "Ctrl CPU",
+                            "unitId": "Pct10",
+                        },
+                        "value": "7",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.system.get_control_cpu_usage()
+
+            assert isinstance(data, float)
+            assert data == 0.7  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sProcData.processStatus[2].cpuTimePercent", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_ram_usage(self) -> None:
+        """Test get RAM usage."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sProcData.RAMstatus.tmpfs",
+                        "attributes": {
+                            "formatId": "fmt6p0",
+                            "longText": "Used Temporary Memory",
+                            "unitId": "kB",
+                        },
+                        "value": "6432",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int = await client.system.get_ram_usage()
+
+            assert isinstance(data, int)
+            assert data == 6432  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sProcData.RAMstatus.tmpfs", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_free_ram(self) -> None:
+        """Test get free RAM."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sProcData.totFreeRAM",
+                        "attributes": {
+                            "formatId": "fmt6p0",
+                            "longText": "Free RAM",
+                            "unitId": "kB",
+                        },
+                        "value": "100060",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int = await client.system.get_free_ram()
+
+            assert isinstance(data, int)
+            assert data == 100060  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sProcData.totFreeRAM", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
 
 
 class TestHotWaterTankSection:
