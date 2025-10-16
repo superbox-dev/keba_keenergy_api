@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.3.0] - 2025-10-16
 
-## [2.2.0] - 2025-10-13
-
 ### Added
 
 - Added endpoint `get_hmi_info()` to system
@@ -20,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `get_control_cpu_usage()` to system
 - Added endpoint `get_ram_usage()` to system
 - Added endpoint `get_free_ram()` to system
+
+## [2.2.0] - 2025-10-13
 
 ### Added
 
