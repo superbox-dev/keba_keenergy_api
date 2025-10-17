@@ -133,7 +133,7 @@ class BaseEndpoints:
 
         return _real_key
 
-    def _get_position_index(self, section: Section, position: Position | list[int]) -> list[bool | int]:
+    def _get_position_index(self, section: Section, position: Position | list[int] | None) -> list[bool | int]:
         idx: list[bool | int] = []
 
         if isinstance(section, System | Photovoltaic):
@@ -143,14 +143,14 @@ class BaseEndpoints:
             _position: int | None = getattr(position, position_key, None)
             idx = list(range(_position)) if _position else [False]
         elif isinstance(position, list):
-            idx = [False if p == 0 else (p - 1) for p in position]
+            idx = [False if p == 0 else (p - 1) for p in position] if position else [True]
 
         return idx
 
     def _generate_read_payload(
         self,
         request: list[Section],
-        position: Position | list[int],
+        position: Position | list[int] | None,
         allowed_type: list[type[Enum]] | None,
         *,
         extra_attributes: bool = False,

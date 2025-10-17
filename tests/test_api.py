@@ -436,7 +436,7 @@ class TestKebaKeEnergyAPI:
     async def test_read_data(
         self,
         section: Section,
-        position: int | None | list[int | None],
+        position: int | list[int] | None,
         option_payload: list[dict[str, str]] | None,
         payload: list[dict[str, str]],
         expected_data: str,
