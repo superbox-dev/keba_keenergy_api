@@ -127,7 +127,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
     async def read_data(
         self,
         request: Section | list[Section],
-        position: Position | int | list[int | None] | None = None,
+        position: Position | int | list[int] | None = None,
         *,
         human_readable: bool = True,
         extra_attributes: bool = True,

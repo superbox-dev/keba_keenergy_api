@@ -241,7 +241,7 @@ class TestKebaKeEnergyAPI:
             ),
             (
                 [HeatCircuit.TARGET_TEMPERATURE, HeatPump.FLOW_TEMPERATURE],
-                [1, 3],
+                [0, 1, 3],
                 None,
                 [
                     {
@@ -308,7 +308,12 @@ class TestKebaKeEnergyAPI:
                 },
             ),
             (
-                [System.OUTDOOR_TEMPERATURE, HeatCircuit.TARGET_TEMPERATURE, HeatPump.FLOW_TEMPERATURE],
+                [
+                    System.OUTDOOR_TEMPERATURE,
+                    HeatCircuit.TARGET_TEMPERATURE,
+                    HeatPump.FLOW_TEMPERATURE,
+                    ExternalHeatSource.TARGET_TEMPERATURE,
+                ],
                 None,
                 [
                     {
@@ -355,7 +360,7 @@ class TestKebaKeEnergyAPI:
                             "upperLimit": "1",
                             "lowerLimit": "0",
                         },
-                        "value": "1",
+                        "value": "0",
                     },
                 ],
                 [

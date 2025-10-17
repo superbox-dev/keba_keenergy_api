@@ -133,24 +133,24 @@ class BaseEndpoints:
 
         return _real_key
 
-    def _get_position_index(self, section: Section, position: Position | list[int | None]) -> list[int | None]:
-        idx: list[int | None] = []
+    def _get_position_index(self, section: Section, position: Position | list[int]) -> list[bool | int]:
+        idx: list[bool | int] = []
 
         if isinstance(section, System | Photovoltaic):
-            idx = [None]
+            idx = [True]
         elif isinstance(position, Position):
             position_key: str = f"{self.KEY_PATTERN.sub('_', section.__class__.__name__).lower()}"
             _position: int | None = getattr(position, position_key, None)
-            idx = list(range(_position)) if _position else [None]
+            idx = list(range(_position)) if _position else [False]
         elif isinstance(position, list):
-            idx = [p if p is None else (p - 1) for p in position]
+            idx = [False if p == 0 else (p - 1) for p in position]
 
         return idx
 
     def _generate_read_payload(
         self,
         request: list[Section],
-        position: Position | list[int | None],
+        position: Position | list[int],
         allowed_type: list[type[Enum]] | None,
         *,
         extra_attributes: bool = False,
@@ -160,9 +160,12 @@ class BaseEndpoints:
         for section in request:
             if (allowed_type and type(section) in allowed_type) or allowed_type is None:
                 for idx in self._get_position_index(section=section, position=position):
+                    if idx is False:
+                        continue
+
                     payload += [
                         ReadPayload(
-                            name=section.value.value if idx is None else section.value.value % idx,
+                            name=section.value.value if idx is True else section.value.value % idx,
                             attr=str(int(extra_attributes is True)),
                         ),
                     ]
@@ -202,7 +205,7 @@ class BaseEndpoints:
     async def _read_data(
         self,
         request: Section | list[Section],
-        position: Position | int | list[int | None] | None = 1,
+        position: Position | int | list[int] | None = 1,
         allowed_type: type[Enum] | list[type[Enum]] | None = None,
         *,
         key_prefix: bool = True,
@@ -212,7 +215,7 @@ class BaseEndpoints:
         if isinstance(request, System | HotWaterTank | HeatPump | HeatCircuit | ExternalHeatSource | Photovoltaic):
             request = [request]
 
-        if isinstance(position, int) or position is None:
+        if isinstance(position, int):
             position = [position]
 
         if isinstance(allowed_type, type):
@@ -234,7 +237,10 @@ class BaseEndpoints:
 
         for section in request:
             if (allowed_type and type(section) in allowed_type) or not allowed_type:
-                for _ in self._get_position_index(section=section, position=position):
+                for idx in self._get_position_index(section=section, position=position):
+                    if idx is False:
+                        continue
+
                     response_key: str = self._get_real_key(section, key_prefix=key_prefix)
 
                     if not response.get(response_key):
