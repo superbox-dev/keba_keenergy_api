@@ -33,7 +33,7 @@ jobs:
         python-version: ${{ fromJson(needs.configure.outputs.environments).python-version }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
@@ -66,7 +66,7 @@ jobs:
         python-version: ${{ fromJson(needs.configure.outputs.environments).python-version }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
@@ -92,7 +92,7 @@ jobs:
       contents: write
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
@@ -140,7 +140,7 @@ jobs:
       - tests
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
@@ -165,7 +165,7 @@ jobs:
       contents: write
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
