@@ -22,7 +22,7 @@ jobs:
         python-version: ${{ fromJson(inputs.environments).python-version }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
