@@ -14,6 +14,7 @@ from keba_keenergy_api.endpoints import HeatPumpEndpoints
 from keba_keenergy_api.endpoints import HotWaterTankEndpoints
 from keba_keenergy_api.endpoints import PhotovoltaicsEndpoints
 from keba_keenergy_api.endpoints import Position
+from keba_keenergy_api.endpoints import SolarCircuitEndpoints
 from keba_keenergy_api.endpoints import SystemEndpoints
 from keba_keenergy_api.endpoints import Value
 from keba_keenergy_api.endpoints import ValueResponse
@@ -103,6 +104,17 @@ class KebaKeEnergyAPI(BaseEndpoints):
         )
 
     @property
+    def solar_circuit(self) -> SolarCircuitEndpoints:
+        """Get solar circuit endpoints."""
+        return SolarCircuitEndpoints(
+            base_url=self.device_url,
+            auth=self.auth,
+            ssl=self.ssl,
+            skip_ssl_verification=self.skip_ssl_verification,
+            session=self.session,
+        )
+
+    @property
     def external_heat_source(self) -> ExternalHeatSourceEndpoints:
         """Get external heat source endpoints."""
         return ExternalHeatSourceEndpoints(
@@ -141,6 +153,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
             position=position,
             human_readable=human_readable,
             extra_attributes=extra_attributes,
+            use_count=True,
         )
 
         data: dict[str, ValueResponse] = {
@@ -148,6 +161,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
             SectionPrefix.HOT_WATER_TANK.value: {},
             SectionPrefix.HEAT_PUMP.value: {},
             SectionPrefix.HEAT_CIRCUIT.value: {},
+            SectionPrefix.SOLAR_CIRCUIT.value: {},
             SectionPrefix.EXTERNAL_HEAT_SOURCE.value: {},
             SectionPrefix.PHOTOVOLTAIC.value: {},
         }
@@ -167,6 +181,9 @@ class KebaKeEnergyAPI(BaseEndpoints):
             elif key.startswith(SectionPrefix.HEAT_CIRCUIT):
                 _key = key.lower().replace(f"{SectionPrefix.HEAT_CIRCUIT.value}_", "")
                 data[SectionPrefix.HEAT_CIRCUIT][_key] = value
+            elif key.startswith(SectionPrefix.SOLAR_CIRCUIT):
+                _key = key.lower().replace(f"{SectionPrefix.SOLAR_CIRCUIT.value}_", "")
+                data[SectionPrefix.SOLAR_CIRCUIT][_key] = value
             elif key.startswith(SectionPrefix.EXTERNAL_HEAT_SOURCE):
                 _key = key.lower().replace(f"{SectionPrefix.EXTERNAL_HEAT_SOURCE.value}_", "")
                 data[SectionPrefix.EXTERNAL_HEAT_SOURCE][_key] = value
