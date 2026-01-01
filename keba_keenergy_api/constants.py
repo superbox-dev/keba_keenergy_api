@@ -107,6 +107,20 @@ class HeatCircuitOperatingMode(IntEnum):
     ROOM_CONTROL = 9
 
 
+class SolarCircuitOperatingMode(IntEnum):
+    """Available solar circuit operating modes."""
+
+    OFF = 0
+    ON = 1
+
+
+class SolarCircuitHeatRequest(IntEnum):
+    """Available solar circuit heat request stats."""
+
+    OFF = 0
+    ON = 1
+
+
 class HotWaterTankHeatRequest(IntEnum):
     """Available hot water tank heat request stats."""
 
@@ -190,6 +204,7 @@ class EndpointProperties(NamedTuple):
     value_type: type[float | int | str]
     read_only: bool = True
     human_readable: type[Enum] | None = None
+    count: int = 1
 
 
 class System(Enum):
@@ -205,6 +220,10 @@ class System(Enum):
     )
     HEAT_CIRCUIT_NUMBERS = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfHeatingCircuits",
+        value_type=int,
+    )
+    SOLAR_CIRCUIT_NUMBERS = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfSolarCircuits",
         value_type=int,
     )
     EXTERNAL_HEAT_SOURCE_NUMBERS = EndpointProperties(
@@ -550,6 +569,62 @@ class HeatCircuit(Enum):
     )
 
 
+class SolarCircuit(Enum):
+    """The solar circuit endpoint settings."""
+
+    NAME = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].param.name",
+        value_type=str,
+    )
+    OPERATING_MODE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].param.operatingMode",
+        value_type=int,
+        read_only=False,
+        human_readable=SolarCircuitOperatingMode,
+    )
+    SOURCE_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].collectorTemp.values.actValue",
+        value_type=float,
+    )
+    PUMP_1 = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].values.pump1",
+        value_type=float,
+    )
+    PUMP_2 = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].values.pump2",
+        value_type=float,
+    )
+    CURRENT_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.genericHeat[%s].referenceTemp.values.actValue",
+        value_type=float,
+        count=2,
+    )
+    TARGET_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.genericHeat[%s].param.setTempMax.value",
+        value_type=float,
+        read_only=False,
+        count=2,
+    )
+    HEAT_REQUEST = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.genericHeat[%s].values.heatRequest",
+        value_type=str,
+        human_readable=SolarCircuitHeatRequest,
+        count=2,
+    )
+    HEATING_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].heatMeter.values.accumulatedHeat",
+        value_type=float,
+    )
+    DAILY_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].heatMeter.values.heatDay",
+        value_type=float,
+    )
+    ACTUAL_POWER = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].heatMeter.values.power",
+        value_type=float,
+    )
+
+
 class ExternalHeatSource(Enum):
     OPERATING_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.operatingMode",
@@ -602,8 +677,9 @@ class SectionPrefix(str, Enum):
     HOT_WATER_TANK = "hot_water_tank"
     HEAT_PUMP = "heat_pump"
     HEAT_CIRCUIT = "heat_circuit"
+    SOLAR_CIRCUIT = "solar_circuit"
     EXTERNAL_HEAT_SOURCE = "external_heat_source"
     PHOTOVOLTAIC = "photovoltaic"
 
 
-Section: TypeAlias = System | HotWaterTank | HeatPump | HeatCircuit | ExternalHeatSource | Photovoltaic
+Section: TypeAlias = System | HotWaterTank | HeatPump | HeatCircuit | SolarCircuit | ExternalHeatSource | Photovoltaic
