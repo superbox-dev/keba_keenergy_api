@@ -204,7 +204,7 @@ class EndpointProperties(NamedTuple):
     value_type: type[float | int | str]
     read_only: bool = True
     human_readable: type[Enum] | None = None
-    count: int = 1
+    quantity: int = 1
 
 
 class System(Enum):
@@ -597,19 +597,19 @@ class SolarCircuit(Enum):
     CURRENT_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.genericHeat[%s].referenceTemp.values.actValue",
         value_type=float,
-        count=2,
+        quantity=2,
     )
     TARGET_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.genericHeat[%s].param.setTempMax.value",
         value_type=float,
         read_only=False,
-        count=2,
+        quantity=2,
     )
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.genericHeat[%s].values.heatRequest",
         value_type=str,
         human_readable=SolarCircuitHeatRequest,
-        count=2,
+        quantity=2,
     )
     HEATING_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].heatMeter.values.accumulatedHeat",
