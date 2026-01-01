@@ -14,6 +14,7 @@ from keba_keenergy_api.constants import HeatPump
 from keba_keenergy_api.constants import HotWaterTank
 from keba_keenergy_api.constants import Photovoltaic
 from keba_keenergy_api.constants import Section
+from keba_keenergy_api.constants import SolarCircuit
 from keba_keenergy_api.constants import System
 from keba_keenergy_api.endpoints import ValueResponse
 from keba_keenergy_api.error import APIError
@@ -223,6 +224,7 @@ class TestKebaKeEnergyAPI:
                     },
                     "heat_pump": {},
                     "heat_circuit": {},
+                    "solar_circuit": {},
                     "external_heat_source": {
                         "target_temperature": [
                             {
@@ -303,6 +305,7 @@ class TestKebaKeEnergyAPI:
                             {"value": 11.81, "attributes": {"lower_limit": "10", "upper_limit": "90"}},
                         ],
                     },
+                    "solar_circuit": {},
                     "external_heat_source": {},
                     "photovoltaic": {},
                 },
@@ -337,6 +340,18 @@ class TestKebaKeEnergyAPI:
                             "longText": "Qty HC",
                             "lowerLimit": "0",
                             "upperLimit": "8",
+                        },
+                        "value": "1",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfSolarCircuits",
+                        "attributes": {
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                            "formatId": "fmt2p0",
+                            "longText": "Qty solar",
+                            "upperLimit": "4",
+                            "lowerLimit": "0",
                         },
                         "value": "1",
                     },
@@ -425,6 +440,221 @@ class TestKebaKeEnergyAPI:
                     "heat_circuit": {
                         "target_temperature": [
                             {"value": 10.81, "attributes": {"lower_limit": "10", "upper_limit": "90"}},
+                        ],
+                    },
+                    "solar_circuit": {},
+                    "external_heat_source": {},
+                    "photovoltaic": {},
+                },
+            ),
+            (
+                [
+                    SolarCircuit.SOURCE_TEMPERATURE,
+                    SolarCircuit.CURRENT_TEMPERATURE,
+                    SolarCircuit.TARGET_TEMPERATURE,
+                    SolarCircuit.HEAT_REQUEST,
+                ],
+                None,
+                [
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatPumps",
+                        "attributes": {
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                            "formatId": "fmt2p0",
+                            "longText": "Qty heat pumps",
+                            "lowerLimit": "0",
+                            "upperLimit": "4",
+                        },
+                        "value": "2",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatingCircuits",
+                        "attributes": {
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                            "formatId": "fmt2p0",
+                            "longText": "Qty HC",
+                            "lowerLimit": "0",
+                            "upperLimit": "8",
+                        },
+                        "value": "1",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfSolarCircuits",
+                        "attributes": {
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                            "formatId": "fmt2p0",
+                            "longText": "Qty solar",
+                            "upperLimit": "4",
+                            "lowerLimit": "0",
+                        },
+                        "value": "1",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks",
+                        "attributes": {
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                            "formatId": "fmt2p0",
+                            "longText": "Qty HW tank",
+                            "lowerLimit": "0",
+                            "upperLimit": "4",
+                        },
+                        "value": "1",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfExtHeatSources",
+                        "attributes": {
+                            "formatId": "fmt2p0",
+                            "longText": "Qty ext. heat sources",
+                            "upperLimit": "1",
+                            "lowerLimit": "0",
+                        },
+                        "value": "0",
+                    },
+                ],
+                [
+                    {
+                        "name": "APPL.CtrlAppl.sParam.solarCircuit[0].collectorTemp.values.actValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Source temp.",
+                            "unitId": "Temp",
+                            "upperLimit": "90",
+                            "lowerLimit": "20",
+                        },
+                        "value": "22.426912",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.genericHeat[0].referenceTemp.values.actValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Temp. act.1",
+                            "unitId": "Temp",
+                        },
+                        "value": "55.753",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.genericHeat[1].referenceTemp.values.actValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Temp. act.2",
+                            "unitId": "Temp",
+                        },
+                        "value": "45.753",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.genericHeat[0].param.setTempMax.value",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Temp. nom. 1",
+                            "unitId": "Temp",
+                            "upperLimit": "90",
+                            "lowerLimit": "0",
+                        },
+                        "value": "35",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.genericHeat[1].param.setTempMax.value",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Temp. nom. 2",
+                            "unitId": "Temp",
+                            "upperLimit": "90",
+                            "lowerLimit": "0",
+                        },
+                        "value": "45",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.heatRequest",
+                        "attributes": {
+                            "unitId": "Enum",
+                            "upperLimit": "6",
+                            "lowerLimit": "0",
+                        },
+                        "value": "false",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[1].values.heatRequest",
+                        "attributes": {
+                            "unitId": "Enum",
+                            "upperLimit": "6",
+                            "lowerLimit": "0",
+                        },
+                        "value": "true",
+                    },
+                ],
+                '[{"name": "APPL.CtrlAppl.sParam.solarCircuit[0].collectorTemp.values.actValue", "attr": "1"}, '
+                '{"name": "APPL.CtrlAppl.sParam.genericHeat[0].referenceTemp.values.actValue", "attr": "1"}, '
+                '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].referenceTemp.values.actValue", "attr": "1"}, '
+                '{"name": "APPL.CtrlAppl.sParam.genericHeat[0].param.setTempMax.value", "attr": "1"}, '
+                '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].param.setTempMax.value", "attr": "1"}, '
+                '{"name": "APPL.CtrlAppl.sParam.genericHeat[0].values.heatRequest", "attr": "1"}, '
+                '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].values.heatRequest", "attr": "1"}]',
+                {
+                    "system": {},
+                    "hot_water_tank": {},
+                    "heat_pump": {},
+                    "heat_circuit": {},
+                    "solar_circuit": {
+                        "current_temperature_1": [
+                            {
+                                "attributes": {},
+                                "value": 55.75,
+                            },
+                        ],
+                        "current_temperature_2": [
+                            {
+                                "attributes": {},
+                                "value": 45.75,
+                            },
+                        ],
+                        "heat_request_1": [
+                            {
+                                "attributes": {
+                                    "lower_limit": "0",
+                                    "upper_limit": "6",
+                                },
+                                "value": "off",
+                            },
+                        ],
+                        "heat_request_2": [
+                            {
+                                "attributes": {
+                                    "lower_limit": "0",
+                                    "upper_limit": "6",
+                                },
+                                "value": "on",
+                            },
+                        ],
+                        "target_temperature_1": [
+                            {
+                                "attributes": {
+                                    "lower_limit": "0",
+                                    "upper_limit": "90",
+                                },
+                                "value": 35.0,
+                            },
+                        ],
+                        "target_temperature_2": [
+                            {
+                                "attributes": {
+                                    "lower_limit": "0",
+                                    "upper_limit": "90",
+                                },
+                                "value": 45.0,
+                            },
+                        ],
+                        "source_temperature": [
+                            {
+                                "attributes": {
+                                    "lower_limit": "20",
+                                    "upper_limit": "90",
+                                },
+                                "value": 22.43,
+                            },
                         ],
                     },
                     "external_heat_source": {},
