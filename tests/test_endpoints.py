@@ -4185,7 +4185,6 @@ class TestSolarCircuitSection:
         expected_value: str,
     ) -> None:
         """Test get heat request 1."""
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -4232,7 +4231,6 @@ class TestSolarCircuitSection:
         expected_value: str,
     ) -> None:
         """Test get heat request 2."""
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
