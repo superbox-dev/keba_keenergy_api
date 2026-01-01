@@ -710,6 +710,19 @@ class TestKebaKeEnergyAPI:
         [
             (
                 {
+                    SolarCircuit.TARGET_TEMPERATURE: (
+                        50,
+                        None,
+                        45,
+                        35,
+                    ),
+                },
+                '[{"name": "APPL.CtrlAppl.sParam.genericHeat[0].param.setTempMax.value", "value": "50"}, '
+                '{"name": "APPL.CtrlAppl.sParam.genericHeat[2].param.setTempMax.value", "value": "45"}, '
+                '{"name": "APPL.CtrlAppl.sParam.genericHeat[3].param.setTempMax.value", "value": "35"}]',
+            ),
+            (
+                {
                     System.OPERATING_MODE: 1,
                 },
                 '[{"name": "APPL.CtrlAppl.sParam.param.operatingMode", "value": "1"}]',
