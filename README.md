@@ -10,6 +10,12 @@ A Python wrapper for the KEBA KeEnergy API.
 ![Code style: black](https://img.shields.io/badge/code%20style-black-black)
 ![Code style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json)
 
+## Donation
+
+I put a lot of time into this project. If you like it, you can support me with a donation.
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/F2F0KXO6D)
+
 ## Getting started
 
 ```bash
@@ -100,9 +106,9 @@ asyncio.run(main())
 | `.get_operating_mode(position, human_readable)`    | `int` or `str` | Get operating mode as integer (0 is `STANDBY`, 1 is `SUMMER`, 2 is `AUTO_HEAT`, 3 is `AUTO_COOL` and 4 is `AUTO`). |
 | `.set_operating_mode(0, position, human_readable)` | `int` or `str` | Set operating mode.                                                                                                |
 | `.get_cpu_usage()`                                 | `float`        | Get CPU usage.                                                                                                     |
-| `.get_webview_cpu_usage()`                         | `float`        | Get webview CPU usage.                                                                                             |
-| `.get_webserver_cpu_usage()`                       | `float`        | Get webserver CPU usage.                                                                                           |
-| `.get_control_cpu_usage()`                         | `float`        | Get control CPU usage.                                                                                             |
+| `.get_webview_cpu_usage()`                         | `float`        | Get webview CPU usage in percent.                                                                                  |
+| `.get_webserver_cpu_usage()`                       | `float`        | Get webserver CPU usage in percent.                                                                                |
+| `.get_control_cpu_usage()`                         | `float`        | Get control CPU usage in percent.                                                                                  |
 | `.get_ram_usage()`                                 | `int`          | Get RAM usage.                                                                                                     |
 | `.get_free_ram()`                                  | `int`          | Get free RAM.                                                                                                      |
 
@@ -137,32 +143,34 @@ asyncio.run(main())
 | `.set_compressor_night_speed(0.5, position)`                | `float`        | Set compressor night speed.                                                   |
 | `.get_max_compressor_night_speed(position)`                 | `float`        | Get maximum compressor night speed.                                           |
 | `.get_min_compressor_night_speed(position)`                 | `float`        | Get minimum compressor night speed.                                           |
-| `.get_circulation_pump(position)`                           | `float`        | Get circulation pump in percent.                                              |
+| `.get_circulation_pump(position)`                           | `float`        | Get circulation pump speed in percent. **DEPRECATED**                         |
+| `.get_circulation_pump_speed(position)`                     | `float`        | Get circulation pump speed in percent.                                        |
 | `.get_flow_temperature(position)`                           | `float`        | Get flow temperature.                                                         |
 | `.get_return_flow_temperature(position)`                    | `float`        | Get return flow temperature.                                                  |
 | `.get_source_input_temperature(position)`                   | `float`        | Get source input temperature.                                                 |
 | `.get_source_output_temperature(position)`                  | `float`        | Get source output temperature.                                                |
 | `.get_compressor_input_temperature(position)`               | `float`        | Get compressor input temperature.                                             |
 | `.get_compressor_output_temperature(position)`              | `float`        | Get compressor output temperature.                                            |
-| `.get_compressor(position)`                                 | `float`        | Get compressor in percent.                                                    |
+| `.get_compressor(position)`                                 | `float`        | Get compressor speed in percent. **DEPRECATED**                               |
+| `.get_compressor_speed(position)`                           | `float`        | Get compressor speed in percent.                                              |
 | `.get_high_pressure(position)`                              | `float`        | Get high pressure.                                                            |
 | `.get_low_pressure(position)`                               | `float`        | Get low pressure.                                                             |
 | `.get_heat_request(position)`                               | `int` or `str` | Get heat request.                                                             |
-| `.get_compressor_power(position)`                           | `float`        | Get compressor power.                                                         |
-| `.get_heating_power(position)`                              | `float`        | Get heating power.                                                            |
-| `.get_hot_water_power(position)`                            | `float`        | Get hot water power.                                                          |
+| `.get_compressor_power(position)`                           | `float`        | Get compressor power in W.                                                    |
+| `.get_heating_power(position)`                              | `float`        | Get heating power in W.                                                       |
+| `.get_hot_water_power(position)`                            | `float`        | Get hot water power in W.                                                     |
 | `.get_cop(position)`                                        | `float`        | Get coefficient of performance.                                               |
-| `.get_heating_energy(position)`                             | `float`        | Get heating energy.                                                           |
-| `.get_heating_energy_consumption(position)`                 | `float`        | Get heating energy consumption.                                               |
+| `.get_heating_energy(position)`                             | `float`        | Get heating energy in kWh.                                                    |
+| `.get_heating_energy_consumption(position)`                 | `float`        | Get heating energy consumption in kWh.                                        |
 | `.get_heating_spf(position)`                                | `float`        | Get heating seasonal performance factor.                                      |
-| `.get_cooling_energy(position)`                             | `float`        | Get cooling energy.                                                           |
-| `.get_cooling_energy_consumption(position)`                 | `float`        | Get cooling energy consumption.                                               |
+| `.get_cooling_energy(position)`                             | `float`        | Get cooling energy in kWh.                                                    |
+| `.get_cooling_energy_consumption(position)`                 | `float`        | Get cooling energy consumption in kWh.                                        |
 | `.get_cooling_spf(position)`                                | `float`        | Get cooling seasonal performance factor.                                      |
-| `.get_hot_water_energy(position)`                           | `float`        | Get hot water energy.                                                         |
-| `.get_hot_water_energy_consumption(position)`               | `float`        | Get hot water electrical energy.                                              |
+| `.get_hot_water_energy(position)`                           | `float`        | Get hot water energy in kWh.                                                  |
+| `.get_hot_water_energy_consumption(position)`               | `float`        | Get hot water electrical energy in kWh.                                       |
 | `.get_hot_water_spf(position)`                              | `float`        | Get hot water seasonal performance factor.                                    |
-| `.get_total_thermal_energy(position)`                       | `float`        | Get total thermal energy.                                                     |
-| `.get_total_energy_consumption(position)`                   | `float`        | Get total energy consumption.                                                 |
+| `.get_total_thermal_energy(position)`                       | `float`        | Get total thermal energy in kWh.                                              |
+| `.get_total_energy_consumption(position)`                   | `float`        | Get total energy consumption in kWh.                                          |
 | `.get_total_spf(position)`                                  | `float`        | Get total seasonal performance factor.                                        |
 | `.has_passive_cooling(position)`                            | `int` or `str` | Has passive cooling.                                                          |
 | `.get_operating_time(position)`                             | `int`          | Get operating time.                                                           |
@@ -200,6 +208,26 @@ asyncio.run(main())
 | `.get_external_cool_request(position)`          | `int` or `str`   | Get external cool request.                          |
 | `.get_external_heat_request(position)`          | `int` or `str`   | Get external heat request.                          |
 
+#### Solar circuit
+
+| Endpoint                                        | Request/Response | Description                                    |
+|-------------------------------------------------|------------------|------------------------------------------------|
+| `.get_name(position)`                           | `str`            | Get solar circuit name.                        |
+| `.get_operating_mode(position, human_readable)` | `int` or `str`   | Get operating mode (0 is `OFF` and 1 is `ON`). |
+| `.set_operating_mode(1, position)`              | `int` or `str`   | Set operating mode.                            |
+| `.get_source_temperature(position)`             | `float`          | Get source temperature.                        |
+| `.get_pump_1_speed(position)`                   | `float`          | Get pump 1 speed in percent.                   |
+| `.get_pump_2_speed(position)`                   | `float`          | Get pump 2 speed in percent.                   |
+| `.get_current_temperature_1(position)`          | `float`          | Get current temperature 1.                     |
+| `.get_current_temperature_2(position)`          | `float`          | Get current temperature 2.                     |
+| `.get_target_temperature_1(position)`           | `float`          | Get taget temperature 1.                       |
+| `.set_target_temperature_1(22, position)`       | `float`          | Set target temperature 1.                      |
+| `.get_target_temperature_2(position)`           | `float`          | Get taget temperature 2.                       |
+| `.set_target_temperature_2(22, position)`       | `float`          | Set target temperature 2.                      |
+| `.get_heating_energy(position)`                 | `float`          | Get heating energy in kWh.                     |
+| `.get_daily_energy(position)`                   | `float`          | Get daily energy in kWh.                       |
+| `.get_actual_power(position)`                   | `float`          | Get actual power in W.                         |
+
 #### External heat source
 
 | Endpoint                                           | Request/Response | Description                                               |
@@ -214,11 +242,11 @@ asyncio.run(main())
 
 #### Photovoltaic
 
-| Endpoint                 | Request/Response | Description       |
-|--------------------------|------------------|-------------------|
-| `.get_excess_power()`    | `float`          | Get excess power. |
-| `.get_daily_energy()`    | `float`          | Get daily energy. |
-| `.get_total_energy()`    | `float`          | Get total energy. |
+| Endpoint                 | Request/Response | Description              |
+|--------------------------|------------------|--------------------------|
+| `.get_excess_power()`    | `float`          | Get excess power in W.   |
+| `.get_daily_energy()`    | `float`          | Get daily energy in kWh. |
+| `.get_total_energy()`    | `float`          | Get total energy in kWh. |
 
 ## Changelog
 
@@ -229,9 +257,3 @@ The changelog lives in the [CHANGELOG.md](CHANGELOG.md) document. The format is 
 We're happy about your contributions to the project!
 
 You can get started by reading the [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Donation
-
-We put a lot of time into this project. If you like it, you can support us with a donation.
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/F2F0KXO6D)
