@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.4.0b1] - 2025-12-31
+## [2.4.0b1] - 2026-01-01
 
 ### Added
 
 - Added endpoints for solar circuits
 
-## [2.3.1] - 2026-01-01
+## [2.3.1] - 2025-10-18
 
 ### Fixed
 
