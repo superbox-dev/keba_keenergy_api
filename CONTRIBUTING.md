@@ -34,10 +34,11 @@ uv run yamllint .
 uv run rumdl check .
 ```
 
-## Report bugs using Github's [issues](../../issues)
+## Report bugs using Github's [issues](https://github.com/superbox-dev/keba_keenergy_api/issues)
 
 GitHub issues are used to track public bugs.
-Report a bug by [opening a new issue](../../issues/new/choose); it's that easy!
+Report a bug by [opening a new issue](https://github.com/superbox-dev/keba_keenergy_api/issues/new/choose);
+it's that easy!
 
 ## Write bug reports with detail, background, and sample code
 
