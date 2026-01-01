@@ -245,7 +245,7 @@ class BaseEndpoints:
                             f"{response_key}_{sub_idx}" if section.value.quantity > 1 and use_count else response_key
                         )
 
-                        if not _response.get(response_key):
+                        if not _response.get(_response_key):
                             _response[_response_key] = []
 
                         _value: Value = {
