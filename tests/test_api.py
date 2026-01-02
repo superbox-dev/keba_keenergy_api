@@ -675,89 +675,95 @@ class TestKebaKeEnergyAPI:
                     "heat_pump": {},
                     "heat_circuit": {},
                     "solar_circuit": {
-                        "current_temperature_1": [
-                            {
-                                "attributes": {},
-                                "value": 55.75,
-                            },
-                            {
-                                "attributes": {},
-                                "value": 53.75,
-                            },
+                        "current_temperature": [
+                            [
+                                {
+                                    "attributes": {},
+                                    "value": 55.75,
+                                },
+                                {
+                                    "attributes": {},
+                                    "value": 45.75,
+                                },
+                            ],
+                            [
+                                {
+                                    "attributes": {},
+                                    "value": 53.75,
+                                },
+                                {
+                                    "attributes": {},
+                                    "value": 43.75,
+                                },
+                            ],
                         ],
-                        "current_temperature_2": [
-                            {
-                                "attributes": {},
-                                "value": 45.75,
-                            },
-                            {
-                                "attributes": {},
-                                "value": 43.75,
-                            },
+                        "heat_request": [
+                            [
+                                {
+                                    "attributes": {
+                                        "lower_limit": "0",
+                                        "upper_limit": "6",
+                                    },
+                                    "value": "off",
+                                },
+                                {
+                                    "attributes": {
+                                        "lower_limit": "0",
+                                        "upper_limit": "6",
+                                    },
+                                    "value": "on",
+                                },
+                            ],
+                            [
+                                {
+                                    "attributes": {
+                                        "lower_limit": "0",
+                                        "upper_limit": "6",
+                                    },
+                                    "value": "off",
+                                },
+                                {
+                                    "attributes": {
+                                        "lower_limit": "0",
+                                        "upper_limit": "6",
+                                    },
+                                    "value": "on",
+                                },
+                            ],
                         ],
-                        "heat_request_1": [
-                            {
-                                "attributes": {
-                                    "lower_limit": "0",
-                                    "upper_limit": "6",
+                        "target_temperature": [
+                            [
+                                {
+                                    "attributes": {
+                                        "lower_limit": "0",
+                                        "upper_limit": "90",
+                                    },
+                                    "value": 35.0,
                                 },
-                                "value": "off",
-                            },
-                            {
-                                "attributes": {
-                                    "lower_limit": "0",
-                                    "upper_limit": "6",
+                                {
+                                    "attributes": {
+                                        "lower_limit": "0",
+                                        "upper_limit": "90",
+                                    },
+                                    "value": 45.0,
                                 },
-                                "value": "off",
-                            },
-                        ],
-                        "heat_request_2": [
-                            {
-                                "attributes": {
-                                    "lower_limit": "0",
-                                    "upper_limit": "6",
+                            ],
+                            [
+                                {
+                                    "attributes": {
+                                        "lower_limit": "0",
+                                        "upper_limit": "90",
+                                    },
+                                    "value": 35.0,
                                 },
-                                "value": "on",
-                            },
-                            {
-                                "attributes": {
-                                    "lower_limit": "0",
-                                    "upper_limit": "6",
+                                {
+                                    "attributes": {
+                                        "lower_limit": "0",
+                                        "upper_limit": "90",
+                                    },
+                                    "value": 45.0,
                                 },
-                                "value": "on",
-                            },
-                        ],
-                        "target_temperature_1": [
-                            {
-                                "attributes": {
-                                    "lower_limit": "0",
-                                    "upper_limit": "90",
-                                },
-                                "value": 35.0,
-                            },
-                            {
-                                "attributes": {
-                                    "lower_limit": "0",
-                                    "upper_limit": "90",
-                                },
-                                "value": 35.0,
-                            },
-                        ],
-                        "target_temperature_2": [
-                            {
-                                "attributes": {
-                                    "lower_limit": "0",
-                                    "upper_limit": "90",
-                                },
-                                "value": 45.0,
-                            },
-                            {
-                                "attributes": {
-                                    "lower_limit": "0",
-                                    "upper_limit": "90",
-                                },
-                                "value": 45.0,
-                            },
+                            ],
                         ],
                         "source_temperature": [
                             {

@@ -4002,6 +4002,15 @@ class TestSolarCircuitSection:
                         },
                         "value": "55.753",
                     },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.genericHeat[1].referenceTemp.values.actValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Temp. act.1",
+                            "unitId": "Temp",
+                        },
+                        "value": "25.753",
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -4014,7 +4023,10 @@ class TestSolarCircuitSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.genericHeat[0].referenceTemp.values.actValue", "attr": "1"}]',
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.genericHeat[0].referenceTemp.values.actValue", "attr": "1"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].referenceTemp.values.actValue", "attr": "1"}]'
+                ),
                 method="POST",
                 auth=None,
                 ssl=False,
@@ -4027,6 +4039,15 @@ class TestSolarCircuitSection:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
                 payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.genericHeat[0].referenceTemp.values.actValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Temp. act.1",
+                            "unitId": "Temp",
+                        },
+                        "value": "55.753",
+                    },
                     {
                         "name": "APPL.CtrlAppl.sParam.genericHeat[1].referenceTemp.values.actValue",
                         "attributes": {
@@ -4048,7 +4069,10 @@ class TestSolarCircuitSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.genericHeat[1].referenceTemp.values.actValue", "attr": "1"}]',
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.genericHeat[0].referenceTemp.values.actValue", "attr": "1"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].referenceTemp.values.actValue", "attr": "1"}]'
+                ),
                 method="POST",
                 auth=None,
                 ssl=False,
@@ -4072,6 +4096,17 @@ class TestSolarCircuitSection:
                         },
                         "value": "55",
                     },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.genericHeat[1].param.setTempMax.value",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Temp. nom. 2",
+                            "unitId": "Temp",
+                            "upperLimit": "90",
+                            "lowerLimit": "0",
+                        },
+                        "value": "45",
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -4084,7 +4119,10 @@ class TestSolarCircuitSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.genericHeat[0].param.setTempMax.value", "attr": "1"}]',
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.genericHeat[0].param.setTempMax.value", "attr": "1"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].param.setTempMax.value", "attr": "1"}]'
+                ),
                 method="POST",
                 auth=None,
                 ssl=False,
@@ -4119,6 +4157,17 @@ class TestSolarCircuitSection:
                 "http://mocked-host/var/readWriteVars",
                 payload=[
                     {
+                        "name": "APPL.CtrlAppl.sParam.genericHeat[0].param.setTempMax.value",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Temp. nom. 1",
+                            "unitId": "Temp",
+                            "upperLimit": "90",
+                            "lowerLimit": "0",
+                        },
+                        "value": "55",
+                    },
+                    {
                         "name": "APPL.CtrlAppl.sParam.genericHeat[1].param.setTempMax.value",
                         "attributes": {
                             "formatId": "fmtTemp",
@@ -4141,7 +4190,10 @@ class TestSolarCircuitSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.genericHeat[1].param.setTempMax.value", "attr": "1"}]',
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.genericHeat[0].param.setTempMax.value", "attr": "1"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].param.setTempMax.value", "attr": "1"}]'
+                ),
                 method="POST",
                 auth=None,
                 ssl=False,
@@ -4196,6 +4248,13 @@ class TestSolarCircuitSection:
                         },
                         "value": payload_value,
                     },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.genericHeat[1].values.heatRequest",
+                        "attributes": {
+                            "longText": "Heat request 2",
+                        },
+                        "value": "false" if payload_value == "true" else "true",
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -4208,7 +4267,10 @@ class TestSolarCircuitSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.genericHeat[0].values.heatRequest", "attr": "1"}]',
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.genericHeat[0].values.heatRequest", "attr": "1"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].values.heatRequest", "attr": "1"}]'
+                ),
                 method="POST",
                 auth=None,
                 ssl=False,
@@ -4238,6 +4300,13 @@ class TestSolarCircuitSection:
                     {
                         "name": "APPL.CtrlAppl.sParam.genericHeat[1].values.heatRequest",
                         "attributes": {
+                            "longText": "Heat request 1",
+                        },
+                        "value": "false" if payload_value == "true" else "true",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.genericHeat[1].values.heatRequest",
+                        "attributes": {
                             "longText": "Heat request 2",
                         },
                         "value": payload_value,
@@ -4254,7 +4323,10 @@ class TestSolarCircuitSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.genericHeat[1].values.heatRequest", "attr": "1"}]',
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.genericHeat[0].values.heatRequest", "attr": "1"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].values.heatRequest", "attr": "1"}]'
+                ),
                 method="POST",
                 auth=None,
                 ssl=False,
