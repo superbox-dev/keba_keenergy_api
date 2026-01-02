@@ -148,7 +148,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
         if position is None:
             position = await self.system.get_positions()
 
-        response: dict[str, list[Value | list[Value]]] = await self._read_data(
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=request,
             position=position,
             human_readable=human_readable,
