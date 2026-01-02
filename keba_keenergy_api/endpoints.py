@@ -371,11 +371,11 @@ class BaseEndpoints:
         value: Value | list[Value] = response[_key][_idx]
 
         return float(
-            (
+
                 (value[index]["attributes"][attribute] if attribute else value[index]["value"])
                 if isinstance(value, list)
-                else (value["attributes"][attribute] if attribute else value["value"])
-            )
+                else (value["attributes"][attribute] if attribute else value["value"]),
+
         )
 
     def _get_int_value(
@@ -394,11 +394,11 @@ class BaseEndpoints:
         value: Value | list[Value] = response[_key][_idx]
 
         return int(
-            (
+
                 (value[index]["attributes"][attribute] if attribute else value[index]["value"])
                 if isinstance(value, list)
-                else (value["attributes"][attribute] if attribute else value["value"])
-            )
+                else (value["attributes"][attribute] if attribute else value["value"]),
+
         )
 
     def _get_str_value(
