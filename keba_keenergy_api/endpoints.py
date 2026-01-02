@@ -1527,7 +1527,8 @@ class SolarCircuitEndpoints(BaseEndpoints):
     async def set_target_temperature_1(self, temperature: int, position: int = 1) -> None:
         """Set target temperature 1."""
         temperatures: list[float | None] = [
-            temperature if 2 * position - 1 == p else None for p in range(1, 2 * position + 1)
+            temperature if SolarCircuit.TARGET_TEMPERATURE.value.quantity * position - 1 == p else None
+            for p in range(1, SolarCircuit.TARGET_TEMPERATURE.value.quantity * position + 1)
         ]
         await self._write_values(request={SolarCircuit.TARGET_TEMPERATURE: temperatures})
 
@@ -1543,7 +1544,8 @@ class SolarCircuitEndpoints(BaseEndpoints):
     async def set_target_temperature_2(self, temperature: int, position: int = 1) -> None:
         """Set target temperature 2."""
         temperatures: list[float | None] = [
-            temperature if 2 * position == p else None for p in range(1, 2 * position + 1)
+            temperature if SolarCircuit.TARGET_TEMPERATURE.value.quantity * position == p else None
+            for p in range(1, SolarCircuit.TARGET_TEMPERATURE.value.quantity * position + 1)
         ]
         await self._write_values(request={SolarCircuit.TARGET_TEMPERATURE: temperatures})
 
