@@ -166,20 +166,6 @@ class HeatCircuitHeatRequest(IntEnum):
     INFLOW_OFF = 6
 
 
-class HeatCircuitExternalCoolRequest(IntEnum):
-    """Available heat circuit external cool request stats."""
-
-    OFF = 0
-    ON = 1
-
-
-class HeatCircuitExternalHeatRequest(IntEnum):
-    """Available heat circuit external heat request stats."""
-
-    OFF = 0
-    ON = 1
-
-
 class ExternalHeatSourceOperatingMode(IntEnum):
     """Available external heat source operating modes."""
 
@@ -561,11 +547,6 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.external.coolRequest",
         value_type=str,
         human_readable=HeatCircuitExternalCoolRequest,
-    )
-    EXTERNAL_HEAT_REQUEST = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.external.heatRequest",
-        value_type=str,
-        human_readable=HeatCircuitExternalHeatRequest,
     )
 
 

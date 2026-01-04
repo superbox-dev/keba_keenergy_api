@@ -205,8 +205,6 @@ asyncio.run(main())
 | `.set_operating_mode(3, position)`              | `int` or `str`   | Set operating mode.                                 |
 | `.get_cool_request(position)`                   | `int` or `str`   | Get cool request.                                   |
 | `.get_heat_request(position)`                   | `int` or `str`   | Get heat request.                                   |
-| `.get_external_cool_request(position)`          | `int` or `str`   | Get external cool request.                          |
-| `.get_external_heat_request(position)`          | `int` or `str`   | Get external heat request.                          |
 
 #### Solar circuit
 

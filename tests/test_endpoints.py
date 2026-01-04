@@ -6,8 +6,6 @@ from aioresponses.core import aioresponses
 from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.constants import ExternalHeatSourceHeatRequest
 from keba_keenergy_api.constants import ExternalHeatSourceOperatingMode
-from keba_keenergy_api.constants import HeatCircuitExternalCoolRequest
-from keba_keenergy_api.constants import HeatCircuitExternalHeatRequest
 from keba_keenergy_api.constants import HeatCircuitHasRoomTemperature
 from keba_keenergy_api.constants import HeatCircuitHeatRequest
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
@@ -3650,130 +3648,6 @@ class TestHeatCircuitSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.heatRequest", "attr": "1"}]',
-                method="POST",
-                auth=None,
-                ssl=False,
-            )
-
-    @pytest.mark.parametrize(
-        ("human_readable", "payload_value", "expected_value"),
-        [
-            (True, "true", "on"),
-            (False, HeatCircuitExternalCoolRequest.ON.value, 1),
-            (True, "false", "off"),
-            (False, HeatCircuitExternalCoolRequest.OFF.value, 0),
-        ],
-    )
-    @pytest.mark.asyncio
-    async def test_get_external_cool_request(
-        self,
-        human_readable: bool,  # noqa: FBT001
-        payload_value: str,
-        expected_value: str,
-    ) -> None:
-        """Test get external cool request."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.external.coolRequest",
-                        "attributes": {"longText": "Ext. cool request"},
-                        "value": payload_value,
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.heat_circuit.get_external_cool_request(human_readable=human_readable)
-
-            assert isinstance(data, (int | str))
-            assert data == expected_value
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.external.coolRequest", "attr": "1"}]',
-                method="POST",
-                auth=None,
-                ssl=False,
-            )
-
-    @pytest.mark.parametrize(
-        ("human_readable", "payload_value", "expected_value"),
-        [
-            (True, "true", "on"),
-            (False, HeatCircuitExternalHeatRequest.ON.value, 1),
-            (True, "false", "off"),
-            (False, HeatCircuitExternalHeatRequest.OFF.value, 0),
-        ],
-    )
-    @pytest.mark.asyncio
-    async def test_get_external_heat_request(
-        self,
-        human_readable: bool,  # noqa: FBT001
-        payload_value: str,
-        expected_value: str,
-    ) -> None:
-        """Test get external heat request."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.external.heatRequest",
-                        "attributes": {"longText": "Ext. cool request"},
-                        "value": payload_value,
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.heat_circuit.get_external_heat_request(human_readable=human_readable)
-
-            assert isinstance(data, (int | str))
-            assert data == expected_value
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.external.heatRequest", "attr": "1"}]',
-                method="POST",
-                auth=None,
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_source_temperature(self) -> None:
-        """Test get source temperature."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.solarCircuit[0].collectorTemp.values.actValue",
-                        "attributes": {
-                            "formatId": "fmtTemp",
-                            "longText": "Source temp.",
-                            "unitId": "Temp",
-                            "upperLimit": "90",
-                            "lowerLimit": "20",
-                        },
-                        "value": "22.426912",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.solar_circuit.get_source_temperature()
-
-            assert isinstance(data, float)
-            assert data == 22.43  # noqa: PLR2004
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.solarCircuit[0].collectorTemp.values.actValue", "attr": "1"}]',
                 method="POST",
                 auth=None,
                 ssl=False,

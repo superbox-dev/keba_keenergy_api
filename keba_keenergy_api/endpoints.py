@@ -1398,25 +1398,15 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_int_or_str_value(response, section=HeatCircuit.HEAT_REQUEST, position=position)
 
-    async def get_external_cool_request(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get external cool request."""
+    async def get_cool_request(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Get cool request."""
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=HeatCircuit.EXTERNAL_COOL_REQUEST,
+            request=HeatCircuit.COOL_REQUEST,
             position=position,
             human_readable=human_readable,
             extra_attributes=True,
         )
-        return self._get_int_or_str_value(response, section=HeatCircuit.EXTERNAL_COOL_REQUEST, position=position)
-
-    async def get_external_heat_request(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get external heat request."""
-        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=HeatCircuit.EXTERNAL_HEAT_REQUEST,
-            position=position,
-            human_readable=human_readable,
-            extra_attributes=True,
-        )
-        return self._get_int_or_str_value(response, section=HeatCircuit.EXTERNAL_HEAT_REQUEST, position=position)
+        return self._get_int_or_str_value(response, section=HeatCircuit.COOL_REQUEST, position=position)
 
 
 class SolarCircuitEndpoints(BaseEndpoints):
