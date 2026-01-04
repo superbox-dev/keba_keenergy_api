@@ -1,9 +1,9 @@
 """All API Constants."""
 
+from dataclasses import dataclass
 from enum import Enum
 from enum import IntEnum
 from typing import Final
-from typing import NamedTuple
 from typing import TypeAlias
 
 API_DEFAULT_TIMEOUT: int = 10
@@ -205,14 +205,18 @@ class ExternalHeatSourceHeatRequest(IntEnum):
 PAYLOAD_PREFIX: Final[str] = "APPL.CtrlAppl"
 
 
-class EndpointProperties(NamedTuple):
+@dataclass
+class EndpointProperties:
     """Properties from an endpoint."""
 
     value: str
     value_type: type[float | int | str]
-    read_only: bool = True
     human_readable: type[Enum] | None = None
     quantity: int = 1
+
+    @property
+    def read_only(self) -> bool:
+        return ".param." not in self.value
 
 
 class System(Enum):
@@ -250,7 +254,6 @@ class System(Enum):
     OPERATING_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.param.operatingMode",
         value_type=int,
-        read_only=False,
         human_readable=SystemOperatingMode,
     )
     OUTDOOR_TEMPERATURE = EndpointProperties(
@@ -301,23 +304,19 @@ class BufferTank(Enum):
     OPERATING_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.operatingMode",
         value_type=int,
-        read_only=False,
         human_readable=BufferTankOperatingMode,
     )
     STANDBY_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.backupTemp",
         value_type=float,
-        read_only=False,
     )
     TARGET_MIN_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.minSetTemp",
         value_type=float,
-        read_only=False,
     )
     TARGET_MAX_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.coolSetTemp",
         value_type=float,
-        read_only=False,
     )
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.heatRequestTop",
@@ -341,18 +340,15 @@ class HotWaterTank(Enum):
     OPERATING_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.operatingMode",
         value_type=int,
-        read_only=False,
         human_readable=HotWaterTankOperatingMode,
     )
     STANDBY_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.reducedSetTempMax.value",
         value_type=float,
-        read_only=False,
     )
     TARGET_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.normalSetTempMax.value",
         value_type=float,
-        read_only=False,
     )
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].values.heatRequestTop",
@@ -380,25 +376,21 @@ class HeatPump(Enum):
     STATE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].values.heatpumpState",
         value_type=int,
-        read_only=False,
         human_readable=HeatPumpState,
     )
     OPERATING_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].param.operatingMode",
         value_type=int,
-        read_only=False,
         human_readable=HeatPumpOperatingMode,
     )
     COMPRESSOR_USE_NIGHT_SPEED = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatPumpPowerCtrl.param.useDayNightSpeed",
         value_type=str,
-        read_only=False,
         human_readable=HeatPumpCompressorUseNightSpeed,
     )
     COMPRESSOR_NIGHT_SPEED = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatPumpPowerCtrl.param.maxPowerScaledNight",
         value_type=float,
-        read_only=False,
     )
     CIRCULATION_PUMP = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CircPump.values.setValueScaled",
@@ -576,7 +568,6 @@ class HeatCircuit(Enum):
     TARGET_TEMPERATURE_DAY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.normalSetTemp",
         value_type=float,
-        read_only=False,
     )
     HEATING_LIMIT_DAY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdDayTemp.value",
@@ -585,7 +576,6 @@ class HeatCircuit(Enum):
     TARGET_TEMPERATURE_NIGHT = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.reducedSetTemp",
         value_type=float,
-        read_only=False,
     )
     HEATING_LIMIT_NIGHT = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdNightTemp.value",
@@ -594,17 +584,14 @@ class HeatCircuit(Enum):
     TARGET_TEMPERATURE_AWAY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.holidaySetTemp",
         value_type=float,
-        read_only=False,
     )
     TARGET_TEMPERATURE_OFFSET = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.offsetRoomTemp",
         value_type=float,
-        read_only=False,
     )
     OPERATING_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.operatingMode",
         value_type=int,
-        read_only=False,
         human_readable=HeatCircuitOperatingMode,
     )
     HEAT_REQUEST = EndpointProperties(
@@ -629,7 +616,6 @@ class SolarCircuit(Enum):
     OPERATING_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].param.operatingMode",
         value_type=int,
-        read_only=False,
         human_readable=SolarCircuitOperatingMode,
     )
     SOURCE_TEMPERATURE = EndpointProperties(
@@ -652,7 +638,6 @@ class SolarCircuit(Enum):
     TARGET_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.genericHeat[%s].param.setTempMax.value",
         value_type=float,
-        read_only=False,
         quantity=2,
     )
     HEAT_REQUEST = EndpointProperties(
@@ -679,7 +664,6 @@ class ExternalHeatSource(Enum):
     OPERATING_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.operatingMode",
         value_type=int,
-        read_only=False,
         human_readable=ExternalHeatSourceOperatingMode,
     )
     TARGET_TEMPERATURE = EndpointProperties(
