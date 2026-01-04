@@ -214,6 +214,7 @@ class TestKebaKeEnergyAPI:
                     "system": {
                         "hot_water_tank_numbers": {"value": 2, "attributes": {"lower_limit": "0", "upper_limit": "4"}},
                     },
+                    "buffer_tank": {},
                     "hot_water_tank": {
                         "current_temperature": [
                             {
@@ -295,6 +296,7 @@ class TestKebaKeEnergyAPI:
                 ),
                 {
                     "system": {},
+                    "buffer_tank": {},
                     "hot_water_tank": {},
                     "heat_pump": {
                         "flow_temperature": [{"value": 24.2, "attributes": {}}, {"value": 23.2, "attributes": {}}],
@@ -354,6 +356,18 @@ class TestKebaKeEnergyAPI:
                             "lowerLimit": "0",
                         },
                         "value": "1",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfBuffers",
+                        "attributes": {
+                            "formatId": "fmt2p0",
+                            "longText": "Qty buffers",
+                            "upperLimit": "0",
+                            "lowerLimit": "0",
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                        },
+                        "value": "0",
                     },
                     {
                         "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks",
@@ -433,6 +447,7 @@ class TestKebaKeEnergyAPI:
                             "attributes": {"lower_limit": "-100", "upper_limit": "100"},
                         },
                     },
+                    "buffer_tank": {},
                     "hot_water_tank": {},
                     "heat_pump": {
                         "flow_temperature": [{"value": 24.2, "attributes": {}}, {"value": 23.2, "attributes": {}}],
@@ -491,6 +506,18 @@ class TestKebaKeEnergyAPI:
                             "lowerLimit": "0",
                         },
                         "value": "2",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfBuffers",
+                        "attributes": {
+                            "formatId": "fmt2p0",
+                            "longText": "Qty buffers",
+                            "upperLimit": "0",
+                            "lowerLimit": "0",
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                        },
+                        "value": "0",
                     },
                     {
                         "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks",
@@ -671,6 +698,7 @@ class TestKebaKeEnergyAPI:
                 '{"name": "APPL.CtrlAppl.sParam.genericHeat[3].values.heatRequest", "attr": "1"}]',
                 {
                     "system": {},
+                    "buffer_tank": {},
                     "hot_water_tank": {},
                     "heat_pump": {},
                     "heat_circuit": {},

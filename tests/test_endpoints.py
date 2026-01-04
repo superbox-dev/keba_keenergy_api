@@ -68,6 +68,18 @@ class TestSystemSection:
                         "value": "1",
                     },
                     {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfBuffers",
+                        "attributes": {
+                            "formatId": "fmt2p0",
+                            "longText": "Qty buffers",
+                            "upperLimit": "0",
+                            "lowerLimit": "0",
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                        },
+                        "value": "1",
+                    },
+                    {
                         "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks",
                         "attributes": {
                             "dynLowerLimit": 1,
@@ -107,6 +119,7 @@ class TestSystemSection:
                     '[{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatPumps", "attr": "1"}, '
                     '{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatingCircuits", "attr": "1"}, '
                     '{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfSolarCircuits", "attr": "1"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfBuffers", "attr": "1"}, '
                     '{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks", "attr": "1"}, '
                     '{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfExtHeatSources", "attr": "1"}]'
                 ),

@@ -35,6 +35,14 @@ class SystemHasPhotovoltaics(IntEnum):
     ON = 1
 
 
+class BufferTankOperatingMode(IntEnum):
+    """Available buffer tank operating modes."""
+
+    OFF = 0
+    AUTO = 1
+    HEAT_UP = 2
+
+
 class HotWaterTankOperatingMode(IntEnum):
     """Available hot water tank operating modes."""
 
@@ -121,6 +129,20 @@ class SolarCircuitHeatRequest(IntEnum):
     ON = 1
 
 
+class BufferTankHeatRequest(IntEnum):
+    """Available buffer tank heat request stats."""
+
+    OFF = 0
+    ON = 1
+
+
+class BufferTankCoolRequest(IntEnum):
+    """Available buffer tank cool request stats."""
+
+    OFF = 0
+    ON = 1
+
+
 class HotWaterTankHeatRequest(IntEnum):
     """Available hot water tank heat request stats."""
 
@@ -196,6 +218,10 @@ class EndpointProperties(NamedTuple):
 class System(Enum):
     """The system endpoint settings."""
 
+    BUFFER_TANK_NUMBERS = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfBuffers",
+        value_type=int,
+    )
     HOT_WATER_TANK_NUMBERS = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfHotWaterTanks",
         value_type=int,
@@ -254,6 +280,54 @@ class System(Enum):
     FREE_RAM = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sProcData.totFreeRAM",
         value_type=int,
+    )
+
+
+class BufferTank(Enum):
+    """The buffer tank endpoint settings."""
+
+    NAME = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.name",
+        value_type=str,
+    )
+    CURRENT_TOP_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].topTemp.values.actValue",
+        value_type=float,
+    )
+    CURRENT_BOTTOM_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].midTemp.values.actValue",
+        value_type=float,
+    )
+    OPERATING_MODE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.operatingMode",
+        value_type=int,
+        read_only=False,
+        human_readable=BufferTankOperatingMode,
+    )
+    STANDBY_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.backupTemp",
+        value_type=float,
+        read_only=False,
+    )
+    TARGET_MIN_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.minSetTemp",
+        value_type=float,
+        read_only=False,
+    )
+    TARGET_MAX_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.coolSetTemp",
+        value_type=float,
+        read_only=False,
+    )
+    HEAT_REQUEST = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.heatRequestTop",
+        value_type=str,
+        human_readable=BufferTankHeatRequest,
+    )
+    COOL_REQUEST = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.coolRequestBot",
+        value_type=str,
+        human_readable=BufferTankCoolRequest,
     )
 
 
@@ -655,6 +729,7 @@ class SectionPrefix(str, Enum):
     """Section prefixes."""
 
     SYSTEM = "system"
+    BUFFER_TANK = "buffer_tank"
     HOT_WATER_TANK = "hot_water_tank"
     HEAT_PUMP = "heat_pump"
     HEAT_CIRCUIT = "heat_circuit"
@@ -663,4 +738,6 @@ class SectionPrefix(str, Enum):
     PHOTOVOLTAIC = "photovoltaic"
 
 
-Section: TypeAlias = System | HotWaterTank | HeatPump | HeatCircuit | SolarCircuit | ExternalHeatSource | Photovoltaic
+Section: TypeAlias = (
+    System | BufferTank | HotWaterTank | HeatPump | HeatCircuit | SolarCircuit | ExternalHeatSource | Photovoltaic
+)

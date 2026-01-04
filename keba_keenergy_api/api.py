@@ -8,6 +8,7 @@ from aiohttp import ClientSession
 from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import SectionPrefix
 from keba_keenergy_api.endpoints import BaseEndpoints
+from keba_keenergy_api.endpoints import BufferTankEndpoints
 from keba_keenergy_api.endpoints import ExternalHeatSourceEndpoints
 from keba_keenergy_api.endpoints import HeatCircuitEndpoints
 from keba_keenergy_api.endpoints import HeatPumpEndpoints
@@ -63,6 +64,17 @@ class KebaKeEnergyAPI(BaseEndpoints):
     def system(self) -> SystemEndpoints:
         """Get system endpoints."""
         return SystemEndpoints(
+            base_url=self.device_url,
+            auth=self.auth,
+            ssl=self.ssl,
+            skip_ssl_verification=self.skip_ssl_verification,
+            session=self.session,
+        )
+
+    @property
+    def buffer_tank(self) -> BufferTankEndpoints:
+        """Get buffer tank endpoints."""
+        return BufferTankEndpoints(
             base_url=self.device_url,
             auth=self.auth,
             ssl=self.ssl,
@@ -157,6 +169,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         data: dict[str, ValueResponse] = {
             SectionPrefix.SYSTEM.value: {},
+            SectionPrefix.BUFFER_TANK.value: {},
             SectionPrefix.HOT_WATER_TANK.value: {},
             SectionPrefix.HEAT_PUMP.value: {},
             SectionPrefix.HEAT_CIRCUIT.value: {},
@@ -171,6 +184,9 @@ class KebaKeEnergyAPI(BaseEndpoints):
             if key.startswith(SectionPrefix.SYSTEM):
                 _key = key.lower().replace(f"{SectionPrefix.SYSTEM.value}_", "")
                 data[SectionPrefix.SYSTEM][_key] = value[0]
+            elif key.startswith(SectionPrefix.BUFFER_TANK):
+                _key = key.lower().replace(f"{SectionPrefix.BUFFER_TANK.value}_", "")
+                data[SectionPrefix.BUFFER_TANK][_key] = value
             elif key.startswith(SectionPrefix.HOT_WATER_TANK):
                 _key = key.lower().replace(f"{SectionPrefix.HOT_WATER_TANK.value}_", "")
                 data[SectionPrefix.HOT_WATER_TANK][_key] = value

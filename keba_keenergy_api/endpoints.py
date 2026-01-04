@@ -51,6 +51,7 @@ class Position(NamedTuple):
     heat_pump: int
     heat_circuit: int
     solar_circuit: int
+    buffer_tank: int
     hot_water_tank: int
     external_heat_source: int
 
@@ -452,6 +453,7 @@ class SystemEndpoints(BaseEndpoints):
                     System.HEAT_PUMP_NUMBERS,
                     System.HEAT_CIRCUIT_NUMBERS,
                     System.SOLAR_CIRCUIT_NUMBERS,
+                    System.BUFFER_TANK_NUMBERS,
                     System.HOT_WATER_TANK_NUMBERS,
                     System.EXTERNAL_HEAT_SOURCE_NUMBERS,
                 ],
@@ -486,6 +488,14 @@ class SystemEndpoints(BaseEndpoints):
         )
         response[0].pop("ret")
         return response[0]
+
+    async def get_number_of_buffer_tanks(self) -> int:
+        """Get number of buffer tanks."""
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=System.BUFFER_TANK_NUMBERS,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=System.BUFFER_TANK_NUMBERS)
 
     async def get_number_of_hot_water_tanks(self) -> int:
         """Get number of hot water tanks."""
@@ -602,6 +612,27 @@ class SystemEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_int_value(response, section=System.FREE_RAM)
+
+
+class BufferTankEndpoints(BaseEndpoints):
+    """Class to send and retrieve the buffer tank data."""
+
+    def __init__(
+        self,
+        base_url: str,
+        *,
+        auth: BasicAuth | None = None,
+        ssl: bool,
+        skip_ssl_verification: bool,
+        session: ClientSession | None = None,
+    ) -> None:
+        super().__init__(
+            base_url=base_url,
+            auth=auth,
+            ssl=ssl,
+            skip_ssl_verification=skip_ssl_verification,
+            session=session,
+        )
 
 
 class HotWaterTankEndpoints(BaseEndpoints):
