@@ -1409,16 +1409,6 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         await self._write_values(request={HeatCircuit.OPERATING_MODE: modes})
 
-    async def get_cool_request(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get cool request."""
-        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=HeatCircuit.COOL_REQUEST,
-            position=position,
-            human_readable=human_readable,
-            extra_attributes=True,
-        )
-        return self._get_int_or_str_value(response, section=HeatCircuit.COOL_REQUEST, position=position)
-
     async def get_heat_request(self, position: int = 1, *, human_readable: bool = True) -> int | str:
         """Get heat request."""
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(

@@ -607,20 +607,15 @@ class HeatCircuit(Enum):
         read_only=False,
         human_readable=HeatCircuitOperatingMode,
     )
-    COOL_REQUEST = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.coolRequest",
-        value_type=int,
-        human_readable=HeatCircuitCoolRequest,
-    )
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.heatRequest",
         value_type=int,
         human_readable=HeatCircuitHeatRequest,
     )
-    EXTERNAL_COOL_REQUEST = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.external.coolRequest",
-        value_type=str,
-        human_readable=HeatCircuitExternalCoolRequest,
+    COOL_REQUEST = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.coolRequest",
+        value_type=int,
+        human_readable=HeatCircuitCoolRequest,
     )
 
 
