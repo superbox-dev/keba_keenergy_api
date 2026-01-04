@@ -3802,6 +3802,42 @@ class TestSolarCircuitSection:
             mock_keenergy_api.assert_not_called()
 
     @pytest.mark.asyncio
+    async def test_source_temperature(self) -> None:
+        """Test get source temperature."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.solarCircuit[0].collectorTemp.values.actValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Source temp.",
+                            "unitId": "Temp",
+                            "upperLimit": "90",
+                            "lowerLimit": "20",
+                        },
+                        "value": "22.426912",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.solar_circuit.get_source_temperature()
+
+            assert isinstance(data, float)
+            assert data == 22.43  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.solarCircuit[0].collectorTemp.values.actValue", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     async def test_get_pump_1_speed(self) -> None:
         """Test get pump 1 speed."""
         with aioresponses() as mock_keenergy_api:
