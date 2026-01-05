@@ -148,25 +148,8 @@ class KebaKeEnergyAPI(BaseEndpoints):
             session=self.session,
         )
 
-    async def read_data(
-        self,
-        request: Section | list[Section],
-        position: Position | int | list[int] | None = None,
-        *,
-        human_readable: bool = True,
-        extra_attributes: bool = True,
-    ) -> dict[str, ValueResponse]:
-        """Read multiple data from API with one request."""
-        if position is None:
-            position = await self.system.get_positions()
-
-        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=request,
-            position=position,
-            human_readable=human_readable,
-            extra_attributes=extra_attributes,
-        )
-
+    @staticmethod
+    def _group_data(response: dict[str, list[list[Value]] | list[Value]], /) -> dict[str, ValueResponse]:
         data: dict[str, ValueResponse] = {
             SectionPrefix.SYSTEM.value: {},
             SectionPrefix.BUFFER_TANK.value: {},
@@ -207,6 +190,27 @@ class KebaKeEnergyAPI(BaseEndpoints):
                 data[SectionPrefix.PHOTOVOLTAIC][_key] = value[0]
 
         return data
+
+    async def read_data(
+        self,
+        request: Section | list[Section],
+        position: Position | int | list[int] | None = None,
+        *,
+        human_readable: bool = True,
+        extra_attributes: bool = True,
+    ) -> dict[str, ValueResponse]:
+        """Read multiple data from API with one request."""
+        if position is None:
+            position = await self.system.get_positions()
+
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=request,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=extra_attributes,
+        )
+
+        return self._group_data(response)
 
     async def write_data(self, request: dict[Section, Any]) -> None:
         """Write multiple data to API with one request."""

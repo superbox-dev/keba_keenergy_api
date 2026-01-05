@@ -216,6 +216,7 @@ class EndpointProperties:
 
     @property
     def read_only(self) -> bool:
+        """Set endpoint to read only."""
         return ".param." not in self.value
 
 

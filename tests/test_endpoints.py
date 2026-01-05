@@ -1050,7 +1050,7 @@ class TestBufferTankSection:
             data: float = await client.buffer_tank.get_standby_temperature()
 
             assert isinstance(data, float)
-            assert data == 10.0
+            assert data == 10.0  # noqa: PLR2004
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
