@@ -310,12 +310,8 @@ class BufferTank(Enum):
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.backupTemp",
         value_type=float,
     )
-    TARGET_MIN_TEMPERATURE = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.minSetTemp",
-        value_type=float,
-    )
-    TARGET_MAX_TEMPERATURE = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.coolSetTemp",
+    TARGET_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.setTemp",
         value_type=float,
     )
     HEAT_REQUEST = EndpointProperties(
@@ -333,6 +329,10 @@ class BufferTank(Enum):
 class HotWaterTank(Enum):
     """The hot water tank endpoint settings."""
 
+    NAME = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.name",
+        value_type=str,
+    )
     CURRENT_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].topTemp.values.actValue",
         value_type=float,

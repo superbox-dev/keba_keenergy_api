@@ -97,6 +97,7 @@ asyncio.run(main())
 | `.get_info()`                                      | `str`          | Get system information.                                                                                            |
 | `.get_hmi_info()`                                  | `str`          | Get IMI information.                                                                                               |
 | `.get_device_info()`                               | `str`          | Get device information.                                                                                            |
+| `.get_number_of_buffer_tanks()`                    | `int`          | Get number of buffer tanks.                                                                                        |
 | `.get_number_of_hot_water_tanks()`                 | `int`          | Get number of hot water tanks.                                                                                     |
 | `.get_number_of_heat_pumps()`                      | `int`          | Get number of heat pumps.                                                                                          |
 | `.get_number_of_heating_circuits()`                | `int`          | Get number of heating circuits.                                                                                    |
@@ -112,22 +113,38 @@ asyncio.run(main())
 | `.get_ram_usage()`                                 | `int`          | Get RAM usage.                                                                                                     |
 | `.get_free_ram()`                                  | `int`          | Get free RAM.                                                                                                      |
 
+#### Buffer tank
+
+| Endpoint                                           | Request/Response | Description                                                                |
+|----------------------------------------------------|------------------|----------------------------------------------------------------------------|
+| `.get_name(position)`                              | `str`            | Get buffer tank name.                                                      |
+| `.get_current_top_temperature(position)`           | `float`          | Get current top temperature.                                               |
+| `.get_current_bottom_temperature(position)`        | `float`          | Get current bottom temperature.                                            |
+| `.get_operating_mode(position, human_readable)`    | `int` or `str`   | Get operating mode as integer (0 is `OFF`, 1 is `AUTO` and 2 is `HEAT_UP`. |
+| `.set_operating_mode(0, position, human_readable)` | `int` or `str`   | Set operating mode.                                                        |
+| `.get_standby_temperature(position)`               | `float`          | Get standby temperature.                                                   |
+| `.set_standby_temperature(20, position)`           | `float`          | Set standby temperature.                                                   |
+| `.get_target_temperature(position)`                | `float`          | Get target temperature.                                                    |
+| `.get_heat_request(position)`                      | `int` or `str`   | Get heat request.                                                          |
+| `.get_cool_request(position)`                      | `int` or `str`   | Get cool request.                                                          |
+
 #### Hot water tank
 
-| Endpoint                                           | Request/Response | Description                                                                           |
-|----------------------------------------------------|------------------|---------------------------------------------------------------------------------------|
-| `.get_current_temperature(position)`               | `float`          | Get current temperature.                                                              |
-| `.get_operating_mode(position, human_readable)`    | `int` or `str`   | Get operating mode as integer (0 is `OFF`, 1 is `AUTO`, 2 is `DAY` and 3 is `NIGHT`). |
-| `.set_operating_mode(0, position, human_readable)` | `int` or `str`   | Set operating mode.                                                                   |
-| `.get_min_target_temperature(position)`            | `int`            | Get minimum possible target temperature.                                              |
-| `.get_max_target_temperature(position)`            | `int`            | Get maximum possible target temperature.                                              |
-| `.get_standby_temperature(position)`               | `float`          | Get standby temperature.                                                              |
-| `.set_standby_temperature(20, position)`           | `float`          | Set standby temperature.                                                              |
-| `.get_target_temperature(position)`                | `float`          | Get target temperature.                                                               |
-| `.set_target_temperature(22, position)`            | `float`          | Set target temperature.                                                               |
-| `.get_heat_request(position)`                      | `int` or `str`   | Get heat request.                                                                     |
-| `.get_hot_water_flow(position)`                    | `int` or `str`   | Get hot water flow.                                                                   |
-| `.get_fresh_water_module_temperature(position)`    | `float`          | Get fresh water module temperature.                                                   |
+| Endpoint                                           | Request/Response | Description                                                                            |
+|----------------------------------------------------|------------------|----------------------------------------------------------------------------------------|
+| `.get_name(position)`                              | `str`            | Get buffer tank name.                                                                  |
+| `.get_current_temperature(position)`               | `float`          | Get current temperature.                                                               |
+| `.get_operating_mode(position, human_readable)`    | `int` or `str`   | Get operating mode as integer (0 is `OFF`, 1 is `AUTO`, 2 is `ON` and 3 is `HEAT_UP`). |
+| `.set_operating_mode(0, position, human_readable)` | `int` or `str`   | Set operating mode.                                                                    |
+| `.get_min_target_temperature(position)`            | `int`            | Get minimum target temperature.                                                        |
+| `.get_max_target_temperature(position)`            | `int`            | Get maximum target temperature.                                                        |
+| `.get_standby_temperature(position)`               | `float`          | Get standby temperature.                                                               |
+| `.set_standby_temperature(20, position)`           | `float`          | Set standby temperature.                                                               |
+| `.get_target_temperature(position)`                | `float`          | Get target temperature.                                                                |
+| `.set_target_temperature(22, position)`            | `float`          | Set target temperature.                                                                |
+| `.get_heat_request(position)`                      | `int` or `str`   | Get heat request.                                                                      |
+| `.get_hot_water_flow(position)`                    | `int` or `str`   | Get hot water flow.                                                                    |
+| `.get_fresh_water_module_temperature(position)`    | `float`          | Get fresh water module temperature.                                                    |
 
 #### Heat pump
 

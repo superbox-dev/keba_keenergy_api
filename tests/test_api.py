@@ -8,6 +8,7 @@ from aiohttp import ServerTimeoutError
 from aioresponses import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
+from keba_keenergy_api.constants import BufferTank
 from keba_keenergy_api.constants import ExternalHeatSource
 from keba_keenergy_api.constants import HeatCircuit
 from keba_keenergy_api.constants import HeatPump
@@ -464,6 +465,7 @@ class TestKebaKeEnergyAPI:
             ),
             (
                 [
+                    BufferTank.CURRENT_TOP_TEMPERATURE,
                     SolarCircuit.SOURCE_TEMPERATURE,
                     SolarCircuit.CURRENT_TEMPERATURE,
                     SolarCircuit.TARGET_TEMPERATURE,
@@ -517,7 +519,7 @@ class TestKebaKeEnergyAPI:
                             "dynLowerLimit": 1,
                             "dynUpperLimit": 1,
                         },
-                        "value": "0",
+                        "value": "1",
                     },
                     {
                         "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks",
@@ -543,6 +545,17 @@ class TestKebaKeEnergyAPI:
                     },
                 ],
                 [
+                    {
+                        "name": "APPL.CtrlAppl.sParam.bufferTank[0].topTemp.values.actValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Temp. top act.",
+                            "unitId": "Temp",
+                            "upperLimit": "90",
+                            "lowerLimit": "5",
+                        },
+                        "value": "45.0273",
+                    },
                     {
                         "name": "APPL.CtrlAppl.sParam.solarCircuit[0].collectorTemp.values.actValue",
                         "attributes": {
@@ -682,7 +695,8 @@ class TestKebaKeEnergyAPI:
                         "value": "true",
                     },
                 ],
-                '[{"name": "APPL.CtrlAppl.sParam.solarCircuit[0].collectorTemp.values.actValue", "attr": "1"}, '
+                '[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].topTemp.values.actValue", "attr": "1"}, '
+                '{"name": "APPL.CtrlAppl.sParam.solarCircuit[0].collectorTemp.values.actValue", "attr": "1"}, '
                 '{"name": "APPL.CtrlAppl.sParam.solarCircuit[1].collectorTemp.values.actValue", "attr": "1"}, '
                 '{"name": "APPL.CtrlAppl.sParam.genericHeat[0].referenceTemp.values.actValue", "attr": "1"}, '
                 '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].referenceTemp.values.actValue", "attr": "1"}, '
@@ -698,7 +712,17 @@ class TestKebaKeEnergyAPI:
                 '{"name": "APPL.CtrlAppl.sParam.genericHeat[3].values.heatRequest", "attr": "1"}]',
                 {
                     "system": {},
-                    "buffer_tank": {},
+                    "buffer_tank": {
+                        "current_top_temperature": [
+                            {
+                                "attributes": {
+                                    "lower_limit": "5",
+                                    "upper_limit": "90",
+                                },
+                                "value": 45.03,
+                            },
+                        ],
+                    },
                     "hot_water_tank": {},
                     "heat_pump": {},
                     "heat_circuit": {},
