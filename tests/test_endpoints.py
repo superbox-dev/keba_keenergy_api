@@ -971,7 +971,7 @@ class TestBufferTankSection:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("operating_mode", "expected_value"),
-        [("off", 0), ("AUTO", 1), (BufferTankOperatingMode.HEAT_UP.value, 2)],
+        [("off", 0), ("ON", 1), (BufferTankOperatingMode.HEAT_UP.value, 2)],
     )
     async def test_set_operating_mode(
         self,
@@ -1020,7 +1020,7 @@ class TestBufferTankSection:
             with pytest.raises(APIError) as error:
                 await client.buffer_tank.set_operating_mode(operating_mode)
 
-            assert str(error.value) == ("Invalid value! Allowed values are ['OFF', '0', 'AUTO', '1', 'HEAT_UP', '2']")
+            assert str(error.value) == ("Invalid value! Allowed values are ['OFF', '0', 'ON', '1', 'HEAT_UP', '2']")
 
             mock_keenergy_api.assert_not_called()
 

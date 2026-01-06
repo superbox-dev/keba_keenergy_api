@@ -39,7 +39,7 @@ class BufferTankOperatingMode(IntEnum):
     """Available buffer tank operating modes."""
 
     OFF = 0
-    AUTO = 1
+    ON = 1
     HEAT_UP = 2
 
 
