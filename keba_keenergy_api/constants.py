@@ -23,7 +23,7 @@ class BaseEnum(Enum):
         name: str | None = None
 
         for state in cls:
-            if isinstance(state.value, list):
+            if isinstance(state.value, tuple):
                 if value in state.value:
                     name = state.name.lower()
                     break
