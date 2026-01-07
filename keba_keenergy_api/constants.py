@@ -19,6 +19,7 @@ class EndpointPath:
 class BaseEnum(Enum):
     @classmethod
     def from_value(cls, value: int) -> str:
+        """Get name from value."""
         name: str | None = None
 
         for state in cls:
@@ -89,9 +90,9 @@ class HeatPumpSubState(BaseEnum):
     """Available heat pump sub stats."""
 
     OIL_PREHEATING = 1
-    PUMP_PRE_RUN = [2, 3]
+    PUMP_PRE_RUN = (2, 3)
     RANDOM_DELAY = 4
-    PRESSURE_EQUALIZATION = [5, 21, 22]
+    PRESSURE_EQUALIZATION = (5, 21, 22)
     DEFROST_PRE_FLOW = 6
     DEFROST_MONITORING = 7
     SNOW_DETECTION = 8
@@ -99,17 +100,17 @@ class HeatPumpSubState(BaseEnum):
     DEFROST_INITIALIZATION = 10
     PREHEAT_FLOW = 11
     DEFROST = 12
-    DRIP = [13, 25]
+    DRIP = (13, 25)
     DEFROST_END = 14
-    OPEN = [15, 16]
+    OPEN = (15, 16)
     COMPRESSOR_POST_RUN = 17
     PUMP_POST_RUN = 18
     LUBRICATION_PULSE = 19
-    REDUCED_SPEED = [20, 26]
+    REDUCED_SPEED = (20, 26)
     COMPRESSOR_DELAY = 23
     DEFROST_VENTING = 24
     SWITCH_HEATING_COOLING = 27
-    WAIT_FOR_COMPRESSOR = [28, 33]
+    WAIT_FOR_COMPRESSOR = (28, 33)
     COMPRESSOR_STOP = 29
     BIVALENT_LOCK = 30
     LOCKED = 31
