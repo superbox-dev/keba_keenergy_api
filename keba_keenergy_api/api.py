@@ -41,7 +41,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
         self.auth: BasicAuth | None = None
 
         if username and password:
-            self.auth = BasicAuth(login=username, password=password)
+            self.auth = BasicAuth(login=username, password=password, encoding="utf-8")
 
         self.ssl: bool = ssl
         self.skip_ssl_verification: bool = skip_ssl_verification

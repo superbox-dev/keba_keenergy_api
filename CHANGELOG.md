@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.2b1] - 2026-01-07
+
+### Fixed
+
+- Changed basic auth encoding to from "latin-1" to "utf-8"
+
 ## [2.5.1] - 2026-01-06
 
 ### Fixed
