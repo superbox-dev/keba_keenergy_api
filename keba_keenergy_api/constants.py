@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import Final
+from typing import Self
 from typing import TypeAlias
 
 API_DEFAULT_TIMEOUT: int = 10
@@ -18,21 +19,15 @@ class EndpointPath:
 
 class BaseEnum(Enum):
     @classmethod
-    def from_value(cls, value: int) -> str:
+    def from_value(cls, value: int) -> Self:
         """Get name from value."""
-        name: str | None = None
-
         for state in cls:
             if isinstance(state.value, tuple):
                 if value in state.value:
-                    name = state
+                    return state
                     break
             elif state.value == value:
-                name = state
-                break
-
-        if name is not None:
-            return name
+                return state
 
         raise ValueError
 
