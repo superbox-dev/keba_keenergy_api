@@ -2,7 +2,6 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from enum import IntEnum
 from typing import Final
 from typing import TypeAlias
 
@@ -17,7 +16,27 @@ class EndpointPath:
     SW_UPDATE: Final[str] = "/swupdate"
 
 
-class SystemOperatingMode(IntEnum):
+class BaseEnum(Enum):
+    @classmethod
+    def from_value(cls, value: int) -> str:
+        name: str | None = None
+
+        for state in cls:
+            if isinstance(state.value, list):
+                if value in state.value:
+                    name = state.name.lower()
+                    break
+            elif state.value == value:
+                name = state.name.lower()
+                break
+
+        if name is not None:
+            return name
+
+        raise ValueError
+
+
+class SystemOperatingMode(BaseEnum):
     """Available system operating modes."""
 
     SETUP = -1
@@ -28,14 +47,14 @@ class SystemOperatingMode(IntEnum):
     AUTO = 4
 
 
-class SystemHasPhotovoltaics(IntEnum):
+class SystemHasPhotovoltaics(BaseEnum):
     """Available has photovoltaics stats."""
 
     OFF = 0
     ON = 1
 
 
-class BufferTankOperatingMode(IntEnum):
+class BufferTankOperatingMode(BaseEnum):
     """Available buffer tank operating modes."""
 
     OFF = 0
@@ -43,7 +62,7 @@ class BufferTankOperatingMode(IntEnum):
     HEAT_UP = 2
 
 
-class HotWaterTankOperatingMode(IntEnum):
+class HotWaterTankOperatingMode(BaseEnum):
     """Available hot water tank operating modes."""
 
     OFF = 0
@@ -52,7 +71,7 @@ class HotWaterTankOperatingMode(IntEnum):
     HEAT_UP = 3
 
 
-class HeatPumpState(IntEnum):
+class HeatPumpState(BaseEnum):
     """Available heat pump stats."""
 
     STANDBY = 0
@@ -66,7 +85,42 @@ class HeatPumpState(IntEnum):
     ERROR = 8
 
 
-class HeatPumpOperatingMode(IntEnum):
+class HeatPumpSubState(BaseEnum):
+    """Available heat pump sub stats."""
+
+    OIL_PREHEATING = 1
+    PUMP_PRE_RUN = [2, 3]
+    RANDOM_DELAY = 4
+    PRESSURE_EQUALIZATION = [5, 21, 22]
+    DEFROST_PRE_FLOW = 6
+    DEFROST_MONITORING = 7
+    SNOW_DETECTION = 8
+    FLUSHING = 9
+    DEFROST_INITIALIZATION = 10
+    PREHEAT_FLOW = 11
+    DEFROST = 12
+    DRIP = [13, 25]
+    DEFROST_END = 14
+    OPEN = [15, 16]
+    COMPRESSOR_POST_RUN = 17
+    PUMP_POST_RUN = 18
+    LUBRICATION_PULSE = 19
+    REDUCED_SPEED = [20, 26]
+    COMPRESSOR_DELAY = 23
+    DEFROST_VENTING = 24
+    SWITCH_HEATING_COOLING = 27
+    WAIT_FOR_COMPRESSOR = [28, 33]
+    COMPRESSOR_STOP = 29
+    BIVALENT_LOCK = 30
+    LOCKED = 31
+    RETURN_FLOW_OFF = 32
+    MIXER_OPEN = 34
+    ZONE_VALVE = 35
+    ELECTRIC_DEFROST = 36
+    COUNTERFLOW_VALVE = 37
+
+
+class HeatPumpOperatingMode(BaseEnum):
     """Available heat pump operating modes."""
 
     OFF = 0
@@ -74,35 +128,35 @@ class HeatPumpOperatingMode(IntEnum):
     BACKUP = 2
 
 
-class HeatPumpCompressorUseNightSpeed(IntEnum):
+class HeatPumpCompressorUseNightSpeed(BaseEnum):
     """Available compressor use night speed stats."""
 
     OFF = 0
     ON = 1
 
 
-class HeatPumpHasPassiveCooling(IntEnum):
+class HeatPumpHasPassiveCooling(BaseEnum):
     """Available has passive cooling stats."""
 
     OFF = 0
     ON = 1
 
 
-class HeatCircuitHasRoomTemperature(IntEnum):
+class HeatCircuitHasRoomTemperature(BaseEnum):
     """Available has room temperature stats."""
 
     OFF = 0
     ON = 1
 
 
-class HeatCircuitHasRoomHumidity(IntEnum):
+class HeatCircuitHasRoomHumidity(BaseEnum):
     """Available has room humidity stats."""
 
     OFF = 0
     ON = 1
 
 
-class HeatCircuitOperatingMode(IntEnum):
+class HeatCircuitOperatingMode(BaseEnum):
     """Available heat circuit operating modes."""
 
     OFF = 0
@@ -115,56 +169,56 @@ class HeatCircuitOperatingMode(IntEnum):
     ROOM_CONTROL = 9
 
 
-class SolarCircuitOperatingMode(IntEnum):
+class SolarCircuitOperatingMode(BaseEnum):
     """Available solar circuit operating modes."""
 
     OFF = 0
     ON = 1
 
 
-class SolarCircuitHeatRequest(IntEnum):
+class SolarCircuitHeatRequest(BaseEnum):
     """Available solar circuit heat request stats."""
 
     OFF = 0
     ON = 1
 
 
-class BufferTankHeatRequest(IntEnum):
+class BufferTankHeatRequest(BaseEnum):
     """Available buffer tank heat request stats."""
 
     OFF = 0
     ON = 1
 
 
-class BufferTankCoolRequest(IntEnum):
+class BufferTankCoolRequest(BaseEnum):
     """Available buffer tank cool request stats."""
 
     OFF = 0
     ON = 1
 
 
-class HotWaterTankHeatRequest(IntEnum):
+class HotWaterTankHeatRequest(BaseEnum):
     """Available hot water tank heat request stats."""
 
     OFF = 0
     ON = 1
 
 
-class HotWaterTankHotWaterFlow(IntEnum):
+class HotWaterTankHotWaterFlow(BaseEnum):
     """Available hot water tank hot water flow stats."""
 
     OFF = 0
     ON = 1
 
 
-class HeatPumpHeatRequest(IntEnum):
+class HeatPumpHeatRequest(BaseEnum):
     """Available heat pump heat request stats."""
 
     OFF = 0
     ON = 1
 
 
-class HeatCircuitCoolRequest(IntEnum):
+class HeatCircuitCoolRequest(BaseEnum):
     """Available heat circuit cool request stats."""
 
     OFF = 0
@@ -176,7 +230,7 @@ class HeatCircuitCoolRequest(IntEnum):
     INFLOW_OFF = 6
 
 
-class HeatCircuitHeatRequest(IntEnum):
+class HeatCircuitHeatRequest(BaseEnum):
     """Available heat circuit heat request stats."""
 
     OFF = 0
@@ -188,14 +242,14 @@ class HeatCircuitHeatRequest(IntEnum):
     INFLOW_OFF = 6
 
 
-class ExternalHeatSourceOperatingMode(IntEnum):
+class ExternalHeatSourceOperatingMode(BaseEnum):
     """Available external heat source operating modes."""
 
     OFF = 0
     ON = 1
 
 
-class ExternalHeatSourceHeatRequest(IntEnum):
+class ExternalHeatSourceHeatRequest(BaseEnum):
     """Available external heat source heat request stats."""
 
     OFF = 0
@@ -378,6 +432,11 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].values.heatpumpState",
         value_type=int,
         human_readable=HeatPumpState,
+    )
+    SUB_STATE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].values.heatpumpSubState",
+        value_type=int,
+        human_readable=HeatPumpSubState,
     )
     OPERATING_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].param.operatingMode",

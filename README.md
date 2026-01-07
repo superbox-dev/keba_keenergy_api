@@ -152,6 +152,7 @@ asyncio.run(main())
 |-------------------------------------------------------------|----------------|-------------------------------------------------------------------------------|
 | `.get_name(position)`                                       | `str`          | Get head pump model name.                                                     |
 | `.get_state(position, human_readable)`                      | `int` or `str` | Get heat pump state as integer (0 is `STANDBY`, 1 is `FLOW` and 2 is `AUTO`). |
+| `.get_sub_state(position, human_readable)`                  | `int` or `str` | Get heat pump sub state as integer (e.g. 9 is `FLUSHING`).                    |
 | `.get_operating_mode(position, human_readable)`             | `int` or `str` | Get operating mode as integer (0 is `OFF`, 1 is `ON`, 2 is `BACKUP`).         |
 | `.set_operating_mode(0, position, human_readable)`          | `int` or `str` | Set operating mode.                                                           |
 | `.get_compressor_use_night_speed(position, human_readable)` | `int` or `str` | Get compressor use night speed (0 is `OFF`, 1 is `ON`).                       |

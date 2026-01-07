@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.5.2b1] - 2026-01-07
+## [2.5.2b2] - 2026-01-07
+
+### Added
+
+- Added endpoint `get_sub_state()` to the head pump
 
 ### Fixed
 

@@ -470,6 +470,7 @@ class TestKebaKeEnergyAPI:
                     SolarCircuit.CURRENT_TEMPERATURE,
                     SolarCircuit.TARGET_TEMPERATURE,
                     SolarCircuit.HEAT_REQUEST,
+                    HeatPump.SUB_STATE,
                 ],
                 None,
                 [
@@ -694,6 +695,28 @@ class TestKebaKeEnergyAPI:
                         },
                         "value": "true",
                     },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].values.heatpumpSubState",
+                        "attributes": {
+                            "formatId": "fmtHPSubState",
+                            "longText": "Substate",
+                            "unitId": "Enum",
+                            "upperLimit": "32767",
+                            "lowerLimit": "0",
+                        },
+                        "value": "21",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[1].values.heatpumpSubState",
+                        "attributes": {
+                            "formatId": "fmtHPSubState",
+                            "longText": "Substate",
+                            "unitId": "Enum",
+                            "upperLimit": "32767",
+                            "lowerLimit": "0",
+                        },
+                        "value": "5",
+                    },
                 ],
                 '[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].topTemp.values.actValue", "attr": "1"}, '
                 '{"name": "APPL.CtrlAppl.sParam.solarCircuit[0].collectorTemp.values.actValue", "attr": "1"}, '
@@ -709,7 +732,9 @@ class TestKebaKeEnergyAPI:
                 '{"name": "APPL.CtrlAppl.sParam.genericHeat[0].values.heatRequest", "attr": "1"}, '
                 '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].values.heatRequest", "attr": "1"}, '
                 '{"name": "APPL.CtrlAppl.sParam.genericHeat[2].values.heatRequest", "attr": "1"}, '
-                '{"name": "APPL.CtrlAppl.sParam.genericHeat[3].values.heatRequest", "attr": "1"}]',
+                '{"name": "APPL.CtrlAppl.sParam.genericHeat[3].values.heatRequest", "attr": "1"}, '
+                '{"name": "APPL.CtrlAppl.sParam.heatpump[0].values.heatpumpSubState", "attr": "1"}, '
+                '{"name": "APPL.CtrlAppl.sParam.heatpump[1].values.heatpumpSubState", "attr": "1"}]',
                 {
                     "system": {},
                     "buffer_tank": {
@@ -724,7 +749,24 @@ class TestKebaKeEnergyAPI:
                         ],
                     },
                     "hot_water_tank": {},
-                    "heat_pump": {},
+                    "heat_pump": {
+                        "sub_state": [
+                            {
+                                "attributes": {
+                                    "lower_limit": "0",
+                                    "upper_limit": "32767",
+                                },
+                                "value": "pressure_equalization",
+                            },
+                            {
+                                "attributes": {
+                                    "lower_limit": "0",
+                                    "upper_limit": "32767",
+                                },
+                                "value": "pressure_equalization",
+                            },
+                        ],
+                    },
                     "heat_circuit": {},
                     "solar_circuit": {
                         "current_temperature": [

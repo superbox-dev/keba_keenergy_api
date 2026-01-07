@@ -195,7 +195,7 @@ class BaseEndpoints:
 
         if human_readable and section.value.human_readable:
             try:
-                value = section.value.human_readable(value).name.lower()
+                value = section.value.human_readable.from_value(value)
             except ValueError as error:
                 message: str = f"Can't convert value to human readable value! {response[0]}"
                 raise APIError(message) from error
@@ -920,6 +920,16 @@ class HeatPumpEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_int_or_str_value(response, section=HeatPump.STATE, position=position)
+
+    async def get_sub_state(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Get heat pump state."""
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.SUB_STATE,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HeatPump.SUB_STATE, position=position)
 
     async def get_operating_mode(self, position: int = 1, *, human_readable: bool = True) -> int | str:
         """Get operating mode."""

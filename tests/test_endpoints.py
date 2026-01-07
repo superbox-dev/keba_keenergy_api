@@ -1827,6 +1827,55 @@ class TestHeatPumpSection:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, 9, "flushing"),
+            (True, 5, "pressure_equalization"),
+            (True, 21, "pressure_equalization"),
+        ],
+    )
+    async def test_get_sub_state(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: int,
+        expected_value: int | str,
+    ) -> None:
+        """Test get state."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].values.heatpumpSubState",
+                        "attributes": {
+                            "formatId": "fmtHPSubState",
+                            "longText": "Substate",
+                            "unitId": "Enum",
+                            "upperLimit": "32767",
+                            "lowerLimit": "0",
+                        },
+                        "value": f"{payload_value}",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_pump.get_sub_state(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].values.heatpumpSubState", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
         [(True, 0, "off"), (False, 2, 2)],
     )
     async def test_get_operating_mode(
