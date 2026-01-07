@@ -195,7 +195,7 @@ class BaseEndpoints:
 
         if human_readable and section.value.human_readable:
             try:
-                value = section.value.human_readable.from_value(value)
+                value = section.value.human_readable.from_value(value).name.lower()
             except ValueError as error:
                 message: str = f"Can't convert value to human readable value! {response[0]}"
                 raise APIError(message) from error

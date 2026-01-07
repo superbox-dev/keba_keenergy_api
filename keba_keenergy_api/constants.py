@@ -25,10 +25,10 @@ class BaseEnum(Enum):
         for state in cls:
             if isinstance(state.value, tuple):
                 if value in state.value:
-                    name = state.name.lower()
+                    name = state
                     break
             elif state.value == value:
-                name = state.name.lower()
+                name = state
                 break
 
         if name is not None:
