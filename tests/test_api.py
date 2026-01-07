@@ -136,7 +136,7 @@ class TestKebaKeEnergyAPI:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=BasicAuth(login="test", password="test", encoding="latin1"),  # noqa: S106
+                auth=BasicAuth(login="test", password="test", encoding="utf-8"),  # noqa: S106
                 ssl=False,
             )
 
