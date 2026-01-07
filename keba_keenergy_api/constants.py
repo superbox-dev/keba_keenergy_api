@@ -82,6 +82,7 @@ class HeatPumpState(BaseEnum):
 class HeatPumpSubState(BaseEnum):
     """Available heat pump sub stats."""
 
+    NONE = 0
     OIL_PREHEATING = 1
     PUMP_PRE_RUN = (2, 3)
     RANDOM_DELAY = 4
