@@ -24,7 +24,6 @@ class BaseEnum(Enum):
             if isinstance(state.value, tuple):
                 if value in state.value:
                     return state
-                    break
             elif state.value == value:
                 return state
 
