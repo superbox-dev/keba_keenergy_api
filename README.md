@@ -270,6 +270,5 @@ The changelog lives in the [CHANGELOG.md](CHANGELOG.md) document. The format is 
 
 ## Contributing
 
-We're happy about your contributions to the project!
-
+I'm happy about your contributions to the project!
 You can get started by reading the [CONTRIBUTING.md](CONTRIBUTING.md).
