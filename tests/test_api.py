@@ -961,7 +961,7 @@ class TestKebaKeEnergyAPI:
                         45,
                         44,
                     ),
-                    SolarCircuit.CONSUMER_1_PRIORITY_SOLAR: (
+                    SolarCircuit.PRIORITY_1_BEFORE_2: (
                         0,
                         1,
                     ),

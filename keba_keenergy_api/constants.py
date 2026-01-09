@@ -286,7 +286,7 @@ class EndpointProperties:
 
 
 @dataclass
-class SolarCircuitEndpointProperties(EndpointProperties):
+class SolarCircuitPriority1Before2EndpointProperties(EndpointProperties):
     @staticmethod
     def helper(modes: list[int | None]) -> dict["Section", Any]:
         """Add extra calls."""
@@ -762,7 +762,7 @@ class SolarCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].heatMeter.values.power",
         value_type=float,
     )
-    CONSUMER_1_PRIORITY_SOLAR = SolarCircuitEndpointProperties(
+    PRIORITY_1_BEFORE_2 = SolarCircuitPriority1Before2EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hmiRetainData.consumer1PrioritySolar[%s]",
         value_type=str,
         human_readable=SolarCircuitConsumer1PrioritySolar,

@@ -1638,12 +1638,12 @@ class SolarCircuitEndpoints(BaseEndpoints):
     async def get_priority_1_before_2(self, position: int = 1, *, human_readable: bool = True) -> int | str:
         """Get priority 1 before 2."""
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=SolarCircuit.CONSUMER_1_PRIORITY_SOLAR,
+            request=SolarCircuit.PRIORITY_1_BEFORE_2,
             position=position,
             human_readable=human_readable,
             extra_attributes=True,
         )
-        return self._get_int_or_str_value(response, section=SolarCircuit.CONSUMER_1_PRIORITY_SOLAR, position=position)
+        return self._get_int_or_str_value(response, section=SolarCircuit.PRIORITY_1_BEFORE_2, position=position)
 
     async def set_priority_1_before_2(self, mode: int | str, position: int = 1) -> None:
         """Set priority 1 before 2."""
@@ -1657,7 +1657,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
 
         await self._write_values(
             request={
-                SolarCircuit.CONSUMER_1_PRIORITY_SOLAR: modes,
+                SolarCircuit.PRIORITY_1_BEFORE_2: modes,
             },
         )
 
