@@ -4480,7 +4480,7 @@ class TestSolarCircuitSection:
         payload_value: int,
         expected_value: str,
     ) -> None:
-        """Test get priority 1."""
+        """Test get priority 1 before 2."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -4520,7 +4520,7 @@ class TestSolarCircuitSection:
         operating_mode: int | str,
         expected_value: tuple[int, ...],
     ) -> None:
-        """Test set priority 1."""
+        """Test set priority 1 before 2."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -4541,6 +4541,32 @@ class TestSolarCircuitSection:
                 auth=None,
                 ssl=False,
             )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "operating_mode",
+        ["INVALID"],
+    )
+    async def test_set_invalid_priority_1_before_2(
+        self,
+        operating_mode: int,
+    ) -> None:
+        """Test set priority 1 before 2."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(APIError) as error:
+                await client.solar_circuit.set_priority_1_before_2(operating_mode, position=2)
+
+            assert str(error.value) == "Invalid value! Allowed values are ['OFF', '0', 'ON', '1']"
+
+            mock_keenergy_api.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_source_temperature(self) -> None:

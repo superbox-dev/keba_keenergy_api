@@ -1636,7 +1636,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         await self._write_values(request={SolarCircuit.OPERATING_MODE: modes})
 
     async def get_priority_1_before_2(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get priority 1."""
+        """Get priority 1 before 2."""
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SolarCircuit.CONSUMER_1_PRIORITY_SOLAR,
             position=position,
@@ -1646,7 +1646,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=SolarCircuit.CONSUMER_1_PRIORITY_SOLAR, position=position)
 
     async def set_priority_1_before_2(self, mode: int | str, position: int = 1) -> None:
-        """Set priority 1."""
+        """Set priority 1 before 2."""
         try:
             _mode: int | None = mode if isinstance(mode, int) else SolarCircuitOperatingMode[mode.upper()].value
         except KeyError as error:
