@@ -428,7 +428,7 @@ class HeatPump(Enum):
         value_type=int,
         human_readable=HeatPumpState,
     )
-    SUB_STATE = EndpointProperties(
+    SUBSTATE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].values.heatpumpSubState",
         value_type=int,
         human_readable=HeatPumpSubState,
