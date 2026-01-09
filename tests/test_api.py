@@ -961,16 +961,20 @@ class TestKebaKeEnergyAPI:
                         45,
                         44,
                     ),
+                    SolarCircuit.CONSUMER_1_PRIORITY_SOLAR: (
+                        0,
+                        1,
+                    ),
                 },
                 (
                     "["
-                    '{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.reducedSetTempMax.value", '
-                    '"value": "10"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value", '
-                    '"value": "45"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.hotWaterTank[1].param.normalSetTempMax.value", '
-                    '"value": "44"}'
-                    "]"
+                    '{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.reducedSetTempMax.value", "value": "10"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value", "value": "45"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.hotWaterTank[1].param.normalSetTempMax.value", "value": "44"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.hmiRetainData.consumer1PrioritySolar[0]", "value": "0"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.hmiRetainData.consumer1PrioritySolar[1]", "value": "1"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.genericHeat[0].param.priority", "value": "15"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.genericHeat[2].param.priority", "value": "14"}]'
                 ),
             ),
         ],

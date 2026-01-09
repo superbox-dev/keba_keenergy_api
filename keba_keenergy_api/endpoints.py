@@ -334,6 +334,13 @@ class BaseEndpoints:
                         ),
                     ]
 
+            # Append extra calls from a helper function
+            if hasattr(endpoint_properties.value, "helper"):
+                child_request: dict[Section, Any] = endpoint_properties.value.helper(values)
+                child_payload: Payload = self._generate_write_payload(child_request)
+
+                payload += child_payload
+
         return payload
 
     async def _write_values(self, request: dict[Section, Any]) -> None:
@@ -1627,6 +1634,32 @@ class SolarCircuitEndpoints(BaseEndpoints):
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
 
         await self._write_values(request={SolarCircuit.OPERATING_MODE: modes})
+
+    async def get_priority_1_before_2(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Get priority 1."""
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=SolarCircuit.CONSUMER_1_PRIORITY_SOLAR,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=SolarCircuit.CONSUMER_1_PRIORITY_SOLAR, position=position)
+
+    async def set_priority_1_before_2(self, mode: int | str, position: int = 1) -> None:
+        """Set priority 1."""
+        try:
+            _mode: int | None = mode if isinstance(mode, int) else SolarCircuitOperatingMode[mode.upper()].value
+        except KeyError as error:
+            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(SolarCircuitOperatingMode)}"
+            raise APIError(message) from error
+
+        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+
+        await self._write_values(
+            request={
+                SolarCircuit.CONSUMER_1_PRIORITY_SOLAR: modes,
+            },
+        )
 
     async def get_source_temperature(self, position: int = 1) -> float:
         """Get source temperature."""

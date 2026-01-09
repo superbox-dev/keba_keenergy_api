@@ -18,6 +18,7 @@ from keba_keenergy_api.constants import HeatPumpHeatRequest
 from keba_keenergy_api.constants import HeatPumpOperatingMode
 from keba_keenergy_api.constants import HotWaterTankHeatRequest
 from keba_keenergy_api.constants import HotWaterTankOperatingMode
+from keba_keenergy_api.constants import SolarCircuitConsumer1PrioritySolar
 from keba_keenergy_api.constants import SolarCircuitHeatRequest
 from keba_keenergy_api.constants import SolarCircuitOperatingMode
 from keba_keenergy_api.constants import SystemHasPhotovoltaics
@@ -2567,7 +2568,11 @@ class TestHeatPumpSection:
                 payload=[
                     {
                         "name": "APPL.CtrlAppl.sParam.heatpump[0].OverHeatCtrl.values.tempVap",
-                        "attributes": {"formatId": "fmtTemp", "longText": "Evap. temp.", "unitId": "Temp"},
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Evap. temp.",
+                            "unitId": "Temp",
+                        },
                         "value": "-4.5617409",
                     },
                 ],
@@ -4463,6 +4468,79 @@ class TestSolarCircuitSection:
             assert str(error.value) == "Invalid value! Allowed values are ['OFF', '0', 'ON', '1']"
 
             mock_keenergy_api.assert_not_called()
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [(True, "true", "on"), (False, "false", 0)],
+    )
+    async def test_get_priority_1_before_2(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: int,
+        expected_value: str,
+    ) -> None:
+        """Test get priority 1."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.hmiRetainData.consumer1PrioritySolar[0]",
+                        "attributes": {
+                            "longText": "Priority 1 bef. 2",
+                        },
+                        "value": f"{payload_value}",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.solar_circuit.get_priority_1_before_2(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.hmiRetainData.consumer1PrioritySolar[0]", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("operating_mode", "expected_value"),
+        [("on", (1, 14)), ("OFF", (0, 15)), (SolarCircuitConsumer1PrioritySolar.ON.value, (1, 14))],
+    )
+    async def test_set_priority_1_before_2(
+        self,
+        operating_mode: int | str,
+        expected_value: tuple[int, ...],
+    ) -> None:
+        """Test set priority 1."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.solar_circuit.set_priority_1_before_2(operating_mode, position=2)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.hmiRetainData.consumer1PrioritySolar[1]", "value": "%s"}, '  # noqa: UP031
+                    '{"name": "APPL.CtrlAppl.sParam.genericHeat[2].param.priority", "value": "%s"}]' % expected_value
+                ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
 
     @pytest.mark.asyncio
     async def test_source_temperature(self) -> None:

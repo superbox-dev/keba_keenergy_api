@@ -234,6 +234,8 @@ asyncio.run(main())
 | `.get_name(position)`                           | `str`            | Get solar circuit name.                        |
 | `.get_operating_mode(position, human_readable)` | `int` or `str`   | Get operating mode (0 is `OFF` and 1 is `ON`). |
 | `.set_operating_mode(1, position)`              | `int` or `str`   | Set operating mode.                            |
+| `.get_priority_1_before_2(1, position)`         | `int` or `str`   | Get priority.                                  |
+| `.set_priority_1_before_2(1, position)`         | `int` or `str`   | Set priority.                                  |
 | `.get_source_temperature(position)`             | `float`          | Get source temperature.                        |
 | `.get_pump_1_speed(position)`                   | `float`          | Get pump 1 speed in percent.                   |
 | `.get_pump_2_speed(position)`                   | `float`          | Get pump 2 speed in percent.                   |

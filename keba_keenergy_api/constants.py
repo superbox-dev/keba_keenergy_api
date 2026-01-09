@@ -2,6 +2,8 @@
 
 from dataclasses import dataclass
 from enum import Enum
+from itertools import chain
+from typing import Any
 from typing import Final
 from typing import TypeAlias
 
@@ -171,6 +173,20 @@ class SolarCircuitOperatingMode(BaseEnum):
     ON = 1
 
 
+class SolarCircuitPriority(BaseEnum):
+    """Available solar circuit priority."""
+
+    LOW = 14
+    HIGH = 15
+
+
+class SolarCircuitConsumer1PrioritySolar(BaseEnum):
+    """Available solar circuit consumer 1 priority solar stats."""
+
+    OFF = 0
+    ON = 1
+
+
 class SolarCircuitHeatRequest(BaseEnum):
     """Available solar circuit heat request stats."""
 
@@ -262,11 +278,32 @@ class EndpointProperties:
     value_type: type[float | int | str]
     human_readable: type[Enum] | None = None
     quantity: int = 1
+    read_only: bool = True
 
-    @property
-    def read_only(self) -> bool:
-        """Set endpoint to read only."""
-        return ".param." not in self.value
+    def __post_init__(self) -> None:
+        if ".param." in self.value:
+            self.read_only = False
+
+
+@dataclass
+class SolarCircuitEndpointProperties(EndpointProperties):
+    @staticmethod
+    def helper(modes: list[int | None]) -> dict["Section", Any]:
+        """Add extra calls."""
+        # The switch in the Web HMI calls to API endpoints
+        # If priority_1 is on then priority is 14 and if off the priority is 15
+
+        priorities: list[int | None] = list(
+            chain.from_iterable(
+                (
+                    (SolarCircuitPriority.LOW.value if m == 1 else SolarCircuitPriority.HIGH.value if m == 0 else None),
+                    None,
+                )
+                for m in modes
+            ),
+        )
+
+        return {SolarCircuit._PRIORITY: priorities}  # noqa: SLF001
 
 
 class System(Enum):
@@ -724,6 +761,17 @@ class SolarCircuit(Enum):
     ACTUAL_POWER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].heatMeter.values.power",
         value_type=float,
+    )
+    CONSUMER_1_PRIORITY_SOLAR = SolarCircuitEndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.hmiRetainData.consumer1PrioritySolar[%s]",
+        value_type=str,
+        human_readable=SolarCircuitConsumer1PrioritySolar,
+        read_only=False,
+    )
+    _PRIORITY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.genericHeat[%s].param.priority",
+        value_type=int,
+        quantity=2,
     )
 
 
