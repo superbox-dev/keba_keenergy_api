@@ -7,11 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.5.2b4] - 2026-01-07
+## [2.5.2] - 2026-01-09
 
 ### Added
 
-- Added endpoint `get_sub_state()` to the head pump
+- Added endpoint `get_substate()` to the head pump
+- Added endpoint `get_source_pump_speed()` to the head pump
+- Added endpoint `get_condenser_temperature()` to the head pump
+- Added endpoint `get_vaporizer_temperature()` to the head pump
 
 ### Fixed
 

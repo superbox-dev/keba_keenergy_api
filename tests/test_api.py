@@ -470,7 +470,7 @@ class TestKebaKeEnergyAPI:
                     SolarCircuit.CURRENT_TEMPERATURE,
                     SolarCircuit.TARGET_TEMPERATURE,
                     SolarCircuit.HEAT_REQUEST,
-                    HeatPump.SUB_STATE,
+                    HeatPump.SUBSTATE,
                 ],
                 None,
                 [
@@ -750,7 +750,7 @@ class TestKebaKeEnergyAPI:
                     },
                     "hot_water_tank": {},
                     "heat_pump": {
-                        "sub_state": [
+                        "substate": [
                             {
                                 "attributes": {
                                     "lower_limit": "0",

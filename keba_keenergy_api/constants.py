@@ -451,6 +451,10 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CircPump.values.setValueScaled",
         value_type=float,
     )
+    SOURCE_PUMP_SPEED = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].Source.values.setValueScaled",
+        value_type=float,
+    )
     FLOW_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempHeatFlow.values.actValue",
         value_type=float,
@@ -477,6 +481,14 @@ class HeatPump(Enum):
     )
     COMPRESSOR = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].Compressor.values.setValueScaled",
+        value_type=float,
+    )
+    CONDENSER_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.tempCond",
+        value_type=float,
+    )
+    VAPORIZER_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.tempVap",
         value_type=float,
     )
     HIGH_PRESSURE = EndpointProperties(

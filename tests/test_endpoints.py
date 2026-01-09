@@ -1833,7 +1833,7 @@ class TestHeatPumpSection:
             (True, 21, "pressure_equalization"),
         ],
     )
-    async def test_get_sub_state(
+    async def test_get_substate(
         self,
         human_readable: bool,  # noqa: FBT001
         payload_value: int,
@@ -1860,7 +1860,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.heat_pump.get_sub_state(human_readable=human_readable)
+            data: int | str = await client.heat_pump.get_substate(human_readable=human_readable)
 
             assert isinstance(data, (int | str))
             assert data == expected_value
@@ -2247,6 +2247,42 @@ class TestHeatPumpSection:
             )
 
     @pytest.mark.asyncio
+    async def test_get_source_pump_speed(self) -> None:
+        """Test get source pump speed."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].Source.values.setValueScaled",
+                        "attributes": {
+                            "formatId": "fmt3p0",
+                            "longText": "Source",
+                            "unitId": "Pct100",
+                            "upperLimit": "1",
+                            "lowerLimit": "0.0",
+                        },
+                        "value": "0.44875106",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_source_pump_speed()
+
+            assert isinstance(data, float)
+            assert data == 0.45  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].Source.values.setValueScaled", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     async def test_get_flow_temperature(self) -> None:
         """Test get flow temperature."""
         with aioresponses() as mock_keenergy_api:
@@ -2481,6 +2517,72 @@ class TestHeatPumpSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].Compressor.values.setValueScaled", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_condenser_temperature(self) -> None:
+        """Test get condenser temperature."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].OverHeatCtrl.values.tempCond",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Cond. temp.",
+                            "unitId": "Temp",
+                            "upperLimit": "200",
+                            "lowerLimit": "0",
+                        },
+                        "value": "31.514103",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_condenser_temperature()
+
+            assert isinstance(data, float)
+            assert data == 31.51  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].OverHeatCtrl.values.tempCond", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_vaporizer_temperature(self) -> None:
+        """Test get vaporizer temperature."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].OverHeatCtrl.values.tempVap",
+                        "attributes": {"formatId": "fmtTemp", "longText": "Evap. temp.", "unitId": "Temp"},
+                        "value": "-4.5617409",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_vaporizer_temperature()
+
+            assert isinstance(data, float)
+            assert data == -4.56  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].OverHeatCtrl.values.tempVap", "attr": "1"}]',
                 method="POST",
                 auth=None,
                 ssl=False,
