@@ -541,16 +541,64 @@ class HeatPump(Enum):
         value_type=str,
         human_readable=HeatPumpHeatRequest,
     )
-    COMPRESSOR_POWER = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.power",
+    TOTAL_HEATING_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.accumulatedHeat",
+        value_type=float,
+    )
+    DAILY_HEATING_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.heatDay",
         value_type=float,
     )
     HEATING_POWER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.power",
         value_type=float,
     )
+    HEATING_MASS_FLOW_RATE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.massFlow",
+        value_type=float,
+    )
+    TOTAL_COOLING_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.accumulatedHeat",
+        value_type=float,
+    )
+    DAILY_COOLING_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.heatDay",
+        value_type=float,
+    )
+    COOLING_POWER = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.power",
+        value_type=float,
+    )
+    COOLING_MASS_FLOW_RATE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.massFlow",
+        value_type=float,
+    )
+    TOTAL_HOT_WATER_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.accumulatedHeat",
+        value_type=float,
+    )
+    DAILY_HOT_WATER_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.heatDay",
+        value_type=float,
+    )
     HOT_WATER_POWER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.power",
+        value_type=float,
+    )
+    HOT_WATER_MASS_FLOW_RATE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.massFlow",
+        value_type=float,
+    )
+    TOTAL_COMPRESSOR_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.accumulatedHeat",
+        value_type=float,
+    )
+    DAILY_COMPRESSOR_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.heatDay",
+        value_type=float,
+    )
+    COMPRESSOR_POWER = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.power",
         value_type=float,
     )
     COP = EndpointProperties(
