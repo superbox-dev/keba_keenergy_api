@@ -609,10 +609,10 @@ class HeatPump(Enum):
     #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.heatDay",
     #     value_type=float,
     # )
-    # COMPRESSOR_POWER = EndpointProperties(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.power",
-    #     value_type=float,
-    # )
+    COMPRESSOR_POWER = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.power",
+        value_type=float,
+    )
     COP = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].values.COP",
         value_type=float,
