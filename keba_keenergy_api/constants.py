@@ -267,6 +267,14 @@ class ExternalHeatSourceHeatRequest(BaseEnum):
     ON = 1
 
 
+class SwitchValvePosition(BaseEnum):
+    """Available switch valve positons."""
+
+    NEUTRAL = 0
+    OPEN = 1
+    CLOSED = 2
+
+
 PAYLOAD_PREFIX: Final[str] = "APPL.CtrlAppl"
 
 
@@ -331,6 +339,10 @@ class System(Enum):
     )
     EXTERNAL_HEAT_SOURCE_NUMBERS = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfExtHeatSources",
+        value_type=int,
+    )
+    SWITCH_VALVES_NUMBERS = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfSwitchValves",
         value_type=int,
     )
     HAS_PHOTOVOLTAICS = EndpointProperties(
@@ -541,66 +553,66 @@ class HeatPump(Enum):
         value_type=str,
         human_readable=HeatPumpHeatRequest,
     )
-    TOTAL_HEATING_ENERGY = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.accumulatedHeat",
-        value_type=float,
-    )
-    DAILY_HEATING_ENERGY = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.heatDay",
-        value_type=float,
-    )
+    # TOTAL_HEATING_ENERGY = EndpointProperties(
+    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.accumulatedHeat",
+    #     value_type=float,
+    # )
+    # DAILY_HEATING_ENERGY = EndpointProperties(
+    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.heatDay",
+    #     value_type=float,
+    # )
     HEATING_POWER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.power",
         value_type=float,
     )
-    HEATING_MASS_FLOW_RATE = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.massFlow",
-        value_type=float,
-    )
-    TOTAL_COOLING_ENERGY = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.accumulatedHeat",
-        value_type=float,
-    )
-    DAILY_COOLING_ENERGY = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.heatDay",
-        value_type=float,
-    )
-    COOLING_POWER = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.power",
-        value_type=float,
-    )
-    COOLING_MASS_FLOW_RATE = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.massFlow",
-        value_type=float,
-    )
-    TOTAL_HOT_WATER_ENERGY = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.accumulatedHeat",
-        value_type=float,
-    )
-    DAILY_HOT_WATER_ENERGY = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.heatDay",
-        value_type=float,
-    )
+    # HEATING_MASS_FLOW_RATE = EndpointProperties(
+    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.massFlow",
+    #     value_type=float,
+    # )
+    # TOTAL_COOLING_ENERGY = EndpointProperties(
+    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.accumulatedHeat",
+    #     value_type=float,
+    # )
+    # DAILY_COOLING_ENERGY = EndpointProperties(
+    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.heatDay",
+    #     value_type=float,
+    # )
+    # COOLING_POWER = EndpointProperties(
+    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.power",
+    #     value_type=float,
+    # )
+    # COOLING_MASS_FLOW_RATE = EndpointProperties(
+    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.massFlow",
+    #     value_type=float,
+    # )
+    # TOTAL_HOT_WATER_ENERGY = EndpointProperties(
+    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.accumulatedHeat",
+    #     value_type=float,
+    # )
+    # DAILY_HOT_WATER_ENERGY = EndpointProperties(
+    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.heatDay",
+    #     value_type=float,
+    # )
     HOT_WATER_POWER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.power",
         value_type=float,
     )
-    HOT_WATER_MASS_FLOW_RATE = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.massFlow",
-        value_type=float,
-    )
-    TOTAL_COMPRESSOR_ENERGY = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.accumulatedHeat",
-        value_type=float,
-    )
-    DAILY_COMPRESSOR_ENERGY = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.heatDay",
-        value_type=float,
-    )
-    COMPRESSOR_POWER = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.power",
-        value_type=float,
-    )
+    # HOT_WATER_MASS_FLOW_RATE = EndpointProperties(
+    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.massFlow",
+    #     value_type=float,
+    # )
+    # TOTAL_COMPRESSOR_ENERGY = EndpointProperties(
+    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.accumulatedHeat",
+    #     value_type=float,
+    # )
+    # DAILY_COMPRESSOR_ENERGY = EndpointProperties(
+    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.heatDay",
+    #     value_type=float,
+    # )
+    # COMPRESSOR_POWER = EndpointProperties(
+    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.power",
+    #     value_type=float,
+    # )
     COP = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].values.COP",
         value_type=float,
@@ -852,6 +864,14 @@ class ExternalHeatSource(Enum):
     )
 
 
+class SwitchValve(Enum):
+    POSITION = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.switchvalve[%s].values.actPosition",
+        value_type=int,
+        human_readable=SwitchValvePosition,
+    )
+
+
 class Photovoltaic(Enum):
     EXCESS_POWER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.photovoltaics.ElectricEnergyMeter.values.power",
@@ -881,5 +901,13 @@ class SectionPrefix(str, Enum):
 
 
 Section: TypeAlias = (
-    System | BufferTank | HotWaterTank | HeatPump | HeatCircuit | SolarCircuit | ExternalHeatSource | Photovoltaic
+    System
+    | BufferTank
+    | HotWaterTank
+    | HeatPump
+    | HeatCircuit
+    | SolarCircuit
+    | ExternalHeatSource
+    | SwitchValve
+    | Photovoltaic
 )

@@ -92,26 +92,27 @@ asyncio.run(main())
 
 #### System
 
-| Endpoint                                           | Response       | Description                                                                                                        |
-|----------------------------------------------------|----------------|--------------------------------------------------------------------------------------------------------------------|
-| `.get_info()`                                      | `str`          | Get system information.                                                                                            |
-| `.get_hmi_info()`                                  | `str`          | Get IMI information.                                                                                               |
-| `.get_device_info()`                               | `str`          | Get device information.                                                                                            |
-| `.get_number_of_buffer_tanks()`                    | `int`          | Get number of buffer tanks.                                                                                        |
-| `.get_number_of_hot_water_tanks()`                 | `int`          | Get number of hot water tanks.                                                                                     |
-| `.get_number_of_heat_pumps()`                      | `int`          | Get number of heat pumps.                                                                                          |
-| `.get_number_of_heating_circuits()`                | `int`          | Get number of heating circuits.                                                                                    |
-| `.get_number_of_external_heat_sources()`           | `int`          | Get number of external heat sources.                                                                               |
-| `.has_photovoltaics()`                             | `int` or `str` | Has photovoltacis.                                                                                                 |
-| `.get_outdoor_temperature()`                       | `float`        | Get outdoor temperature.                                                                                           |
+| Endpoint                                           | Response       | Description                                                                                                       |
+|----------------------------------------------------|----------------|-------------------------------------------------------------------------------------------------------------------|
+| `.get_info()`                                      | `str`          | Get system information.                                                                                           |
+| `.get_hmi_info()`                                  | `str`          | Get IMI information.                                                                                              |
+| `.get_device_info()`                               | `str`          | Get device information.                                                                                           |
+| `.get_number_of_buffer_tanks()`                    | `int`          | Get number of buffer tanks.                                                                                       |
+| `.get_number_of_hot_water_tanks()`                 | `int`          | Get number of hot water tanks.                                                                                    |
+| `.get_number_of_heat_pumps()`                      | `int`          | Get number of heat pumps.                                                                                         |
+| `.get_number_of_heating_circuits()`                | `int`          | Get number of heating circuits.                                                                                   |
+| `.get_number_of_external_heat_sources()`           | `int`          | Get number of external heat sources.                                                                              |
+| `.get_number_of_switch_valves()`                   | `int`          | Get number of switch valves.                                                                                      |
+| `.has_photovoltaics()`                             | `int` or `str` | Has photovoltacis.                                                                                                |
+| `.get_outdoor_temperature()`                       | `float`        | Get outdoor temperature.                                                                                          |
 | `.get_operating_mode(position, human_readable)`    | `int` or `str` | Get operating mode as integer (0 is `STANDBY`, 1 is `SUMMER`, 2 is `AUTO_HEAT`, 3 is `AUTO_COOL` and 4 is `AUTO`). |
-| `.set_operating_mode(0, position, human_readable)` | `int` or `str` | Set operating mode.                                                                                                |
-| `.get_cpu_usage()`                                 | `float`        | Get CPU usage.                                                                                                     |
-| `.get_webview_cpu_usage()`                         | `float`        | Get webview CPU usage in percent.                                                                                  |
-| `.get_webserver_cpu_usage()`                       | `float`        | Get webserver CPU usage in percent.                                                                                |
-| `.get_control_cpu_usage()`                         | `float`        | Get control CPU usage in percent.                                                                                  |
-| `.get_ram_usage()`                                 | `int`          | Get RAM usage.                                                                                                     |
-| `.get_free_ram()`                                  | `int`          | Get free RAM.                                                                                                      |
+| `.set_operating_mode(0, position, human_readable)` | `int` or `str` | Set operating mode.                                                                                               |
+| `.get_cpu_usage()`                                 | `float`        | Get CPU usage.                                                                                                    |
+| `.get_webview_cpu_usage()`                         | `float`        | Get webview CPU usage in percent.                                                                                 |
+| `.get_webserver_cpu_usage()`                       | `float`        | Get webserver CPU usage in percent.                                                                               |
+| `.get_control_cpu_usage()`                         | `float`        | Get control CPU usage in percent.                                                                                 |
+| `.get_ram_usage()`                                 | `int`          | Get RAM usage.                                                                                                    |
+| `.get_free_ram()`                                  | `int`          | Get free RAM.                                                                                                     |
 
 #### Buffer tank
 
@@ -260,6 +261,12 @@ asyncio.run(main())
 | `.get_operating_time(position)`                    | `int`            | Get operating time.                                       |
 | `.get_max_runtime(position)`                       | `int`            | Get max runtime.                                          |
 | `.get_activation_counter(position)`                | `int`            | Get activation counter.                                   |
+
+#### Switch valve
+
+| Endpoint                                  | Request/Response | Description                                                                |
+|-------------------------------------------|------------------|----------------------------------------------------------------------------|
+| `.get_position(position, human_readable)` | `int` or `str`   | Get switch valve position (0 is `NEUTRAL`, 1 is `OPEN` and 2 is `CLOSED`). |
 
 #### Photovoltaic
 

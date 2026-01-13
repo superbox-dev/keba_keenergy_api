@@ -33,6 +33,7 @@ from keba_keenergy_api.constants import Photovoltaic
 from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import SolarCircuit
 from keba_keenergy_api.constants import SolarCircuitOperatingMode
+from keba_keenergy_api.constants import SwitchValve
 from keba_keenergy_api.constants import System
 from keba_keenergy_api.constants import SystemOperatingMode
 from keba_keenergy_api.error import APIError
@@ -281,6 +282,7 @@ class BaseEndpoints:
             | HeatCircuit
             | SolarCircuit
             | ExternalHeatSource
+            | SwitchValve
             | Photovoltaic,
         ):
             request = [request]
@@ -544,6 +546,14 @@ class SystemEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_int_value(response, section=System.EXTERNAL_HEAT_SOURCE_NUMBERS)
+
+    async def get_number_of_switch_valves(self) -> int:
+        """Get number of switch valves."""
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=System.SWITCH_VALVES_NUMBERS,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=System.SWITCH_VALVES_NUMBERS)
 
     async def has_photovoltaics(self, *, human_readable: bool = True) -> int | str:
         """Has photovoltaics."""
@@ -1877,6 +1887,37 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_int_value(response, section=ExternalHeatSource.ACTIVATION_COUNTER, position=position)
+
+
+class SwitchValveEndpoints(BaseEndpoints):
+    """Class to send and retrieve the switch valve data."""
+
+    def __init__(
+        self,
+        base_url: str,
+        *,
+        auth: BasicAuth | None = None,
+        ssl: bool,
+        skip_ssl_verification: bool,
+        session: ClientSession | None = None,
+    ) -> None:
+        super().__init__(
+            base_url=base_url,
+            auth=auth,
+            ssl=ssl,
+            skip_ssl_verification=skip_ssl_verification,
+            session=session,
+        )
+
+    async def get_position(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Get position."""
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=SwitchValve.POSITION,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=SwitchValve.POSITION, position=position)
 
 
 class PhotovoltaicsEndpoints(BaseEndpoints):
