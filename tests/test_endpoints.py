@@ -5466,7 +5466,7 @@ class TestSwitchValveSection:
                             "lowerLimit": "0",
                         },
                         "value": f"{payload_value}",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
