@@ -999,6 +999,228 @@ class TestKebaKeEnergyAPI:
                 ssl=False,
             )
 
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("section", "position", "repeat", "expected"),
+        [
+            (BufferTank.NAME, 1, 1, [BufferTank.NAME]),
+            (SolarCircuit.PRIORITY_1_BEFORE_2, None, 1, [SolarCircuit.PRIORITY_1_BEFORE_2]),
+            (SolarCircuit.HEAT_REQUEST, None, 2, [SolarCircuit.HEAT_REQUEST]),
+            (
+                [HotWaterTank.CURRENT_TEMPERATURE, HeatPump.STATE],
+                None,
+                2,
+                [HotWaterTank.CURRENT_TEMPERATURE, HeatPump.STATE],
+            ),
+        ],
+    )
+    async def test_filter_request(
+        self, section: Section | list[Section], position: int | list[int] | None, repeat: int, expected: list[Section]
+    ) -> None:
+        """Test filter request data."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatPumps",
+                        "attributes": {
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                            "formatId": "fmt2p0",
+                            "longText": "Qty heat pumps",
+                            "lowerLimit": "0",
+                            "upperLimit": "4",
+                        },
+                        "value": "1",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatingCircuits",
+                        "attributes": {
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                            "formatId": "fmt2p0",
+                            "longText": "Qty HC",
+                            "lowerLimit": "0",
+                            "upperLimit": "8",
+                        },
+                        "value": "1",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfSolarCircuits",
+                        "attributes": {
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                            "formatId": "fmt2p0",
+                            "longText": "Qty solar",
+                            "upperLimit": "4",
+                            "lowerLimit": "0",
+                        },
+                        "value": "1",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfBuffers",
+                        "attributes": {
+                            "formatId": "fmt2p0",
+                            "longText": "Qty buffers",
+                            "upperLimit": "0",
+                            "lowerLimit": "0",
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                        },
+                        "value": "1",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks",
+                        "attributes": {
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                            "formatId": "fmt2p0",
+                            "longText": "Qty HW tank",
+                            "lowerLimit": "0",
+                            "upperLimit": "4",
+                        },
+                        "value": "1",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfExtHeatSources",
+                        "attributes": {
+                            "formatId": "fmt2p0",
+                            "longText": "Qty ext. heat sources",
+                            "upperLimit": "1",
+                            "lowerLimit": "0",
+                        },
+                        "value": "1",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readVarChildren",
+                payload={"ret": "OK", "children": []},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+                repeat=repeat,
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: list[Section] = await client.filter_request(
+                request=section,
+                position=position,
+            )
+            assert data == expected
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("section", "expected"),
+        [
+            (BufferTank.NAME, []),
+            (
+                [HotWaterTank.CURRENT_TEMPERATURE, HeatPump.STATE],
+                [HotWaterTank.CURRENT_TEMPERATURE],
+            ),
+        ],
+    )
+    async def test_filter_request_with_error(self, section: Section | list[Section], expected: list[Section]) -> None:
+        """Test filter request data."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatPumps",
+                        "attributes": {
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                            "formatId": "fmt2p0",
+                            "longText": "Qty heat pumps",
+                            "lowerLimit": "0",
+                            "upperLimit": "4",
+                        },
+                        "value": "1",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatingCircuits",
+                        "attributes": {
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                            "formatId": "fmt2p0",
+                            "longText": "Qty HC",
+                            "lowerLimit": "0",
+                            "upperLimit": "8",
+                        },
+                        "value": "1",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfSolarCircuits",
+                        "attributes": {
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                            "formatId": "fmt2p0",
+                            "longText": "Qty solar",
+                            "upperLimit": "4",
+                            "lowerLimit": "0",
+                        },
+                        "value": "1",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfBuffers",
+                        "attributes": {
+                            "formatId": "fmt2p0",
+                            "longText": "Qty buffers",
+                            "upperLimit": "0",
+                            "lowerLimit": "0",
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                        },
+                        "value": "1",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks",
+                        "attributes": {
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                            "formatId": "fmt2p0",
+                            "longText": "Qty HW tank",
+                            "lowerLimit": "0",
+                            "upperLimit": "4",
+                        },
+                        "value": "1",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfExtHeatSources",
+                        "attributes": {
+                            "formatId": "fmt2p0",
+                            "longText": "Qty ext. heat sources",
+                            "upperLimit": "1",
+                            "lowerLimit": "0",
+                        },
+                        "value": "1",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            repeat: int = (len(section) if isinstance(section, list) else 1) - 1
+
+            if repeat:
+                mock_keenergy_api.post(
+                    "http://mocked-host/var/readVarChildren",
+                    payload={"ret": "OK", "children": []},
+                    headers={"Content-Type": "application/json;charset=utf-8"},
+                    repeat=(len(section) if isinstance(section, list) else 1) - 1,
+                )
+
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readVarChildren",
+                payload={"ret": "ERROR"},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: list[Section] = await client.filter_request(request=section)
+            assert data == expected
+
     def test_invalid_credentials(self) -> None:
         """Test invalid credentials."""
         loop = asyncio.get_event_loop()

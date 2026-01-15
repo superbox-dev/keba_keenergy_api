@@ -13,7 +13,13 @@ from keba_keenergy_api.constants import HeatCircuitHasRoomTemperature
 from keba_keenergy_api.constants import HeatCircuitHeatRequest
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
 from keba_keenergy_api.constants import HeatPumpCompressorUseNightSpeed
+from keba_keenergy_api.constants import HeatPumpHasCompressorFailure
 from keba_keenergy_api.constants import HeatPumpHasPassiveCooling
+from keba_keenergy_api.constants import HeatPumpHasSourceActuatorFailure
+from keba_keenergy_api.constants import HeatPumpHasSourceFailure
+from keba_keenergy_api.constants import HeatPumpHasSourcePressureFailure
+from keba_keenergy_api.constants import HeatPumpHasThreePhaseFailure
+from keba_keenergy_api.constants import HeatPumpHasVFDFailure
 from keba_keenergy_api.constants import HeatPumpHeatRequest
 from keba_keenergy_api.constants import HeatPumpOperatingMode
 from keba_keenergy_api.constants import HotWaterTankHeatRequest
@@ -1770,6 +1776,45 @@ class TestHotWaterTankSection:
                 ssl=False,
             )
 
+    @pytest.mark.asyncio
+    async def test_get_fresh_water_module_pump_speed(self) -> None:
+        """Test get fresh water module pump speed."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterPump.values.setValueScaled",
+                        "attributes": {
+                            "formatId": "fmt3p0",
+                            "longText": "FWM pump",
+                            "unitId": "Pct100",
+                            "upperLimit": "1",
+                            "lowerLimit": "0.0",
+                        },
+                        "value": "0.40000001",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.hot_water_tank.get_fresh_water_module_pump_speed()
+
+            assert isinstance(data, float)
+            assert data == 0.4  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterPump.values.setValueScaled", '
+                    '"attr": "1"}]'
+                ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
 
 class TestHeatPumpSection:
     @pytest.mark.asyncio
@@ -2258,7 +2303,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_pump.get_circulation_pump()
+            data: float = await client.heat_pump.get_circulation_pump_speed()
 
             assert isinstance(data, float)
             assert data == 0.5  # noqa: PLR2004
@@ -2534,7 +2579,7 @@ class TestHeatPumpSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_pump.get_compressor()
+            data: float = await client.heat_pump.get_compressor_speed()
 
             assert isinstance(data, float)
             assert data == 0.3  # noqa: PLR2004
@@ -3411,6 +3456,282 @@ class TestHeatPumpSection:
                 ssl=False,
             )
 
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (False, HeatPumpHasCompressorFailure.ON.value, 1),
+            (True, "false", "off"),
+            (False, HeatPumpHasCompressorFailure.OFF.value, 0),
+        ],
+    )
+    async def test_has_compressor_failure(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+        """Test has compressor failure."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].FailureCompressor.values.actValue",
+                        "attributes": {
+                            "longText": "Failure compressor",
+                        },
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_pump.has_compressor_failure(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].FailureCompressor.values.actValue", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (False, HeatPumpHasSourceFailure.ON.value, 1),
+            (True, "false", "off"),
+            (False, HeatPumpHasSourceFailure.OFF.value, 0),
+        ],
+    )
+    async def test_has_source_failure(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+        """Test has source failure."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].FailureSource.values.actValue",
+                        "attributes": {
+                            "longText": "Failure Source",
+                        },
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_pump.has_source_failure(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].FailureSource.values.actValue", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (False, HeatPumpHasSourceActuatorFailure.ON.value, 1),
+            (True, "false", "off"),
+            (False, HeatPumpHasSourceActuatorFailure.OFF.value, 0),
+        ],
+    )
+    async def test_has_source_actuator_failure(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+        """Test has source actuator failure."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].FailureActuatorSource.values.actValue",
+                        "attributes": {
+                            "longText": "Failure actuator src",
+                        },
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_pump.has_source_actuator_failure(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].FailureActuatorSource.values.actValue", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (False, HeatPumpHasThreePhaseFailure.ON.value, 1),
+            (True, "false", "off"),
+            (False, HeatPumpHasThreePhaseFailure.OFF.value, 0),
+        ],
+    )
+    async def test_has_three_phase_failure(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+        """Test has three-phase failure."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].FailureThreePhase.values.actValue",
+                        "attributes": {
+                            "longText": "Failure 3-Phase",
+                        },
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_pump.has_three_phase_failure(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].FailureThreePhase.values.actValue", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (False, HeatPumpHasSourcePressureFailure.ON.value, 1),
+            (True, "false", "off"),
+            (False, HeatPumpHasSourcePressureFailure.OFF.value, 0),
+        ],
+    )
+    async def test_has_source_pressure_failure(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+        """Test has source pressure failure."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].FailureSrcPressure.values.actValue",
+                        "attributes": {
+                            "longText": "Failure src pressure",
+                        },
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_pump.has_source_pressure_failure(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].FailureSrcPressure.values.actValue", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (False, HeatPumpHasVFDFailure.ON.value, 1),
+            (True, "false", "off"),
+            (False, HeatPumpHasVFDFailure.OFF.value, 0),
+        ],
+    )
+    async def test_has_vfd_failure(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+        """Test has variable frequency drive (VFD) failure."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].FailureVFD.values.actValue",
+                        "attributes": {
+                            "longText": "Failure VFD",
+                        },
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_pump.has_vfd_failure(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].FailureVFD.values.actValue", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
 
 class TestHeatCircuitSection:
     @pytest.mark.asyncio
@@ -3678,8 +3999,8 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_flow_temperature(self) -> None:
-        """Test get flow temperature."""
+    async def test_get_mixer_flow_temperature(self) -> None:
+        """Test get mixer flow temperature."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -3700,7 +4021,7 @@ class TestHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_circuit.get_flow_temperature()
+            data: float = await client.heat_circuit.get_mixer_flow_temperature()
 
             assert isinstance(data, float)
             assert data == 26.25  # noqa: PLR2004
@@ -3708,6 +4029,35 @@ class TestHeatCircuitSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].heatCircuitMixer.flowTemp.values.actValue", "attr": "1"}]',  # noqa: E501
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_mixer_return_flow_temperature(self) -> None:
+        """Test get mixer return flow temperature."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].heatCircuitMixer.refluxTemp.values.actValue",
+                        "value": "31.254391",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_circuit.get_mixer_return_flow_temperature()
+
+            assert isinstance(data, float)
+            assert data == 31.25  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].heatCircuitMixer.refluxTemp.values.actValue", "attr": "1"}]',  # noqa: E501
                 method="POST",
                 auth=None,
                 ssl=False,

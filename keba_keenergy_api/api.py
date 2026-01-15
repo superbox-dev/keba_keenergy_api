@@ -1,10 +1,12 @@
 """Client to interact with KEBA KeEnergy API."""
 
+import json
 from typing import Any
 
 from aiohttp import BasicAuth
 from aiohttp import ClientSession
 
+from keba_keenergy_api.constants import EndpointPath
 from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import SectionPrefix
 from keba_keenergy_api.endpoints import BaseEndpoints
@@ -15,6 +17,7 @@ from keba_keenergy_api.endpoints import HeatPumpEndpoints
 from keba_keenergy_api.endpoints import HotWaterTankEndpoints
 from keba_keenergy_api.endpoints import PhotovoltaicsEndpoints
 from keba_keenergy_api.endpoints import Position
+from keba_keenergy_api.endpoints import Response
 from keba_keenergy_api.endpoints import SolarCircuitEndpoints
 from keba_keenergy_api.endpoints import SwitchValveEndpoints
 from keba_keenergy_api.endpoints import SystemEndpoints
@@ -227,3 +230,35 @@ class KebaKeEnergyAPI(BaseEndpoints):
     async def write_data(self, request: dict[Section, Any]) -> None:
         """Write multiple data to API with one request."""
         await self._write_values(request=request)
+
+    async def filter_request(
+        self,
+        request: Section | list[Section],
+        position: Position | int | list[int] | None = None,
+    ) -> list[Section]:
+        if position is None:
+            position = await self.system.get_positions()
+
+        if not isinstance(request, list):
+            request = [request]
+
+        if isinstance(position, int):
+            position = [position]
+
+        filtered_sections: list[Section] = []
+
+        payloads = self._generate_read_children_payloads(
+            request=request,
+            position=position,
+        )
+
+        for section, payload in payloads:
+            response: Response = await self._post(
+                payload=json.dumps(payload),
+                endpoint=EndpointPath.READ_VAR_CHILDREN,
+            )
+
+            if response[0]["ret"] == "OK" and section not in filtered_sections:
+                filtered_sections.append(section)
+
+        return filtered_sections

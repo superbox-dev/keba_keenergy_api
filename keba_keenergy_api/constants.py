@@ -14,6 +14,7 @@ class EndpointPath:
     """The endpoint paths."""
 
     READ_WRITE_VARS: Final[str] = "/var/readWriteVars"
+    READ_VAR_CHILDREN: Final[str] = "/var/readVarChildren"
     DEVICE_CONTROL: Final[str] = "/deviceControl"
     SW_UPDATE: Final[str] = "/swupdate"
 
@@ -32,6 +33,36 @@ class BaseEnum(Enum):
         raise ValueError
 
 
+class BoolEnum(BaseEnum):
+    """Bool enum for ON / OFF."""
+
+    OFF = 0
+    ON = 1
+
+
+SystemHasPhotovoltaics: type[BoolEnum] = BoolEnum
+HeatPumpCompressorUseNightSpeed: type[BoolEnum] = BoolEnum
+HeatPumpHasPassiveCooling: type[BoolEnum] = BoolEnum
+HeatPumpHasCompressorFailure: type[BoolEnum] = BoolEnum
+HeatPumpHasSourceFailure: type[BoolEnum] = BoolEnum
+HeatPumpHasSourceActuatorFailure: type[BoolEnum] = BoolEnum
+HeatPumpHasThreePhaseFailure: type[BoolEnum] = BoolEnum
+HeatPumpHasSourcePressureFailure: type[BoolEnum] = BoolEnum
+HeatPumpHasVFDFailure: type[BoolEnum] = BoolEnum
+HeatCircuitHasRoomTemperature: type[BoolEnum] = BoolEnum
+HeatCircuitHasRoomHumidity: type[BoolEnum] = BoolEnum
+SolarCircuitOperatingMode: type[BoolEnum] = BoolEnum
+SolarCircuitConsumer1PrioritySolar: type[BoolEnum] = BoolEnum
+SolarCircuitHeatRequest: type[BoolEnum] = BoolEnum
+BufferTankHeatRequest: type[BoolEnum] = BoolEnum
+BufferTankCoolRequest: type[BoolEnum] = BoolEnum
+HotWaterTankHeatRequest: type[BoolEnum] = BoolEnum
+HotWaterTankHotWaterFlow: type[BoolEnum] = BoolEnum
+HeatPumpHeatRequest: type[BoolEnum] = BoolEnum
+ExternalHeatSourceOperatingMode: type[BoolEnum] = BoolEnum
+ExternalHeatSourceHeatRequest: type[BoolEnum] = BoolEnum
+
+
 class SystemOperatingMode(BaseEnum):
     """Available system operating modes."""
 
@@ -41,13 +72,6 @@ class SystemOperatingMode(BaseEnum):
     AUTO_HEAT = 2
     AUTO_COOL = 3
     AUTO = 4
-
-
-class SystemHasPhotovoltaics(BaseEnum):
-    """Available has photovoltaics stats."""
-
-    OFF = 0
-    ON = 1
 
 
 class BufferTankOperatingMode(BaseEnum):
@@ -125,34 +149,6 @@ class HeatPumpOperatingMode(BaseEnum):
     BACKUP = 2
 
 
-class HeatPumpCompressorUseNightSpeed(BaseEnum):
-    """Available compressor use night speed stats."""
-
-    OFF = 0
-    ON = 1
-
-
-class HeatPumpHasPassiveCooling(BaseEnum):
-    """Available has passive cooling stats."""
-
-    OFF = 0
-    ON = 1
-
-
-class HeatCircuitHasRoomTemperature(BaseEnum):
-    """Available has room temperature stats."""
-
-    OFF = 0
-    ON = 1
-
-
-class HeatCircuitHasRoomHumidity(BaseEnum):
-    """Available has room humidity stats."""
-
-    OFF = 0
-    ON = 1
-
-
 class HeatCircuitOperatingMode(BaseEnum):
     """Available heat circuit operating modes."""
 
@@ -166,67 +162,11 @@ class HeatCircuitOperatingMode(BaseEnum):
     ROOM_CONTROL = 9
 
 
-class SolarCircuitOperatingMode(BaseEnum):
-    """Available solar circuit operating modes."""
-
-    OFF = 0
-    ON = 1
-
-
 class SolarCircuitPriority(BaseEnum):
     """Available solar circuit priority."""
 
     LOW = 14
     HIGH = 15
-
-
-class SolarCircuitConsumer1PrioritySolar(BaseEnum):
-    """Available solar circuit consumer 1 priority solar stats."""
-
-    OFF = 0
-    ON = 1
-
-
-class SolarCircuitHeatRequest(BaseEnum):
-    """Available solar circuit heat request stats."""
-
-    OFF = 0
-    ON = 1
-
-
-class BufferTankHeatRequest(BaseEnum):
-    """Available buffer tank heat request stats."""
-
-    OFF = 0
-    ON = 1
-
-
-class BufferTankCoolRequest(BaseEnum):
-    """Available buffer tank cool request stats."""
-
-    OFF = 0
-    ON = 1
-
-
-class HotWaterTankHeatRequest(BaseEnum):
-    """Available hot water tank heat request stats."""
-
-    OFF = 0
-    ON = 1
-
-
-class HotWaterTankHotWaterFlow(BaseEnum):
-    """Available hot water tank hot water flow stats."""
-
-    OFF = 0
-    ON = 1
-
-
-class HeatPumpHeatRequest(BaseEnum):
-    """Available heat pump heat request stats."""
-
-    OFF = 0
-    ON = 1
 
 
 class HeatCircuitCoolRequest(BaseEnum):
@@ -251,20 +191,6 @@ class HeatCircuitHeatRequest(BaseEnum):
     ROOM_OFF = 4
     OUTDOOR_OFF = 5
     INFLOW_OFF = 6
-
-
-class ExternalHeatSourceOperatingMode(BaseEnum):
-    """Available external heat source operating modes."""
-
-    OFF = 0
-    ON = 1
-
-
-class ExternalHeatSourceHeatRequest(BaseEnum):
-    """Available external heat source heat request stats."""
-
-    OFF = 0
-    ON = 1
 
 
 class SwitchValvePosition(BaseEnum):
@@ -461,6 +387,10 @@ class HotWaterTank(Enum):
     )
     FRESH_WATER_MODULE_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterTemp.values.actValue",
+        value_type=float,
+    )
+    FRESH_WATER_MODULE_PUMP_SPEED = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterPump.values.setValueScaled",
         value_type=float,
     )
 
@@ -682,6 +612,36 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalData.activationCounter",
         value_type=int,
     )
+    HAS_COMPRESSOR_FAILURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureCompressor.values.actValue",
+        value_type=str,
+        human_readable=HeatPumpHasCompressorFailure,
+    )
+    HAS_SOURCE_FAILURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureSource.values.actValue",
+        value_type=str,
+        human_readable=HeatPumpHasSourceFailure,
+    )
+    HAS_SOURCE_ACTUATOR_FAILURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureActuatorSource.values.actValue",
+        value_type=str,
+        human_readable=HeatPumpHasSourceActuatorFailure,
+    )
+    HAS_THREE_PHASE_FAILURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureThreePhase.values.actValue",
+        value_type=str,
+        human_readable=HeatPumpHasThreePhaseFailure,
+    )
+    HAS_SOURCE_PRESSURE_FAILURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureSrcPressure.values.actValue",
+        value_type=str,
+        human_readable=HeatPumpHasSourcePressureFailure,
+    )
+    HAS_VFD_FAILURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureVFD.values.actValue",
+        value_type=str,
+        human_readable=HeatPumpHasVFDFailure,
+    )
 
 
 class HeatCircuit(Enum):
@@ -719,6 +679,10 @@ class HeatCircuit(Enum):
     )
     FLOW_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.flowTemp.values.actValue",
+        value_type=float,
+    )
+    MIXER_RETURN_FLOW_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.refluxTemp.values.actValue",
         value_type=float,
     )
     RETURN_FLOW_TEMPERATURE = EndpointProperties(

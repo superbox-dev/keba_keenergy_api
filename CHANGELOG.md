@@ -9,13 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add endpoints for switch valves
+- Added endpoints for switch valves
+- Added endpoint `.has_compressor_failure()` to the head pump
+- Added endpoint `.has_source_failure()` to the head pump
+- Added endpoint `.has_source_actuator_failure()` to the head pump
+- Added endpoint `.has_three_phase_failure()` to the head pump
+- Added endpoint `.has_source_pressure_failure()` to the head pump
+- Added endpoint `.has_vfd_failure()` to the head pump
+- Added endpoint `get_fresh_water_module_pump_speed()` to the head pump
+- Added endpoint `get_mixer_return_flow_temperature()` to the heat circuit
+- Added `.filter_request()` to get only endpoints that are valid
+
+### Changed
+
+- Rename heat circuit endpoint `get_flow_temperature()` to `get_mixer_flow_temperature()`
 
 ## [2.6.0] - 2026-01-11
 
 ### Added
 
-- Add endpoints `get_priority_1_before_2()` and `set_priority_1_before_2()` to the solar circuit
+- Added endpoints `get_priority_1_before_2()` and `set_priority_1_before_2()` to the solar circuit
 
 ## [2.5.2] - 2026-01-09
 

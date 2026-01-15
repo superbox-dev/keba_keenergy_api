@@ -50,6 +50,11 @@ class WritePayload(TypedDict):
     value: str
 
 
+class ReadChildrenPayload(TypedDict):
+    parent: str
+    filter: str
+
+
 class Position(NamedTuple):
     heat_pump: int
     heat_circuit: int
@@ -186,6 +191,25 @@ class BaseEndpoints:
 
         return payload
 
+    def _generate_read_children_payloads(
+        self,
+        request: list[Section],
+        position: Position | list[int],
+    ) -> list[tuple[Section, ReadChildrenPayload]]:
+        payloads: list[tuple[Section, ReadChildrenPayload]] = []
+
+        for section in request:
+            for idx in self._get_position_index(section=section, position=position):
+                for sub_idx in range(idx * 2, section.value.quantity + idx * 2):
+                    parent: str = section.value.value if idx is True else section.value.value % idx
+
+                    if section.value.quantity > 1:
+                        parent = section.value.value % sub_idx
+
+                    payloads += [(section, ReadChildrenPayload(parent=parent, filter="none"))]
+
+        return payloads
+
     @staticmethod
     def _convert_value(section: Section, response: Response, *, human_readable: bool) -> float | int | str:
         value: float | int | str = section.value.value_type(response[0]["value"])
@@ -273,18 +297,7 @@ class BaseEndpoints:
         human_readable: bool = True,
         extra_attributes: bool = False,
     ) -> dict[str, list[list[Value]] | list[Value]]:
-        if isinstance(
-            request,
-            System
-            | BufferTank
-            | HotWaterTank
-            | HeatPump
-            | HeatCircuit
-            | SolarCircuit
-            | ExternalHeatSource
-            | SwitchValve
-            | Photovoltaic,
-        ):
+        if not isinstance(request, list):
             request = [request]
 
         if isinstance(position, int):
@@ -898,6 +911,15 @@ class HotWaterTankEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HotWaterTank.FRESH_WATER_MODULE_TEMPERATURE, position=position)
 
+    async def get_fresh_water_module_pump_speed(self, position: int = 1) -> float:
+        """Get fresh water module pump speed in percent."""
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HotWaterTank.FRESH_WATER_MODULE_PUMP_SPEED,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HotWaterTank.FRESH_WATER_MODULE_PUMP_SPEED, position=position)
+
 
 class HeatPumpEndpoints(BaseEndpoints):
     """Class to retrieve the heat pump data."""
@@ -1047,10 +1069,6 @@ class HeatPumpEndpoints(BaseEndpoints):
             attribute="upper_limit",
         )
 
-    async def get_circulation_pump(self, position: int = 1) -> float:
-        """Get circulation pump speed in percent (DEPRECATED)."""
-        return await self.get_circulation_pump_speed(position)
-
     async def get_circulation_pump_speed(self, position: int = 1) -> float:
         """Get circulation pump speed in percent."""
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
@@ -1122,10 +1140,6 @@ class HeatPumpEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_float_value(response, section=HeatPump.COMPRESSOR_OUTPUT_TEMPERATURE, position=position)
-
-    async def get_compressor(self, position: int = 1) -> float:
-        """Get compressor speed in percent (DEPRECATED)."""
-        return await self.get_compressor_speed(position)
 
     async def get_compressor_speed(self, position: int = 1) -> float:
         """Get compressor speed in percent."""
@@ -1363,6 +1377,66 @@ class HeatPumpEndpoints(BaseEndpoints):
         )
         return self._get_int_value(response, section=HeatPump.ACTIVATION_COUNTER, position=position)
 
+    async def has_compressor_failure(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Has compressor failure."""
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.HAS_COMPRESSOR_FAILURE,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HeatPump.HAS_COMPRESSOR_FAILURE, position=position)
+
+    async def has_source_failure(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Has source failure."""
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.HAS_SOURCE_FAILURE,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HeatPump.HAS_SOURCE_FAILURE, position=position)
+
+    async def has_source_actuator_failure(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Has source actuator failure."""
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.HAS_SOURCE_ACTUATOR_FAILURE,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HeatPump.HAS_SOURCE_ACTUATOR_FAILURE, position=position)
+
+    async def has_three_phase_failure(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Has three-phase failure."""
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.HAS_THREE_PHASE_FAILURE,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HeatPump.HAS_THREE_PHASE_FAILURE, position=position)
+
+    async def has_source_pressure_failure(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Has source pressure failure."""
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.HAS_SOURCE_PRESSURE_FAILURE,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HeatPump.HAS_SOURCE_PRESSURE_FAILURE, position=position)
+
+    async def has_vfd_failure(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Has variable frequency drive (VFD) failure."""
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.HAS_VFD_FAILURE,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HeatPump.HAS_VFD_FAILURE, position=position)
+
 
 class HeatCircuitEndpoints(BaseEndpoints):
     """Class to send and retrieve the heating circuit data."""
@@ -1449,14 +1523,23 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatCircuit.FLOW_TEMPERATURE_SETPOINT, position=position)
 
-    async def get_flow_temperature(self, position: int = 1) -> float:
-        """Get flow temperature."""
+    async def get_mixer_flow_temperature(self, position: int = 1) -> float:
+        """Get mixer flow temperature."""
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HeatCircuit.FLOW_TEMPERATURE,
             position=position,
             extra_attributes=True,
         )
         return self._get_float_value(response, section=HeatCircuit.FLOW_TEMPERATURE, position=position)
+
+    async def get_mixer_return_flow_temperature(self, position: int = 1) -> float:
+        """Get mixer return flow temperature."""
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.MIXER_RETURN_FLOW_TEMPERATURE,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatCircuit.MIXER_RETURN_FLOW_TEMPERATURE, position=position)
 
     async def get_return_flow_temperature(self, position: int = 1) -> float:
         """Get return flow temperature."""
