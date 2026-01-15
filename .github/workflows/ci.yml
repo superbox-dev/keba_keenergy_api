@@ -38,8 +38,8 @@ jobs:
         uses: ./.github/actions/setup-project
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Lint python files with black
-        run: uv run black --diff --check $(git ls-files '*.py')
+      - name: Format python files with ruff
+        run: uv run ruff format $(git ls-files '*.py')
       - name: Lint python files with mypy
         run: uv run mypy $(git ls-files '*.py')
       - name: Lint python files with ruff
