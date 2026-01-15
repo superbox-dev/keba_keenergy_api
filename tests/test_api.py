@@ -1015,7 +1015,11 @@ class TestKebaKeEnergyAPI:
         ],
     )
     async def test_filter_request(
-        self, section: Section | list[Section], position: int | list[int] | None, repeat: int, expected: list[Section],
+        self,
+        section: Section | list[Section],
+        position: int | list[int] | None,
+        repeat: int,
+        expected: list[Section],
     ) -> None:
         """Test filter request data."""
         with aioresponses() as mock_keenergy_api:
