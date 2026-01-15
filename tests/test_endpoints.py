@@ -799,7 +799,6 @@ class TestSystemSection:
 
 
 class TestBufferTankSection:
-
     @pytest.mark.asyncio
     async def test_get_name(self) -> None:
         """Test get name."""
@@ -1238,7 +1237,6 @@ class TestBufferTankSection:
 
 
 class TestHotWaterTankSection:
-
     @pytest.mark.asyncio
     async def test_get_name(self) -> None:
         """Test get name."""
@@ -5504,7 +5502,6 @@ class TestSolarCircuitSection:
 
 
 class TestExternalHeatSourceSection:
-
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
@@ -5791,7 +5788,6 @@ class TestExternalHeatSourceSection:
 
 
 class TestSwitchValveSection:
-
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
