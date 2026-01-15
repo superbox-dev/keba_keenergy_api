@@ -1793,7 +1793,7 @@ class TestHotWaterTankSection:
                             "lowerLimit": "0.0",
                         },
                         "value": "0.40000001",
-                    }
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -3588,7 +3588,9 @@ class TestHeatPumpSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].FailureActuatorSource.values.actValue", "attr": "1"}]',
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatpump[0].FailureActuatorSource.values.actValue", "attr": "1"}]'
+                ),
                 method="POST",
                 auth=None,
                 ssl=False,

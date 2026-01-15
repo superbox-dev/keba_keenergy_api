@@ -236,6 +236,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
         request: Section | list[Section],
         position: Position | int | list[int] | None = None,
     ) -> list[Section]:
+        """Return only valid requests."""
         if position is None:
             position = await self.system.get_positions()
 
