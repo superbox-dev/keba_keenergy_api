@@ -34,9 +34,9 @@ nav:
           - endpoints_switch_valve.md
           - endpoints_photovoltaic.md
   - Project:
-    - Changelog: changelog.md
-    - Contributing: contributing.md
-    - Issues: https://github.com/superbox-dev/keba_keenergy_api/issues
+      - Changelog: changelog.md
+      - Contributing: contributing.md
+      - Issues: https://github.com/superbox-dev/keba_keenergy_api/issues
   - Donation: donation.md
   - Home Assistant: https://superbox.one
 markdown_extensions:
