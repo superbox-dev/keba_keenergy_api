@@ -1,4 +1,3 @@
-import asyncio
 from typing import Any
 
 import pytest
@@ -1225,10 +1224,9 @@ class TestKebaKeEnergyAPI:
             data: list[Section] = await client.filter_request(request=section)
             assert data == expected
 
-    def test_invalid_credentials(self) -> None:
+    @pytest.mark.asyncio
+    async def test_invalid_credentials(self) -> None:
         """Test invalid credentials."""
-        loop = asyncio.get_event_loop()
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1243,14 +1241,13 @@ class TestKebaKeEnergyAPI:
             )
 
             with pytest.raises(AuthenticationError) as error:
-                loop.run_until_complete(client.system.get_outdoor_temperature())
+                await client.system.get_outdoor_temperature()
 
             assert str(error.value) == "401 Unauthorized: No permission -- see authorization schemes"
 
-    def test_api_status_4xx(self) -> None:
+    @pytest.mark.asyncio
+    async def test_api_status_4xx(self) -> None:
         """Test api status 4xx."""
-        loop = asyncio.get_event_loop()
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1265,14 +1262,13 @@ class TestKebaKeEnergyAPI:
             )
 
             with pytest.raises(APIError) as error:
-                loop.run_until_complete(client.system.get_outdoor_temperature())
+                await client.system.get_outdoor_temperature()
 
             assert str(error.value) == "405 Method Not Allowed: Specified method is invalid for this resource - {}"
 
-    def test_api_client_error(self) -> None:
+    @pytest.mark.asyncio
+    async def test_api_client_error(self) -> None:
         """Test api client error."""
-        loop = asyncio.get_event_loop()
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1281,14 +1277,13 @@ class TestKebaKeEnergyAPI:
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
             with pytest.raises(APIError) as error:
-                loop.run_until_complete(client.system.get_outdoor_temperature())
+                await client.system.get_outdoor_temperature()
 
             assert str(error.value) == "Server took too long to respond"
 
-    def test_api_error(self) -> None:
+    @pytest.mark.asyncio
+    async def test_api_error(self) -> None:
         """Test api error."""
-        loop = asyncio.get_event_loop()
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1299,6 +1294,6 @@ class TestKebaKeEnergyAPI:
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
             with pytest.raises(APIError) as error:
-                loop.run_until_complete(client.system.get_outdoor_temperature())
+                await client.system.get_outdoor_temperature()
 
             assert str(error.value) == "500 Internal Server Error: Server got itself in trouble - mocked-error"
