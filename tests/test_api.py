@@ -24,7 +24,6 @@ from keba_keenergy_api.error import AuthenticationError
 class TestKebaKeEnergyAPI:
     @pytest.mark.asyncio
     async def test_api(self) -> None:
-        """Test api without session."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -60,7 +59,6 @@ class TestKebaKeEnergyAPI:
 
     @pytest.mark.asyncio
     async def test_api_with_session(self) -> None:
-        """Test api with seassion."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -101,7 +99,6 @@ class TestKebaKeEnergyAPI:
 
     @pytest.mark.asyncio
     async def test_api_with_basic_auth(self) -> None:
-        """Test api with basic auth."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -890,7 +887,6 @@ class TestKebaKeEnergyAPI:
         expected_data: str,
         expected_response: dict[str, ValueResponse],
     ) -> None:
-        """Test read multiple data."""
         with aioresponses() as mock_keenergy_api:
             if option_payload is not None:
                 mock_keenergy_api.post(
@@ -979,7 +975,6 @@ class TestKebaKeEnergyAPI:
         ],
     )
     async def test_write_data(self, section: dict[Section, Any], expected_data: str) -> None:
-        """Test write multiple data."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -1020,7 +1015,6 @@ class TestKebaKeEnergyAPI:
         repeat: int,
         expected: list[Section],
     ) -> None:
-        """Test filter request data."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1125,7 +1119,6 @@ class TestKebaKeEnergyAPI:
         ],
     )
     async def test_filter_request_with_error(self, section: Section | list[Section], expected: list[Section]) -> None:
-        """Test filter request data."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1226,7 +1219,6 @@ class TestKebaKeEnergyAPI:
 
     @pytest.mark.asyncio
     async def test_invalid_credentials(self) -> None:
-        """Test invalid credentials."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1247,7 +1239,6 @@ class TestKebaKeEnergyAPI:
 
     @pytest.mark.asyncio
     async def test_api_status_4xx(self) -> None:
-        """Test api status 4xx."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1268,7 +1259,6 @@ class TestKebaKeEnergyAPI:
 
     @pytest.mark.asyncio
     async def test_api_client_error(self) -> None:
-        """Test api client error."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1283,7 +1273,6 @@ class TestKebaKeEnergyAPI:
 
     @pytest.mark.asyncio
     async def test_api_error(self) -> None:
-        """Test api error."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
