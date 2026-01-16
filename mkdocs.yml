@@ -25,13 +25,13 @@ nav:
       - keba-keenergy/api.md
       - Endpoints:
           - keba-keenergy/api/endpoints/system.md
-          - keba-keenergy/api/endpoints/buffer_tank.md
-          - keba-keenergy/api/endpoints/hot_water_tank.md
-          - keba-keenergy/api/endpoints/heat_pump.md
-          - keba-keenergy/api/endpoints/heat_circuit.md
-          - keba-keenergy/api/endpoints/solar_circuit.md
-          - keba-keenergy/api/endpoints/external_heat_source.md
-          - keba-keenergy/api/endpoints/switch_valve.md
+          - keba-keenergy/api/endpoints/buffer-tank.md
+          - keba-keenergy/api/endpoints/hot-water-tank.md
+          - keba-keenergy/api/endpoints/heat-pump.md
+          - keba-keenergy/api/endpoints/heat-circuit.md
+          - keba-keenergy/api/endpoints/solar-circuit.md
+          - keba-keenergy/api/endpoints/external-heat-source.md
+          - keba-keenergy/api/endpoints/switch-valve.md
           - keba-keenergy/api/endpoints/photovoltaic.md
   - Project:
       - Changelog: keba-keenergy/api/changelog.md
