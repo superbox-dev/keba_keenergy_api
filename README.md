@@ -109,7 +109,7 @@ asyncio.run(main())
 
 ## Documentation
 
-Read the full API documentation on [docs.superbox.one](https://docs.superbox.one).
+Read the full API documentation on [doc.superbox.one](https://doc.superbox.one).
 
 ## Changelog
 
