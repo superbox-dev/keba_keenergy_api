@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added support for Python 3.14
 - Added endpoints for switch valves
 - Added endpoint `.has_compressor_failure()` to the head pump
 - Added endpoint `.has_source_failure()` to the head pump
