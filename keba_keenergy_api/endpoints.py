@@ -2531,7 +2531,20 @@ class SolarCircuitEndpoints(BaseEndpoints):
 
 
 class ExternalHeatSourceEndpoints(BaseEndpoints):
-    """Class to send and retrieve the external heat source data."""
+    """API Endpoints to retrieve the external heat sources data.
+
+    Examples
+    --------
+    >>> client = KebaKeEnergyAPI(
+    >>>     host="ap4400.local",
+    >>>     username="test",
+    >>>     password="test",
+    >>>     ssl=True,
+    >>>     skip_ssl_verification=True
+    >>> )
+    >>> client.external_heat_source.get_operating_mode()
+
+    """
 
     def __init__(
         self,
@@ -2551,7 +2564,21 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         )
 
     async def get_operating_mode(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get operating mode."""
+        """Get the operating mode from the external heat source.
+
+        Parameters
+        ----------
+        position
+            The number of the external heat sources
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=ExternalHeatSource.OPERATING_MODE,
             position=position,
@@ -2561,7 +2588,16 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=ExternalHeatSource.OPERATING_MODE)
 
     async def set_operating_mode(self, mode: int | str, position: int = 1) -> None:
-        """Set operating mode."""
+        """Set the operating mode from the external heat source.
+
+        Parameters
+        ----------
+        mode
+            Set the mode as integer or string (human-readable) e.g. 0 or OFF
+        position
+            The number of the external heat sources
+
+        """
         try:
             _mode: int | None = mode if isinstance(mode, int) else ExternalHeatSourceOperatingMode[mode.upper()].value
         except KeyError as error:
@@ -2575,7 +2611,19 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         await self._write_values(request={ExternalHeatSource.OPERATING_MODE: modes})
 
     async def get_target_temperature(self, position: int = 1) -> float:
-        """Get target temperature."""
+        """Get target temperature from the external heat source.
+
+        Parameters
+        ----------
+        position
+            The number of the external heat sources
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=ExternalHeatSource.TARGET_TEMPERATURE,
             position=position,
@@ -2584,7 +2632,21 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=ExternalHeatSource.TARGET_TEMPERATURE, position=position)
 
     async def get_heat_request(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get heat request."""
+        """Get the heat request state from the external heat source.
+
+        Parameters
+        ----------
+        position
+            The number of the external heat sources
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=ExternalHeatSource.HEAT_REQUEST,
             position=position,
@@ -2594,7 +2656,19 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=ExternalHeatSource.HEAT_REQUEST, position=position)
 
     async def get_operating_time(self, position: int = 1) -> int:
-        """Get the operating time."""
+        """Get the operating time from the external heat source.
+
+        Parameters
+        ----------
+        position
+            The number of the external heat sources
+
+        Returns
+        -------
+        integer
+            Operating time in seconds
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=ExternalHeatSource.OPERATING_TIME,
             position=position,
@@ -2603,7 +2677,19 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         return self._get_int_value(response, section=ExternalHeatSource.OPERATING_TIME, position=position)
 
     async def get_max_runtime(self, position: int = 1) -> int:
-        """Get the maximum runtime."""
+        """Get the maximum runtime from the external heat source.
+
+        Parameters
+        ----------
+        position
+            The number of the external heat sources
+
+        Returns
+        -------
+        integer
+            Maximum runtime in seconds
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=ExternalHeatSource.MAX_RUNTIME,
             position=position,
@@ -2612,7 +2698,19 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         return self._get_int_value(response, section=ExternalHeatSource.MAX_RUNTIME, position=position)
 
     async def get_activation_counter(self, position: int = 1) -> int:
-        """Get the activation counter."""
+        """Get the activation counter from the external heat source.
+
+        Parameters
+        ----------
+        position
+            The number of the external heat sources
+
+        Returns
+        -------
+        integer
+            Number of external heat source activation
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=ExternalHeatSource.ACTIVATION_COUNTER,
             position=position,
@@ -2622,7 +2720,20 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
 
 
 class SwitchValveEndpoints(BaseEndpoints):
-    """Class to send and retrieve the switch valve data."""
+    """API Endpoints to retrieve the switch valves data.
+
+    Examples
+    --------
+    >>> client = KebaKeEnergyAPI(
+    >>>     host="ap4400.local",
+    >>>     username="test",
+    >>>     password="test",
+    >>>     ssl=True,
+    >>>     skip_ssl_verification=True
+    >>> )
+    >>> client.switch_valve.get_position()
+
+    """
 
     def __init__(
         self,
@@ -2642,7 +2753,21 @@ class SwitchValveEndpoints(BaseEndpoints):
         )
 
     async def get_position(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get position."""
+        """Get switch valve positon.
+
+        Parameters
+        ----------
+        position
+            The number of the switch valves
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            (0) NEUTRAL / (1) OPEN / (2) CLOSED
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SwitchValve.POSITION,
             position=position,
@@ -2653,7 +2778,20 @@ class SwitchValveEndpoints(BaseEndpoints):
 
 
 class PhotovoltaicsEndpoints(BaseEndpoints):
-    """Class to send and retrieve the photovoltaics data."""
+    """API Endpoints to retrieve the photovoltaics data.
+
+    Examples
+    --------
+    >>> client = KebaKeEnergyAPI(
+    >>>     host="ap4400.local",
+    >>>     username="test",
+    >>>     password="test",
+    >>>     ssl=True,
+    >>>     skip_ssl_verification=True
+    >>> )
+    >>> client.photovoltaics.get_excess_power()
+
+    """
 
     def __init__(
         self,
@@ -2673,7 +2811,14 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
         )
 
     async def get_excess_power(self) -> float:
-        """Get excess power in W."""
+        """Get excess power in W.
+
+        Returns
+        -------
+        float
+            Excess power in W
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=Photovoltaic.EXCESS_POWER,
             extra_attributes=True,
@@ -2681,7 +2826,14 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=Photovoltaic.EXCESS_POWER)
 
     async def get_daily_energy(self) -> float:
-        """Get daily energy in kWh."""
+        """Get daily energy in kWh.
+
+        Returns
+        -------
+        float
+            Daily energy in kWh
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=Photovoltaic.DAILY_ENERGY,
             extra_attributes=True,
@@ -2689,7 +2841,14 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=Photovoltaic.DAILY_ENERGY)
 
     async def get_total_energy(self) -> float:
-        """Get total energy in kWh."""
+        """Get total energy in kWh.
+
+        Returns
+        -------
+        float
+            Total energy in kWh
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=Photovoltaic.TOTAL_ENERGY,
             extra_attributes=True,
