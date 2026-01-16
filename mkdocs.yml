@@ -22,20 +22,20 @@ extra_css:
 nav:
   - Home: index.md
   - Documentation:
-      - api.md
+      - keba_keenergy/api.md
       - Endpoints:
-          - endpoints/system.md
-          - endpoints/buffer_tank.md
-          - endpoints/hot_water_tank.md
-          - endpoints/heat_pump.md
-          - endpoints/heat_circuit.md
-          - endpoints/solar_circuit.md
-          - endpoints/external_heat_source.md
-          - endpoints/switch_valve.md
-          - endpoints/photovoltaic.md
+          - keba_keenergy/api/endpoints/system.md
+          - keba_keenergy/api/endpoints/buffer_tank.md
+          - keba_keenergy/api/endpoints/hot_water_tank.md
+          - keba_keenergy/api/endpoints/heat_pump.md
+          - keba_keenergy/api/endpoints/heat_circuit.md
+          - keba_keenergy/api/endpoints/solar_circuit.md
+          - keba_keenergy/api/endpoints/external_heat_source.md
+          - keba_keenergy/api/endpoints/switch_valve.md
+          - keba_keenergy/api/endpoints/photovoltaic.md
   - Project:
-      - Changelog: changelog.md
-      - Contributing: contributing.md
+      - Changelog: keba_keenergy/api/changelog.md
+      - Contributing: keba_keenergy/api/contributing.md
       - Issues: https://github.com/superbox-dev/keba_keenergy_api/issues
   - Donation: donation.md
   - Home Assistant: https://superbox.one
