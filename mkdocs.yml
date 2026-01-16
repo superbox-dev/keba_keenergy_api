@@ -24,15 +24,15 @@ nav:
   - Documentation:
       - api.md
       - Endpoints:
-          - endpoints_system.md
-          - endpoints_buffer_tank.md
-          - endpoints_hot_water_tank.md
-          - endpoints_heat_pump.md
-          - endpoints_heat_circuit.md
-          - endpoints_solar_circuit.md
-          - endpoints_external_heat_source.md
-          - endpoints_switch_valve.md
-          - endpoints_photovoltaic.md
+          - endpoints/system.md
+          - endpoints/buffer_tank.md
+          - endpoints/hot_water_tank.md
+          - endpoints/heat_pump.md
+          - endpoints/heat_circuit.md
+          - endpoints/solar_circuit.md
+          - endpoints/external_heat_source.md
+          - endpoints/switch_valve.md
+          - endpoints/photovoltaic.md
   - Project:
       - Changelog: changelog.md
       - Contributing: contributing.md
