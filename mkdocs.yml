@@ -1,5 +1,5 @@
 site_name: superbox | KEBA KeEnergy API
-site_url: https://docs.superbox.one
+site_url: https://api.superbox.one
 site_author: Michael Hacker
 site_description: A Python wrapper for the KEBA KeEnergy API used by the Web HMI.
 repo_url: https://github.com/superbox-dev/keba_keenergy_api
@@ -37,6 +37,7 @@ nav:
   - Donation: donation.md
   - Contributing: contributing.md
   - Issues: https://github.com/superbox-dev/keba_keenergy_api/issues
+  - Home Assistant: https://superbox.one
 markdown_extensions:
   - smarty
   - toc:
