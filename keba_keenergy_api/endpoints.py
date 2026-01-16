@@ -1,5 +1,3 @@
-"""Retrieve hot water tank data."""
-
 import json
 import re
 from enum import Enum
@@ -456,7 +454,20 @@ class BaseEndpoints:
 
 
 class SystemEndpoints(BaseEndpoints):
-    """Class to retrieve the system data."""
+    """API Endpoints to send and retrieve the system data.
+
+    Examples
+    --------
+    >>> client = KebaKeEnergyAPI(
+    >>>     host="ap4400.local",
+    >>>     username="test",
+    >>>     password="test",
+    >>>     ssl=True,
+    >>>     skip_ssl_verification=True
+    >>> )
+    >>> client.system.get_info()
+
+    """
 
     def __init__(
         self,
@@ -476,7 +487,14 @@ class SystemEndpoints(BaseEndpoints):
         )
 
     async def get_positions(self) -> Position:
-        """Get number of heat pump, heat circuit, solar circuit, hot water tank and external heat sources."""
+        """Get number of installed devices e.g. heat circuit, solar circuit, etc.
+
+        Returns
+        -------
+        tuple
+            A named tuple with the position information
+
+        """
         response: dict[str, list[Value]] = cast(
             "dict[str, list[Value]]",
             await self._read_data(
@@ -497,7 +515,14 @@ class SystemEndpoints(BaseEndpoints):
         return Position(**{k.replace("_numbers", ""): int(v[0]["value"]) for k, v in response.items()})
 
     async def get_info(self) -> dict[str, Any]:
-        """Get system information."""
+        """Get the system information.
+
+        Returns
+        -------
+        dict
+            A dictionary with system information
+
+        """
         response: Response = await self._post(
             endpoint=f"{EndpointPath.SW_UPDATE}?action=getSystemInstalled",
         )
@@ -505,7 +530,14 @@ class SystemEndpoints(BaseEndpoints):
         return response[0]
 
     async def get_hmi_info(self) -> dict[str, Any]:
-        """Get HMI information."""
+        """Get the Web HMI information.
+
+        Returns
+        -------
+        dict
+            A dictionary with Web HMI information
+
+        """
         response: Response = await self._post(
             endpoint=f"{EndpointPath.SW_UPDATE}?action=getHmiInstalled",
         )
@@ -513,7 +545,14 @@ class SystemEndpoints(BaseEndpoints):
         return response[0]
 
     async def get_device_info(self) -> dict[str, Any]:
-        """Get device information."""
+        """Get the control unit information.
+
+        Returns
+        -------
+        dict
+            A dictionary with control unit information
+
+        """
         response: Response = await self._post(
             endpoint=f"{EndpointPath.DEVICE_CONTROL}?action=getDeviceInfo",
         )
@@ -521,7 +560,14 @@ class SystemEndpoints(BaseEndpoints):
         return response[0]
 
     async def get_number_of_buffer_tanks(self) -> int:
-        """Get number of buffer tanks."""
+        """Get the number of buffer tanks.
+
+        Returns
+        -------
+        int
+            Number of installed buffer tanks
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=System.BUFFER_TANK_NUMBERS,
             extra_attributes=True,
@@ -529,7 +575,14 @@ class SystemEndpoints(BaseEndpoints):
         return self._get_int_value(response, section=System.BUFFER_TANK_NUMBERS)
 
     async def get_number_of_hot_water_tanks(self) -> int:
-        """Get number of hot water tanks."""
+        """Get the number of hot water tanks.
+
+        Returns
+        -------
+        int
+            Number of installed hot water tanks
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=System.HOT_WATER_TANK_NUMBERS,
             extra_attributes=True,
@@ -537,7 +590,14 @@ class SystemEndpoints(BaseEndpoints):
         return self._get_int_value(response, section=System.HOT_WATER_TANK_NUMBERS)
 
     async def get_number_of_heat_pumps(self) -> int:
-        """Get number of heat pumps."""
+        """Get the number of heat pumps.
+
+        Returns
+        -------
+        int
+            Number of installed heat pumps
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=System.HEAT_PUMP_NUMBERS,
             extra_attributes=True,
@@ -545,7 +605,14 @@ class SystemEndpoints(BaseEndpoints):
         return self._get_int_value(response, section=System.HEAT_PUMP_NUMBERS)
 
     async def get_number_of_heating_circuits(self) -> int:
-        """Get number of heating circuits."""
+        """Get the number of heating circuits.
+
+        Returns
+        -------
+        int
+            Number of installed heating circuits
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=System.HEAT_CIRCUIT_NUMBERS,
             extra_attributes=True,
@@ -553,7 +620,14 @@ class SystemEndpoints(BaseEndpoints):
         return self._get_int_value(response, section=System.HEAT_CIRCUIT_NUMBERS)
 
     async def get_number_of_external_heat_sources(self) -> int:
-        """Get number of external heat sources."""
+        """Get the number of external heat sources.
+
+        Returns
+        -------
+        int
+            Number of installed external heat sources
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=System.EXTERNAL_HEAT_SOURCE_NUMBERS,
             extra_attributes=True,
@@ -561,7 +635,14 @@ class SystemEndpoints(BaseEndpoints):
         return self._get_int_value(response, section=System.EXTERNAL_HEAT_SOURCE_NUMBERS)
 
     async def get_number_of_switch_valves(self) -> int:
-        """Get number of switch valves."""
+        """Get the number of switch valves.
+
+        Returns
+        -------
+        int
+            Number of installed switch valves
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=System.SWITCH_VALVES_NUMBERS,
             extra_attributes=True,
@@ -569,7 +650,19 @@ class SystemEndpoints(BaseEndpoints):
         return self._get_int_value(response, section=System.SWITCH_VALVES_NUMBERS)
 
     async def has_photovoltaics(self, *, human_readable: bool = True) -> int | str:
-        """Has photovoltaics."""
+        """Check if photovoltaics are available.
+
+        Parameters
+        ----------
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=System.HAS_PHOTOVOLTAICS,
             human_readable=human_readable,
@@ -578,7 +671,14 @@ class SystemEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=System.HAS_PHOTOVOLTAICS)
 
     async def get_outdoor_temperature(self) -> float:
-        """Get outdoor temperature."""
+        """Get the outdoor temperature.
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, Any] = await self._read_data(
             request=System.OUTDOOR_TEMPERATURE,
             extra_attributes=True,
@@ -586,7 +686,19 @@ class SystemEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=System.OUTDOOR_TEMPERATURE)
 
     async def get_operating_mode(self, *, human_readable: bool = True) -> int | str:
-        """Get system operating mode."""
+        """Get the operating mode from the system.
+
+        Parameters
+        ----------
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            -1(SETUP) / (0) STANDBY / (1) SUMMER / (2) AUTO_HEAT / (3) AUTO_COOL / (4) AUTO
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=System.OPERATING_MODE,
             human_readable=human_readable,
@@ -595,7 +707,14 @@ class SystemEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=System.OPERATING_MODE)
 
     async def set_operating_mode(self, mode: int | str) -> None:
-        """Set system operating mode."""
+        """Set the operating mode from the system.
+
+        Parameters
+        ----------
+        mode
+            Set the mode as integer or string (human-readable) e.g. 0 or STANDBY
+
+        """
         try:
             _mode: int | None = mode if isinstance(mode, int) else SystemOperatingMode[mode.upper()].value
         except KeyError as error:
@@ -605,7 +724,14 @@ class SystemEndpoints(BaseEndpoints):
         await self._write_values(request={System.OPERATING_MODE: _mode})
 
     async def get_cpu_usage(self) -> float:
-        """Get CPU usage in percent."""
+        """Get the CPU usage in percent.
+
+        Returns
+        -------
+        float
+            CPU usage in percent
+
+        """
         response: dict[str, Any] = await self._read_data(
             request=System.CPU_USAGE,
             extra_attributes=True,
@@ -613,7 +739,14 @@ class SystemEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=System.CPU_USAGE) / 10
 
     async def get_webview_cpu_usage(self) -> float:
-        """Get webview CPU usage in percent."""
+        """Get the webview CPU usage in percent.
+
+        Returns
+        -------
+        float
+            Webview CPU usage in percent
+
+        """
         response: dict[str, Any] = await self._read_data(
             request=System.WEBVIEW_CPU_USAGE,
             extra_attributes=True,
@@ -621,7 +754,14 @@ class SystemEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=System.WEBVIEW_CPU_USAGE) / 10
 
     async def get_webserver_cpu_usage(self) -> float:
-        """Get webserver CPU usage in percent."""
+        """Get the webserver CPU usage in percent.
+
+        Returns
+        -------
+        float
+            Webserver CPU usage in percent
+
+        """
         response: dict[str, Any] = await self._read_data(
             request=System.WEBSERVER_CPU_USAGE,
             extra_attributes=True,
@@ -629,7 +769,14 @@ class SystemEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=System.WEBSERVER_CPU_USAGE) / 10
 
     async def get_control_cpu_usage(self) -> float:
-        """Get control CPU usage in percent."""
+        """Get the control CPU usage in percent.
+
+        Returns
+        -------
+        float
+            Control CPU usage in percent
+
+        """
         response: dict[str, Any] = await self._read_data(
             request=System.CONTROL_CPU_USAGE,
             extra_attributes=True,
@@ -637,7 +784,14 @@ class SystemEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=System.CONTROL_CPU_USAGE) / 10
 
     async def get_ram_usage(self) -> int:
-        """Get RAM usage in kilobyte."""
+        """Get the RAM usage in kilobyte.
+
+        Returns
+        -------
+        int
+            RAM usage in kilobyte
+
+        """
         response: dict[str, Any] = await self._read_data(
             request=System.RAM_USAGE,
             extra_attributes=True,
@@ -645,7 +799,14 @@ class SystemEndpoints(BaseEndpoints):
         return self._get_int_value(response, section=System.RAM_USAGE)
 
     async def get_free_ram(self) -> int:
-        """Get free ram in kilobyte."""
+        """Get the free RAM in kilobyte.
+
+        Returns
+        -------
+        int
+            Free RAM in kilobyte.
+
+        """
         response: dict[str, Any] = await self._read_data(
             request=System.FREE_RAM,
             extra_attributes=True,
@@ -654,7 +815,20 @@ class SystemEndpoints(BaseEndpoints):
 
 
 class BufferTankEndpoints(BaseEndpoints):
-    """Class to send and retrieve the buffer tank data."""
+    """API Endpoints to send and retrieve the buffer tank data.
+
+    Examples
+    --------
+    >>> client = KebaKeEnergyAPI(
+    >>>     host="ap4400.local",
+    >>>     username="test",
+    >>>     password="test",
+    >>>     ssl=True,
+    >>>     skip_ssl_verification=True
+    >>> )
+    >>> client.buffer_tank.get_name()
+
+    """
 
     def __init__(
         self,
@@ -674,7 +848,19 @@ class BufferTankEndpoints(BaseEndpoints):
         )
 
     async def get_name(self, position: int = 1) -> str:
-        """Get buffer tank name."""
+        """Get the buffer tank name.
+
+        Parameters
+        ----------
+        position
+            The number of the buffer tanks
+
+        Returns
+        -------
+        string
+            Buffer tank name
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=BufferTank.NAME,
             position=position,
@@ -683,7 +869,19 @@ class BufferTankEndpoints(BaseEndpoints):
         return self._get_str_value(response, section=BufferTank.NAME, position=position)
 
     async def get_current_top_temperature(self, position: int = 1) -> float:
-        """Get current top temperature."""
+        """Get the current top temperature from the buffer tank.
+
+        Parameters
+        ----------
+        position
+            The number of the buffer tanks
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=BufferTank.CURRENT_TOP_TEMPERATURE,
             position=position,
@@ -692,7 +890,19 @@ class BufferTankEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=BufferTank.CURRENT_TOP_TEMPERATURE, position=position)
 
     async def get_current_bottom_temperature(self, position: int = 1) -> float:
-        """Get current bottom temperature."""
+        """Get the current bottom temperature from the buffer tank.
+
+        Parameters
+        ----------
+        position
+            The number of the buffer tanks
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=BufferTank.CURRENT_BOTTOM_TEMPERATURE,
             position=position,
@@ -701,7 +911,21 @@ class BufferTankEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=BufferTank.CURRENT_BOTTOM_TEMPERATURE, position=position)
 
     async def get_operating_mode(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get operating mode."""
+        """Get the operating mode from the buffer tank.
+
+        Parameters
+        ----------
+        position
+            The number of the buffer tanks
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON) / 2(HEAT_UP)
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=BufferTank.OPERATING_MODE,
             position=position,
@@ -711,7 +935,16 @@ class BufferTankEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=BufferTank.OPERATING_MODE, position=position)
 
     async def set_operating_mode(self, mode: int | str, position: int = 1) -> None:
-        """Set operating mode."""
+        """Set the operating mode from the buffer tank.
+
+        Parameters
+        ----------
+        mode
+            Set the mode as integer or string (human-readable) e.g. 0 or OFF
+        position
+            The number of the buffer tanks
+
+        """
         try:
             _mode: int | None = mode if isinstance(mode, int) else BufferTankOperatingMode[mode.upper()].value
         except KeyError as error:
@@ -723,7 +956,19 @@ class BufferTankEndpoints(BaseEndpoints):
         await self._write_values(request={BufferTank.OPERATING_MODE: modes})
 
     async def get_standby_temperature(self, position: int = 1) -> float:
-        """Get standby temperature."""
+        """Get the standby temperature from the buffer tank.
+
+        Parameters
+        ----------
+        position
+            The number of the buffer tanks
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=BufferTank.STANDBY_TEMPERATURE,
             position=position,
@@ -732,12 +977,33 @@ class BufferTankEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=BufferTank.STANDBY_TEMPERATURE, position=position)
 
     async def set_standby_temperature(self, temperature: int, position: int = 1) -> None:
-        """Set standby temperature."""
+        """Set standby temperature from the buffer tank.
+
+        Parameters
+        ----------
+        temperature
+            The standby temperature
+        position
+            The number of the buffer tanks
+
+        """
         temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
         await self._write_values(request={BufferTank.STANDBY_TEMPERATURE: temperatures})
 
     async def get_target_temperature(self, position: int = 1) -> float:
-        """Get target temperature."""
+        """Get target temperature from the buffer tank.
+
+        Parameters
+        ----------
+        position
+            The number of the buffer tanks
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=BufferTank.TARGET_TEMPERATURE,
             position=position,
@@ -746,7 +1012,21 @@ class BufferTankEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=BufferTank.TARGET_TEMPERATURE, position=position)
 
     async def get_heat_request(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get heat request."""
+        """Get the heat request state from the buffer tank.
+
+        Parameters
+        ----------
+        position
+            The number of the buffer tanks
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=BufferTank.HEAT_REQUEST,
             position=position,
@@ -756,7 +1036,21 @@ class BufferTankEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=BufferTank.HEAT_REQUEST, position=position)
 
     async def get_cool_request(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get cool request."""
+        """Get the cool request state from the buffer tank.
+
+        Parameters
+        ----------
+        position
+            The number of the buffer tanks
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=BufferTank.COOL_REQUEST,
             position=position,
@@ -767,7 +1061,20 @@ class BufferTankEndpoints(BaseEndpoints):
 
 
 class HotWaterTankEndpoints(BaseEndpoints):
-    """Class to send and retrieve the hot water tank data."""
+    """API Endpoints to send and retrieve the hot water tank data.
+
+    Examples
+    --------
+    >>> client = KebaKeEnergyAPI(
+    >>>     host="ap4400.local",
+    >>>     username="test",
+    >>>     password="test",
+    >>>     ssl=True,
+    >>>     skip_ssl_verification=True
+    >>> )
+    >>> client.hot_water_tank.get_name()
+
+    """
 
     def __init__(
         self,
@@ -787,7 +1094,19 @@ class HotWaterTankEndpoints(BaseEndpoints):
         )
 
     async def get_name(self, position: int = 1) -> str:
-        """Get hot water tank name."""
+        """Get the hot water tank name.
+
+        Parameters
+        ----------
+        position
+            The number of the hot water tanks
+
+        Returns
+        -------
+        string
+            Hot water tank name
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HotWaterTank.NAME,
             position=position,
@@ -796,7 +1115,19 @@ class HotWaterTankEndpoints(BaseEndpoints):
         return self._get_str_value(response, section=HotWaterTank.NAME, position=position)
 
     async def get_current_temperature(self, position: int = 1) -> float:
-        """Get current temperature."""
+        """Get the current temperature from the hot water tank.
+
+        Parameters
+        ----------
+        position
+            The number of the hot water tanks
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HotWaterTank.CURRENT_TEMPERATURE,
             position=position,
@@ -805,7 +1136,21 @@ class HotWaterTankEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=HotWaterTank.CURRENT_TEMPERATURE, position=position)
 
     async def get_operating_mode(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get operating mode."""
+        """Get the operating mode from the hot water tank.
+
+        Parameters
+        ----------
+        position
+            The number of the hot water tanks
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            (0) OFF / (1) AUTO / (2) ON / (3) HEAT_UP
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HotWaterTank.OPERATING_MODE,
             position=position,
@@ -815,7 +1160,16 @@ class HotWaterTankEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=HotWaterTank.OPERATING_MODE, position=position)
 
     async def set_operating_mode(self, mode: int | str, position: int = 1) -> None:
-        """Set operating mode."""
+        """Set the operating mode from the hot water tank.
+
+        Parameters
+        ----------
+        mode
+            Set the mode as integer or string (human-readable) e.g. 0 or OFF
+        position
+            The number of the hot water tanks
+
+        """
         try:
             _mode: int | None = mode if isinstance(mode, int) else HotWaterTankOperatingMode[mode.upper()].value
         except KeyError as error:
@@ -827,7 +1181,19 @@ class HotWaterTankEndpoints(BaseEndpoints):
         await self._write_values(request={HotWaterTank.OPERATING_MODE: modes})
 
     async def get_min_target_temperature(self, position: int = 1) -> int:
-        """Get min target temperature."""
+        """Get the minimum target temperature from the hot water tank.
+
+        Parameters
+        ----------
+        position
+            The number of the hot water tanks
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HotWaterTank.TARGET_TEMPERATURE,
             position=position,
@@ -841,7 +1207,19 @@ class HotWaterTankEndpoints(BaseEndpoints):
         )
 
     async def get_max_target_temperature(self, position: int = 1) -> int:
-        """Get max target temperature."""
+        """Get the maximum target temperature from the hot water tank.
+
+        Parameters
+        ----------
+        position
+            The number of the hot water tanks
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HotWaterTank.TARGET_TEMPERATURE,
             position=position,
@@ -855,7 +1233,19 @@ class HotWaterTankEndpoints(BaseEndpoints):
         )
 
     async def get_standby_temperature(self, position: int = 1) -> float:
-        """Get standby temperature."""
+        """Get the standby temperature from the hot water tank.
+
+        Parameters
+        ----------
+        position
+            The number of the hot water tanks
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HotWaterTank.STANDBY_TEMPERATURE,
             position=position,
@@ -864,12 +1254,33 @@ class HotWaterTankEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=HotWaterTank.STANDBY_TEMPERATURE, position=position)
 
     async def set_standby_temperature(self, temperature: int, position: int = 1) -> None:
-        """Set standby temperature."""
+        """Set standby temperature from the hot water tank.
+
+        Parameters
+        ----------
+        temperature
+            The standby temperature
+        position
+            The number of the hot water tanks
+
+        """
         temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
         await self._write_values(request={HotWaterTank.STANDBY_TEMPERATURE: temperatures})
 
     async def get_target_temperature(self, position: int = 1) -> float:
-        """Get target temperature."""
+        """Get the target temperature from the hot water tank.
+
+        Parameters
+        ----------
+        position
+            The number of the hot water tanks
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HotWaterTank.TARGET_TEMPERATURE,
             position=position,
@@ -878,12 +1289,35 @@ class HotWaterTankEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=HotWaterTank.TARGET_TEMPERATURE, position=position)
 
     async def set_target_temperature(self, temperature: int, position: int = 1) -> None:
-        """Set target temperature."""
+        """Set target temperature from the hot water tank.
+
+        Parameters
+        ----------
+        temperature
+            The target temperature
+        position
+            The number of the hot water tanks
+
+        """
         temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
         await self._write_values(request={HotWaterTank.TARGET_TEMPERATURE: temperatures})
 
     async def get_heat_request(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get heat request."""
+        """Get the heat request state from the hot water tank.
+
+        Parameters
+        ----------
+        position
+            The number of the hot water tanks
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HotWaterTank.HEAT_REQUEST,
             position=position,
@@ -893,7 +1327,21 @@ class HotWaterTankEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=HotWaterTank.HEAT_REQUEST, position=position)
 
     async def get_hot_water_flow(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get hot water flow."""
+        """Get the hot water flow from the fresh water module.
+
+        Parameters
+        ----------
+        position
+            The number of the hot water tanks
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HotWaterTank.HOT_WATER_FLOW,
             position=position,
@@ -903,7 +1351,19 @@ class HotWaterTankEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=HotWaterTank.HOT_WATER_FLOW, position=position)
 
     async def get_fresh_water_module_temperature(self, position: int = 1) -> float:
-        """Get fresh water module temperature."""
+        """Get the fresh water module temperature.
+
+        Parameters
+        ----------
+        position
+            The number of the hot water tanks
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HotWaterTank.FRESH_WATER_MODULE_TEMPERATURE,
             position=position,
@@ -912,7 +1372,19 @@ class HotWaterTankEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=HotWaterTank.FRESH_WATER_MODULE_TEMPERATURE, position=position)
 
     async def get_fresh_water_module_pump_speed(self, position: int = 1) -> float:
-        """Get fresh water module pump speed in percent."""
+        """Get the fresh water module pump speed in percent.
+
+        Parameters
+        ----------
+        position
+            The number of the hot water tanks
+
+        Returns
+        -------
+        float
+            Fresh water module pump seed in percent
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HotWaterTank.FRESH_WATER_MODULE_PUMP_SPEED,
             position=position,
@@ -922,7 +1394,20 @@ class HotWaterTankEndpoints(BaseEndpoints):
 
 
 class HeatPumpEndpoints(BaseEndpoints):
-    """Class to retrieve the heat pump data."""
+    """API Endpoints to send and retrieve the heat pump data.
+
+    Examples
+    --------
+    >>> client = KebaKeEnergyAPI(
+    >>>     host="ap4400.local",
+    >>>     username="test",
+    >>>     password="test",
+    >>>     ssl=True,
+    >>>     skip_ssl_verification=True
+    >>> )
+    >>> client.heat_pump.get_name()
+
+    """
 
     def __init__(
         self,
@@ -942,7 +1427,19 @@ class HeatPumpEndpoints(BaseEndpoints):
         )
 
     async def get_name(self, position: int = 1) -> str:
-        """Get heat pump name."""
+        """Get the heat pump name.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+
+        Returns
+        -------
+        string
+            Heat pum tank name
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HeatPump.NAME,
             position=position,
@@ -951,7 +1448,22 @@ class HeatPumpEndpoints(BaseEndpoints):
         return self._get_str_value(response, section=HeatPump.NAME, position=position)
 
     async def get_state(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get heat pump state."""
+        """Get the heat pump state.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            (0) STANDBY / (1) FLOW / (2) AUTO_HEAT / (3) DEFROST / (4) AUTO_COOL / (5) INFLOW / (6) PUMP_DOWN /
+            (7) SHUTDOWN / (8) ERROR
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HeatPump.STATE,
             position=position,
@@ -961,7 +1473,27 @@ class HeatPumpEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=HeatPump.STATE, position=position)
 
     async def get_substate(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get heat pump state."""
+        """Get the heat pump substate.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            (0) NONE /(1) OIL_PREHEATING / (2, 3) PUMP_PRE_RUN / (4) RANDOM_DELAY / (5, 21, 22) PRESSURE_EQUALIZATION
+            (6) DEFROST_PRE_FLOW / (7) DEFROST_MONITORING / (8) SNOW_DETECTION / (9) FLUSHING /
+            (10) DEFROST_INITIALIZATION / (11) PREHEAT_FLOW / (12) DEFROST / (13, 25) DRIP / (14) DEFROST_END /
+            (15, 16) OPEN / (17) COMPRESSOR_POST_RUN / (18) PUMP_POST_RUN / (19) LUBRICATION_PULSE /
+            (20, 26) / REDUCED_SPEED / (23) COMPRESSOR_DELAY / (24) DEFROST_VENTING / (27) SWITCH_HEATING_COOLING /
+            (28, 33) / WAIT_FOR_COMPRESSOR / (29) COMPRESSOR_STOP / (30) BIVALENT_LOCK / (31) LOCKED /
+            (32) RETURN_FLOW_OFF / (34) MIXER_OPEN / (35) ZONE_VALVE / (36) ELECTRIC_DEFROST / (37) COUNTERFLOW_VALVE
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HeatPump.SUBSTATE,
             position=position,
@@ -971,7 +1503,21 @@ class HeatPumpEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=HeatPump.SUBSTATE, position=position)
 
     async def get_operating_mode(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get operating mode."""
+        """Get the operating mode from the heat pump.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            (0) OFF / (1) ON / (2) BACKUP
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HeatPump.OPERATING_MODE,
             position=position,
@@ -981,7 +1527,16 @@ class HeatPumpEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=HeatPump.OPERATING_MODE, position=position)
 
     async def set_operating_mode(self, mode: int | str, position: int = 1) -> None:
-        """Set operating mode."""
+        """Set the operating mode from the heat pump.
+
+        Parameters
+        ----------
+        mode
+            Set the mode as integer or string (human-readable) e.g. 0 or OFF
+        position
+            The number of the heat pumps
+
+        """
         try:
             _mode: int | None = mode if isinstance(mode, int) else HeatPumpOperatingMode[mode.upper()].value
         except KeyError as error:
@@ -998,7 +1553,21 @@ class HeatPumpEndpoints(BaseEndpoints):
         *,
         human_readable: bool = True,
     ) -> int | str:
-        """Get compressor use night speed."""
+        """Get the compressor use night speed state.
+
+        Parameters
+        ----------
+        position
+            The number of the hot water tanks
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            (0) OFF / (1) ON
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HeatPump.COMPRESSOR_USE_NIGHT_SPEED,
             position=position,
@@ -1008,7 +1577,16 @@ class HeatPumpEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=HeatPump.COMPRESSOR_USE_NIGHT_SPEED, position=position)
 
     async def set_compressor_use_night_speed(self, mode: int | str, position: int = 1) -> None:
-        """Set compressor use night speed."""
+        """Set the compressor use night speed.
+
+        Parameters
+        ----------
+        mode
+            Set the mode as integer or string (human-readable) e.g. 0 or OFF
+        position
+            The number of the heat pumps
+
+        """
         try:
             _mode: int | None = mode if isinstance(mode, int) else HeatPumpCompressorUseNightSpeed[mode.upper()].value
         except KeyError as error:
@@ -1027,7 +1605,21 @@ class HeatPumpEndpoints(BaseEndpoints):
         *,
         human_readable: bool = True,
     ) -> float:
-        """Get compressor night speed."""
+        """Get the compressor night speed in percent.
+
+        Parameters
+        ----------
+        position
+            The number of the hot water tanks
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        float
+            Compressor night speed in percent
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HeatPump.COMPRESSOR_NIGHT_SPEED,
             position=position,
@@ -1037,12 +1629,33 @@ class HeatPumpEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=HeatPump.COMPRESSOR_NIGHT_SPEED, position=position)
 
     async def set_compressor_night_speed(self, speed: float, position: int = 1) -> None:
-        """Set compressor night speed."""
+        """Set the compressor night speed.
+
+        Parameters
+        ----------
+        speed
+            Set the speed
+        position
+            The number of the heat pumps
+
+        """
         speeds: list[float | None] = [speed if position == p else None for p in range(1, position + 1)]
         await self._write_values(request={HeatPump.COMPRESSOR_NIGHT_SPEED: speeds})
 
     async def get_min_compressor_night_speed(self, position: int = 1) -> float:
-        """Get min compressor night speed."""
+        """Get minimum compressor night speed in percent.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+
+        Returns
+        -------
+        float
+            Minimum compressor night speed in percent
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HeatPump.COMPRESSOR_NIGHT_SPEED,
             position=position,
@@ -1056,7 +1669,19 @@ class HeatPumpEndpoints(BaseEndpoints):
         )
 
     async def get_max_compressor_night_speed(self, position: int = 1) -> float:
-        """Get max compressor night speed."""
+        """Get maximum compressor night speed in percent.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+
+        Returns
+        -------
+        float
+            Maximum compressor night speed in percent
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HeatPump.COMPRESSOR_NIGHT_SPEED,
             position=position,
@@ -1070,7 +1695,19 @@ class HeatPumpEndpoints(BaseEndpoints):
         )
 
     async def get_circulation_pump_speed(self, position: int = 1) -> float:
-        """Get circulation pump speed in percent."""
+        """Get circulation pump speed in percent.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+
+        Returns
+        -------
+        float
+            Circulation pump speed in percent
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HeatPump.CIRCULATION_PUMP,
             position=position,
@@ -1079,7 +1716,19 @@ class HeatPumpEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=HeatPump.CIRCULATION_PUMP, position=position)
 
     async def get_source_pump_speed(self, position: int = 1) -> float:
-        """Get source pump speed in percent."""
+        """Get source pump speed in percent.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+
+        Returns
+        -------
+        float
+            Source pump speed in percent
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HeatPump.SOURCE_PUMP_SPEED,
             position=position,

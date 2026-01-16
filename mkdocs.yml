@@ -1,0 +1,87 @@
+site_name: superbox | KEBA KeEnergy API
+site_url: https://docs.superbox.one
+site_author: Michael Hacker
+site_description: A Python wrapper for the KEBA KeEnergy API used by the Web HMI.
+repo_url: https://github.com/superbox-dev/keba_keenergy_api
+repo_name: GitHub
+theme:
+  name: material
+  favicon: assets/favicon.ico
+  logo: assets/logo.png
+  features:
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.path
+    - navigation.indexes
+    - toc.follow
+    - navigation.top
+extra_css:
+  - stylesheets/extra.css
+nav:
+  - Home: index.md
+  - Documentation:
+      - api.md
+      - Endpoints:
+          - endpoints_system.md
+          - endpoints_buffer_tank.md
+          - endpoints_hot_water_tank.md
+          - endpoints_heat_pump.md
+          - endpoints_heat_circuit.md
+          - endpoints_solar_circuit.md
+          - endpoints_external_heat_source.md
+          - endpoints_switch_valve.md
+          - endpoints_photovoltaic.md
+  - Changelog: changelog.md
+  - Donation: donation.md
+  - Contributing: contributing.md
+  - Issues: https://github.com/superbox-dev/keba_keenergy_api/issues
+markdown_extensions:
+  - smarty
+  - toc:
+      permalink: true
+  - sane_lists
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
+plugins:
+  - search
+  - include-markdown
+  - mkdocstrings:
+      default_handler: python
+      locale: en
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+            docstring_section_style: spacy
+            docstring_options:
+              ignore_init_summary: True
+            merge_init_into_class: True
+            members_order: source
+            show_source: False
+            show_bases: False
+            filters:
+              - "!system"
+              - "!buffer_tank"
+              - "!hot_water_tank"
+              - "!heat_pump"
+              - "!heat_circuit"
+              - "!solar_circuit"
+              - "!external_heat_source"
+              - "!switch_valve"
+              - "!photovoltaics"
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/mh-superbox
+    - icon: fontawesome/brands/discord
+      link: https://discord.com/users/superbox_dev
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/user/superbox-dev/
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn

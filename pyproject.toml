@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "keba_keenergy_api"
-description = "A Python wrapper for the KEBA KeEnergy API."
+description = "A Python wrapper for the KEBA KeEnergy API used by the Web HMI."
 readme = "README.md"
 authors = [
     { name = "Michael Hacker", email = "mh@superbox.one" },
@@ -42,6 +42,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: 3 :: Only",
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries",
@@ -74,8 +75,12 @@ build = [
 ]
 docs = [
     "mkdocs>=1.6.1",
+    "mkdocs-include-markdown-plugin>=7.2.0",
+    "mkdocs-material>=9.7.1",
+    "mkdocstrings[python]>=1.0.0",
 ]
 lint = [
+    "black>=25.12.0",
     "mypy>=1.17.1",
     "ruff>=0.12.9",
     "rumdl>=0.0.120",

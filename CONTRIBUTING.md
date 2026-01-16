@@ -1,4 +1,8 @@
-# Contribution guidelines
+# Contributing
+
+<!--start-contributing-->
+
+## Guidelines
 
 Contributing to this project should be as easy and transparent as possible, whether it's:
 
@@ -7,9 +11,9 @@ Contributing to this project should be as easy and transparent as possible, whet
 - Submitting a fix
 - Proposing new features
 
-## Github is used for everything
+## GitHub is used for everything
 
-Github is used to host code, to track issues and feature requests, as well as accept pull requests.
+GitHub is used to host code, to track issues and feature requests, as well as accept pull requests.
 
 Pull requests are the best way to propose changes to the codebase.
 
@@ -47,7 +51,7 @@ it's that easy!
 - A quick summary and/or background
 - Steps to reproduce
   - Be specific!
-  - Give sample code if you can.
+  - Give sample code if you can
 - What you expected would happen
 - What actually happens
 - Notes (possibly including why you think this might be happening, or stuff you tried that didn't work)
@@ -72,4 +76,6 @@ uv run pytest -n auto
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under its [Apache License](LICENSE).
+By contributing, you agree that your contributions will be licensed under its [Apache License](https://github.com/superbox-dev/keba_keenergy_api/blob/main/LICENSE).
+
+<!--end-contributing-->

@@ -1,5 +1,3 @@
-"""Client to interact with KEBA KeEnergy API."""
-
 import json
 from typing import Any
 
@@ -26,7 +24,7 @@ from keba_keenergy_api.endpoints import ValueResponse
 
 
 class KebaKeEnergyAPI(BaseEndpoints):
-    """Client to interact with KEBA KeEnergy API."""
+    """An asynchronous client to interact with KEBA KeEnergy API from the Web HMI."""
 
     def __init__(
         self,
@@ -38,7 +36,34 @@ class KebaKeEnergyAPI(BaseEndpoints):
         skip_ssl_verification: bool = False,
         session: ClientSession | None = None,
     ) -> None:
-        """Initialize with Client Session and host."""
+        """Initialize API with host and optionally authentication credentials.
+
+        Parameters
+        ----------
+        host
+            The hostname or IP adress e.g. ap4400.local
+        username
+            Required for basic auth
+        password
+            Required for basic auth
+        ssl
+            Enable https schema for API URLs
+        skip_ssl_verification
+            Disable SSL verification (required for self-signed certificates)
+        session
+            Add an aiohttp client session
+
+        Examples
+        --------
+        >>> client = KebaKeEnergyAPI(
+        >>>     host="ap4400.local",
+        >>>     username="test",
+        >>>     password="test",
+        >>>     ssl=True,
+        >>>     skip_ssl_verification=True
+        >>> )
+
+        """
         self.host: str = host
         self.schema: str = "https" if ssl else "http"
 
@@ -61,12 +86,19 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
     @property
     def device_url(self) -> str:
-        """Get device url."""
+        """Get the device URL.
+
+        Returns
+        -------
+        str
+            e.g. https://ap4400.local
+
+        """
         return f"{self.schema}://{self.host}"
 
     @property
     def system(self) -> SystemEndpoints:
-        """Get system endpoints."""
+        """Get the system endpoints."""
         return SystemEndpoints(
             base_url=self.device_url,
             auth=self.auth,
@@ -214,7 +246,34 @@ class KebaKeEnergyAPI(BaseEndpoints):
         human_readable: bool = True,
         extra_attributes: bool = True,
     ) -> dict[str, ValueResponse]:
-        """Read multiple data from API with one request."""
+        """Read multiple data from API with one request.
+
+        Parameters
+        ----------
+        request
+            Section or a list of sections e.g. [BufferTank.NAME, ...]
+        position
+            The number of the installed devices e.g. number of buffer tanks
+        human_readable
+            Return a human-readable string
+        extra_attributes
+            Append the extra attributes to the response
+
+        Examples
+        --------
+        >>> await client.read_data(
+        >>>     request=[
+        >>>         HeatCircuit.TARGET_TEMPERATURE,
+        >>>         HeatCircuit.TARGET_TEMPERATURE_DAY
+        >>>     ]
+        >>> )
+
+        Returns
+        -------
+        dictionary
+            A dictionary with section as key and reponse data as value
+
+        """
         if position is None:
             position = await self.system.get_positions()
 
@@ -228,7 +287,23 @@ class KebaKeEnergyAPI(BaseEndpoints):
         return self._group_data(response)
 
     async def write_data(self, request: dict[Section, Any]) -> None:
-        """Write multiple data to API with one request."""
+        """Write multiple data to API with one request.
+
+        Parameters
+        ----------
+        request
+            A dictionary with section as key and value to set as a tuple (first index is position 1)
+
+        Examples
+        --------
+        >>> await client.write_data(
+        >>>     request={
+        >>>        HeatCircuit.TARGET_TEMPERATURE_DAY: (20, None, 5),
+        >>>        HeatCircuit.TARGET_TEMPERATURE_NIGHT: (16,),
+        >>>     }
+        >>> )
+
+        """
         await self._write_values(request=request)
 
     async def filter_request(
@@ -236,7 +311,30 @@ class KebaKeEnergyAPI(BaseEndpoints):
         request: Section | list[Section],
         position: Position | int | list[int] | None = None,
     ) -> list[Section]:
-        """Return only valid requests."""
+        """Return only available section that are supported by the Web HMI software version.
+
+        Parameters
+        ----------
+        request
+            Section or a list of sections e.g. [BufferTank.NAME, ...]
+        position
+            The number of the installed devices e.g. number of buffer tanks
+
+        Returns
+        -------
+        request
+            A list of sections e.g. [BufferTank.NAME, ...]
+
+        Examples
+        --------
+        >>> data = await client.filter_request(
+        >>>     request=[
+        >>>         HeatCircuit.TARGET_TEMPERATURE,
+        >>>         HeatCircuit.TARGET_TEMPERATURE_DAY
+        >>>     ]
+        >>> )
+
+        """
         if position is None:
             position = await self.system.get_positions()
 

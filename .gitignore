@@ -27,3 +27,6 @@ reports/
 build/
 dist/
 keba_keenergy_api/version.py
+
+# site
+site/
