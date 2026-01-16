@@ -2327,7 +2327,20 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
 
 class SolarCircuitEndpoints(BaseEndpoints):
-    """Class to send and retrieve the solar circuit data."""
+    """API Endpoints to retrieve the solar circuit data.
+
+    Examples
+    --------
+    >>> client = KebaKeEnergyAPI(
+    >>>     host="ap4400.local",
+    >>>     username="test",
+    >>>     password="test",
+    >>>     ssl=True,
+    >>>     skip_ssl_verification=True
+    >>> )
+    >>> client.solar_circuit.get_name()
+
+    """
 
     def __init__(
         self,
@@ -2347,7 +2360,19 @@ class SolarCircuitEndpoints(BaseEndpoints):
         )
 
     async def get_name(self, position: int = 1) -> str:
-        """Get solar circuit name."""
+        """Get the solar circuit name.
+
+        Parameters
+        ----------
+        position
+            The number of the solar circuits
+
+        Returns
+        -------
+        string
+            Solar circuit name
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SolarCircuit.NAME,
             position=position,
@@ -2356,7 +2381,21 @@ class SolarCircuitEndpoints(BaseEndpoints):
         return self._get_str_value(response, section=SolarCircuit.NAME, position=position)
 
     async def get_operating_mode(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get operating mode."""
+        """Get the operating mode from the solar circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the solar circuits
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SolarCircuit.OPERATING_MODE,
             position=position,
@@ -2366,7 +2405,16 @@ class SolarCircuitEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=SolarCircuit.OPERATING_MODE, position=position)
 
     async def set_operating_mode(self, mode: int | str, position: int = 1) -> None:
-        """Set operating mode."""
+        """Set the operating mode from the solar circuit.
+
+        Parameters
+        ----------
+        mode
+            Set the mode as integer or string (human-readable) e.g. 0 or OFF
+        position
+            The number of the solar circuits
+
+        """
         try:
             _mode: int | None = mode if isinstance(mode, int) else SolarCircuitOperatingMode[mode.upper()].value
         except KeyError as error:
@@ -2378,7 +2426,21 @@ class SolarCircuitEndpoints(BaseEndpoints):
         await self._write_values(request={SolarCircuit.OPERATING_MODE: modes})
 
     async def get_priority_1_before_2(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get priority 1 before 2."""
+        """Get priority 1 before 2 for the pumps from the solar circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the solar circuits
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SolarCircuit.PRIORITY_1_BEFORE_2,
             position=position,
@@ -2388,7 +2450,16 @@ class SolarCircuitEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=SolarCircuit.PRIORITY_1_BEFORE_2, position=position)
 
     async def set_priority_1_before_2(self, mode: int | str, position: int = 1) -> None:
-        """Set priority 1 before 2."""
+        """Set priority 1 before 2 for the pumps from the solar circuit.
+
+        Parameters
+        ----------
+        mode
+            Set the mode as integer or string (human-readable) e.g. 0 or OFF
+        position
+            The number of the solar circuits
+
+        """
         try:
             _mode: int | None = mode if isinstance(mode, int) else SolarCircuitOperatingMode[mode.upper()].value
         except KeyError as error:
@@ -2404,7 +2475,19 @@ class SolarCircuitEndpoints(BaseEndpoints):
         )
 
     async def get_source_temperature(self, position: int = 1) -> float:
-        """Get source temperature."""
+        """Get source temperature from the solar circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the solar circuits
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SolarCircuit.SOURCE_TEMPERATURE,
             position=position,
@@ -2413,7 +2496,19 @@ class SolarCircuitEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=SolarCircuit.SOURCE_TEMPERATURE, position=position)
 
     async def get_pump_1_speed(self, position: int = 1) -> float:
-        """Get pump 1 speed."""
+        """Get pump 1 speed in percent.
+
+        Parameters
+        ----------
+        position
+            The number of the solar circuits
+
+        Returns
+        -------
+        float
+            Pump 1 speed in percent
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SolarCircuit.PUMP_1,
             position=position,
@@ -2422,7 +2517,19 @@ class SolarCircuitEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=SolarCircuit.PUMP_1, position=position)
 
     async def get_pump_2_speed(self, position: int = 1) -> float:
-        """Get pump 2 speed."""
+        """Get pump 2 speed in percent.
+
+        Parameters
+        ----------
+        position
+            The number of the solar circuits
+
+        Returns
+        -------
+        float
+            Pump 2 speed in percent
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SolarCircuit.PUMP_2,
             position=position,
@@ -2431,7 +2538,19 @@ class SolarCircuitEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=SolarCircuit.PUMP_2, position=position)
 
     async def get_current_temperature_1(self, position: int = 1) -> float:
-        """Get current temperature 1."""
+        """Get current temperature 1 from the solar circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the solar circuits
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SolarCircuit.CURRENT_TEMPERATURE,
             position=position,
@@ -2440,7 +2559,19 @@ class SolarCircuitEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=SolarCircuit.CURRENT_TEMPERATURE, position=position, index=0)
 
     async def get_current_temperature_2(self, position: int = 1) -> float:
-        """Get current temperature 2."""
+        """Get current temperature 2 from the solar circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the solar circuits
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SolarCircuit.CURRENT_TEMPERATURE,
             position=position,
@@ -2449,7 +2580,19 @@ class SolarCircuitEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=SolarCircuit.CURRENT_TEMPERATURE, position=position, index=1)
 
     async def get_target_temperature_1(self, position: int = 1) -> float:
-        """Get target temperature 1."""
+        """Get target temperature 1 from the solar circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the solar circuits
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SolarCircuit.TARGET_TEMPERATURE,
             position=position,
@@ -2458,7 +2601,16 @@ class SolarCircuitEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=SolarCircuit.TARGET_TEMPERATURE, position=position, index=0)
 
     async def set_target_temperature_1(self, temperature: int, position: int = 1) -> None:
-        """Set target temperature 1."""
+        """Set target temperature 1 from the solar circuit.
+
+        Parameters
+        ----------
+        temperature
+            Set the mode as integer or string (human-readable) e.g. 0 or OFF
+        position
+            The number of the solar circuits
+
+        """
         temperatures: list[float | None] = [
             temperature if SolarCircuit.TARGET_TEMPERATURE.value.quantity * position - 1 == p else None
             for p in range(1, SolarCircuit.TARGET_TEMPERATURE.value.quantity * position + 1)
@@ -2466,7 +2618,19 @@ class SolarCircuitEndpoints(BaseEndpoints):
         await self._write_values(request={SolarCircuit.TARGET_TEMPERATURE: temperatures})
 
     async def get_target_temperature_2(self, position: int = 1) -> float:
-        """Get target temperature 2."""
+        """Get target temperature 2 from the solar circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the solar circuits
+
+        Returns
+        -------
+        float
+            Temperature
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SolarCircuit.TARGET_TEMPERATURE,
             position=position,
@@ -2475,7 +2639,16 @@ class SolarCircuitEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=SolarCircuit.TARGET_TEMPERATURE, position=position, index=1)
 
     async def set_target_temperature_2(self, temperature: int, position: int = 1) -> None:
-        """Set target temperature 2."""
+        """Set target temperature 2 from the solar circuit.
+
+        Parameters
+        ----------
+        temperature
+            Set the mode as integer or string (human-readable) e.g. 0 or OFF
+        position
+            The number of the solar circuits
+
+        """
         temperatures: list[float | None] = [
             temperature if SolarCircuit.TARGET_TEMPERATURE.value.quantity * position == p else None
             for p in range(1, SolarCircuit.TARGET_TEMPERATURE.value.quantity * position + 1)
@@ -2483,7 +2656,21 @@ class SolarCircuitEndpoints(BaseEndpoints):
         await self._write_values(request={SolarCircuit.TARGET_TEMPERATURE: temperatures})
 
     async def get_heat_request_1(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get heat request 1."""
+        """Get the heat request 1 state from the solar circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the external solar circuits
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SolarCircuit.HEAT_REQUEST,
             position=position,
@@ -2493,7 +2680,21 @@ class SolarCircuitEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=SolarCircuit.HEAT_REQUEST, position=position, index=0)
 
     async def get_heat_request_2(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get heat request 2."""
+        """Get the heat request 2 state from the solar circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the external solar circuits
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SolarCircuit.HEAT_REQUEST,
             position=position,
@@ -2503,7 +2704,19 @@ class SolarCircuitEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=SolarCircuit.HEAT_REQUEST, position=position, index=1)
 
     async def get_heating_energy(self, position: int = 1) -> float:
-        """Get heating energy in kWh."""
+        """Get heating energy in kWh from the solar circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the solar circuits
+
+        Returns
+        -------
+        float
+            Heating energy in kWh
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SolarCircuit.HEATING_ENERGY,
             position=position,
@@ -2512,7 +2725,19 @@ class SolarCircuitEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=SolarCircuit.HEATING_ENERGY, position=position)
 
     async def get_daily_energy(self, position: int = 1) -> float:
-        """Get daily energy in kWh."""
+        """Get daily energy in kWh from the solar circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the solar circuits
+
+        Returns
+        -------
+        float
+            Daily energy in kWh
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SolarCircuit.DAILY_ENERGY,
             position=position,
@@ -2521,7 +2746,19 @@ class SolarCircuitEndpoints(BaseEndpoints):
         return self._get_float_value(response, section=SolarCircuit.DAILY_ENERGY)
 
     async def get_actual_power(self, position: int = 1) -> float:
-        """Get actual power in W."""
+        """Get actual power in W from the solar circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the solar circuits
+
+        Returns
+        -------
+        float
+            Actual power in W
+
+        """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=SolarCircuit.ACTUAL_POWER,
             position=position,
@@ -2531,7 +2768,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
 
 
 class ExternalHeatSourceEndpoints(BaseEndpoints):
-    """API Endpoints to retrieve the external heat sources data.
+    """API Endpoints to retrieve the external heat source data.
 
     Examples
     --------
@@ -2720,7 +2957,7 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
 
 
 class SwitchValveEndpoints(BaseEndpoints):
-    """API Endpoints to retrieve the switch valves data.
+    """API Endpoints to retrieve the switch valve data.
 
     Examples
     --------
@@ -2778,7 +3015,7 @@ class SwitchValveEndpoints(BaseEndpoints):
 
 
 class PhotovoltaicsEndpoints(BaseEndpoints):
-    """API Endpoints to retrieve the photovoltaics data.
+    """API Endpoints to retrieve the photovoltaic data.
 
     Examples
     --------
