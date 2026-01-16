@@ -6,7 +6,7 @@ hide:
 # Changelog
 
 {%
-    include-markdown "../../CHANGELOG.md"
+    include-markdown "../../../CHANGELOG.md"
     start="<!--start-->"
     end="<!--end-->"
 %}
