@@ -40,7 +40,7 @@ nav:
 markdown_extensions:
   - smarty
   - toc:
-      permalink: true
+      permalink: True
   - sane_lists
   - admonition
   - pymdownx.highlight
@@ -63,15 +63,15 @@ plugins:
             show_source: False
             show_bases: False
             filters:
-              - "!system"
-              - "!buffer_tank"
-              - "!hot_water_tank"
-              - "!heat_pump"
-              - "!heat_circuit"
-              - "!solar_circuit"
-              - "!external_heat_source"
-              - "!switch_valve"
-              - "!photovoltaics"
+              - '!system'
+              - '!buffer_tank'
+              - '!hot_water_tank'
+              - '!heat_pump'
+              - '!heat_circuit'
+              - '!solar_circuit'
+              - '!external_heat_source'
+              - '!switch_valve'
+              - '!photovoltaics'
 extra:
   social:
     - icon: fontawesome/brands/github
