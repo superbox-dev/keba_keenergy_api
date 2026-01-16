@@ -33,10 +33,9 @@ nav:
           - keba-keenergy/api/endpoints/external-heat-source.md
           - keba-keenergy/api/endpoints/switch-valve.md
           - keba-keenergy/api/endpoints/photovoltaic.md
-  - Project:
-      - Changelog: keba-keenergy/api/changelog.md
-      - Contributing: keba-keenergy/api/contributing.md
-      - Issues: https://github.com/superbox-dev/keba_keenergy_api/issues
+  - Changelog: keba-keenergy/api/changelog.md
+  - Contributing: keba-keenergy/api/contributing.md
+  - Issues: https://github.com/superbox-dev/keba_keenergy_api/issues
   - Donation: donation.md
   - Home Assistant: https://superbox.one
 markdown_extensions:
