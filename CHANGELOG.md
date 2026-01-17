@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.7.0] - 2026-01-16
+<!--start-->
+
+## [2.7.0] - 2026-01-17
 
 ### Added
 
@@ -26,8 +28,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Rename heat circuit endpoint `get_flow_temperature()` to `get_mixer_flow_temperature()`
-
-<!--start-->
 
 ## [2.6.0] - 2026-01-11
 

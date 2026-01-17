@@ -861,6 +861,7 @@ class SectionPrefix(str, Enum):
     HEAT_CIRCUIT = "heat_circuit"
     SOLAR_CIRCUIT = "solar_circuit"
     EXTERNAL_HEAT_SOURCE = "external_heat_source"
+    SWITCH_VALVE = "switch_valve"
     PHOTOVOLTAIC = "photovoltaic"
 
 

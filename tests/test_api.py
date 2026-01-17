@@ -15,6 +15,7 @@ from keba_keenergy_api.constants import HotWaterTank
 from keba_keenergy_api.constants import Photovoltaic
 from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import SolarCircuit
+from keba_keenergy_api.constants import SwitchValve
 from keba_keenergy_api.constants import System
 from keba_keenergy_api.endpoints import ValueResponse
 from keba_keenergy_api.error import APIError
@@ -223,6 +224,7 @@ class TestKebaKeEnergyAPI:
                     "heat_pump": {},
                     "heat_circuit": {},
                     "solar_circuit": {},
+                    "switch_valve": {},
                     "external_heat_source": {
                         "target_temperature": [
                             {
@@ -305,6 +307,7 @@ class TestKebaKeEnergyAPI:
                         ],
                     },
                     "solar_circuit": {},
+                    "switch_valve": {},
                     "external_heat_source": {},
                     "photovoltaic": {},
                 },
@@ -315,6 +318,7 @@ class TestKebaKeEnergyAPI:
                     HeatCircuit.TARGET_TEMPERATURE,
                     HeatPump.FLOW_TEMPERATURE,
                     ExternalHeatSource.TARGET_TEMPERATURE,
+                    SwitchValve.POSITION,
                 ],
                 None,
                 [
@@ -440,14 +444,26 @@ class TestKebaKeEnergyAPI:
                             "longText": "Inflow temp.",
                             "unitId": "Temp",
                         },
-                        "value": "23.200001",
+                        "value": "23.2",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.switchvalve[0].values.actPosition",
+                        "attributes": {
+                            "formatId": "fmtSwitchValveStateV1",
+                            "longText": "Valve pos.",
+                            "unitId": "Enum",
+                            "upperLimit": "2",
+                            "lowerLimit": "0",
+                        },
+                        "value": "1",
                     },
                 ],
                 (
                     '[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "attr": "1"}, '
                     '{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.setValue", "attr": "1"}, '
                     '{"name": "APPL.CtrlAppl.sParam.heatpump[0].TempHeatFlow.values.actValue", "attr": "1"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.heatpump[1].TempHeatFlow.values.actValue", "attr": "1"}]'
+                    '{"name": "APPL.CtrlAppl.sParam.heatpump[1].TempHeatFlow.values.actValue", "attr": "1"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.switchvalve[0].values.actPosition", "attr": "1"}]'
                 ),
                 {
                     "system": {
@@ -459,14 +475,40 @@ class TestKebaKeEnergyAPI:
                     "buffer_tank": {},
                     "hot_water_tank": {},
                     "heat_pump": {
-                        "flow_temperature": [{"value": 24.2, "attributes": {}}, {"value": 23.2, "attributes": {}}],
+                        "flow_temperature": [
+                            {
+                                "value": 24.2,
+                                "attributes": {},
+                            },
+                            {
+                                "value": 23.2,
+                                "attributes": {},
+                            },
+                        ],
                     },
                     "heat_circuit": {
                         "target_temperature": [
-                            {"value": 10.81, "attributes": {"lower_limit": "10", "upper_limit": "90"}},
+                            {
+                                "value": 10.81,
+                                "attributes": {
+                                    "lower_limit": "10",
+                                    "upper_limit": "90",
+                                },
+                            },
                         ],
                     },
                     "solar_circuit": {},
+                    "switch_valve": {
+                        "position": [
+                            {
+                                "attributes": {
+                                    "lower_limit": "0",
+                                    "upper_limit": "2",
+                                },
+                                "value": "open",
+                            },
+                        ],
+                    },
                     "external_heat_source": {},
                     "photovoltaic": {},
                 },
@@ -896,6 +938,7 @@ class TestKebaKeEnergyAPI:
                             },
                         ],
                     },
+                    "switch_valve": {},
                     "external_heat_source": {},
                     "photovoltaic": {},
                 },
