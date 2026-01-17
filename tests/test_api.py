@@ -388,6 +388,18 @@ class TestKebaKeEnergyAPI:
                         },
                         "value": "0",
                     },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfSwitchValves",
+                        "attributes": {
+                            "formatId": "fmt2p0",
+                            "longText": "Qty switch valves",
+                            "upperLimit": "0",
+                            "lowerLimit": "0",
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                        },
+                        "value": "1",
+                    },
                 ],
                 [
                     {
@@ -539,6 +551,18 @@ class TestKebaKeEnergyAPI:
                             "lowerLimit": "0",
                         },
                         "value": "0",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfSwitchValves",
+                        "attributes": {
+                            "formatId": "fmt2p0",
+                            "longText": "Qty switch valves",
+                            "upperLimit": "0",
+                            "lowerLimit": "0",
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                        },
+                        "value": "1",
                     },
                 ],
                 [
@@ -1089,6 +1113,18 @@ class TestKebaKeEnergyAPI:
                         },
                         "value": "1",
                     },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfSwitchValves",
+                        "attributes": {
+                            "formatId": "fmt2p0",
+                            "longText": "Qty switch valves",
+                            "upperLimit": "0",
+                            "lowerLimit": "0",
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
+                        },
+                        "value": "1",
+                    },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -1190,6 +1226,18 @@ class TestKebaKeEnergyAPI:
                             "longText": "Qty ext. heat sources",
                             "upperLimit": "1",
                             "lowerLimit": "0",
+                        },
+                        "value": "1",
+                    },
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfSwitchValves",
+                        "attributes": {
+                            "formatId": "fmt2p0",
+                            "longText": "Qty switch valves",
+                            "upperLimit": "0",
+                            "lowerLimit": "0",
+                            "dynLowerLimit": 1,
+                            "dynUpperLimit": 1,
                         },
                         "value": "1",
                     },

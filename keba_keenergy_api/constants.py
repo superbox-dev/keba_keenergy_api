@@ -267,7 +267,7 @@ class System(Enum):
         f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfExtHeatSources",
         value_type=int,
     )
-    SWITCH_VALVES_NUMBERS = EndpointProperties(
+    SWITCH_VALVE_NUMBERS = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfSwitchValves",
         value_type=int,
     )

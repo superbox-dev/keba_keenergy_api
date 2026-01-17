@@ -60,6 +60,7 @@ class Position(NamedTuple):
     buffer_tank: int
     hot_water_tank: int
     external_heat_source: int
+    switch_valve: int
 
 
 class Value(TypedDict, total=False):
@@ -505,6 +506,7 @@ class SystemEndpoints(BaseEndpoints):
                     System.BUFFER_TANK_NUMBERS,
                     System.HOT_WATER_TANK_NUMBERS,
                     System.EXTERNAL_HEAT_SOURCE_NUMBERS,
+                    System.SWITCH_VALVE_NUMBERS,
                 ],
                 key_prefix=False,
                 allowed_type=System,
@@ -644,10 +646,10 @@ class SystemEndpoints(BaseEndpoints):
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=System.SWITCH_VALVES_NUMBERS,
+            request=System.SWITCH_VALVE_NUMBERS,
             extra_attributes=True,
         )
-        return self._get_int_value(response, section=System.SWITCH_VALVES_NUMBERS)
+        return self._get_int_value(response, section=System.SWITCH_VALVE_NUMBERS)
 
     async def has_photovoltaics(self, *, human_readable: bool = True) -> int | str:
         """Check if photovoltaics is available.
