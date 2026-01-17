@@ -55,8 +55,10 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-"Repository" = "https://github.com/superbox-dev/keba_keenergy_api"
+"Homepage" = "https://superbox.one"
+"Documentation" = "https://api.superbox.one"
 "Issues" = "https://github.com/superbox-dev/keba_keenergy_api/issues"
+"Source" = "https://github.com/superbox-dev/keba_keenergy_api"
 
 [dependency-groups]
 dev = [
