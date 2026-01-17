@@ -196,7 +196,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
         )
 
     @staticmethod
-    def _group_data(response: dict[str, list[list[Value]] | list[Value]], /) -> dict[str, ValueResponse]:
+    def _group_data(response: dict[str, list[list[Value]] | list[Value]], /) -> dict[str, ValueResponse]:  # noqa: C901
         data: dict[str, ValueResponse] = {
             SectionPrefix.SYSTEM.value: {},
             SectionPrefix.BUFFER_TANK.value: {},
