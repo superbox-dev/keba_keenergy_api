@@ -17,6 +17,7 @@ class EndpointPath:
     READ_VAR_CHILDREN: Final[str] = "/var/readVarChildren"
     DEVICE_CONTROL: Final[str] = "/deviceControl"
     SW_UPDATE: Final[str] = "/swupdate"
+    DATE_TIME: Final[str] = "/datetime"
 
 
 class BaseEnum(Enum):
@@ -735,6 +736,14 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.coolRequest",
         value_type=int,
         human_readable=HeatCircuitCoolRequest,
+    )
+    AWAY_START_DATE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.holiday.start",
+        value_type=int,
+    )
+    AWAY_END_DATE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.holiday.stop",
+        value_type=int,
     )
 
 

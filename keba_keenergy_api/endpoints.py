@@ -815,6 +815,20 @@ class SystemEndpoints(BaseEndpoints):
         )
         return self._get_int_value(response, section=System.FREE_RAM)
 
+    async def get_timezone(self) -> str:
+        """Get the timezone.
+
+        Returns
+        -------
+        str
+            Timezone as name e.g. Europe/Vienna
+
+        """
+        response: Response = await self._post(
+            endpoint=f"{EndpointPath.DATE_TIME}?action=getTimeZone",
+        )
+        return response[0]["timezone"]
+
 
 class BufferTankEndpoints(BaseEndpoints):
     """API Endpoints to send and retrieve the buffer tank data.
@@ -3127,6 +3141,76 @@ class HeatCircuitEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_int_or_str_value(response, section=HeatCircuit.COOL_REQUEST, position=position)
+
+    async def get_away_start_date(self, position: int = 1) -> int:
+        """Get the away start date from the heating circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the external heat circuits
+
+        Returns
+        -------
+        integer
+            Start date as unix timestamp
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.AWAY_START_DATE,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=HeatCircuit.AWAY_START_DATE, position=position)
+
+    async def set_away_start_date(self, timestamp: int, position: int = 1) -> None:
+        """Set the away start date from the heating circuit.
+
+        Parameters
+        ----------
+        timestamp
+            Start date as unix timestamp
+        position
+            The number of the external heat circuits
+
+        """
+        timestamps: list[float | None] = [timestamp if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={HeatCircuit.AWAY_START_DATE: timestamps})
+
+    async def get_away_end_date(self, position: int = 1) -> int:
+        """Get the away end date from the heating circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the external heat circuits
+
+        Returns
+        -------
+        integer
+            Start date as unix timestamp
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.AWAY_END_DATE,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=HeatCircuit.AWAY_END_DATE, position=position)
+
+    async def set_away_end_date(self, timestamp: int, position: int = 1) -> None:
+        """Set the away end date from the heating circuit.
+
+        Parameters
+        ----------
+        timestamp
+            Start date as unix timestamp
+        position
+            The number of the external heat circuits
+
+        """
+        timestamps: list[float | None] = [timestamp if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={HeatCircuit.AWAY_END_DATE: timestamps})
 
 
 class SolarCircuitEndpoints(BaseEndpoints):
