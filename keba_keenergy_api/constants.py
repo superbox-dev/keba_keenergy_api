@@ -693,6 +693,10 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.setValue",
         value_type=float,
     )
+    SELECTED_TARGET_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.selectedSetTemp",
+        value_type=float,
+    )
     TARGET_TEMPERATURE_DAY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.normalSetTemp",
         value_type=float,

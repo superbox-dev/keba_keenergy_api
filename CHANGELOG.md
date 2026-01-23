@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--start-->
 
+## [2.7.2] - 2026-01-23
+
+### Fixed
+
+- Revert original `get_target_temperature()` for the heat circuit and add the new API endpoint
+  `get_selected_target_temperature()` to the heat circuit
+
 ## [2.7.1] - 2026-01-23
 
 ### Fixed

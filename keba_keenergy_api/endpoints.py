@@ -2832,6 +2832,27 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatCircuit.TARGET_TEMPERATURE, position=position)
 
+    async def get_selected_target_temperature(self, position: int = 1) -> float:
+        """Get the selected target temperature from the heat circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the heat circuits
+
+        Returns
+        -------
+        float
+            Temperature in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.SELECTED_TARGET_TEMPERATURE,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatCircuit.SELECTED_TARGET_TEMPERATURE, position=position)
+
     async def get_target_temperature_day(self, position: int = 1) -> float:
         """Get the target temperature for the day from the heat circuit.
 
