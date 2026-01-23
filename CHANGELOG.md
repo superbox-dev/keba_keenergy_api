@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--start-->
 
+## [2.8.0] - 2026-01-23
+
+### Added
+
+- Added `get_away_start_date()`, `set_away_start_date()`, `get_away_end_date()` and `set_away_end_date()`
+  endpoints to heat circuit
+- Added `get_timezone()` endpoint to system
+
 ## [2.7.2] - 2026-01-23
 
 ### Fixed
