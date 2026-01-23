@@ -17,7 +17,7 @@ class EndpointPath:
     READ_VAR_CHILDREN: Final[str] = "/var/readVarChildren"
     DEVICE_CONTROL: Final[str] = "/deviceControl"
     SW_UPDATE: Final[str] = "/swupdate"
-    DATE_TIME: Final[str] = "/datetime"
+    DATE_TIME: Final[str] = "/dateTime"
 
 
 class BaseEnum(Enum):

@@ -798,7 +798,7 @@ class TestSystemSection:
     async def test_get_timezone(self) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
-                "http://mocked-host/datetime?action=getTimeZone",
+                "http://mocked-host/dateTime?action=getTimeZone",
                 payload={"timezone": "Europe/Vienna"},
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -810,7 +810,7 @@ class TestSystemSection:
             assert response == "Europe/Vienna"
 
             mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/datetime?action=getTimeZone",
+                url="http://mocked-host/dateTime?action=getTimeZone",
                 method="POST",
                 auth=None,
                 ssl=False,
