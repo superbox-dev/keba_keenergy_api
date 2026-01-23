@@ -247,13 +247,25 @@ class TestKebaKeEnergyAPI:
                 None,
                 [
                     {
-                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.selectedSetTemp",
-                        "attributes": {},
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.setValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Room temp. Nom.",
+                            "lowerLimit": "10",
+                            "unitId": "Temp",
+                            "upperLimit": "90",
+                        },
                         "value": "10.808357",
                     },
                     {
-                        "name": "APPL.CtrlAppl.sParam.heatCircuit[2].values.selectedSetTemp",
-                        "attributes": {},
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[2].values.setValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Room temp. Nom.",
+                            "lowerLimit": "10",
+                            "unitId": "Temp",
+                            "upperLimit": "90",
+                        },
                         "value": "11.808357",
                     },
                     {
@@ -276,8 +288,8 @@ class TestKebaKeEnergyAPI:
                     },
                 ],
                 (
-                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.selectedSetTemp", "attr": "1"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.heatCircuit[2].values.selectedSetTemp", "attr": "1"}, '
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.setValue", "attr": "1"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.heatCircuit[2].values.setValue", "attr": "1"}, '
                     '{"name": "APPL.CtrlAppl.sParam.heatpump[0].TempHeatFlow.values.actValue", "attr": "1"}, '
                     '{"name": "APPL.CtrlAppl.sParam.heatpump[2].TempHeatFlow.values.actValue", "attr": "1"}]'
                 ),
@@ -290,8 +302,8 @@ class TestKebaKeEnergyAPI:
                     },
                     "heat_circuit": {
                         "target_temperature": [
-                            {"value": 10.81, "attributes": {}},
-                            {"value": 11.81, "attributes": {}},
+                            {"value": 10.81, "attributes": {"lower_limit": "10", "upper_limit": "90"}},
+                            {"value": 11.81, "attributes": {"lower_limit": "10", "upper_limit": "90"}},
                         ],
                     },
                     "solar_circuit": {},
@@ -406,8 +418,14 @@ class TestKebaKeEnergyAPI:
                         "value": "17.54",
                     },
                     {
-                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.selectedSetTemp",
-                        "attributes": {},
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.setValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Room temp. Nom.",
+                            "lowerLimit": "10",
+                            "unitId": "Temp",
+                            "upperLimit": "90",
+                        },
                         "value": "10.808357",
                     },
                     {
@@ -442,7 +460,7 @@ class TestKebaKeEnergyAPI:
                 ],
                 (
                     '[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "attr": "1"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.selectedSetTemp", "attr": "1"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.setValue", "attr": "1"}, '
                     '{"name": "APPL.CtrlAppl.sParam.heatpump[0].TempHeatFlow.values.actValue", "attr": "1"}, '
                     '{"name": "APPL.CtrlAppl.sParam.heatpump[1].TempHeatFlow.values.actValue", "attr": "1"}, '
                     '{"name": "APPL.CtrlAppl.sParam.switchvalve[0].values.actPosition", "attr": "1"}]'
@@ -472,7 +490,10 @@ class TestKebaKeEnergyAPI:
                         "target_temperature": [
                             {
                                 "value": 10.81,
-                                "attributes": {},
+                                "attributes": {
+                                    "lower_limit": "10",
+                                    "upper_limit": "90",
+                                },
                             },
                         ],
                     },

@@ -4107,8 +4107,14 @@ class TestHeatCircuitSection:
                 "http://mocked-host/var/readWriteVars",
                 payload=[
                     {
-                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.selectedSetTemp",
-                        "attributes": {},
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.setValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Room temp. Nom.",
+                            "lowerLimit": "10",
+                            "unitId": "Temp",
+                            "upperLimit": "90",
+                        },
                         "value": "22",
                     },
                 ],
@@ -4123,7 +4129,7 @@ class TestHeatCircuitSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.selectedSetTemp", "attr": "1"}]',
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.setValue", "attr": "1"}]',
                 method="POST",
                 auth=None,
                 ssl=False,
