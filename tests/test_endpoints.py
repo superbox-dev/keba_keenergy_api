@@ -4684,7 +4684,7 @@ class TestHeatCircuitSection:
             data: int = await client.heat_circuit.get_away_start_date()
 
             assert isinstance(data, int)
-            assert data == 1768690800
+            assert data == 1768690800  # noqa: PLR2004
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -4738,7 +4738,7 @@ class TestHeatCircuitSection:
             data: int = await client.heat_circuit.get_away_end_date()
 
             assert isinstance(data, int)
-            assert data == 1769036400
+            assert data == 1769036400  # noqa: PLR2004
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",

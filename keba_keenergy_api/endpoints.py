@@ -827,7 +827,7 @@ class SystemEndpoints(BaseEndpoints):
         response: Response = await self._post(
             endpoint=f"{EndpointPath.DATE_TIME}?action=getTimeZone",
         )
-        return response[0]["timezone"]
+        return str(response[0]["timezone"])
 
 
 class BufferTankEndpoints(BaseEndpoints):
