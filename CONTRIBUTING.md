@@ -11,6 +11,10 @@ Contributing to this project should be as easy and transparent as possible, whet
 - Submitting a fix
 - Proposing new features
 
+## Getting started
+
+Set up the project with `./scripts/setup.sh`.
+
 ## GitHub is used for everything
 
 GitHub is used to host code, to track issues and feature requests, as well as accept pull requests.
@@ -19,24 +23,9 @@ Pull requests are the best way to propose changes to the codebase.
 
 1. Fork the repo and create your branch from `main`
 2. If you've changed something, update the documentation.
-3. Make sure your code lints.
+3. Make sure your code lints with `./scripts/lint.sh`.
 4. Test you contribution.
 5. Issue that pull request!
-
-### Create a virtual environment
-
-```bash
-uv sync --all-extras --dev
-```
-
-### Lint your code
-
-```bash
-uv run ruff check .
-uv run mypy .
-uv run yamllint .
-uv run rumdl check .
-```
 
 ## Report bugs using Github's [issues](https://github.com/superbox-dev/keba_keenergy_api/issues)
 
