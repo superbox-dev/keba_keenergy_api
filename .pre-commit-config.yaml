@@ -1,0 +1,41 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-shebang-scripts-are-executable
+      - id: check-symlinks
+      - id: check-yaml
+      - id: check-toml
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: local
+    hooks:
+      - id: black
+        name: black
+        entry: uv run black --check
+        language: system
+        types:
+          - python
+      - id: ruff
+        name: ruff
+        entry: uv run ruff check
+        language: system
+        types:
+          - python
+      - id: mypy
+        name: mypy
+        entry: uv run mypy
+        language: system
+        types:
+          - python
+      - id: rumdl
+        name: rumdl
+        entry: uv run rumdl check
+        language: system
+        files: \.md$
+      - id: yamllint
+        name: yamllint
+        entry: uv run yamllint
+        language: system
+        files: \.ya?ml$
