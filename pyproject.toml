@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools~=80.9.0",
+    "setuptools>=80.9,<80.11",
     "setuptools-scm>=7",
 ]
 build-backend = "setuptools.build_meta"
@@ -72,7 +72,7 @@ audit = [
     "pip-audit>=2.9.0",
 ]
 build = [
-    "setuptools~=80.9.0",
+    "setuptools>=80.9,<80.11",
     "build==1.4.0",
 ]
 docs = [
