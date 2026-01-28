@@ -105,6 +105,10 @@ async def main():
 asyncio.run(main())
 ```
 
+> **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+> Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+> **Be carefully!**
+
 <!--end-home-->
 
 ## Documentation

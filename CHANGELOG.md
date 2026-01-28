@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--start-->
 
+## [2.8.1] - 2026-01-28
+
+### Changed
+
+- Added important information to the endpoint documentation: writing values should remain within normal limits,
+  as is the case with typical use of the Web HMI. **Permanent and very frequent writing of values reduces the lifetime
+  of the built-in flash memory.**
+
 ## [2.8.0] - 2026-01-24
 
 ### Added
