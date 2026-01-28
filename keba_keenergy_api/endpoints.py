@@ -711,6 +711,9 @@ class SystemEndpoints(BaseEndpoints):
     async def set_operating_mode(self, mode: int | str) -> None:
         """Set the operating mode from the system.
 
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
         Parameters
         ----------
         mode
@@ -939,7 +942,7 @@ class BufferTankEndpoints(BaseEndpoints):
         Returns
         -------
         integer or string
-            0 (OFF) / 1 (ON) / 2(HEAT_UP)
+            0 (OFF) / 1 (ON) / 2 (HEAT_UP)
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
@@ -952,6 +955,9 @@ class BufferTankEndpoints(BaseEndpoints):
 
     async def set_operating_mode(self, mode: int | str, position: int = 1) -> None:
         """Set the operating mode from the buffer tank.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
 
         Parameters
         ----------
@@ -994,6 +1000,9 @@ class BufferTankEndpoints(BaseEndpoints):
 
     async def set_standby_temperature(self, temperature: int, position: int = 1) -> None:
         """Set the standby temperature from the buffer tank.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
 
         Parameters
         ----------
@@ -1178,6 +1187,9 @@ class HotWaterTankEndpoints(BaseEndpoints):
     async def set_operating_mode(self, mode: int | str, position: int = 1) -> None:
         """Set the operating mode from the hot water tank.
 
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
         Parameters
         ----------
         mode
@@ -1272,6 +1284,9 @@ class HotWaterTankEndpoints(BaseEndpoints):
     async def set_standby_temperature(self, temperature: int, position: int = 1) -> None:
         """Set the standby temperature from the hot water tank.
 
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
         Parameters
         ----------
         temperature
@@ -1306,6 +1321,9 @@ class HotWaterTankEndpoints(BaseEndpoints):
 
     async def set_target_temperature(self, temperature: int, position: int = 1) -> None:
         """Set the target temperature from the hot water tank.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
 
         Parameters
         ----------
@@ -1545,6 +1563,9 @@ class HeatPumpEndpoints(BaseEndpoints):
     async def set_operating_mode(self, mode: int | str, position: int = 1) -> None:
         """Set the operating mode from the heat pump.
 
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
         Parameters
         ----------
         mode
@@ -1594,6 +1615,9 @@ class HeatPumpEndpoints(BaseEndpoints):
 
     async def set_compressor_use_night_speed(self, mode: int | str, position: int = 1) -> None:
         """Set the compressor use night speed.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
 
         Parameters
         ----------
@@ -1646,6 +1670,9 @@ class HeatPumpEndpoints(BaseEndpoints):
 
     async def set_compressor_night_speed(self, speed: float, position: int = 1) -> None:
         """Set the compressor night speed.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
 
         Parameters
         ----------
@@ -2891,6 +2918,9 @@ class HeatCircuitEndpoints(BaseEndpoints):
     async def set_target_temperature_day(self, temperature: int, position: int = 1) -> None:
         """Set the target temperature for the day from the heat circuit.
 
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
         Parameters
         ----------
         temperature
@@ -2946,6 +2976,9 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
     async def set_target_temperature_night(self, temperature: int, position: int = 1) -> None:
         """Set the target temperature for the night from the heat circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
 
         Parameters
         ----------
@@ -3003,6 +3036,9 @@ class HeatCircuitEndpoints(BaseEndpoints):
     async def set_target_temperature_away(self, temperature: int, position: int = 1) -> None:
         """Set the target temperature when away for the heat circuit.
 
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
         Parameters
         ----------
         temperature
@@ -3037,6 +3073,9 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
     async def set_target_temperature_offset(self, offset: float, position: int = 1) -> None:
         """Set the target temperature offset for the heat circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
 
         Parameters
         ----------
@@ -3075,6 +3114,9 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
     async def set_operating_mode(self, mode: int | str, position: int = 1) -> None:
         """Set the operating mode from the heat circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
 
         Parameters
         ----------
@@ -3166,6 +3208,9 @@ class HeatCircuitEndpoints(BaseEndpoints):
     async def set_away_start_date(self, timestamp: int, position: int = 1) -> None:
         """Set the away start date from the heating circuit.
 
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
         Parameters
         ----------
         timestamp
@@ -3200,6 +3245,9 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
     async def set_away_end_date(self, timestamp: int, position: int = 1) -> None:
         """Set the away end date from the heating circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
 
         Parameters
         ----------
@@ -3294,6 +3342,9 @@ class SolarCircuitEndpoints(BaseEndpoints):
     async def set_operating_mode(self, mode: int | str, position: int = 1) -> None:
         """Set the operating mode from the solar circuit.
 
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
         Parameters
         ----------
         mode
@@ -3338,6 +3389,9 @@ class SolarCircuitEndpoints(BaseEndpoints):
 
     async def set_priority_1_before_2(self, mode: int | str, position: int = 1) -> None:
         """Set the priority 1 before 2 for the pumps from the solar circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
 
         Parameters
         ----------
@@ -3490,6 +3544,9 @@ class SolarCircuitEndpoints(BaseEndpoints):
     async def set_target_temperature_1(self, temperature: int, position: int = 1) -> None:
         """Set the target temperature 1 from the solar circuit.
 
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
         Parameters
         ----------
         temperature
@@ -3527,6 +3584,9 @@ class SolarCircuitEndpoints(BaseEndpoints):
 
     async def set_target_temperature_2(self, temperature: int, position: int = 1) -> None:
         """Set the target temperature 2 from the solar circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
 
         Parameters
         ----------
@@ -3713,6 +3773,9 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
 
     async def set_operating_mode(self, mode: int | str, position: int = 1) -> None:
         """Set the operating mode from the external heat source.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
 
         Parameters
         ----------
