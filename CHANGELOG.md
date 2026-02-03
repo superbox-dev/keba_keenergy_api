@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `get_circulation_pump_state()` to hot water tank
 - Added endpoint `get_heating_curve_offset()` to heating circuit
 - Added endpoint `set_heating_curve_offset()` to heating circuit
+- Added endpoint `get_heating_curve_gradient()` to heating circuit
+- Added endpoint `set_heating_curve_gradient()` to heating circuit
 
 ## [2.8.1] - 2026-01-28
 
