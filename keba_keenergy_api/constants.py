@@ -171,8 +171,8 @@ class SolarCircuitPriority(BaseEnum):
     HIGH = 15
 
 
-class HeatCircuitCoolRequest(BaseEnum):
-    """Available heat circuit cool request stats."""
+class HeatCircuitHeatRequest(BaseEnum):
+    """Available heat circuit heat request stats."""
 
     OFF = 0
     ON = 1
@@ -183,8 +183,8 @@ class HeatCircuitCoolRequest(BaseEnum):
     INFLOW_OFF = 6
 
 
-class HeatCircuitHeatRequest(BaseEnum):
-    """Available heat circuit heat request stats."""
+class HeatCircuitCoolRequest(BaseEnum):
+    """Available heat circuit cool request stats."""
 
     OFF = 0
     ON = 1
