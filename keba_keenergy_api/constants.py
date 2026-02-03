@@ -755,6 +755,10 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.holiday.stop",
         value_type=int,
     )
+    HEATING_CURVE_OFFSET = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.heatCurveOffset",
+        value_type=float,
+    )
 
 
 class SolarCircuit(Enum):

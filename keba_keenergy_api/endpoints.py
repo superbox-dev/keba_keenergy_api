@@ -998,7 +998,7 @@ class BufferTankEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=BufferTank.STANDBY_TEMPERATURE, position=position)
 
-    async def set_standby_temperature(self, temperature: int, position: int = 1) -> None:
+    async def set_standby_temperature(self, temperature: float, position: int = 1) -> None:
         """Set the standby temperature from the buffer tank.
 
         **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
@@ -3304,6 +3304,44 @@ class HeatCircuitEndpoints(BaseEndpoints):
         """
         timestamps: list[float | None] = [timestamp if position == p else None for p in range(1, position + 1)]
         await self._write_values(request={HeatCircuit.AWAY_END_DATE: timestamps})
+
+    async def get_heating_curve_offset(self, position: int = 1) -> float:
+        """Get the heating curve offset from the heat circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the heat circuits
+
+        Returns
+        -------
+        float
+            Offset in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.HEATING_CURVE_OFFSET,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatCircuit.HEATING_CURVE_OFFSET, position=position)
+
+    async def set_heating_curve_offset(self, offset: float, position: int = 1) -> None:
+        """Set the heating curve offset from the heat circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        offset
+            The offset in °C
+        position
+            The number of the heat circuits
+
+        """
+        offsets: list[float | None] = [offset if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={HeatCircuit.HEATING_CURVE_OFFSET: offsets})
 
 
 class SolarCircuitEndpoints(BaseEndpoints):
