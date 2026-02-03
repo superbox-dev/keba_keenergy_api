@@ -1281,7 +1281,7 @@ class HotWaterTankEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HotWaterTank.STANDBY_TEMPERATURE, position=position)
 
-    async def set_standby_temperature(self, temperature: int, position: int = 1) -> None:
+    async def set_standby_temperature(self, temperature: float, position: int = 1) -> None:
         """Set the standby temperature from the hot water tank.
 
         **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
@@ -1319,7 +1319,7 @@ class HotWaterTankEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HotWaterTank.TARGET_TEMPERATURE, position=position)
 
-    async def set_target_temperature(self, temperature: int, position: int = 1) -> None:
+    async def set_target_temperature(self, temperature: float, position: int = 1) -> None:
         """Set the target temperature from the hot water tank.
 
         **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
@@ -2960,7 +2960,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatCircuit.TARGET_TEMPERATURE_DAY, position=position)
 
-    async def set_target_temperature_day(self, temperature: int, position: int = 1) -> None:
+    async def set_target_temperature_day(self, temperature: float, position: int = 1) -> None:
         """Set the target temperature for the day from the heat circuit.
 
         **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
@@ -3019,7 +3019,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatCircuit.TARGET_TEMPERATURE_NIGHT, position=position)
 
-    async def set_target_temperature_night(self, temperature: int, position: int = 1) -> None:
+    async def set_target_temperature_night(self, temperature: float, position: int = 1) -> None:
         """Set the target temperature for the night from the heat circuit.
 
         **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
@@ -3078,7 +3078,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatCircuit.TARGET_TEMPERATURE_AWAY, position=position)
 
-    async def set_target_temperature_away(self, temperature: int, position: int = 1) -> None:
+    async def set_target_temperature_away(self, temperature: float, position: int = 1) -> None:
         """Set the target temperature when away for the heat circuit.
 
         **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
@@ -3624,7 +3624,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=SolarCircuit.TARGET_TEMPERATURE, position=position, index=0)
 
-    async def set_target_temperature_1(self, temperature: int, position: int = 1) -> None:
+    async def set_target_temperature_1(self, temperature: float, position: int = 1) -> None:
         """Set the target temperature 1 from the solar circuit.
 
         **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
@@ -3665,7 +3665,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=SolarCircuit.TARGET_TEMPERATURE, position=position, index=1)
 
-    async def set_target_temperature_2(self, temperature: int, position: int = 1) -> None:
+    async def set_target_temperature_2(self, temperature: float, position: int = 1) -> None:
         """Set the target temperature 2 from the solar circuit.
 
         **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
