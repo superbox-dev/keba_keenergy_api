@@ -8,6 +8,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/keba_keenergy_api.egg-info" />
       <excludeFolder url="file://$MODULE_DIR$/reports" />
+      <excludeFolder url="file://$MODULE_DIR$/.rumdl_cache" />
     </content>
     <orderEntry type="jdk" jdkName="keba_keenergy_api" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
