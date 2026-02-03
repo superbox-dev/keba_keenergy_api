@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--start-->
 
+## [2.9.0b1] - 2026-02-03
+
+## Added
+
+- Added endpoint `get_circulation_return_temperature()` to hot water tank
+- Added endpoint `get_circulation_pump_state()` to hot water tank
+
 ## [2.8.1] - 2026-01-28
 
 ### Changed

@@ -59,6 +59,7 @@ BufferTankHeatRequest: type[BoolEnum] = BoolEnum
 BufferTankCoolRequest: type[BoolEnum] = BoolEnum
 HotWaterTankHeatRequest: type[BoolEnum] = BoolEnum
 HotWaterTankHotWaterFlow: type[BoolEnum] = BoolEnum
+HotWaterTankCirculationPumpState: type[BoolEnum] = BoolEnum
 HeatPumpHeatRequest: type[BoolEnum] = BoolEnum
 ExternalHeatSourceOperatingMode: type[BoolEnum] = BoolEnum
 ExternalHeatSourceHeatRequest: type[BoolEnum] = BoolEnum
@@ -393,6 +394,15 @@ class HotWaterTank(Enum):
     FRESH_WATER_MODULE_PUMP_SPEED = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterPump.values.setValueScaled",
         value_type=float,
+    )
+    CIRCULATION_RETURN_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].circTemp.values.actValue",
+        value_type=float,
+    )
+    CIRCULATION_PUMP_STATE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].circPump.pump.values.setValueB",
+        value_type=str,
+        human_readable=HotWaterTankCirculationPumpState,
     )
 
 

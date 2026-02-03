@@ -1426,6 +1426,51 @@ class HotWaterTankEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HotWaterTank.FRESH_WATER_MODULE_PUMP_SPEED, position=position)
 
+    async def get_circulation_return_temperature(self, position: int = 1) -> float:
+        """Get the circulation return temperature.
+
+        Parameters
+        ----------
+        position
+            The number of the hot water tanks
+
+        Returns
+        -------
+        float
+            Temperature in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HotWaterTank.CIRCULATION_RETURN_TEMPERATURE,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HotWaterTank.CIRCULATION_RETURN_TEMPERATURE, position=position)
+
+    async def get_circulation_pump_state(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Get the circulation pump state.
+
+        Parameters
+        ----------
+        position
+            The number of the hot water tanks
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HotWaterTank.CIRCULATION_PUMP_STATE,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HotWaterTank.CIRCULATION_PUMP_STATE, position=position)
+
 
 class HeatPumpEndpoints(BaseEndpoints):
     """API Endpoints to send and retrieve the heat pump data.

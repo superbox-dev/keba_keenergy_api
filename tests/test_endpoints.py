@@ -22,6 +22,7 @@ from keba_keenergy_api.constants import HeatPumpHasThreePhaseFailure
 from keba_keenergy_api.constants import HeatPumpHasVFDFailure
 from keba_keenergy_api.constants import HeatPumpHeatRequest
 from keba_keenergy_api.constants import HeatPumpOperatingMode
+from keba_keenergy_api.constants import HotWaterTankCirculationPumpState
 from keba_keenergy_api.constants import HotWaterTankHeatRequest
 from keba_keenergy_api.constants import HotWaterTankOperatingMode
 from keba_keenergy_api.constants import SolarCircuitConsumer1PrioritySolar
@@ -1799,6 +1800,84 @@ class TestHotWaterTankSection:
                     '[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterPump.values.setValueScaled", '
                     '"attr": "1"}]'
                 ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_circulation_return_temperature(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].circTemp.values.actValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Circ. reflux temp.",
+                            "unitId": "Temp",
+                            "upperLimit": "100",
+                            "lowerLimit": "-100",
+                        },
+                        "value": "47.44",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.hot_water_tank.get_circulation_return_temperature()
+
+            assert isinstance(data, float)
+            assert data == 47.44  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data=('[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].circTemp.values.actValue", "attr": "1"}]'),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (False, HotWaterTankCirculationPumpState.ON.value, 1),
+            (True, "false", "off"),
+            (False, HotWaterTankCirculationPumpState.OFF.value, 0),
+        ],
+    )
+    async def test_get_circulation_pump_state(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].circPump.pump.values.setValueB",
+                        "attributes": {"longText": "Pumps nom. value Circ."},
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.hot_water_tank.get_circulation_pump_state(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data=('[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].circPump.pump.values.setValueB", "attr": "1"}]'),
                 method="POST",
                 auth=None,
                 ssl=False,
