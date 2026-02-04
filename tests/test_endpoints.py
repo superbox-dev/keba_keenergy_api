@@ -11,6 +11,7 @@ from keba_keenergy_api.constants import ExternalHeatSourceHeatRequest
 from keba_keenergy_api.constants import ExternalHeatSourceOperatingMode
 from keba_keenergy_api.constants import HeatCircuitHasRoomTemperature
 from keba_keenergy_api.constants import HeatCircuitHeatRequest
+from keba_keenergy_api.constants import HeatCircuitHeatingCurve
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
 from keba_keenergy_api.constants import HeatCircuitUseHeatingCurve
 from keba_keenergy_api.constants import HeatPumpCompressorUseNightSpeed
@@ -5037,13 +5038,74 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
+    async def test_get_current_heating_curve(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.linTab.fileName",
+                        "attributes": {
+                            "longText": "Heat curve",
+                        },
+                        "value": "HC4",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: str = await client.heat_circuit.get_current_heating_curve()
+
+            assert isinstance(data, str)
+            assert data == "HC4"
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.linTab.fileName", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        "operating_mode",
+        ("name", "expected_value"),
+        [
+            ("HC1", "HC1"),
+            (HeatCircuitHeatingCurve.HC_FBH.name, "HC FBH"),
+        ],
+    )
+    async def test_set_current_heating_curve(self, name: str, expected_value: str) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_circuit.set_current_heating_curve(name)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.linTab.fileName", '  # noqa: UP031
+                    '"value": "%s"}]' % expected_value
+                ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "name",
         ["INVALID"],
     )
-    async def test_set_invalid_compressor_use_night_speed(
+    async def test_set_invalid_current_heating_curve(
         self,
-        operating_mode: int | str,
+        name: str,
     ) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
@@ -5055,9 +5117,12 @@ class TestHeatCircuitSection:
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
             with pytest.raises(APIError) as error:
-                await client.heat_pump.set_compressor_use_night_speed(operating_mode)
+                await client.heat_circuit.set_current_heating_curve(name)
 
-            assert str(error.value) == "Invalid value! Allowed values are ['OFF', '0', 'ON', '1']"
+            assert (
+                str(error.value) == "Invalid value! Allowed values are "
+                "['HC1', 'HC2', 'HC3', 'HC4', 'HC5', 'HC6', 'HC7', 'HC8', 'HC FBH', 'HC HK']"
+            )
 
             mock_keenergy_api.assert_not_called()
 

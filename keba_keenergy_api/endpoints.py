@@ -21,6 +21,7 @@ from keba_keenergy_api.constants import EndpointPath
 from keba_keenergy_api.constants import ExternalHeatSource
 from keba_keenergy_api.constants import ExternalHeatSourceOperatingMode
 from keba_keenergy_api.constants import HeatCircuit
+from keba_keenergy_api.constants import HeatCircuitHeatingCurve
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
 from keba_keenergy_api.constants import HeatCircuitUseHeatingCurve
 from keba_keenergy_api.constants import HeatPump
@@ -103,7 +104,7 @@ class BaseEndpoints:
         )
 
         try:
-            url: str = f"{self._base_url}{endpoint if endpoint else ''}"
+            url: str = f"{self._base_url}{endpoint or ''}"
 
             async with session.post(
                 url,
@@ -335,10 +336,16 @@ class BaseEndpoints:
                 if isinstance(values, list | tuple):
                     for idx, value in enumerate(values):
                         if value is not None:
+                            name: str = (
+                                endpoint_properties.value.value % (idx, *value[:-1])
+                                if isinstance(value, tuple)
+                                else endpoint_properties.value.value % idx
+                            )
+
                             payload += [
                                 WritePayload(
-                                    name=endpoint_properties.value.value % idx,
-                                    value=str(value),
+                                    name=name,
+                                    value=str(value[-1] if isinstance(value, tuple) else value),
                                 ),
                             ]
                 else:
@@ -3434,6 +3441,50 @@ class HeatCircuitEndpoints(BaseEndpoints):
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
 
         await self._write_values(request={HeatCircuit.USE_HEATING_CURVE: modes})
+
+    async def get_current_heating_curve(self, position: int = 1) -> str:
+        """Get the current heating curve from the heat circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the heat circuits
+
+        Returns
+        -------
+        string
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.CURRENT_HEATING_CURVE,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_str_value(response, section=HeatCircuit.CURRENT_HEATING_CURVE, position=position).upper()
+
+    async def set_current_heating_curve(self, name: str, position: int = 1) -> None:
+        """Set the current heating curve from the heat circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        name
+            Set the name
+        position
+            The number of the heat circuits
+
+        """
+        try:
+            _name = HeatCircuitHeatingCurve[name.upper()].value
+        except KeyError as error:
+            message: str = f"Invalid value! Allowed values are {[str(_.value) for _ in HeatCircuitHeatingCurve]}"
+            raise APIError(message) from error
+
+        names: list[str | None] = [_name if position == p else None for p in range(1, position + 1)]
+
+        await self._write_values(request={HeatCircuit.CURRENT_HEATING_CURVE: names})
 
 
 class SolarCircuitEndpoints(BaseEndpoints):

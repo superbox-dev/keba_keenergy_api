@@ -196,6 +196,21 @@ class HeatCircuitCoolRequest(BaseEnum):
     INFLOW_OFF = 6
 
 
+class HeatCircuitHeatingCurve(BaseEnum):
+    """Available heat curve names."""
+
+    HC1 = "HC1"
+    HC2 = "HC2"
+    HC3 = "HC3"
+    HC4 = "HC4"
+    HC5 = "HC5"
+    HC6 = "HC6"
+    HC7 = "HC7"
+    HC8 = "HC8"
+    HC_FBH = "HC FBH"
+    HC_HK = "HC HK"
+
+
 class SwitchValvePosition(BaseEnum):
     """Available switch valve positons."""
 
@@ -768,6 +783,11 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.enableHeatCurveLinTab",
         value_type=str,
         human_readable=HeatCircuitUseHeatingCurve,
+    )
+    CURRENT_HEATING_CURVE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.linTab.fileName",
+        value_type=str,
+        human_readable=HeatCircuitHeatingCurve,
     )
     HEATING_CURVE_NAME = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].name",
