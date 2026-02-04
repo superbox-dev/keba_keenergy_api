@@ -22,6 +22,7 @@ from keba_keenergy_api.constants import ExternalHeatSource
 from keba_keenergy_api.constants import ExternalHeatSourceOperatingMode
 from keba_keenergy_api.constants import HeatCircuit
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
+from keba_keenergy_api.constants import HeatCircuitUseHeatingCurve
 from keba_keenergy_api.constants import HeatPump
 from keba_keenergy_api.constants import HeatPumpCompressorUseNightSpeed
 from keba_keenergy_api.constants import HeatPumpOperatingMode
@@ -3380,6 +3381,59 @@ class HeatCircuitEndpoints(BaseEndpoints):
         """
         slopes: list[float | None] = [slope if position == p else None for p in range(1, position + 1)]
         await self._write_values(request={HeatCircuit.HEATING_CURVE_SLOPE: slopes})
+
+    async def get_use_heating_curve(
+        self,
+        position: int = 1,
+        *,
+        human_readable: bool = True,
+    ) -> int | str:
+        """Get the use heating curve from the heat circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the heat circuits
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            (0) OFF / (1) ON
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.USE_HEATING_CURVE,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HeatCircuit.USE_HEATING_CURVE, position=position)
+
+    async def set_use_heating_curve(self, mode: int | str, position: int = 1) -> None:
+        """Set the use heating curve.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        mode
+            Set the mode as integer or string (human-readable) e.g. 0 or OFF
+        position
+            The number of the heat circuits
+
+        """
+        try:
+            _mode: int | None = mode if isinstance(mode, int) else HeatCircuitUseHeatingCurve[mode.upper()].value
+        except KeyError as error:
+            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(HeatCircuitUseHeatingCurve)}"
+            raise APIError(message) from error
+
+        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+
+        await self._write_values(request={HeatCircuit.USE_HEATING_CURVE: modes})
 
 
 class SolarCircuitEndpoints(BaseEndpoints):

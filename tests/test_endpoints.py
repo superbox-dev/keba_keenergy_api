@@ -12,6 +12,7 @@ from keba_keenergy_api.constants import ExternalHeatSourceOperatingMode
 from keba_keenergy_api.constants import HeatCircuitHasRoomTemperature
 from keba_keenergy_api.constants import HeatCircuitHeatRequest
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
+from keba_keenergy_api.constants import HeatCircuitUseHeatingCurve
 from keba_keenergy_api.constants import HeatPumpCompressorUseNightSpeed
 from keba_keenergy_api.constants import HeatPumpHasCompressorFailure
 from keba_keenergy_api.constants import HeatPumpHasPassiveCooling
@@ -4955,6 +4956,110 @@ class TestHeatCircuitSection:
                 auth=None,
                 ssl=False,
             )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (True, "false", "off"),
+            (False, "true", 1),
+            (False, "false", 0),
+        ],
+    )
+    async def test_get_use_heating_curve(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: int,
+        expected_value: str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.enableHeatCurveLinTab",
+                        "attributes": {},
+                        "value": f"{payload_value}",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_circuit.get_use_heating_curve(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.enableHeatCurveLinTab", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("mode", "expected_value"),
+        [
+            ("off", "0"),
+            ("ON", "1"),
+            (HeatCircuitUseHeatingCurve.ON.value, "1"),
+            (HeatCircuitUseHeatingCurve.OFF.value, "0"),
+        ],
+    )
+    async def test_set_use_heating_curve(
+        self,
+        mode: int | str,
+        expected_value: str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_circuit.set_use_heating_curve(mode)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.enableHeatCurveLinTab", '  # noqa: UP031
+                    '"value": "%s"}]' % expected_value
+                ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "operating_mode",
+        ["INVALID"],
+    )
+    async def test_set_invalid_compressor_use_night_speed(
+        self,
+        operating_mode: int | str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(APIError) as error:
+                await client.heat_pump.set_compressor_use_night_speed(operating_mode)
+
+            assert str(error.value) == "Invalid value! Allowed values are ['OFF', '0', 'ON', '1']"
+
+            mock_keenergy_api.assert_not_called()
 
 
 class TestSolarCircuitSection:

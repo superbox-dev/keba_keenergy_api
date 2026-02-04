@@ -52,6 +52,7 @@ HeatPumpHasSourcePressureFailure: type[BoolEnum] = BoolEnum
 HeatPumpHasVFDFailure: type[BoolEnum] = BoolEnum
 HeatCircuitHasRoomTemperature: type[BoolEnum] = BoolEnum
 HeatCircuitHasRoomHumidity: type[BoolEnum] = BoolEnum
+HeatCircuitUseHeatingCurve: type[BoolEnum] = BoolEnum
 SolarCircuitOperatingMode: type[BoolEnum] = BoolEnum
 SolarCircuitConsumer1PrioritySolar: type[BoolEnum] = BoolEnum
 SolarCircuitHeatRequest: type[BoolEnum] = BoolEnum
@@ -762,6 +763,11 @@ class HeatCircuit(Enum):
     HEATING_CURVE_SLOPE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.heatCurveGradient",
         value_type=float,
+    )
+    USE_HEATING_CURVE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.enableHeatCurveLinTab",
+        value_type=str,
+        human_readable=HeatCircuitUseHeatingCurve,
     )
 
 
