@@ -759,7 +759,7 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.heatCurveOffset",
         value_type=float,
     )
-    HEATING_CURVE_GRADIENT = EndpointProperties(
+    HEATING_CURVE_SLOPE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.heatCurveGradient",
         value_type=float,
     )

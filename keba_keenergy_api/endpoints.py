@@ -3343,8 +3343,8 @@ class HeatCircuitEndpoints(BaseEndpoints):
         offsets: list[float | None] = [offset if position == p else None for p in range(1, position + 1)]
         await self._write_values(request={HeatCircuit.HEATING_CURVE_OFFSET: offsets})
 
-    async def get_heating_curve_gradient(self, position: int = 1) -> float:
-        """Get the heating curve gradient from the heat circuit.
+    async def get_heating_curve_slope(self, position: int = 1) -> float:
+        """Get the heating curve slope from the heat circuit.
 
         Parameters
         ----------
@@ -3354,32 +3354,32 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Gradient
+            Slope
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=HeatCircuit.HEATING_CURVE_GRADIENT,
+            request=HeatCircuit.HEATING_CURVE_SLOPE,
             position=position,
             extra_attributes=True,
         )
-        return self._get_float_value(response, section=HeatCircuit.HEATING_CURVE_GRADIENT, position=position)
+        return self._get_float_value(response, section=HeatCircuit.HEATING_CURVE_SLOPE, position=position)
 
-    async def set_heating_curve_gradient(self, gradient: float, position: int = 1) -> None:
-        """Set the heating curve gradient from the heat circuit.
+    async def set_heating_curve_slope(self, slope: float, position: int = 1) -> None:
+        """Set the heating curve slope from the heat circuit.
 
         **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
         Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
 
         Parameters
         ----------
-        gradient
-            The gradient
+        slope
+            The slope
         position
             The number of the heat circuits
 
         """
-        gradients: list[float | None] = [gradient if position == p else None for p in range(1, position + 1)]
-        await self._write_values(request={HeatCircuit.HEATING_CURVE_GRADIENT: gradients})
+        slopes: list[float | None] = [slope if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={HeatCircuit.HEATING_CURVE_SLOPE: slopes})
 
 
 class SolarCircuitEndpoints(BaseEndpoints):

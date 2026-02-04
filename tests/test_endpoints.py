@@ -4903,7 +4903,7 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_heating_curve_gradient(self) -> None:
+    async def test_get_heating_curve_slope(self) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -4923,7 +4923,7 @@ class TestHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_circuit.get_heating_curve_gradient()
+            data: float = await client.heat_circuit.get_heating_curve_slope()
 
             assert isinstance(data, float)
             assert data == 0.25  # noqa: PLR2004
@@ -4937,7 +4937,7 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_set_heating_curve_gradient(self) -> None:
+    async def test_set_heating_curve_slope(self) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -4946,7 +4946,7 @@ class TestHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            await client.heat_circuit.set_heating_curve_gradient(0.5)
+            await client.heat_circuit.set_heating_curve_slope(0.5)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
