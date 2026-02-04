@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `set_heating_curve_slope()` to heating circuit
 - Added endpoint `get_use_heating_curve()` to heating circuit
 - Added endpoint `set_use_heating_curve()` to heating circuit
+- Added constants for writing heating curve points (only possible with `client.write_data()`)
 
 ## [2.8.1] - 2026-01-28
 

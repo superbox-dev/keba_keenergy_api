@@ -769,6 +769,30 @@ class HeatCircuit(Enum):
         value_type=str,
         human_readable=HeatCircuitUseHeatingCurve,
     )
+    HEATING_CURVE_NAME = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].name",
+        value_type=int,
+    )
+    HEATING_CURVE_POINTS = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].noOfPoints",
+        value_type=int,
+        read_only=False,
+    )
+    HEATING_CURVE_POINT_X = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].points[%s].x",
+        value_type=float,
+        read_only=False,
+    )
+    HEATING_CURVE_POINT_Y = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].points[%s].y",
+        value_type=float,
+        read_only=False,
+    )
+    HEATING_CURVE_POINT_CNT = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].points[%s].verCnt",
+        value_type=int,
+        read_only=False,
+    )
 
 
 class SolarCircuit(Enum):

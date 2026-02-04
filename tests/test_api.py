@@ -1016,9 +1016,7 @@ class TestKebaKeEnergyAPI:
             ),
             (
                 {
-                    HotWaterTank.STANDBY_TEMPERATURE: [
-                        10,
-                    ],
+                    HotWaterTank.STANDBY_TEMPERATURE: (10,),
                     HotWaterTank.TARGET_TEMPERATURE: (
                         45,
                         44,
@@ -1038,6 +1036,12 @@ class TestKebaKeEnergyAPI:
                     '{"name": "APPL.CtrlAppl.sParam.genericHeat[0].param.priority", "value": "15"}, '
                     '{"name": "APPL.CtrlAppl.sParam.genericHeat[2].param.priority", "value": "14"}]'
                 ),
+            ),
+            (
+                {
+                    HeatCircuit.HEATING_CURVE_POINT_X: ((0, 20),),
+                },
+                '[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[0].x", "value": "20"}]',
             ),
         ],
     )
