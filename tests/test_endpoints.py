@@ -1864,7 +1864,9 @@ class TestHotWaterTankSection:
                 payload=[
                     {
                         "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].circPump.pump.values.setValueB",
-                        "attributes": {"longText": "Pumps nom. value Circ."},
+                        "attributes": {
+                            "longText": "Pumps nom. value Circ.",
+                        },
                         "value": payload_value,
                     },
                 ],
@@ -5060,7 +5062,7 @@ class TestHeatCircuitSection:
             mock_keenergy_api.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_get_current_heating_curve(self) -> None:
+    async def test_get_heating_curve(self) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -5077,7 +5079,7 @@ class TestHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: str = await client.heat_circuit.get_current_heating_curve()
+            data: str = await client.heat_circuit.get_heating_curve()
 
             assert isinstance(data, str)
             assert data == "HC4"
@@ -5098,7 +5100,7 @@ class TestHeatCircuitSection:
             (HeatCircuitHeatingCurve.HC_FBH.name, "HC FBH"),
         ],
     )
-    async def test_set_current_heating_curve(self, name: str, expected_value: str) -> None:
+    async def test_set_heating_curve(self, name: str, expected_value: str) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -5107,7 +5109,7 @@ class TestHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            await client.heat_circuit.set_current_heating_curve(name)
+            await client.heat_circuit.set_heating_curve(name)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
@@ -5125,7 +5127,7 @@ class TestHeatCircuitSection:
         "name",
         ["INVALID"],
     )
-    async def test_set_invalid_current_heating_curve(
+    async def test_set_invalid_heating_curve(
         self,
         name: str,
     ) -> None:
@@ -5139,7 +5141,7 @@ class TestHeatCircuitSection:
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
             with pytest.raises(APIError) as error:
-                await client.heat_circuit.set_current_heating_curve(name)
+                await client.heat_circuit.set_heating_curve(name)
 
             assert (
                 str(error.value) == "Invalid value! Allowed values are "

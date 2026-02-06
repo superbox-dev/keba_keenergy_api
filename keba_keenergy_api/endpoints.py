@@ -3442,8 +3442,8 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         await self._write_values(request={HeatCircuit.USE_HEATING_CURVE: modes})
 
-    async def get_current_heating_curve(self, position: int = 1) -> str:
-        """Get the current heating curve from the heat circuit.
+    async def get_heating_curve(self, position: int = 1) -> str:
+        """Get the heating curve from the heat circuit.
 
         Parameters
         ----------
@@ -3456,14 +3456,14 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=HeatCircuit.CURRENT_HEATING_CURVE,
+            request=HeatCircuit.HEATING_CURVE,
             position=position,
             extra_attributes=True,
         )
-        return self._get_str_value(response, section=HeatCircuit.CURRENT_HEATING_CURVE, position=position).upper()
+        return self._get_str_value(response, section=HeatCircuit.HEATING_CURVE, position=position).upper()
 
-    async def set_current_heating_curve(self, name: str, position: int = 1) -> None:
-        """Set the current heating curve from the heat circuit.
+    async def set_heating_curve(self, name: str, position: int = 1) -> None:
+        """Set the heating curve from the heat circuit.
 
         **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
         Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
@@ -3484,7 +3484,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         names: list[str | None] = [_name if position == p else None for p in range(1, position + 1)]
 
-        await self._write_values(request={HeatCircuit.CURRENT_HEATING_CURVE: names})
+        await self._write_values(request={HeatCircuit.HEATING_CURVE: names})
 
 
 class SolarCircuitEndpoints(BaseEndpoints):

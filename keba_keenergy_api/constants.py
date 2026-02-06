@@ -784,7 +784,7 @@ class HeatCircuit(Enum):
         value_type=str,
         human_readable=HeatCircuitUseHeatingCurve,
     )
-    CURRENT_HEATING_CURVE = EndpointProperties(
+    HEATING_CURVE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.linTab.fileName",
         value_type=str,
         human_readable=HeatCircuitHeatingCurve,
@@ -806,11 +806,6 @@ class HeatCircuit(Enum):
     HEATING_CURVE_POINT_Y = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].points[%s].y",
         value_type=float,
-        read_only=False,
-    )
-    HEATING_CURVE_POINT_CNT = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].points[%s].verCnt",
-        value_type=int,
         read_only=False,
     )
 
