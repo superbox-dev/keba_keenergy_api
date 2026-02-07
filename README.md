@@ -117,17 +117,21 @@ as these may contain minimum and maximum values.
 
 **Example:**
 
+The upper limit from the hot water tank temperature is 52 °C. Do not write larger values under any circumstances,
+even if it would be possible.
+
 ```json
 {
-    "name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.setValue",
+    "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value",
     "attributes": {
+        "dynUpperLimit": 1,
         "formatId": "fmtTemp",
-        "longText": "Room temp. Nom.",
-        "lowerLimit": "10",
+        "longText": "Temp. nom.",
+        "lowerLimit": "0",
         "unitId": "Temp",
-        "upperLimit": "90"
+        "upperLimit": "52"
     },
-    "value": "10.808357"
+    "value": "50"
 }
 ```
 
