@@ -8516,7 +8516,7 @@ class TestHeatCircuitSection:
 
             assert isinstance(response, dict)
             assert response == {
-                "HC FBH": (
+                "HC_FBH": (
                     ("-15", "20"),
                     ("-15", "20"),
                     ("-15", "20"),
@@ -8525,7 +8525,7 @@ class TestHeatCircuitSection:
                     ("-15", "20"),
                     ("-15", "20"),
                 ),
-                "HC HK": (
+                "HC_HK": (
                     ("-15", "20"),
                     ("-15", "20"),
                     ("-15", "20"),

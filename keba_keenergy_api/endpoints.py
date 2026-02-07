@@ -3538,7 +3538,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         values_per_point: int = 2
 
         for _ in [*list(range(8)), 12, 13]:
-            name: str = response[data_idx]["value"]
+            name: str = HeatCircuitHeatingCurve(response[data_idx]["value"]).name
             no_of_points: int = int(response[data_idx + 1]["value"])
             raw: Response = response[data_idx + 2 : data_idx + 2 + points_per_table * values_per_point]
 
