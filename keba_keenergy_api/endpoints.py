@@ -29,6 +29,7 @@ from keba_keenergy_api.constants import HeatPumpCompressorUseNightSpeed
 from keba_keenergy_api.constants import HeatPumpOperatingMode
 from keba_keenergy_api.constants import HotWaterTank
 from keba_keenergy_api.constants import HotWaterTankOperatingMode
+from keba_keenergy_api.constants import LineTablePool
 from keba_keenergy_api.constants import Photovoltaic
 from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import SolarCircuit
@@ -73,6 +74,9 @@ class Value(TypedDict, total=False):
 ValueResponse: TypeAlias = dict[str, list[list[Value]] | list[Value] | Value]
 Payload: TypeAlias = list[ReadPayload | WritePayload]
 Response: TypeAlias = list[dict[str, Any]]
+
+HeatingCurvePoint = tuple[str | int | float, str | int | float]
+HeatingCurves: TypeAlias = dict[str, tuple[HeatingCurvePoint, ...]]
 
 
 class BaseEndpoints:
@@ -332,36 +336,33 @@ class BaseEndpoints:
         payload: Payload = []
 
         for endpoint_properties, values in request.items():
-            if not endpoint_properties.value.read_only:
-                if isinstance(values, list | tuple):
-                    for idx, value in enumerate(values):
-                        if value is not None:
-                            name: str = (
-                                endpoint_properties.value.value % (idx, *value[:-1])
-                                if isinstance(value, tuple)
-                                else endpoint_properties.value.value % idx
-                            )
+            if isinstance(endpoint_properties, Section):
+                if not endpoint_properties.value.read_only:
+                    if isinstance(values, list | tuple):
+                        for idx, value in enumerate(values):
+                            if value is not None:
+                                name: str = endpoint_properties.value.value % idx
 
-                            payload += [
-                                WritePayload(
-                                    name=name,
-                                    value=str(value[-1] if isinstance(value, tuple) else value),
-                                ),
-                            ]
-                else:
-                    payload += [
-                        WritePayload(
-                            name=endpoint_properties.value.value,
-                            value=str(values),
-                        ),
-                    ]
+                                payload += [
+                                    WritePayload(
+                                        name=name,
+                                        value=str(value),
+                                    ),
+                                ]
+                    else:
+                        payload += [
+                            WritePayload(
+                                name=endpoint_properties.value.value,
+                                value=str(values),
+                            ),
+                        ]
 
-            # Append extra calls from a helper function
-            if hasattr(endpoint_properties.value, "helper"):
-                child_request: dict[Section, Any] = endpoint_properties.value.helper(values)
-                child_payload: Payload = self._generate_write_payload(child_request)
+                # Append extra calls from a helper function
+                if hasattr(endpoint_properties.value, "helper"):
+                    child_request: dict[Section, Any] = endpoint_properties.value.helper(values)
+                    child_payload: Payload = self._generate_write_payload(child_request)
 
-                payload += child_payload
+                    payload += child_payload
 
         return payload
 
@@ -3485,6 +3486,72 @@ class HeatCircuitEndpoints(BaseEndpoints):
         names: list[str | None] = [_name if position == p else None for p in range(1, position + 1)]
 
         await self._write_values(request={HeatCircuit.HEATING_CURVE: names})
+
+    async def get_heating_curves(self) -> HeatingCurves:
+        """Get the heating curves.
+
+        Returns
+        -------
+        dict
+            Heating curves name and points.
+
+        """
+        payload: Payload = []
+
+        # HC1 - HC8 is position 0 - 7
+        # HC FBH is 12
+        # HC HK is 13
+
+        for idx in [*list(range(8)), 12, 13]:
+            payload += [
+                ReadPayload(
+                    name=LineTablePool.HEATING_CURVE_NAME.value.value % idx,
+                    attr="1",
+                ),
+                ReadPayload(
+                    name=LineTablePool.HEATING_CURVE_POINTS.value.value % idx,
+                    attr="1",
+                ),
+            ]
+
+            for point_idx in list(range(16)):
+                payload += [
+                    ReadPayload(
+                        name=LineTablePool.HEATING_CURVE_POINT_X.value.value % (idx, point_idx),
+                        attr="1",
+                    ),
+                    ReadPayload(
+                        name=LineTablePool.HEATING_CURVE_POINT_Y.value.value % (idx, point_idx),
+                        attr="1",
+                    ),
+                ]
+
+        response: Response = await self._post(
+            payload=json.dumps(payload),
+            endpoint=EndpointPath.READ_WRITE_VARS,
+        )
+
+        data: HeatingCurves = {}
+
+        data_idx: int = 0
+        points_per_table: int = 16
+        values_per_point: int = 2
+
+        for _ in [*list(range(8)), 12, 13]:
+            name: str = response[data_idx]["value"]
+            no_of_points: int = int(response[data_idx + 1]["value"])
+            raw: Response = response[data_idx + 2 : data_idx + 2 + points_per_table * values_per_point]
+
+            points = tuple(
+                (raw[i]["value"], raw[i + 1]["value"])
+                for i in range(0, no_of_points * values_per_point, values_per_point)
+            )
+
+            data[name] = points
+
+            data_idx += 2 + points_per_table * values_per_point
+
+        return data
 
 
 class SolarCircuitEndpoints(BaseEndpoints):

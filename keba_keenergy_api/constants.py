@@ -522,10 +522,10 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.power",
         value_type=float,
     )
-    # HEATING_MASS_FLOW_RATE = EndpointProperties(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.massFlow",
-    #     value_type=float,
-    # )
+    HEATING_MASS_FLOW_RATE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.massFlow",
+        value_type=float,
+    )
     # TOTAL_COOLING_ENERGY = EndpointProperties(
     #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.accumulatedHeat",
     #     value_type=float,
@@ -538,10 +538,10 @@ class HeatPump(Enum):
     #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.power",
     #     value_type=float,
     # )
-    # COOLING_MASS_FLOW_RATE = EndpointProperties(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.massFlow",
-    #     value_type=float,
-    # )
+    COOLING_MASS_FLOW_RATE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.massFlow",
+        value_type=float,
+    )
     # TOTAL_HOT_WATER_ENERGY = EndpointProperties(
     #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.accumulatedHeat",
     #     value_type=float,
@@ -554,10 +554,10 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.power",
         value_type=float,
     )
-    # HOT_WATER_MASS_FLOW_RATE = EndpointProperties(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.massFlow",
-    #     value_type=float,
-    # )
+    HOT_WATER_MASS_FLOW_RATE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.massFlow",
+        value_type=float,
+    )
     # TOTAL_COMPRESSOR_ENERGY = EndpointProperties(
     #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.accumulatedHeat",
     #     value_type=float,
@@ -789,9 +789,19 @@ class HeatCircuit(Enum):
         value_type=str,
         human_readable=HeatCircuitHeatingCurve,
     )
+
+
+class LineTablePool(Enum):
+    """Pool of heating curve points.
+
+    This is not a real section and read and write are only allowed with `client.heat_circuit.get_heating_curves()`
+    and `client.heat_circuit.set_heating_curves()`.
+
+    """
+
     HEATING_CURVE_NAME = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].name",
-        value_type=int,
+        value_type=str,
     )
     HEATING_CURVE_POINTS = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].noOfPoints",

@@ -1037,12 +1037,6 @@ class TestKebaKeEnergyAPI:
                     '{"name": "APPL.CtrlAppl.sParam.genericHeat[2].param.priority", "value": "14"}]'
                 ),
             ),
-            (
-                {
-                    HeatCircuit.HEATING_CURVE_POINT_X: ((0, 20),),
-                },
-                '[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[0].x", "value": "20"}]',
-            ),
         ],
     )
     async def test_write_data(self, section: dict[Section, Any], expected_data: str) -> None:
