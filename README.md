@@ -10,9 +10,10 @@ A Python wrapper for the KEBA KeEnergy API used by the Web HMI.
 > ⚠️ **WARNING**
 >
 > This is a low-level API that allows writing values outside the safe operating range.
-> Improper use can damage heating systems and hardware.
+> Improper use can damage heating systems and hardware. Always check the `extra_attributes`,
+> as these may contain minimum and maximum values.
 >
-> Use at your own risk. Advanced users only.
+> **Use at your own risk!**
 
 <!--end-home-->
 
