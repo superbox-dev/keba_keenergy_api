@@ -7,14 +7,6 @@ A Python wrapper for the KEBA KeEnergy API used by the Web HMI.
 [![Version](https://img.shields.io/pypi/pyversions/keba-keenergy-api.svg)](https://pypi.python.org/pypi/keba-keenergy-api)
 [![CI](https://github.com/superbox-dev/KEBA-KeEnergy-API/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/superbox-dev/keba_keenergy_api/actions/workflows/ci.yml)
 
-> ⚠️ **WARNING**
->
-> This is a low-level API that allows writing values outside the safe operating range.
-> Improper use can damage heating systems and hardware. Always check the `extra_attributes`,
-> as these may contain minimum and maximum values.
->
-> **Use at your own risk!**
-
 <!--end-home-->
 
 ## Donation
@@ -68,6 +60,7 @@ async def main():
             HeatCircuit.TARGET_TEMPERATURE,
             HeatCircuit.TARGET_TEMPERATURE_DAY
         ],
+        extra_attributes=True
     )
 
     # Enable "day" mode for heat circuit 2
@@ -112,6 +105,30 @@ async def main():
         ...
 
 asyncio.run(main())
+```
+
+### ⚠️ Write warnings
+
+This is a low-level API that allows writing values outside the safe operating range.
+Improper use can damage heating systems and hardware. Always check the `attributes`,
+as these may contain minimum and maximum values.
+
+*Use at your own risk!*
+
+**Example:**
+
+```json
+{
+    "name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.setValue",
+    "attributes": {
+        "formatId": "fmtTemp",
+        "longText": "Room temp. Nom.",
+        "lowerLimit": "10",
+        "unitId": "Temp",
+        "upperLimit": "90"
+    },
+    "value": "10.808357"
+}
 ```
 
 > **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
