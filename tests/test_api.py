@@ -1321,10 +1321,10 @@ class TestKebaKeEnergyAPI:
                 password="invalid",  # noqa: S106
             )
 
-            with pytest.raises(AuthenticationError) as error:
+            with pytest.raises(
+                AuthenticationError, match="401 Unauthorized: No permission -- see authorization schemes"
+            ):
                 await client.system.get_outdoor_temperature()
-
-            assert str(error.value) == "401 Unauthorized: No permission -- see authorization schemes"
 
     @pytest.mark.asyncio
     async def test_api_status_4xx(self) -> None:
@@ -1341,10 +1341,10 @@ class TestKebaKeEnergyAPI:
                 password="test",  # noqa: S106
             )
 
-            with pytest.raises(APIError) as error:
+            with pytest.raises(
+                APIError, match=r"405 Method Not Allowed: Specified method is invalid for this resource - \{}"
+            ):
                 await client.system.get_outdoor_temperature()
-
-            assert str(error.value) == "405 Method Not Allowed: Specified method is invalid for this resource - {}"
 
     @pytest.mark.asyncio
     async def test_api_client_error(self) -> None:
@@ -1355,10 +1355,8 @@ class TestKebaKeEnergyAPI:
             )
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
-            with pytest.raises(APIError) as error:
+            with pytest.raises(APIError, match="Server took too long to respond"):
                 await client.system.get_outdoor_temperature()
-
-            assert str(error.value) == "Server took too long to respond"
 
     @pytest.mark.asyncio
     async def test_api_error(self) -> None:
@@ -1371,7 +1369,7 @@ class TestKebaKeEnergyAPI:
             )
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
-            with pytest.raises(APIError) as error:
+            with pytest.raises(
+                APIError, match="500 Internal Server Error: Server got itself in trouble - mocked-error"
+            ):
                 await client.system.get_outdoor_temperature()
-
-            assert str(error.value) == "500 Internal Server Error: Server got itself in trouble - mocked-error"

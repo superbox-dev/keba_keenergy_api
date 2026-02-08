@@ -590,13 +590,14 @@ class TestSystemSection:
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
-            with pytest.raises(APIError) as error:
+            with pytest.raises(
+                APIError,
+                match=(
+                    "Invalid value! Allowed values are "
+                    r"\['SETUP', '-1', 'STANDBY', '0', 'SUMMER', '1', 'AUTO_HEAT', '2', 'AUTO_COOL', '3', 'AUTO', '4']"
+                ),
+            ):
                 await client.system.set_operating_mode(operating_mode)
-
-            assert str(error.value) == (
-                "Invalid value! Allowed values are "
-                "['SETUP', '-1', 'STANDBY', '0', 'SUMMER', '1', 'AUTO_HEAT', '2', 'AUTO_COOL', '3', 'AUTO', '4']"
-            )
 
             mock_keenergy_api.assert_not_called()
 
@@ -998,15 +999,16 @@ class TestBufferTankSection:
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
-            with pytest.raises(APIError) as error:
+            with pytest.raises(
+                APIError,
+                match=(
+                    "Can't convert value to human readable value! "
+                    r"{'name': 'APPL\.CtrlAppl\.sParam\.bufferTank\[0]\.param\.operatingMode', "
+                    r"'attributes': {'formatId': 'fmtBufferMode', 'longText': 'Oper\. mode', "
+                    "'unitId': 'Enum', 'upperLimit': '32767', 'lowerLimit': '0'}, 'value': '10'}"
+                ),
+            ):
                 await client.buffer_tank.get_operating_mode(human_readable=human_readable)
-
-            assert str(error.value) == (
-                "Can't convert value to human readable value! "
-                "{'name': 'APPL.CtrlAppl.sParam.bufferTank[0].param.operatingMode', "
-                "'attributes': {'formatId': 'fmtBufferMode', 'longText': 'Oper. mode', "
-                "'unitId': 'Enum', 'upperLimit': '32767', 'lowerLimit': '0'}, 'value': '10'}"
-            )
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1063,10 +1065,10 @@ class TestBufferTankSection:
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
-            with pytest.raises(APIError) as error:
+            with pytest.raises(
+                APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1', 'HEAT_UP', '2']"
+            ):
                 await client.buffer_tank.set_operating_mode(operating_mode)
-
-            assert str(error.value) == ("Invalid value! Allowed values are ['OFF', '0', 'ON', '1', 'HEAT_UP', '2']")
 
             mock_keenergy_api.assert_not_called()
 
@@ -1389,15 +1391,16 @@ class TestHotWaterTankSection:
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
-            with pytest.raises(APIError) as error:
+            with pytest.raises(
+                APIError,
+                match=(
+                    "Can't convert value to human readable value! "
+                    r"{'name': 'APPL\.CtrlAppl\.sParam.hotWaterTank\[0]\.param\.operatingMode', "
+                    r"'attributes': {'formatId': 'fmtHotWaterTank', 'longText': 'Op\.mode', "
+                    "'lowerLimit': '0', 'unitId': 'Enum', 'upperLimit': '32767'}, 'value': '10'}"
+                ),
+            ):
                 await client.hot_water_tank.get_operating_mode(human_readable=human_readable)
-
-            assert str(error.value) == (
-                "Can't convert value to human readable value! "
-                "{'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode', "
-                "'attributes': {'formatId': 'fmtHotWaterTank', 'longText': 'Op.mode', "
-                "'lowerLimit': '0', 'unitId': 'Enum', 'upperLimit': '32767'}, 'value': '10'}"
-            )
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -2208,10 +2211,8 @@ class TestHeatPumpSection:
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
-            with pytest.raises(APIError) as error:
+            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
                 await client.heat_pump.set_compressor_use_night_speed(operating_mode)
-
-            assert str(error.value) == "Invalid value! Allowed values are ['OFF', '0', 'ON', '1']"
 
             mock_keenergy_api.assert_not_called()
 
@@ -4568,14 +4569,14 @@ class TestHeatCircuitSection:
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
-            with pytest.raises(APIError) as error:
+            with pytest.raises(
+                APIError,
+                match=(
+                    r"Invalid value! Allowed values are \['OFF', '0', 'AUTO', '1', 'DAY', '2', 'NIGHT', '3', "
+                    "'HOLIDAY', '4', 'PARTY', '5', 'EXTERNAL', '8', 'ROOM_CONTROL', '9']"
+                ),
+            ):
                 await client.heat_circuit.set_operating_mode(operating_mode)
-
-            assert str(error.value) == (
-                "Invalid value! Allowed values are "
-                "['OFF', '0', 'AUTO', '1', 'DAY', '2', 'NIGHT', '3', 'HOLIDAY', '4', 'PARTY', '5', 'EXTERNAL', '8', "
-                "'ROOM_CONTROL', '9']"
-            )
 
             mock_keenergy_api.assert_not_called()
 
@@ -4609,14 +4610,15 @@ class TestHeatCircuitSection:
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
-            with pytest.raises(APIError) as error:
+            with pytest.raises(
+                APIError,
+                match=(
+                    "Can't convert value to human readable value! "
+                    r"{'name': 'APPL\.CtrlAppl\.sParam\.heatCircuit\[0].values\.heatRequest', "
+                    "'attributes': {'unitId': 'Enum', 'upperLimit': '6', 'lowerLimit': '0'}, 'value': '16'}"
+                ),
+            ):
                 await client.heat_circuit.get_heat_request(human_readable=human_readable)
-
-            assert str(error.value) == (
-                "Can't convert value to human readable value! "
-                "{'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].values.heatRequest', "
-                "'attributes': {'unitId': 'Enum', 'upperLimit': '6', 'lowerLimit': '0'}, 'value': '16'}"
-            )
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -5055,10 +5057,8 @@ class TestHeatCircuitSection:
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
-            with pytest.raises(APIError) as error:
+            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
                 await client.heat_circuit.set_use_heating_curve(mode)
-
-            assert str(error.value) == "Invalid value! Allowed values are ['OFF', '0', 'ON', '1']"
 
             mock_keenergy_api.assert_not_called()
 
@@ -5141,13 +5141,14 @@ class TestHeatCircuitSection:
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
-            with pytest.raises(APIError) as error:
+            with pytest.raises(
+                APIError,
+                match=(
+                    "Invalid value! Allowed values are "
+                    r"\['HC1', 'HC2', 'HC3', 'HC4', 'HC5', 'HC6', 'HC7', 'HC8', 'HC FBH', 'HC HK']"
+                ),
+            ):
                 await client.heat_circuit.set_heating_curve(name)
-
-            assert (
-                str(error.value) == "Invalid value! Allowed values are "
-                "['HC1', 'HC2', 'HC3', 'HC4', 'HC5', 'HC6', 'HC7', 'HC8', 'HC FBH', 'HC HK']"
-            )
 
             mock_keenergy_api.assert_not_called()
 
@@ -16542,10 +16543,8 @@ class TestSolarCircuitSection:
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
-            with pytest.raises(APIError) as error:
+            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
                 await client.solar_circuit.set_operating_mode(operating_mode)
-
-            assert str(error.value) == "Invalid value! Allowed values are ['OFF', '0', 'ON', '1']"
 
             mock_keenergy_api.assert_not_called()
 
@@ -16641,10 +16640,8 @@ class TestSolarCircuitSection:
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
-            with pytest.raises(APIError) as error:
+            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
                 await client.solar_circuit.set_priority_1_before_2(operating_mode, position=2)
-
-            assert str(error.value) == "Invalid value! Allowed values are ['OFF', '0', 'ON', '1']"
 
             mock_keenergy_api.assert_not_called()
 
@@ -17302,10 +17299,8 @@ class TestExternalHeatSourceSection:
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
-            with pytest.raises(APIError) as error:
+            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
                 await client.external_heat_source.set_operating_mode(operating_mode)
-
-            assert str(error.value) == ("Invalid value! Allowed values are ['OFF', '0', 'ON', '1']")
 
             mock_keenergy_api.assert_not_called()
 
