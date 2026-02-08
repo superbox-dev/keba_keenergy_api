@@ -32,6 +32,7 @@ from keba_keenergy_api.constants import SolarCircuitHeatRequest
 from keba_keenergy_api.constants import SolarCircuitOperatingMode
 from keba_keenergy_api.constants import SystemHasPhotovoltaics
 from keba_keenergy_api.constants import SystemOperatingMode
+from keba_keenergy_api.endpoints import HeatingCurvePoint
 from keba_keenergy_api.endpoints import HeatingCurves
 from keba_keenergy_api.endpoints import Position
 from keba_keenergy_api.error import APIError
@@ -16410,6 +16411,75 @@ class TestHeatCircuitSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data=expected_data,
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_set_heating_curve_points(
+        self,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.linTabPool[0].name",
+                        "attributes": {"longText": "Table name"},
+                        "value": "HC1",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_circuit.set_heating_curve_points(
+                "HC1",
+                points=(
+                    HeatingCurvePoint(outdoor=-20, flow=35),
+                    HeatingCurvePoint(outdoor=-10, flow=33),
+                    HeatingCurvePoint(outdoor=-5, flow=32),
+                    HeatingCurvePoint(outdoor=0, flow=30),
+                    HeatingCurvePoint(outdoor=5, flow=28),
+                    HeatingCurvePoint(outdoor=10, flow=27),
+                    HeatingCurvePoint(outdoor=20, flow=25),
+                ),
+            )
+
+            mock_keenergy_api.assert_called_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].name", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+            mock_keenergy_api.assert_called_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].noOfPoints", "value": "7"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[0].x", "value": "-20"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[0].y", "value": "35"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[1].x", "value": "-10"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[1].y", "value": "33"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[2].x", "value": "-5"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[2].y", "value": "32"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[3].x", "value": "0"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[3].y", "value": "30"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[4].x", "value": "5"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[4].y", "value": "28"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[5].x", "value": "10"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[5].y", "value": "27"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[6].x", "value": "20"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[6].y", "value": "25"}]'
+                ),
                 method="POST",
                 auth=None,
                 ssl=False,

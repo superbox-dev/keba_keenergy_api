@@ -66,6 +66,11 @@ class Position(NamedTuple):
     switch_valve: int
 
 
+class HeatingCurvePoint(NamedTuple):
+    outdoor: float
+    flow: float
+
+
 class Value(TypedDict, total=False):
     value: Any
     attributes: dict[str, Any]
@@ -75,8 +80,8 @@ ValueResponse: TypeAlias = dict[str, list[list[Value]] | list[Value] | Value]
 Payload: TypeAlias = list[ReadPayload | WritePayload]
 Response: TypeAlias = list[dict[str, Any]]
 
-HeatingCurvePoint = tuple[str | int | float, str | int | float]
-HeatingCurves: TypeAlias = dict[str, tuple[HeatingCurvePoint, ...]]
+HeatingCurvePoints = tuple[HeatingCurvePoint, ...]
+HeatingCurves: TypeAlias = dict[str, HeatingCurvePoints]
 
 
 class BaseEndpoints:
@@ -3544,12 +3549,15 @@ class HeatCircuitEndpoints(BaseEndpoints):
         values_per_point: int = 2
 
         for _ in curve_indices:
-            name: str = HeatCircuitHeatingCurve(response[data_idx]["value"]).name.lower()
+            name: str = HeatCircuitHeatingCurve.from_value(response[data_idx]["value"]).name.lower()
             no_of_points: int = int(response[data_idx + 1]["value"])
             raw: Response = response[data_idx + 2 : data_idx + 2 + points_per_table * values_per_point]
 
             points = tuple(
-                (raw[i]["value"], raw[i + 1]["value"])
+                HeatingCurvePoint(
+                    outdoor=raw[i]["value"],
+                    flow=raw[i + 1]["value"],
+                )
                 for i in range(0, no_of_points * values_per_point, values_per_point)
             )
 
@@ -3566,7 +3574,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         return data
 
-    async def set_heating_curve_points(self, heating_curve: str, points: HeatingCurvePoint) -> None:
+    async def set_heating_curve_points(self, heating_curve: str, points: HeatingCurvePoints) -> None:
         """Set the heating curve points.
 
         Parameters
@@ -3577,6 +3585,53 @@ class HeatCircuitEndpoints(BaseEndpoints):
             Heating curve points
 
         """
+        message: str
+
+        try:
+            idx: int = HeatCircuitHeatingCurve[heating_curve].id
+        except KeyError as error:
+            message = f"Invalid value! Allowed values are {[str(_.value) for _ in HeatCircuitHeatingCurve]}"
+            raise APIError(message) from error
+        else:
+            read_payload: Payload = [
+                ReadPayload(
+                    name=LineTablePool.HEATING_CURVE_NAME.value.value % idx,
+                    attr="1",
+                ),
+            ]
+
+            read_response: Response = await self._post(
+                payload=json.dumps(read_payload),
+                endpoint=EndpointPath.READ_WRITE_VARS,
+            )
+
+            if read_response[0]["value"] != heating_curve:
+                message = f'Name of heating curve "{heating_curve}" does not match entry with index {idx}'
+                raise APIError(message)
+
+            write_payload: Payload = [
+                WritePayload(
+                    name=LineTablePool.HEATING_CURVE_POINTS.value.value % idx,
+                    value=str(len(points)),
+                ),
+            ]
+
+            for point_idx, point in enumerate(points):
+                write_payload += [
+                    WritePayload(
+                        name=LineTablePool.HEATING_CURVE_POINT_X.value.value % (idx, point_idx),
+                        value=str(point.outdoor),
+                    ),
+                    WritePayload(
+                        name=LineTablePool.HEATING_CURVE_POINT_Y.value.value % (idx, point_idx),
+                        value=str(point.flow),
+                    ),
+                ]
+
+            await self._post(
+                payload=json.dumps(write_payload),
+                endpoint=f"{EndpointPath.READ_WRITE_VARS}?action=set",
+            )
 
 
 class SolarCircuitEndpoints(BaseEndpoints):
