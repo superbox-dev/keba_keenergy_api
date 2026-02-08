@@ -3463,7 +3463,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_str_value(response, section=HeatCircuit.HEATING_CURVE, position=position).upper()
 
-    async def set_heating_curve(self, name: str, position: int = 1) -> None:
+    async def set_heating_curve(self, heating_curve: str, position: int = 1) -> None:
         """Set the heating curve from the heat circuit.
 
         **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
@@ -3471,14 +3471,14 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         Parameters
         ----------
-        name
-            Set the name
+        heating_curve
+            The heating curve name
         position
             The number of the heat circuits
 
         """
         try:
-            _name = HeatCircuitHeatingCurve[name.upper()].value
+            _name = HeatCircuitHeatingCurve[heating_curve.upper()].value
         except KeyError as error:
             message: str = f"Invalid value! Allowed values are {[str(_.value) for _ in HeatCircuitHeatingCurve]}"
             raise APIError(message) from error
@@ -3487,13 +3487,18 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         await self._write_values(request={HeatCircuit.HEATING_CURVE: names})
 
-    async def get_heating_curves(self) -> HeatingCurves:
-        """Get the heating curves.
+    async def get_heating_curve_points(self, heating_curve: str | None = None) -> HeatingCurves:
+        """Get the heating curve points.
+
+        Parameters
+        ----------
+        heating_curve
+            The heating curve name
 
         Returns
         -------
         dict
-            Heating curves name and points.
+            One or more heating curves and the points
 
         """
         payload: Payload = []
@@ -3534,11 +3539,12 @@ class HeatCircuitEndpoints(BaseEndpoints):
         data: HeatingCurves = {}
 
         data_idx: int = 0
+        curve_indices = (*range(8), 12, 13)
         points_per_table: int = 16
         values_per_point: int = 2
 
-        for _ in [*list(range(8)), 12, 13]:
-            name: str = HeatCircuitHeatingCurve(response[data_idx]["value"]).name
+        for _ in curve_indices:
+            name: str = HeatCircuitHeatingCurve(response[data_idx]["value"]).name.lower()
             no_of_points: int = int(response[data_idx + 1]["value"])
             raw: Response = response[data_idx + 2 : data_idx + 2 + points_per_table * values_per_point]
 
@@ -3551,7 +3557,26 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
             data_idx += 2 + points_per_table * values_per_point
 
+        if heating_curve is not None:
+            try:
+                return {heating_curve.lower(): data[heating_curve.lower()]}
+            except KeyError as error:
+                message: str = f'Heating curve "{heating_curve}" not found'
+                raise APIError(message) from error
+
         return data
+
+    async def set_heating_curve_points(self, heating_curve: str, points: HeatingCurvePoint) -> None:
+        """Set the heating curve points.
+
+        Parameters
+        ----------
+        heating_curve
+            The heating curve name
+        points
+            Heating curve points
+
+        """
 
 
 class SolarCircuitEndpoints(BaseEndpoints):
