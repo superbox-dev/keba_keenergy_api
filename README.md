@@ -4,8 +4,11 @@
 A Python wrapper for the KEBA KeEnergy API used by the Web HMI.
 
 ![coverage-badge](https://raw.githubusercontent.com/superbox-dev/keba_keenergy_api/main/coverage-badge.svg)
-[![Version](https://img.shields.io/pypi/pyversions/keba-keenergy-api.svg)](https://pypi.python.org/pypi/keba-keenergy-api)
-[![CI](https://github.com/superbox-dev/KEBA-KeEnergy-API/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/superbox-dev/keba_keenergy_api/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/pypi/pyversions/keba-keenergy-api.svg)][pypi-version]
+[![CI](https://github.com/superbox-dev/KEBA-KeEnergy-API/actions/workflows/ci.yml/badge.svg?branch=main)][workflow-ci]
+
+[pypi-version]: https://pypi.python.org/pypi/keba-keenergy-api
+[workflow-ci]: https://github.com/superbox-dev/keba_keenergy_api/actions/workflows/ci.yml
 
 <!--end-home-->
 
@@ -15,7 +18,9 @@ A Python wrapper for the KEBA KeEnergy API used by the Web HMI.
 
 I put a lot of time into this project. If you like it, you can support me with a donation.
 
-[![KoFi](https://raw.githubusercontent.com/superbox-dev/.github/refs/heads/main/profile/superbox-kofi.jpg)](https://ko-fi.com/F2F0KXO6D)
+[![KoFi](https://raw.githubusercontent.com/superbox-dev/.github/refs/heads/main/profile/superbox-kofi.jpg)][kofi]
+
+[kofi]: https://ko-fi.com/F2F0KXO6D
 
 <!--end-donation-->
 
