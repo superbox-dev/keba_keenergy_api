@@ -1577,3 +1577,100 @@ class TestUnhappyPathHeatCircuitSection:
                 auth=None,
                 ssl=False,
             )
+
+    @pytest.mark.asyncio
+    async def test_heating_curve_name_is_invalid_in_set_heating_curve_points(
+        self,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.linTabPool[0].name",
+                        "attributes": {"longText": "Table name"},
+                        "value": "HC1",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(
+                APIError,
+                match=(
+                    "Invalid value! Allowed values are "
+                    r"\['HC1', 'HC2', 'HC3', 'HC4', 'HC5', 'HC6', 'HC7', 'HC8', 'HC FBH', 'HC HK']"
+                ),
+            ):
+                await client.heat_circuit.set_heating_curve_points(
+                    "INVALID",
+                    points=(
+                        HeatingCurvePoint(outdoor=-20, flow=35),
+                        HeatingCurvePoint(outdoor=-10, flow=33),
+                        HeatingCurvePoint(outdoor=-5, flow=32),
+                        HeatingCurvePoint(outdoor=0, flow=30),
+                        HeatingCurvePoint(outdoor=5, flow=28),
+                        HeatingCurvePoint(outdoor=10, flow=27),
+                        HeatingCurvePoint(outdoor=20, flow=25),
+                    ),
+                )
+
+            mock_keenergy_api.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_heating_curve_name_not_match_in_set_heating_curve_points(
+        self,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.linTabPool[0].name",
+                        "attributes": {"longText": "Table name"},
+                        "value": "INVALID",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(
+                APIError,
+                match=r'Name of heating curve "HC1" does not match entry with index 0',
+            ):
+                await client.heat_circuit.set_heating_curve_points(
+                    "HC1",
+                    points=(
+                        HeatingCurvePoint(outdoor=-20, flow=35),
+                        HeatingCurvePoint(outdoor=-10, flow=33),
+                        HeatingCurvePoint(outdoor=-5, flow=32),
+                        HeatingCurvePoint(outdoor=0, flow=30),
+                        HeatingCurvePoint(outdoor=5, flow=28),
+                        HeatingCurvePoint(outdoor=10, flow=27),
+                        HeatingCurvePoint(outdoor=20, flow=25),
+                    ),
+                )
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].name", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
