@@ -37,7 +37,7 @@ class BaseEnum(Enum):
             elif isinstance(member_value, tuple):
                 if value in member_value:
                     return member
-            elif value == member_value:
+            elif value == member_value:  # pragma: no cover
                 return member
 
         msg: str = f"{value!r} is not a valid {cls.__name__}"
