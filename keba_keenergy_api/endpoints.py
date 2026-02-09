@@ -3621,7 +3621,9 @@ class HeatCircuitEndpoints(BaseEndpoints):
                 ),
             ]
 
-            for point_idx, point in enumerate(points):
+            max_points: int = 16
+
+            for point_idx, point in enumerate(points[:max_points]):
                 write_payload += [
                     WritePayload(
                         name=LineTablePool.HEATING_CURVE_POINT_X.value.value % (idx, point_idx),
