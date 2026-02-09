@@ -3549,21 +3549,25 @@ class HeatCircuitEndpoints(BaseEndpoints):
         values_per_point: int = 2
 
         for _ in curve_indices:
-            name: str = HeatCircuitHeatingCurve(response[data_idx]["value"]).name.lower()
-            no_of_points: int = int(response[data_idx + 1]["value"])
-            raw: Response = response[data_idx + 2 : data_idx + 2 + points_per_table * values_per_point]
+            try:
+                name: str = HeatCircuitHeatingCurve(response[data_idx]["value"]).name.lower()
+            except ValueError:  # pragma: no cover  # noqa: PERF203
+                ...
+            else:
+                no_of_points: int = int(response[data_idx + 1]["value"])
+                raw: Response = response[data_idx + 2 : data_idx + 2 + points_per_table * values_per_point]
 
-            points = tuple(
-                HeatingCurvePoint(
-                    outdoor=float(raw[i]["value"]),
-                    flow=float(raw[i + 1]["value"]),
+                points = tuple(
+                    HeatingCurvePoint(
+                        outdoor=float(raw[i]["value"]),
+                        flow=float(raw[i + 1]["value"]),
+                    )
+                    for i in range(0, no_of_points * values_per_point, values_per_point)
                 )
-                for i in range(0, no_of_points * values_per_point, values_per_point)
-            )
 
-            data[name] = points
+                data[name] = points
 
-            data_idx += 2 + points_per_table * values_per_point
+                data_idx += 2 + points_per_table * values_per_point
 
         if heating_curve is not None:
             try:
