@@ -3555,8 +3555,8 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
             points = tuple(
                 HeatingCurvePoint(
-                    outdoor=raw[i]["value"],
-                    flow=raw[i + 1]["value"],
+                    outdoor=float(raw[i]["value"]),
+                    flow=float(raw[i + 1]["value"]),
                 )
                 for i in range(0, no_of_points * values_per_point, values_per_point)
             )
