@@ -24,7 +24,7 @@ class BaseEnum(Enum):
     @classmethod
     def _missing_(cls, value: object) -> "BaseEnum":
         for member in cls:
-            member_value = member.value
+            member_value = member._value_
 
             if (
                 isinstance(member_value, tuple)
