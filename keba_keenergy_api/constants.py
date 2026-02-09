@@ -226,7 +226,7 @@ class HeatCircuitHeatingCurve(BaseEnum):
         return self._value_[0]
 
     @property
-    def label(self) -> str:
+    def value(self) -> Any:  # noqa: ANN401
         """Get the value from the value tuple."""
         return self._value_[1]
 

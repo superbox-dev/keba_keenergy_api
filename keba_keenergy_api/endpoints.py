@@ -3483,9 +3483,9 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         """
         try:
-            _name = HeatCircuitHeatingCurve[heating_curve.upper()].label
+            _name = HeatCircuitHeatingCurve[heating_curve.upper()].value
         except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {[str(_.label) for _ in HeatCircuitHeatingCurve]}"
+            message: str = f"Invalid value! Allowed values are {[str(_.value) for _ in HeatCircuitHeatingCurve]}"
             raise APIError(message) from error
 
         names: list[str | None] = [_name if position == p else None for p in range(1, position + 1)]
@@ -3590,7 +3590,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         try:
             idx: int = HeatCircuitHeatingCurve[heating_curve].id
         except KeyError as error:
-            message = f"Invalid value! Allowed values are {[str(_.label) for _ in HeatCircuitHeatingCurve]}"
+            message = f"Invalid value! Allowed values are {[str(_.value) for _ in HeatCircuitHeatingCurve]}"
             raise APIError(message) from error
         else:
             read_payload: Payload = [
