@@ -22,16 +22,26 @@ class EndpointPath:
 
 class BaseEnum(Enum):
     @classmethod
-    def from_value(cls, value: int) -> "BaseEnum":
-        """Get name from value."""
-        for state in cls:
-            if isinstance(state.value, tuple):
-                if value in state.value:
-                    return state
-            elif state.value == value:
-                return state
+    def _missing_(cls, value: object) -> "BaseEnum":
+        for member in cls:
+            member_value = member.value
 
-        raise ValueError
+            if (
+                isinstance(member_value, tuple)
+                and len(member_value) == 2  # noqa: PLR2004
+                and isinstance(member_value[1], str)
+            ):
+                enum_id, label = member_value
+                if value in (enum_id, label):
+                    return member
+            elif isinstance(member_value, tuple):
+                if value in member_value:
+                    return member
+            elif value == member_value:
+                return member
+
+        msg: str = f"{value!r} is not a valid {cls.__name__}"
+        raise ValueError(msg)
 
 
 class BoolEnum(BaseEnum):
@@ -216,7 +226,7 @@ class HeatCircuitHeatingCurve(BaseEnum):
         return self._value_[0]
 
     @property
-    def value(self) -> Any:  # noqa: ANN401
+    def label(self) -> str:
         """Get the value from the value tuple."""
         return self._value_[1]
 

@@ -230,7 +230,7 @@ class BaseEndpoints:
 
         if human_readable and section.value.human_readable:
             try:
-                value = section.value.human_readable.from_value(value).name.lower()
+                value = section.value.human_readable(value).name.lower()
             except ValueError as error:
                 message: str = f"Can't convert value to human readable value! {response[0]}"
                 raise APIError(message) from error
@@ -3483,9 +3483,9 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         """
         try:
-            _name = HeatCircuitHeatingCurve[heating_curve.upper()].value
+            _name = HeatCircuitHeatingCurve[heating_curve.upper()].label
         except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {[str(_.value) for _ in HeatCircuitHeatingCurve]}"
+            message: str = f"Invalid value! Allowed values are {[str(_.label) for _ in HeatCircuitHeatingCurve]}"
             raise APIError(message) from error
 
         names: list[str | None] = [_name if position == p else None for p in range(1, position + 1)]
@@ -3549,7 +3549,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         values_per_point: int = 2
 
         for _ in curve_indices:
-            name: str = HeatCircuitHeatingCurve.from_value(response[data_idx]["value"]).name.lower()
+            name: str = HeatCircuitHeatingCurve(response[data_idx]["value"]).name.lower()
             no_of_points: int = int(response[data_idx + 1]["value"])
             raw: Response = response[data_idx + 2 : data_idx + 2 + points_per_table * values_per_point]
 
@@ -3590,7 +3590,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         try:
             idx: int = HeatCircuitHeatingCurve[heating_curve].id
         except KeyError as error:
-            message = f"Invalid value! Allowed values are {[str(_.value) for _ in HeatCircuitHeatingCurve]}"
+            message = f"Invalid value! Allowed values are {[str(_.label) for _ in HeatCircuitHeatingCurve]}"
             raise APIError(message) from error
         else:
             read_payload: Payload = [
