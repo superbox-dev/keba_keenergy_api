@@ -30,6 +30,7 @@ from keba_keenergy_api.constants import HeatPumpOperatingMode
 from keba_keenergy_api.constants import HotWaterTank
 from keba_keenergy_api.constants import HotWaterTankOperatingMode
 from keba_keenergy_api.constants import LineTablePool
+from keba_keenergy_api.constants import MAX_HEATING_CURVE_POINTS
 from keba_keenergy_api.constants import Photovoltaic
 from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import SolarCircuit
@@ -3621,9 +3622,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
                 ),
             ]
 
-            max_points: int = 16
-
-            for point_idx, point in enumerate(points[:max_points]):
+            for point_idx, point in enumerate(points[:MAX_HEATING_CURVE_POINTS]):
                 write_payload += [
                     WritePayload(
                         name=LineTablePool.HEATING_CURVE_POINT_X.value.value % (idx, point_idx),

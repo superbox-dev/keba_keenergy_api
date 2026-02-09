@@ -206,6 +206,9 @@ class HeatCircuitCoolRequest(BaseEnum):
     INFLOW_OFF = 6
 
 
+MAX_HEATING_CURVE_POINTS: Final[int] = 16
+
+
 class HeatCircuitHeatingCurve(BaseEnum):
     """Available heat curve names and indices."""
 
