@@ -15,7 +15,8 @@ from keba_keenergy_api.constants import HeatPumpOperatingMode
 from keba_keenergy_api.error import APIError
 
 
-class TestHeatPumpSection:
+@pytest.mark.happy
+class TestHappyPathHeatPumpSection:
     @pytest.mark.asyncio
     async def test_get_name(self) -> None:
         with aioresponses() as mock_keenergy_api:
@@ -214,31 +215,6 @@ class TestHeatPumpSection:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        "operating_mode",
-        ["INVALID"],
-    )
-    async def test_set_invalid_operating_mode(
-        self,
-        operating_mode: int | str,
-    ) -> None:
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(APIError) as error:
-                await client.heat_pump.set_operating_mode(operating_mode)
-
-            assert str(error.value) == "Invalid value! Allowed values are ['OFF', '0', 'ON', '1', 'BACKUP', '2']"
-
-            mock_keenergy_api.assert_not_called()
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
@@ -315,29 +291,6 @@ class TestHeatPumpSection:
                 auth=None,
                 ssl=False,
             )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        "operating_mode",
-        ["INVALID"],
-    )
-    async def test_set_invalid_compressor_use_night_speed(
-        self,
-        operating_mode: int | str,
-    ) -> None:
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
-                await client.heat_pump.set_compressor_use_night_speed(operating_mode)
-
-            mock_keenergy_api.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_get_compressor_night_speed(self) -> None:
@@ -1877,3 +1830,55 @@ class TestHeatPumpSection:
                 auth=None,
                 ssl=False,
             )
+
+
+@pytest.mark.unhappy
+class TestUnhappyPathHeatPumpSection:
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "operating_mode",
+        ["INVALID"],
+    )
+    async def test_set_invalid_operating_mode(
+        self,
+        operating_mode: int | str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(APIError) as error:
+                await client.heat_pump.set_operating_mode(operating_mode)
+
+            assert str(error.value) == "Invalid value! Allowed values are ['OFF', '0', 'ON', '1', 'BACKUP', '2']"
+
+            mock_keenergy_api.assert_not_called()
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "operating_mode",
+        ["INVALID"],
+    )
+    async def test_set_invalid_compressor_use_night_speed(
+        self,
+        operating_mode: int | str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
+                await client.heat_pump.set_compressor_use_night_speed(operating_mode)
+
+            mock_keenergy_api.assert_not_called()

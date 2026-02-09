@@ -16,7 +16,8 @@ from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_po
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_points_payload
 
 
-class TestHeatCircuitSection:
+@pytest.mark.happy
+class TestHappyPathHeatCircuitSection:
     @pytest.mark.asyncio
     async def test_get_name(self) -> None:
         with aioresponses() as mock_keenergy_api:
@@ -812,84 +813,6 @@ class TestHeatCircuitSection:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        "operating_mode",
-        ["INVALID"],
-    )
-    async def test_set_invalid_operating_mode(
-        self,
-        operating_mode: int,
-    ) -> None:
-
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(
-                APIError,
-                match=(
-                    r"Invalid value! Allowed values are \['OFF', '0', 'AUTO', '1', 'DAY', '2', 'NIGHT', '3', "
-                    "'HOLIDAY', '4', 'PARTY', '5', 'EXTERNAL', '8', 'ROOM_CONTROL', '9']"
-                ),
-            ):
-                await client.heat_circuit.set_operating_mode(operating_mode)
-
-            mock_keenergy_api.assert_not_called()
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("human_readable", "payload_value"),
-        [(True, "16")],
-    )
-    async def test_get_invalid_heat_request(
-        self,
-        human_readable: bool,  # noqa: FBT001
-        payload_value: str,
-    ) -> None:
-
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.heatRequest",
-                        "attributes": {
-                            "unitId": "Enum",
-                            "upperLimit": "6",
-                            "lowerLimit": "0",
-                        },
-                        "value": payload_value,
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(
-                APIError,
-                match=(
-                    "Can't convert value to human readable value! "
-                    r"{'name': 'APPL\.CtrlAppl\.sParam\.heatCircuit\[0].values\.heatRequest', "
-                    "'attributes': {'unitId': 'Enum', 'upperLimit': '6', 'lowerLimit': '0'}, 'value': '16'}"
-                ),
-            ):
-                await client.heat_circuit.get_heat_request(human_readable=human_readable)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.heatRequest", "attr": "1"}]',
-                method="POST",
-                auth=None,
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "0", "off"),
@@ -1303,26 +1226,6 @@ class TestHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        "mode",
-        ["INVALID"],
-    )
-    async def test_set_invalid_use_heating_curve(self, mode: int | str) -> None:
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
-                await client.heat_circuit.set_use_heating_curve(mode)
-
-            mock_keenergy_api.assert_not_called()
-
-    @pytest.mark.asyncio
     async def test_get_heating_curve(self) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
@@ -1385,35 +1288,6 @@ class TestHeatCircuitSection:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        "name",
-        ["INVALID"],
-    )
-    async def test_set_invalid_heating_curve(
-        self,
-        name: str,
-    ) -> None:
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(
-                APIError,
-                match=(
-                    "Invalid value! Allowed values are "
-                    r"\['HC1', 'HC2', 'HC3', 'HC4', 'HC5', 'HC6', 'HC7', 'HC8', 'HC FBH', 'HC HK']"
-                ),
-            ):
-                await client.heat_circuit.set_heating_curve(name)
-
-            mock_keenergy_api.assert_not_called()
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
         (
             "heating_curve",
             "payload",
@@ -1454,47 +1328,6 @@ class TestHeatCircuitSection:
 
             assert isinstance(response, dict)
             assert response == expected_response
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data=expected_data,
-                method="POST",
-                auth=None,
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        (
-            "heating_curve",
-            "payload",
-            "expected_data",
-        ),
-        [
-            (
-                "HC10",
-                heating_curve_points_payload,
-                heating_curve_points_expected_data,
-            ),
-        ],
-    )
-    async def test_get_invalide_heating_curve_points(
-        self,
-        heating_curve: str | None,
-        payload: list[dict[str, str]],
-        expected_data: str,
-    ) -> None:
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=payload,
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(APIError, match='Heating curve "HC10" not found'):
-                await client.heat_circuit.get_heating_curve_points(heating_curve)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1568,6 +1401,178 @@ class TestHeatCircuitSection:
                     '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[6].x", "value": "20"}, '
                     '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[6].y", "value": "25"}]'
                 ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+
+@pytest.mark.unhappy
+class TestUnhappyPathHeatCircuitSection:
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "operating_mode",
+        ["INVALID"],
+    )
+    async def test_set_invalid_operating_mode(
+        self,
+        operating_mode: int,
+    ) -> None:
+
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(
+                APIError,
+                match=(
+                    r"Invalid value! Allowed values are \['OFF', '0', 'AUTO', '1', 'DAY', '2', 'NIGHT', '3', "
+                    "'HOLIDAY', '4', 'PARTY', '5', 'EXTERNAL', '8', 'ROOM_CONTROL', '9']"
+                ),
+            ):
+                await client.heat_circuit.set_operating_mode(operating_mode)
+
+            mock_keenergy_api.assert_not_called()
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value"),
+        [(True, "16")],
+    )
+    async def test_get_invalid_heat_request(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+    ) -> None:
+
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.heatRequest",
+                        "attributes": {
+                            "unitId": "Enum",
+                            "upperLimit": "6",
+                            "lowerLimit": "0",
+                        },
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(
+                APIError,
+                match=(
+                    "Can't convert value to human readable value! "
+                    r"{'name': 'APPL\.CtrlAppl\.sParam\.heatCircuit\[0].values\.heatRequest', "
+                    "'attributes': {'unitId': 'Enum', 'upperLimit': '6', 'lowerLimit': '0'}, 'value': '16'}"
+                ),
+            ):
+                await client.heat_circuit.get_heat_request(human_readable=human_readable)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.heatRequest", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "mode",
+        ["INVALID"],
+    )
+    async def test_set_invalid_use_heating_curve(self, mode: int | str) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
+                await client.heat_circuit.set_use_heating_curve(mode)
+
+            mock_keenergy_api.assert_not_called()
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "name",
+        ["INVALID"],
+    )
+    async def test_set_invalid_heating_curve(
+        self,
+        name: str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(
+                APIError,
+                match=(
+                    "Invalid value! Allowed values are "
+                    r"\['HC1', 'HC2', 'HC3', 'HC4', 'HC5', 'HC6', 'HC7', 'HC8', 'HC FBH', 'HC HK']"
+                ),
+            ):
+                await client.heat_circuit.set_heating_curve(name)
+
+            mock_keenergy_api.assert_not_called()
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        (
+            "heating_curve",
+            "payload",
+            "expected_data",
+        ),
+        [
+            (
+                "HC10",
+                heating_curve_points_payload,
+                heating_curve_points_expected_data,
+            ),
+        ],
+    )
+    async def test_get_invalid_heating_curve_points(
+        self,
+        heating_curve: str | None,
+        payload: list[dict[str, str]],
+        expected_data: str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(APIError, match='Heating curve "HC10" not found'):
+                await client.heat_circuit.get_heating_curve_points(heating_curve)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data=expected_data,
                 method="POST",
                 auth=None,
                 ssl=False,

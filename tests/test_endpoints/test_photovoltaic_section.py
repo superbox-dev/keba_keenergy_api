@@ -4,7 +4,8 @@ from aioresponses.core import aioresponses
 from keba_keenergy_api.api import KebaKeEnergyAPI
 
 
-class TestPhotovoltaicSection:
+@pytest.mark.happy
+class TestHappyPathPhotovoltaicSection:
     @pytest.mark.asyncio
     async def test_get_excess_power(self) -> None:
 

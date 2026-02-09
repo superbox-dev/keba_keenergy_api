@@ -8,7 +8,8 @@ from keba_keenergy_api.constants import HotWaterTankOperatingMode
 from keba_keenergy_api.error import APIError
 
 
-class TestHotWaterTankSection:
+@pytest.mark.happy
+class TestHappyPathHotWaterTankSection:
     @pytest.mark.asyncio
     async def test_get_name(self) -> None:
         with aioresponses() as mock_keenergy_api:
@@ -121,56 +122,6 @@ class TestHotWaterTankSection:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        ("human_readable", "payload_value"),
-        [(True, 10)],
-    )
-    async def test_get_invalid_human_readable_operating_mode(
-        self,
-        human_readable: bool,  # noqa: FBT001
-        payload_value: int,
-    ) -> None:
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode",
-                        "attributes": {
-                            "formatId": "fmtHotWaterTank",
-                            "longText": "Op.mode",
-                            "lowerLimit": "0",
-                            "unitId": "Enum",
-                            "upperLimit": "32767",
-                        },
-                        "value": f"{payload_value}",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(
-                APIError,
-                match=(
-                    "Can't convert value to human readable value! "
-                    r"{'name': 'APPL\.CtrlAppl\.sParam.hotWaterTank\[0]\.param\.operatingMode', "
-                    r"'attributes': {'formatId': 'fmtHotWaterTank', 'longText': 'Op\.mode', "
-                    "'lowerLimit': '0', 'unitId': 'Enum', 'upperLimit': '32767'}, 'value': '10'}"
-                ),
-            ):
-                await client.hot_water_tank.get_operating_mode(human_readable=human_readable)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode", "attr": "1"}]',
-                method="POST",
-                auth=None,
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
         ("operating_mode", "expected_value"),
         [("off", 0), ("OFF", 0), (HotWaterTankOperatingMode.HEAT_UP.value, 3)],
     )
@@ -197,33 +148,6 @@ class TestHotWaterTankSection:
                 auth=None,
                 ssl=False,
             )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        "operating_mode",
-        ["INVALID"],
-    )
-    async def test_set_invalid_operating_mode(
-        self,
-        operating_mode: int | str,
-    ) -> None:
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(APIError) as error:
-                await client.hot_water_tank.set_operating_mode(operating_mode)
-
-            assert str(error.value) == (
-                "Invalid value! Allowed values are ['OFF', '0', 'AUTO', '1', 'ON', '2', 'HEAT_UP', '3']"
-            )
-
-            mock_keenergy_api.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_get_min_target_temperature(self) -> None:
@@ -649,3 +573,84 @@ class TestHotWaterTankSection:
                 auth=None,
                 ssl=False,
             )
+
+
+@pytest.mark.unhappy
+class TestUnhappyPathHotWaterTankSection:
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value"),
+        [(True, 10)],
+    )
+    async def test_get_invalid_human_readable_operating_mode(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: int,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode",
+                        "attributes": {
+                            "formatId": "fmtHotWaterTank",
+                            "longText": "Op.mode",
+                            "lowerLimit": "0",
+                            "unitId": "Enum",
+                            "upperLimit": "32767",
+                        },
+                        "value": f"{payload_value}",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(
+                APIError,
+                match=(
+                    "Can't convert value to human readable value! "
+                    r"{'name': 'APPL\.CtrlAppl\.sParam.hotWaterTank\[0]\.param\.operatingMode', "
+                    r"'attributes': {'formatId': 'fmtHotWaterTank', 'longText': 'Op\.mode', "
+                    "'lowerLimit': '0', 'unitId': 'Enum', 'upperLimit': '32767'}, 'value': '10'}"
+                ),
+            ):
+                await client.hot_water_tank.get_operating_mode(human_readable=human_readable)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "operating_mode",
+        ["INVALID"],
+    )
+    async def test_set_invalid_operating_mode(
+        self,
+        operating_mode: int | str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(APIError) as error:
+                await client.hot_water_tank.set_operating_mode(operating_mode)
+
+            assert str(error.value) == (
+                "Invalid value! Allowed values are ['OFF', '0', 'AUTO', '1', 'ON', '2', 'HEAT_UP', '3']"
+            )
+
+            mock_keenergy_api.assert_not_called()

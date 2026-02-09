@@ -8,7 +8,8 @@ from keba_keenergy_api.constants import BufferTankOperatingMode
 from keba_keenergy_api.error import APIError
 
 
-class TestBufferTankSection:
+@pytest.mark.happy
+class TestHappyPathBufferTankSection:
     @pytest.mark.asyncio
     async def test_get_name(self) -> None:
         with aioresponses() as mock_keenergy_api:
@@ -156,56 +157,6 @@ class TestBufferTankSection:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        ("human_readable", "payload_value"),
-        [(True, 10)],
-    )
-    async def test_get_invalid_human_readable_operating_mode(
-        self,
-        human_readable: bool,  # noqa: FBT001
-        payload_value: int,
-    ) -> None:
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.bufferTank[0].param.operatingMode",
-                        "attributes": {
-                            "formatId": "fmtBufferMode",
-                            "longText": "Oper. mode",
-                            "unitId": "Enum",
-                            "upperLimit": "32767",
-                            "lowerLimit": "0",
-                        },
-                        "value": f"{payload_value}",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(
-                APIError,
-                match=(
-                    "Can't convert value to human readable value! "
-                    r"{'name': 'APPL\.CtrlAppl\.sParam\.bufferTank\[0]\.param\.operatingMode', "
-                    r"'attributes': {'formatId': 'fmtBufferMode', 'longText': 'Oper\. mode', "
-                    "'unitId': 'Enum', 'upperLimit': '32767', 'lowerLimit': '0'}, 'value': '10'}"
-                ),
-            ):
-                await client.buffer_tank.get_operating_mode(human_readable=human_readable)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.operatingMode", "attr": "1"}]',
-                method="POST",
-                auth=None,
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
         ("operating_mode", "expected_value"),
         [("off", 0), ("ON", 1), (BufferTankOperatingMode.HEAT_UP.value, 2)],
     )
@@ -232,31 +183,6 @@ class TestBufferTankSection:
                 auth=None,
                 ssl=False,
             )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        "operating_mode",
-        ["INVALID"],
-    )
-    async def test_set_invalid_operating_mode(
-        self,
-        operating_mode: int | str,
-    ) -> None:
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(
-                APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1', 'HEAT_UP', '2']"
-            ):
-                await client.buffer_tank.set_operating_mode(operating_mode)
-
-            mock_keenergy_api.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_get_standby_temperature(self) -> None:
@@ -433,3 +359,82 @@ class TestBufferTankSection:
                 auth=None,
                 ssl=False,
             )
+
+
+@pytest.mark.unhappy
+class TestUnhappyPathBufferTankSection:
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value"),
+        [(True, 10)],
+    )
+    async def test_get_invalid_human_readable_operating_mode(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: int,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.bufferTank[0].param.operatingMode",
+                        "attributes": {
+                            "formatId": "fmtBufferMode",
+                            "longText": "Oper. mode",
+                            "unitId": "Enum",
+                            "upperLimit": "32767",
+                            "lowerLimit": "0",
+                        },
+                        "value": f"{payload_value}",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(
+                APIError,
+                match=(
+                    "Can't convert value to human readable value! "
+                    r"{'name': 'APPL\.CtrlAppl\.sParam\.bufferTank\[0]\.param\.operatingMode', "
+                    r"'attributes': {'formatId': 'fmtBufferMode', 'longText': 'Oper\. mode', "
+                    "'unitId': 'Enum', 'upperLimit': '32767', 'lowerLimit': '0'}, 'value': '10'}"
+                ),
+            ):
+                await client.buffer_tank.get_operating_mode(human_readable=human_readable)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.operatingMode", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "operating_mode",
+        ["INVALID"],
+    )
+    async def test_set_invalid_operating_mode(
+        self,
+        operating_mode: int | str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(
+                APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1', 'HEAT_UP', '2']"
+            ):
+                await client.buffer_tank.set_operating_mode(operating_mode)
+
+            mock_keenergy_api.assert_not_called()

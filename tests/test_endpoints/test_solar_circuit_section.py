@@ -8,7 +8,8 @@ from keba_keenergy_api.constants import SolarCircuitOperatingMode
 from keba_keenergy_api.error import APIError
 
 
-class TestSolarCircuitSection:
+@pytest.mark.happy
+class TestHappyPathSolarCircuitSection:
     @pytest.mark.asyncio
     async def test_get_name(self) -> None:
 
@@ -118,30 +119,6 @@ class TestSolarCircuitSection:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        "operating_mode",
-        ["INVALID"],
-    )
-    async def test_set_invalid_operating_mode(
-        self,
-        operating_mode: int,
-    ) -> None:
-
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
-                await client.solar_circuit.set_operating_mode(operating_mode)
-
-            mock_keenergy_api.assert_not_called()
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [(True, "true", "on"), (False, "false", 0)],
     )
@@ -212,30 +189,6 @@ class TestSolarCircuitSection:
                 auth=None,
                 ssl=False,
             )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        "operating_mode",
-        ["INVALID"],
-    )
-    async def test_set_invalid_priority_1_before_2(
-        self,
-        operating_mode: int,
-    ) -> None:
-
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
-                await client.solar_circuit.set_priority_1_before_2(operating_mode, position=2)
-
-            mock_keenergy_api.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_source_temperature(self) -> None:
@@ -794,3 +747,55 @@ class TestSolarCircuitSection:
                 auth=None,
                 ssl=False,
             )
+
+
+@pytest.mark.unhappy
+class TestUnhappyPathSolarCircuitSection:
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "operating_mode",
+        ["INVALID"],
+    )
+    async def test_set_invalid_operating_mode(
+        self,
+        operating_mode: int,
+    ) -> None:
+
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
+                await client.solar_circuit.set_operating_mode(operating_mode)
+
+            mock_keenergy_api.assert_not_called()
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "operating_mode",
+        ["INVALID"],
+    )
+    async def test_set_invalid_priority_1_before_2(
+        self,
+        operating_mode: int,
+    ) -> None:
+
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
+                await client.solar_circuit.set_priority_1_before_2(operating_mode, position=2)
+
+            mock_keenergy_api.assert_not_called()

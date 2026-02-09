@@ -7,7 +7,8 @@ from keba_keenergy_api.constants import ExternalHeatSourceOperatingMode
 from keba_keenergy_api.error import APIError
 
 
-class TestExternalHeatSourceSection:
+@pytest.mark.happy
+class TestHappyPathExternalHeatSourceSection:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
@@ -82,30 +83,6 @@ class TestExternalHeatSourceSection:
                 auth=None,
                 ssl=False,
             )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        "operating_mode",
-        ["INVALID"],
-    )
-    async def test_set_invalid_operating_mode(
-        self,
-        operating_mode: int | str,
-    ) -> None:
-
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
-                await client.external_heat_source.set_operating_mode(operating_mode)
-
-            mock_keenergy_api.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_get_target_temperature(self) -> None:
@@ -289,3 +266,31 @@ class TestExternalHeatSourceSection:
                 auth=None,
                 ssl=False,
             )
+
+
+@pytest.mark.unhappy
+class TestUnhappyPathExternalHeatSourceSection:
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "operating_mode",
+        ["INVALID"],
+    )
+    async def test_set_invalid_operating_mode(
+        self,
+        operating_mode: int | str,
+    ) -> None:
+
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
+                await client.external_heat_source.set_operating_mode(operating_mode)
+
+            mock_keenergy_api.assert_not_called()
