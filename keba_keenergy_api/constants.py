@@ -206,6 +206,7 @@ class HeatCircuitCoolRequest(BaseEnum):
     INFLOW_OFF = 6
 
 
+MIN_HEATING_CURVE_POINTS: Final[int] = 7
 MAX_HEATING_CURVE_POINTS: Final[int] = 16
 
 
@@ -839,6 +840,11 @@ class LineTablePool(Enum):
     HEATING_CURVE_POINT_Y = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].points[%s].y",
         value_type=float,
+        read_only=False,
+    )
+    SAVE_HEATING_CURVE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}sParam.linTabPool[%s].verCnt",
+        value_type=str,
         read_only=False,
     )
 

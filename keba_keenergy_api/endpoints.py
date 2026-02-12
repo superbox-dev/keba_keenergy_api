@@ -31,6 +31,7 @@ from keba_keenergy_api.constants import HotWaterTank
 from keba_keenergy_api.constants import HotWaterTankOperatingMode
 from keba_keenergy_api.constants import LineTablePool
 from keba_keenergy_api.constants import MAX_HEATING_CURVE_POINTS
+from keba_keenergy_api.constants import MIN_HEATING_CURVE_POINTS
 from keba_keenergy_api.constants import Photovoltaic
 from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import SolarCircuit
@@ -3618,7 +3619,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
             write_payload: Payload = [
                 WritePayload(
                     name=LineTablePool.HEATING_CURVE_POINTS.value.value % idx,
-                    value=str(len(points)),
+                    value=str(len(points) or MIN_HEATING_CURVE_POINTS),
                 ),
             ]
 
@@ -3638,6 +3639,13 @@ class HeatCircuitEndpoints(BaseEndpoints):
                         value=str(point.flow) if point else "0",
                     ),
                 ]
+
+            write_payload += [
+                WritePayload(
+                    name=LineTablePool.SAVE_HEATING_CURVE.value.value % idx,
+                    value="192",
+                ),
+            ]
 
             await self._post(
                 payload=json.dumps(write_payload),

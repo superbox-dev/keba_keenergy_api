@@ -1417,7 +1417,8 @@ class TestHappyPathHeatCircuitSection:
                     '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[14].x", "value": "0"}, '
                     '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[14].y", "value": "0"}, '
                     '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[15].x", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[15].y", "value": "0"}]'
+                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[15].y", "value": "0"}, '
+                    '{"name": "APPL.CtrlApplsParam.linTabPool[0].verCnt", "value": "192"}]'
                 ),
                 method="POST",
                 auth=None,
