@@ -3622,15 +3622,20 @@ class HeatCircuitEndpoints(BaseEndpoints):
                 ),
             ]
 
-            for point_idx, point in enumerate(points[:MAX_HEATING_CURVE_POINTS]):
+            for point_idx in range(MAX_HEATING_CURVE_POINTS):
+                point: HeatingCurvePoint | None = None
+
+                if point_idx < len(points):
+                    point = points[point_idx]
+
                 write_payload += [
                     WritePayload(
                         name=LineTablePool.HEATING_CURVE_POINT_X.value.value % (idx, point_idx),
-                        value=str(point.outdoor),
+                        value=str(point.outdoor) if point else "0",
                     ),
                     WritePayload(
                         name=LineTablePool.HEATING_CURVE_POINT_Y.value.value % (idx, point_idx),
-                        value=str(point.flow),
+                        value=str(point.flow) if point else "0",
                     ),
                 ]
 
