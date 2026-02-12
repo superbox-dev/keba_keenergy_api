@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--start-->
 
-## [2.9.0b6] - 2026-02-09
+## [2.9.0b11] - 2026-02-12
 
 ## Added
 
@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `set_heating_curve()` to heating circuit [(Issue #97)][issue-97]
 - Added endpoint `get_heating_curve_points()` to heating circuit [(Issue #97)][issue-97]
 - Added endpoint `set_heating_curve_points()` to heating circuit [(Issue #97)][issue-97]
+- Added extra attributes heating curve points to the heating curve [(Issue #97)][issue-97]
 
 [issue-97]: https://github.com/superbox-dev/keba_keenergy_api/issues/97
 
