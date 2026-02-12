@@ -5,6 +5,7 @@ from aiohttp import BasicAuth
 from aiohttp import ClientSession
 
 from keba_keenergy_api.constants import EndpointPath
+from keba_keenergy_api.constants import HeatCircuit
 from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import SectionPrefix
 from keba_keenergy_api.endpoints import BaseEndpoints
@@ -12,6 +13,7 @@ from keba_keenergy_api.endpoints import BufferTankEndpoints
 from keba_keenergy_api.endpoints import ExternalHeatSourceEndpoints
 from keba_keenergy_api.endpoints import HeatCircuitEndpoints
 from keba_keenergy_api.endpoints import HeatPumpEndpoints
+from keba_keenergy_api.endpoints import HeatingCurves
 from keba_keenergy_api.endpoints import HotWaterTankEndpoints
 from keba_keenergy_api.endpoints import PhotovoltaicsEndpoints
 from keba_keenergy_api.endpoints import Position
@@ -195,8 +197,13 @@ class KebaKeEnergyAPI(BaseEndpoints):
             session=self.session,
         )
 
-    @staticmethod
-    def _group_data(response: dict[str, list[list[Value]] | list[Value]], /) -> dict[str, ValueResponse]:  # noqa: C901
+    async def _group_data(  # noqa: C901
+        self,
+        response: dict[str, list[list[Value]] | list[Value]],
+        /,
+        *,
+        extra_attributes: bool = True,
+    ) -> dict[str, ValueResponse]:
         data: dict[str, ValueResponse] = {
             SectionPrefix.SYSTEM.value: {},
             SectionPrefix.BUFFER_TANK.value: {},
@@ -226,6 +233,10 @@ class KebaKeEnergyAPI(BaseEndpoints):
                 data[SectionPrefix.HEAT_PUMP][_key] = value
             elif key.startswith(SectionPrefix.HEAT_CIRCUIT):
                 _key = key.lower().replace(f"{SectionPrefix.HEAT_CIRCUIT.value}_", "")
+
+                if extra_attributes:
+                    await self._extra_attributes_heating_curve(key, value)
+
                 data[SectionPrefix.HEAT_CIRCUIT][_key] = value
             elif key.startswith(SectionPrefix.SOLAR_CIRCUIT):
                 _key = key.lower().replace(f"{SectionPrefix.SOLAR_CIRCUIT.value}_", "")
@@ -288,7 +299,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
             extra_attributes=extra_attributes,
         )
 
-        return self._group_data(response)
+        return await self._group_data(response, extra_attributes=extra_attributes)
 
     async def write_data(self, request: dict[Section, Any]) -> None:
         """Write multiple data to API with one request.
@@ -365,3 +376,13 @@ class KebaKeEnergyAPI(BaseEndpoints):
                 filtered_sections.append(section)
 
         return filtered_sections
+
+    async def _extra_attributes_heating_curve(self, key: str, value: list[list[Value]] | list[Value], /) -> None:
+        if key.lower() == self._get_real_key(HeatCircuit.HEATING_CURVE):
+            heating_curve_points: HeatingCurves = await self.heat_circuit.get_heating_curve_points()
+
+            for item in value:
+                if isinstance(item, dict):
+                    item["attributes"]["points"] = [
+                        {"outdoor": d[0], "flow": round(d[1], 2)} for d in heating_curve_points[item["value"]]
+                    ]
