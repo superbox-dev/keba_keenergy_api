@@ -4116,7 +4116,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Heating energy in kWh
+            Heating energy in J
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
@@ -4137,7 +4137,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Daily energy in kWh
+            Daily energy in J
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
