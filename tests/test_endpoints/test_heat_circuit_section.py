@@ -1358,6 +1358,7 @@ class TestHappyPathHeatCircuitSection:
                 "http://mocked-host/var/readWriteVars?action=set",
                 payload={},
                 headers={"Content-Type": "application/json;charset=utf-8"},
+                repeat=2,
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
@@ -1382,7 +1383,7 @@ class TestHappyPathHeatCircuitSection:
                 ssl=False,
             )
 
-            mock_keenergy_api.assert_called_with(
+            mock_keenergy_api.assert_any_call(
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data=(
                     '[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].noOfPoints", "value": "7"}, '
@@ -1417,9 +1418,16 @@ class TestHappyPathHeatCircuitSection:
                     '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[14].x", "value": "0"}, '
                     '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[14].y", "value": "0"}, '
                     '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[15].x", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[15].y", "value": "0"}, '
-                    '{"name": "APPL.CtrlApplsParam.linTabPool[0].verCnt", "value": "192"}]'
+                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[15].y", "value": "0"}]'
                 ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+            mock_keenergy_api.assert_any_call(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data='[{"name": "APPL.CtrlApplsParam.linTabPool[0].verCnt", "value": "192"}]',
                 method="POST",
                 auth=None,
                 ssl=False,
