@@ -3652,16 +3652,6 @@ class HeatCircuitEndpoints(BaseEndpoints):
                 endpoint=f"{EndpointPath.READ_WRITE_VARS}?action=set",
             )
 
-            await self._post(
-                payload=json.dumps(
-                    WritePayload(
-                        name=LineTablePool.SAVE_HEATING_CURVE.value.value % idx,
-                        value="192",
-                    )
-                ),
-                endpoint=f"{EndpointPath.READ_WRITE_VARS}?action=set",
-            )
-
 
 class SolarCircuitEndpoints(BaseEndpoints):
     """API Endpoints to send and retrieve the solar circuit data.
