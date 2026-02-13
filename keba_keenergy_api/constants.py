@@ -521,6 +521,18 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.tempVap",
         value_type=float,
     )
+    TARGET_OVERHEATING = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.setOH",
+        value_type=float,
+    )
+    CURRENT_OVERHEATING = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.actOH",
+        value_type=float,
+    )
+    EXPANSION_VALVE_POSITION = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.stepperPos",
+        value_type=int,
+    )
     HIGH_PRESSURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HighPressure.values.actValue",
         value_type=float,

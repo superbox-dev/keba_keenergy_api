@@ -789,6 +789,104 @@ class TestHappyPathHeatPumpSection:
             )
 
     @pytest.mark.asyncio
+    async def test_get_target_overheating(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].OverHeatCtrl.values.setOH",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Set suction SH",
+                            "unitId": "TempRel",
+                        },
+                        "value": "5.4999752",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_target_overheating()
+
+            assert isinstance(data, float)
+            assert data == 5.50  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].OverHeatCtrl.values.setOH", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_current_overheating(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].OverHeatCtrl.values.actOH",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Act. suction SH",
+                            "unitId": "TempRel",
+                        },
+                        "value": "18.676249",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_pump.get_current_overheating()
+
+            assert isinstance(data, float)
+            assert data == 18.68  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].OverHeatCtrl.values.actOH", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_expansion_valve_position(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].OverHeatCtrl.values.stepperPos",
+                        "attributes": {
+                            "formatId": "fmt4p0",
+                            "longText": "Stepper position",
+                        },
+                        "value": "20",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int = await client.heat_pump.get_expansion_valve_position()
+
+            assert isinstance(data, int)
+            assert data == 20  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].OverHeatCtrl.values.stepperPos", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     async def test_get_high_pressure(self) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(

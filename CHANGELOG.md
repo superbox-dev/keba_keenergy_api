@@ -13,7 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Added
 
-- Added endpoint `get_circulation_return_temperature()` to hot water tank [(Issue #97)][issue-97]
+- Added endpoint `get_target_overheating()` to heat pump [(Issue #100)][issue-100]
+- Added endpoint `get_current_overheating()` to heat pump [(Issue #100)][issue-100]
+- Added endpoint `get_expansion_valve_position()` to heat pump [(Issue #100)][issue-100]
+- Added endpoint `get_circulation_return_temperature()` to hot water tank [(Issue #100)][issue-100]
 - Added endpoint `get_circulation_pump_state()` to hot water tank [(Issue #97)][issue-97]
 - Added endpoint `get_heating_curve_offset()` to heating circuit [(Issue #97)][issue-97]
 - Added endpoint `set_heating_curve_offset()` to heating circuit [(Issue #97)][issue-97]
@@ -28,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added extra attributes heating curve points to the heating curve [(Issue #97)][issue-97]
 
 [issue-97]: https://github.com/superbox-dev/keba_keenergy_api/issues/97
+[issue-100]: https://github.com/superbox-dev/keba_keenergy_api/issues/100
 
 ## [2.8.1] - 2026-01-28
 

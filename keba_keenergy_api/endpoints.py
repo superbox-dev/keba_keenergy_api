@@ -2029,6 +2029,69 @@ class HeatPumpEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatPump.VAPORIZER_TEMPERATURE, position=position)
 
+    async def get_target_overheating(self, position: int = 1) -> float:
+        """Get the target overheating from the heat pump.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+
+        Returns
+        -------
+        float
+             Temperature in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.TARGET_OVERHEATING,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatPump.TARGET_OVERHEATING, position=position)
+
+    async def get_current_overheating(self, position: int = 1) -> float:
+        """Get the current overheating from the heat pump.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+
+        Returns
+        -------
+        float
+             Temperature in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.CURRENT_OVERHEATING,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatPump.CURRENT_OVERHEATING, position=position)
+
+    async def get_expansion_valve_position(self, position: int = 1) -> int:
+        """Get the expansion valve position from the heat pump.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+
+        Returns
+        -------
+        int
+             Step position
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.EXPANSION_VALVE_POSITION,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=HeatPump.EXPANSION_VALVE_POSITION, position=position)
+
     async def get_high_pressure(self, position: int = 1) -> float:
         """Get the high pressure from the heat pump.
 
