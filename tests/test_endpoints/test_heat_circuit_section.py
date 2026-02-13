@@ -1630,7 +1630,7 @@ class TestUnhappyPathHeatCircuitSection:
                 ),
             ):
                 await client.heat_circuit.set_heating_curve_points(
-                    "INVALID",
+                    "HC_HK",
                     points=(
                         HeatingCurvePoint(outdoor=-20, flow=35),
                         HeatingCurvePoint(outdoor=-10, flow=33),

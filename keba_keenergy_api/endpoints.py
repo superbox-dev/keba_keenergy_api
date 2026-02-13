@@ -3595,8 +3595,8 @@ class HeatCircuitEndpoints(BaseEndpoints):
         message: str
 
         try:
-            idx: int = HeatCircuitHeatingCurve[heating_curve].id
-        except KeyError as error:
+            idx: int = HeatCircuitHeatingCurve(heating_curve).id
+        except ValueError as error:
             message = f"Invalid value! Allowed values are {[str(_.value) for _ in HeatCircuitHeatingCurve]}"
             raise APIError(message) from error
         else:
