@@ -843,7 +843,7 @@ class LineTablePool(Enum):
         read_only=False,
     )
     SAVE_HEATING_CURVE = EndpointProperties(
-        f"{PAYLOAD_PREFIX}sParam.linTabPool[%s].verCnt",
+        f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].verCnt",
         value_type=str,
         read_only=False,
     )
