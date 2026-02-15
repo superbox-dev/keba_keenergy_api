@@ -5,7 +5,7 @@
     <option name="enabledOnSave" value="true" />
     <option name="sdkName" value="keba_keenergy_api" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="keba_keenergy_api" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="uv (keba_keenergy_api)" project-jdk-type="Python SDK" />
   <component name="PythonCompatibilityInspectionAdvertiser">
     <option name="version" value="3" />
   </component>
