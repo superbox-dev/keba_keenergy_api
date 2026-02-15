@@ -161,7 +161,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Get Involved
 
-**The KEBA KeEnergy API** is an open-source project and contributions are welcome. You can:
+The **KEBA KeEnergy API** is an open-source project and contributions are welcome. You can:
 
 * Report [issues](https://github.com/superbox-dev/keba_keenergy_api/issues/new/choose) or request new features
 * Improve documentation
