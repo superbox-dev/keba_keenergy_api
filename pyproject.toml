@@ -159,6 +159,10 @@ log_cli_level = "DEBUG"
 log_cli_format = "%(levelname)-8s | %(asctime)s: %(message)s"
 # https://docs.pytest.org/en/latest/reference/reference.html#ini-options-ref
 addopts = "--cov=keba_keenergy_api --cov-report=term-missing --cov-report=xml:reports/coverage.xml --color=yes --exitfirst --failed-first --strict-config --strict-markers --junitxml=reports/pytest.xml"
+markers = [
+    "happy",
+    "unhappy",
+]
 
 [tool.coverage.run] # https://coverage.readthedocs.io/en/latest/config.html#run
 branch = false

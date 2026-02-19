@@ -1654,6 +1654,7 @@ class TestUnhappyPathHeatCircuitSection:
         self,
         heating_curve: str | None,
         payload: list[dict[str, str]],
+        expected_data: str,
     ) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
@@ -1687,7 +1688,7 @@ class TestUnhappyPathHeatCircuitSection:
                     RequestCall(
                         args=(),
                         kwargs={
-                            "data": heating_curve_points_expected_data,
+                            "data": expected_data,
                             "auth": None,
                             "ssl": False,
                             "allow_redirects": True,
