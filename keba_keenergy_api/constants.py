@@ -26,15 +26,7 @@ class BaseEnum(Enum):
         for member in cls:
             member_value = member._value_
 
-            if (
-                isinstance(member_value, tuple)
-                and len(member_value) == 2  # noqa: PLR2004
-                and isinstance(member_value[1], str)
-            ):
-                enum_id, label = member_value
-                if value in (enum_id, label):
-                    return member
-            elif isinstance(member_value, tuple):
+            if isinstance(member_value, tuple):
                 if value in member_value:
                     return member
             elif value == member_value:  # pragma: no cover
