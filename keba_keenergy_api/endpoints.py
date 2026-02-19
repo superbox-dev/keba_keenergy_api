@@ -21,7 +21,6 @@ from keba_keenergy_api.constants import EndpointPath
 from keba_keenergy_api.constants import ExternalHeatSource
 from keba_keenergy_api.constants import ExternalHeatSourceOperatingMode
 from keba_keenergy_api.constants import HeatCircuit
-from keba_keenergy_api.constants import HeatCircuitHeatingCurve
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
 from keba_keenergy_api.constants import HeatCircuitUseHeatingCurve
 from keba_keenergy_api.constants import HeatPump
@@ -3531,7 +3530,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
             position=position,
             extra_attributes=True,
         )
-        return self._get_str_value(response, section=HeatCircuit.HEATING_CURVE, position=position).upper()
+        return self._get_str_value(response, section=HeatCircuit.HEATING_CURVE, position=position)
 
     async def set_heating_curve(self, heating_curve: str, position: int = 1) -> None:
         """Set the heating curve from the heat circuit.
@@ -3547,10 +3546,14 @@ class HeatCircuitEndpoints(BaseEndpoints):
             The number of the heat circuits
 
         """
+        heating_curves: tuple[tuple[int, str], ...] = await self.get_available_heating_curves()
+
+        curve_map: dict[str, tuple[int, str]] = {name: (idx, name) for idx, name in heating_curves}
+
         try:
-            _name = HeatCircuitHeatingCurve[heating_curve.upper()].value
+            _idx, _name = curve_map[heating_curve]
         except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {[str(_.value) for _ in HeatCircuitHeatingCurve]}"
+            message: str = f"Invalid value! Allowed values are {[name for _, name in heating_curves]}"
             raise APIError(message) from error
 
         names: list[str | None] = [_name if position == p else None for p in range(1, position + 1)]
@@ -3573,11 +3576,9 @@ class HeatCircuitEndpoints(BaseEndpoints):
         """
         payload: Payload = []
 
-        # HC1 - HC8 is position 0 - 7
-        # HC FBH is 12
-        # HC HK is 13
+        heating_curves: tuple[tuple[int, str], ...] = await self.get_available_heating_curves()
 
-        for idx in [*list(range(8)), 12, 13]:
+        for idx, _ in heating_curves:
             payload += [
                 ReadPayload(
                     name=LineTablePool.HEATING_CURVE_NAME.value.value % idx,
@@ -3589,7 +3590,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
                 ),
             ]
 
-            for point_idx in list(range(16)):
+            for point_idx in range(16):
                 payload += [
                     ReadPayload(
                         name=LineTablePool.HEATING_CURVE_POINT_X.value.value % (idx, point_idx),
@@ -3609,17 +3610,15 @@ class HeatCircuitEndpoints(BaseEndpoints):
         data: HeatingCurves = {}
 
         data_idx: int = 0
-        curve_indices = (*range(8), 12, 13)
         points_per_table: int = 16
         values_per_point: int = 2
 
-        valid_curves: dict[str, str] = {curve.value: curve.name.lower() for curve in HeatCircuitHeatingCurve}
+        valid_curves: set[str] = {name for _, name in heating_curves}
 
-        for _ in curve_indices:
-            raw_name = response[data_idx]["value"]
-            name: str | None = valid_curves.get(raw_name)
+        for _ in heating_curves:
+            name: str = response[data_idx]["value"]
 
-            if name is not None:
+            if name in valid_curves:
                 no_of_points = int(response[data_idx + 1]["value"])
                 raw = response[data_idx + 2 : data_idx + 2 + points_per_table * values_per_point]
 
@@ -3637,7 +3636,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         if heating_curve is not None:
             try:
-                return {heating_curve.lower(): data[heating_curve.lower()]}
+                return {heating_curve: data[heating_curve]}
             except KeyError as error:
                 message: str = f'Heating curve "{heating_curve}" not found'
                 raise APIError(message) from error
@@ -3657,10 +3656,14 @@ class HeatCircuitEndpoints(BaseEndpoints):
         """
         message: str
 
+        heating_curves = await self.get_available_heating_curves()
+
+        curve_map: dict[str, int] = {name: idx for idx, name in heating_curves}
+
         try:
-            idx: int = HeatCircuitHeatingCurve(heating_curve).id
-        except ValueError as error:
-            message = f"Invalid value! Allowed values are {[str(_.value) for _ in HeatCircuitHeatingCurve]}"
+            idx = curve_map[heating_curve]
+        except KeyError as error:
+            message = f"Invalid value! Allowed values are {[name for _, name in heating_curves]}"
             raise APIError(message) from error
         else:
             read_payload: Payload = [
@@ -3714,6 +3717,38 @@ class HeatCircuitEndpoints(BaseEndpoints):
                 payload=json.dumps(write_payload),
                 endpoint=f"{EndpointPath.READ_WRITE_VARS}?action=set",
             )
+
+    async def get_available_heating_curves(self) -> tuple[tuple[int, str], ...]:
+        """Get available heating curves.
+
+        Returns
+        -------
+        tuple
+            Index and heating curve name pairs
+
+        """
+        payload: Payload = []
+
+        for idx in list(range(30)):
+            payload += [
+                ReadPayload(
+                    name=LineTablePool.HEATING_CURVE_NAME.value.value % idx,
+                    attr="1",
+                ),
+            ]
+
+        heating_curves: list[tuple[int, str]] = []
+
+        response: Response = await self._post(
+            payload=json.dumps(payload),
+            endpoint=EndpointPath.READ_WRITE_VARS,
+        )
+
+        for idx, item in enumerate(response):
+            if item["value"].startswith("HC"):
+                heating_curves.append((idx, item["value"]))
+
+        return tuple(heating_curves)
 
 
 class SolarCircuitEndpoints(BaseEndpoints):

@@ -9,9 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--start-->
 
+## [2.9.1] - 2026-02-19
+
+### Added
+
+- Added endpoint `get_available_heating_curves()` to heating circuit
+
+### Fixed
+
+- Fixed all endpoints that used a static heating curve name mapping
+
 ## [2.9.0] - 2026-02-17
 
-## Added
+### Added
 
 - Added endpoint `get_target_overheating()` to heat pump [(Issue #100)][issue-100]
 - Added endpoint `get_current_overheating()` to heat pump [(Issue #100)][issue-100]

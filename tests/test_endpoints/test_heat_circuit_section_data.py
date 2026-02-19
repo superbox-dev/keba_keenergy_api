@@ -2,6 +2,219 @@ from keba_keenergy_api.endpoints import HeatingCurvePoint
 from keba_keenergy_api.endpoints import HeatingCurves
 from keba_keenergy_api.endpoints import Response
 
+heating_curve_names_payload: Response = [
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[0].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "HC1",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[1].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "HC2",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[2].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "HC3",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[3].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "HC4",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[4].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "HC5",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[5].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "HC6",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[6].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "HC7",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[7].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "HC8",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[8].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "ValveOffset",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[9].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "VFS5-100",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[10].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "Fan",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[11].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "PowerLimit",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[12].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "HC FBH",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[13].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "HC HK",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[14].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "ValveOffsetAT",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[15].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "Fan WPLK412",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[16].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[17].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[18].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[19].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[20].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[21].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[22].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[23].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[24].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[25].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[26].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[27].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[28].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.linTabPool[29].name",
+        "attributes": {
+            "longText": "Table name",
+        },
+        "value": "",
+    },
+]
+
 heating_curve_points_payload: Response = [
     {
         "name": "APPL.CtrlAppl.sParam.linTabPool[0].name",
@@ -3355,6 +3568,39 @@ heating_curve_points_payload: Response = [
     },
 ]
 
+heating_curve_names_expected_data: str = (
+    '[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[1].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[2].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[3].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[4].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[5].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[6].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[7].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[8].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[9].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[10].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[11].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[12].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[13].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[14].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[15].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[16].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[17].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[18].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[19].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[20].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[21].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[22].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[23].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[24].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[25].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[26].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[27].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[28].name", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.linTabPool[29].name", "attr": "1"}]'
+)
+
 heating_curve_points_expected_data: str = (
     '[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].name", "attr": "1"}, '
     '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].noOfPoints", "attr": "1"}, '
@@ -3699,106 +3945,106 @@ heating_curve_points_expected_data: str = (
 )
 
 heating_curve_points_expected_response_1: HeatingCurves = {
-    "hc_fbh": (
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
+    "HC1": (
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
     ),
-    "hc_hk": (
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
+    "HC2": (
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
     ),
-    "hc1": (
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
+    "HC3": (
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
     ),
-    "hc2": (
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
+    "HC4": (
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
     ),
-    "hc3": (
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
+    "HC5": (
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
     ),
-    "hc4": (
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
+    "HC6": (
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
     ),
-    "hc5": (
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
+    "HC7": (
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
     ),
-    "hc6": (
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
+    "HC8": (
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
     ),
-    "hc7": (
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
+    "HC FBH": (
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
     ),
-    "hc8": (
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
+    "HC HK": (
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
     ),
 }
 
 heating_curve_points_expected_response_2: HeatingCurves = {
-    "hc1": (
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
-        HeatingCurvePoint(outdoor=-15, flow=20),
+    "HC1": (
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
+        HeatingCurvePoint(outdoor=-15.0, flow=20.0),
     ),
 }

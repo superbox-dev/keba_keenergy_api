@@ -36,6 +36,7 @@ from tests.test_api_data import read_data_payload_1
 from tests.test_api_data import read_data_payload_2
 from tests.test_api_data import read_data_payload_3
 from tests.test_api_data import read_data_payload_4
+from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_names_payload
 
 if TYPE_CHECKING:
     from keba_keenergy_api.endpoints import ValueResponse
@@ -256,6 +257,12 @@ class TestKebaKeEnergyAPI:
             )
 
             if extra_attributes_payload:
+                mock_keenergy_api.post(
+                    "http://mocked-host/var/readWriteVars",
+                    payload=heating_curve_names_payload,
+                    headers={"Content-Type": "application/json;charset=utf-8"},
+                )
+
                 mock_keenergy_api.post(
                     "http://mocked-host/var/readWriteVars",
                     payload=extra_attributes_payload,

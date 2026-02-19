@@ -371,7 +371,7 @@ read_data_expected_response_3: dict[str, Any] = {
                         },
                     ],
                 },
-                "value": "hc1",
+                "value": "HC1",
             },
         ],
         "target_temperature": [
