@@ -1492,6 +1492,46 @@ class TestHappyPathHeatCircuitSection:
                 ],
             }
 
+    @pytest.mark.asyncio
+    async def test_get_available_heating_curves(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=heating_curve_names_payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: tuple[tuple[int, str], ...] = await client.heat_circuit.get_available_heating_curves()
+
+            assert isinstance(data, tuple)
+            assert data == (
+                (0, "HC1"),
+                (1, "HC2"),
+                (2, "HC3"),
+                (3, "HC4"),
+                (4, "HC5"),
+                (5, "HC6"),
+                (6, "HC7"),
+                (7, "HC8"),
+                (12, "HC FBH"),
+                (13, "HC HK"),
+            )
+
+            assert mock_keenergy_api.requests == {
+                ("POST", URL("http://mocked-host/var/readWriteVars")): [
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": heating_curve_names_expected_data,
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    )
+                ]
+            }
+
 
 @pytest.mark.unhappy
 class TestUnhappyPathHeatCircuitSection:
