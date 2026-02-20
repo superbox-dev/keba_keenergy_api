@@ -1,15 +1,18 @@
 import pytest
+from aioresponses.core import RequestCall
 from aioresponses.core import aioresponses
+from yarl import URL
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.constants import HeatCircuitHasRoomTemperature
 from keba_keenergy_api.constants import HeatCircuitHeatRequest
-from keba_keenergy_api.constants import HeatCircuitHeatingCurve
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
 from keba_keenergy_api.constants import HeatCircuitUseHeatingCurve
 from keba_keenergy_api.endpoints import HeatingCurvePoint
 from keba_keenergy_api.endpoints import HeatingCurves
 from keba_keenergy_api.error import APIError
+from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_names_expected_data
+from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_names_payload
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_points_expected_data
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_points_expected_response_1
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_points_expected_response_2
@@ -1261,11 +1264,17 @@ class TestHappyPathHeatCircuitSection:
         ("name", "expected_value"),
         [
             ("HC1", "HC1"),
-            (HeatCircuitHeatingCurve.HC_FBH.name, "HC FBH"),
+            ("HC FBH", "HC FBH"),
         ],
     )
     async def test_set_heating_curve(self, name: str, expected_value: str) -> None:
         with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=heating_curve_names_payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
                 payload={},
@@ -1275,16 +1284,33 @@ class TestHappyPathHeatCircuitSection:
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
             await client.heat_circuit.set_heating_curve(name)
 
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars?action=set",
-                data=(
-                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.linTab.fileName", '  # noqa: UP031
-                    '"value": "%s"}]' % expected_value
-                ),
-                method="POST",
-                auth=None,
-                ssl=False,
-            )
+            assert mock_keenergy_api.requests == {
+                ("POST", URL("http://mocked-host/var/readWriteVars")): [
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": heating_curve_names_expected_data,
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    )
+                ],
+                ("POST", URL("http://mocked-host/var/readWriteVars?action=set")): [
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": (
+                                '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.linTab.fileName", '  # noqa: UP031
+                                '"value": "%s"}]' % expected_value
+                            ),
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    )
+                ],
+            }
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -1292,20 +1318,17 @@ class TestHappyPathHeatCircuitSection:
             "heating_curve",
             "payload",
             "expected_response",
-            "expected_data",
         ),
         [
             (
                 None,
                 heating_curve_points_payload,
                 heating_curve_points_expected_response_1,
-                heating_curve_points_expected_data,
             ),
             (
                 "HC1",
                 heating_curve_points_payload,
                 heating_curve_points_expected_response_2,
-                heating_curve_points_expected_data,
             ),
         ],
     )
@@ -1314,9 +1337,14 @@ class TestHappyPathHeatCircuitSection:
         heating_curve: str | None,
         payload: list[dict[str, str]],
         expected_response: HeatingCurves,
-        expected_data: str,
     ) -> None:
         with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=heating_curve_names_payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
                 payload=payload,
@@ -1329,19 +1357,40 @@ class TestHappyPathHeatCircuitSection:
             assert isinstance(response, dict)
             assert response == expected_response
 
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data=expected_data,
-                method="POST",
-                auth=None,
-                ssl=False,
-            )
+            assert mock_keenergy_api.requests == {
+                ("POST", URL("http://mocked-host/var/readWriteVars")): [
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": heating_curve_names_expected_data,
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    ),
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": heating_curve_points_expected_data,
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    ),
+                ]
+            }
 
     @pytest.mark.asyncio
     async def test_set_heating_curve_points(
         self,
     ) -> None:
         with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=heating_curve_names_payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
                 payload=[
@@ -1374,56 +1423,114 @@ class TestHappyPathHeatCircuitSection:
                 ),
             )
 
-            mock_keenergy_api.assert_called_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].name", "attr": "1"}]',
-                method="POST",
-                auth=None,
-                ssl=False,
+            assert mock_keenergy_api.requests == {
+                ("POST", URL("http://mocked-host/var/readWriteVars")): [
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": heating_curve_names_expected_data,
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    ),
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": '[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].name", "attr": "1"}]',
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    ),
+                ],
+                ("POST", URL("http://mocked-host/var/readWriteVars?action=set")): [
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": (
+                                '[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].noOfPoints", "value": "7"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[0].x", "value": "-20"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[0].y", "value": "35"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[1].x", "value": "-10"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[1].y", "value": "33"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[2].x", "value": "-5"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[2].y", "value": "32"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[3].x", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[3].y", "value": "30"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[4].x", "value": "5"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[4].y", "value": "28"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[5].x", "value": "10"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[5].y", "value": "27"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[6].x", "value": "20"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[6].y", "value": "25"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[7].x", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[7].y", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[8].x", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[8].y", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[9].x", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[9].y", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[10].x", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[10].y", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[11].x", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[11].y", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[12].x", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[12].y", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[13].x", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[13].y", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[14].x", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[14].y", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[15].x", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[15].y", "value": "0"}, '
+                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].verCnt", "value": "192"}]'
+                            ),
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    )
+                ],
+            }
+
+    @pytest.mark.asyncio
+    async def test_get_available_heating_curves(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=heating_curve_names_payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
             )
 
-            mock_keenergy_api.assert_called_with(
-                url="http://mocked-host/var/readWriteVars?action=set",
-                data=(
-                    '[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].noOfPoints", "value": "7"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[0].x", "value": "-20"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[0].y", "value": "35"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[1].x", "value": "-10"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[1].y", "value": "33"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[2].x", "value": "-5"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[2].y", "value": "32"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[3].x", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[3].y", "value": "30"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[4].x", "value": "5"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[4].y", "value": "28"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[5].x", "value": "10"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[5].y", "value": "27"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[6].x", "value": "20"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[6].y", "value": "25"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[7].x", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[7].y", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[8].x", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[8].y", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[9].x", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[9].y", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[10].x", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[10].y", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[11].x", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[11].y", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[12].x", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[12].y", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[13].x", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[13].y", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[14].x", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[14].y", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[15].x", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[15].y", "value": "0"}, '
-                    '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].verCnt", "value": "192"}]'
-                ),
-                method="POST",
-                auth=None,
-                ssl=False,
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: tuple[tuple[int, str], ...] = await client.heat_circuit.get_available_heating_curves()
+
+            assert isinstance(data, tuple)
+            assert data == (
+                (0, "HC1"),
+                (1, "HC2"),
+                (2, "HC3"),
+                (3, "HC4"),
+                (4, "HC5"),
+                (5, "HC6"),
+                (6, "HC7"),
+                (7, "HC8"),
+                (12, "HC FBH"),
+                (13, "HC HK"),
             )
+
+            assert mock_keenergy_api.requests == {
+                ("POST", URL("http://mocked-host/var/readWriteVars")): [
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": heating_curve_names_expected_data,
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    )
+                ]
+            }
 
 
 @pytest.mark.unhappy
@@ -1538,8 +1645,8 @@ class TestUnhappyPathHeatCircuitSection:
     ) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
+                "http://mocked-host/var/readWriteVars",
+                payload=heating_curve_names_payload,
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
 
@@ -1554,7 +1661,19 @@ class TestUnhappyPathHeatCircuitSection:
             ):
                 await client.heat_circuit.set_heating_curve(name)
 
-            mock_keenergy_api.assert_not_called()
+            assert mock_keenergy_api.requests == {
+                ("POST", URL("http://mocked-host/var/readWriteVars")): [
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": heating_curve_names_expected_data,
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    )
+                ]
+            }
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -1580,6 +1699,12 @@ class TestUnhappyPathHeatCircuitSection:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
+                payload=heating_curve_names_payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
                 payload=payload,
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
@@ -1589,19 +1714,40 @@ class TestUnhappyPathHeatCircuitSection:
             with pytest.raises(APIError, match='Heating curve "HC10" not found'):
                 await client.heat_circuit.get_heating_curve_points(heating_curve)
 
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data=expected_data,
-                method="POST",
-                auth=None,
-                ssl=False,
-            )
+            assert mock_keenergy_api.requests == {
+                ("POST", URL("http://mocked-host/var/readWriteVars")): [
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": heating_curve_names_expected_data,
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    ),
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": expected_data,
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    ),
+                ]
+            }
 
     @pytest.mark.asyncio
     async def test_heating_curve_name_is_invalid_in_set_heating_curve_points(
         self,
     ) -> None:
         with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=heating_curve_names_payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
                 payload=[
@@ -1642,13 +1788,31 @@ class TestUnhappyPathHeatCircuitSection:
                     ),
                 )
 
-            mock_keenergy_api.assert_not_called()
+            assert mock_keenergy_api.requests == {
+                ("POST", URL("http://mocked-host/var/readWriteVars")): [
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": heating_curve_names_expected_data,
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    ),
+                ]
+            }
 
     @pytest.mark.asyncio
     async def test_heating_curve_name_not_match_in_set_heating_curve_points(
         self,
     ) -> None:
         with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=heating_curve_names_payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
                 payload=[
@@ -1686,10 +1850,25 @@ class TestUnhappyPathHeatCircuitSection:
                     ),
                 )
 
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].name", "attr": "1"}]',
-                method="POST",
-                auth=None,
-                ssl=False,
-            )
+            assert mock_keenergy_api.requests == {
+                ("POST", URL("http://mocked-host/var/readWriteVars")): [
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": heating_curve_names_expected_data,
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    ),
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": '[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].name", "attr": "1"}]',
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    ),
+                ]
+            }

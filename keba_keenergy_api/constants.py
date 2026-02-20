@@ -26,15 +26,7 @@ class BaseEnum(Enum):
         for member in cls:
             member_value = member._value_
 
-            if (
-                isinstance(member_value, tuple)
-                and len(member_value) == 2  # noqa: PLR2004
-                and isinstance(member_value[1], str)
-            ):
-                enum_id, label = member_value
-                if value in (enum_id, label):
-                    return member
-            elif isinstance(member_value, tuple):
+            if isinstance(member_value, tuple):
                 if value in member_value:
                     return member
             elif value == member_value:  # pragma: no cover
@@ -208,31 +200,6 @@ class HeatCircuitCoolRequest(BaseEnum):
 
 MIN_HEATING_CURVE_POINTS: Final[int] = 7
 MAX_HEATING_CURVE_POINTS: Final[int] = 16
-
-
-class HeatCircuitHeatingCurve(BaseEnum):
-    """Available heat curve names and indices."""
-
-    HC1 = (0, "HC1")
-    HC2 = (1, "HC2")
-    HC3 = (2, "HC3")
-    HC4 = (3, "HC4")
-    HC5 = (4, "HC5")
-    HC6 = (5, "HC6")
-    HC7 = (6, "HC7")
-    HC8 = (7, "HC8")
-    HC_FBH = (12, "HC FBH")
-    HC_HK = (13, "HC HK")
-
-    @property
-    def id(self) -> int:
-        """Get the ID from the value tuple."""
-        return self._value_[0]
-
-    @property
-    def value(self) -> Any:  # noqa: ANN401
-        """Get the value from the value tuple."""
-        return self._value_[1]
 
 
 class SwitchValvePosition(BaseEnum):
@@ -823,7 +790,6 @@ class HeatCircuit(Enum):
     HEATING_CURVE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.linTab.fileName",
         value_type=str,
-        human_readable=HeatCircuitHeatingCurve,
     )
 
 

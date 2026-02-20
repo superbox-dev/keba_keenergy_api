@@ -3,7 +3,7 @@
   <component name="Black">
     <option name="enabledOnReformat" value="true" />
     <option name="enabledOnSave" value="true" />
-    <option name="sdkName" value="keba_keenergy_api" />
+    <option name="sdkName" value="uv (keba_keenergy_api)" />
   </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="uv (keba_keenergy_api)" project-jdk-type="Python SDK" />
   <component name="PythonCompatibilityInspectionAdvertiser">
