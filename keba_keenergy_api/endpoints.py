@@ -3750,6 +3750,27 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         return tuple(heating_curves)
 
+    async def get_pump_speed(self, position: int = 1) -> float:
+        """Get pump speed.
+
+        Parameters
+        ----------
+        position
+            The number of the heat circuits
+
+        Returns
+        -------
+        float
+            Pump speed in percent
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.PUMP_SPEED,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatCircuit.PUMP_SPEED, position=position)
+
 
 class SolarCircuitEndpoints(BaseEndpoints):
     """API Endpoints to send and retrieve the solar circuit data.

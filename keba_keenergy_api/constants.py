@@ -791,6 +791,10 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.linTab.fileName",
         value_type=str,
     )
+    PUMP_SPEED = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].pumpAO.values.setValueScaled",
+        value_type=str,
+    )
 
 
 class LineTablePool(Enum):
