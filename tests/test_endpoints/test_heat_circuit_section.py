@@ -1532,6 +1532,41 @@ class TestHappyPathHeatCircuitSection:
                 ]
             }
 
+    @pytest.mark.asyncio
+    async def test_get_pump_speed(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].pumpAO.values.setValueScaled",
+                        "attributes": {
+                            "formatId": "fmt3p0",
+                            "longText": "Pump speed",
+                            "unitId": "Pct100",
+                            "upperLimit": "1",
+                            "lowerLimit": "0",
+                        },
+                        "value": "0.4",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_circuit.get_pump_speed()
+
+            assert isinstance(data, float)
+            assert data == 0.4  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].pumpAO.values.setValueScaled", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
 
 @pytest.mark.unhappy
 class TestUnhappyPathHeatCircuitSection:
