@@ -793,7 +793,7 @@ class HeatCircuit(Enum):
     )
     PUMP_SPEED = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].pumpAO.values.setValueScaled",
-        value_type=str,
+        value_type=float,
     )
 
 
