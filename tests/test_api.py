@@ -1,4 +1,5 @@
 from typing import Any
+from typing import TYPE_CHECKING
 
 import pytest
 from aiohttp import BasicAuth
@@ -19,7 +20,6 @@ from keba_keenergy_api.constants import SwitchValve
 from keba_keenergy_api.constants import System
 from keba_keenergy_api.error import APIError
 from keba_keenergy_api.error import AuthenticationError
-from keba_keenergy_api.version import TYPE_CHECKING
 from tests.test_api_data import read_data_expected_data_1
 from tests.test_api_data import read_data_expected_data_2
 from tests.test_api_data import read_data_expected_data_3
