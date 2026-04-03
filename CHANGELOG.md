@@ -13,7 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-- Bump aiohttp from `3.13.3` to `3.13.4` [CVE-2026-34513](https://github.com/advisories/GHSA-hcc4-c3v8-rx92)
+- Bump aiohttp from `3.13.3` to `3.13.4` [CVE-2026-34513][CVE-2026-34513]
+
+[CVE-2026-34513]: https://github.com/advisories/GHSA-hcc4-c3v8-rx92
 
 ## [2.10.1] - 2026-02-26
 
