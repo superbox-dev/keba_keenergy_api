@@ -796,6 +796,10 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.heatCurveGradient",
         value_type=float,
     )
+    COOLING_CURVE_SLOPE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.coolCurveGradient",
+        value_type=float,
+    )
     USE_HEATING_CURVE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.enableHeatCurveLinTab",
         value_type=str,

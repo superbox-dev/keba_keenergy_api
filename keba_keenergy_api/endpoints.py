@@ -3466,6 +3466,27 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatCircuit.HEATING_CURVE_SLOPE, position=position)
 
+    async def get_cooling_curve_slope(self, position: int = 1) -> float:
+        """Get the cooling curve slope from the heat circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the heat circuits
+
+        Returns
+        -------
+        float
+            Slope
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.COOLING_CURVE_SLOPE,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatCircuit.COOLING_CURVE_SLOPE, position=position)
+
     async def set_heating_curve_slope(self, slope: float, position: int = 1) -> None:
         """Set the heating curve slope from the heat circuit.
 
