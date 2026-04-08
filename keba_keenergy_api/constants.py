@@ -154,6 +154,15 @@ class HeatPumpOperatingMode(BaseEnum):
     BACKUP = 2
 
 
+class HeatCircuitMode(BaseEnum):
+    """Available heat circuit modes."""
+
+    HEATING = 0
+    COOLING = 1
+    HEATING_AND_COOLING = 2
+    HEATING_AND_ACTIVE_COOLING = 3
+
+
 class HeatCircuitOperatingMode(BaseEnum):
     """Available heat circuit operating modes."""
 
@@ -680,6 +689,11 @@ class HeatCircuit(Enum):
     NAME = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.name",
         value_type=str,
+    )
+    MODE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].type",
+        value_type=int,
+        human_readable=HeatCircuitMode,
     )
     HAS_ROOM_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasRoomTemp",

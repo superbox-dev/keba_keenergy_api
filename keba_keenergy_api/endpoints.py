@@ -2779,6 +2779,30 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_str_value(response, section=HeatCircuit.NAME, position=position)
 
+    async def get_mode(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Get the mode from the heat circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the external heat circuits
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (HEATING) / 1 (COOLING) / 2 (HEATING_AND_COOLING) / 3 (HEATING_AND_ACTIVE_COOLING)
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.MODE,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HeatCircuit.MODE, position=position)
+
     async def has_room_temperature(self, position: int = 1, *, human_readable: bool = True) -> int | str:
         """Check if room temperature from the heat circuit is available.
 

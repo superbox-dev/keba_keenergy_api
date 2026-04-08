@@ -6,6 +6,7 @@ from yarl import URL
 from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.constants import HeatCircuitHasRoomTemperature
 from keba_keenergy_api.constants import HeatCircuitHeatRequest
+from keba_keenergy_api.constants import HeatCircuitMode
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
 from keba_keenergy_api.constants import HeatCircuitUseHeatingCurve
 from keba_keenergy_api.endpoints import HeatingCurvePoint
@@ -47,6 +48,60 @@ class TestHappyPathHeatCircuitSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.name", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "0", "heating"),
+            (False, HeatCircuitMode.HEATING.value, 0),
+            (True, "1", "cooling"),
+            (False, HeatCircuitMode.COOLING.value, 1),
+            (True, "2", "heating_and_cooling"),
+            (False, HeatCircuitMode.HEATING_AND_COOLING.value, 2),
+            (True, "3", "heating_and_active_cooling"),
+            (False, HeatCircuitMode.HEATING_AND_ACTIVE_COOLING.value, 3),
+        ],
+    )
+    async def test_get_mode(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.heatCircuit[0].type",
+                        "attributes": {
+                            "formatId": "fmtHeatCircuitMode",
+                            "longText": "Mode",
+                            "unitId": "Enum",
+                            "upperLimit": "3",
+                            "lowerLimit": "0",
+                        },
+                        "value": payload_value,
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_circuit.get_mode(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.options.heatCircuit[0].type", "attr": "1"}]',
                 method="POST",
                 auth=None,
                 ssl=False,
