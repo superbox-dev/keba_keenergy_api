@@ -3466,6 +3466,23 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatCircuit.HEATING_CURVE_SLOPE, position=position)
 
+    async def set_heating_curve_slope(self, slope: float, position: int = 1) -> None:
+        """Set the heating curve slope from the heat circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        slope
+            The slope
+        position
+            The number of the heat circuits
+
+        """
+        slopes: list[float | None] = [slope if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={HeatCircuit.HEATING_CURVE_SLOPE: slopes})
+
     async def get_cooling_curve_slope(self, position: int = 1) -> float:
         """Get the cooling curve slope from the heat circuit.
 
@@ -3487,8 +3504,8 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatCircuit.COOLING_CURVE_SLOPE, position=position)
 
-    async def set_heating_curve_slope(self, slope: float, position: int = 1) -> None:
-        """Set the heating curve slope from the heat circuit.
+    async def set_cooling_curve_slope(self, slope: float, position: int = 1) -> None:
+        """Set the cooling curve slope from the heat circuit.
 
         **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
         Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
@@ -3502,7 +3519,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         """
         slopes: list[float | None] = [slope if position == p else None for p in range(1, position + 1)]
-        await self._write_values(request={HeatCircuit.HEATING_CURVE_SLOPE: slopes})
+        await self._write_values(request={HeatCircuit.COOLING_CURVE_SLOPE: slopes})
 
     async def get_use_heating_curve(
         self,

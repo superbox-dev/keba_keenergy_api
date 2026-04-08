@@ -1185,6 +1185,26 @@ class TestHappyPathHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
+    async def test_set_heating_curve_slope(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_circuit.set_heating_curve_slope(0.5)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.heatCurveGradient", "value": "0.5"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     async def test_get_cooling_curve_slope(self) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
@@ -1219,7 +1239,7 @@ class TestHappyPathHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_set_heating_curve_slope(self) -> None:
+    async def test_set_cooling_curve_slope(self) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -1228,11 +1248,11 @@ class TestHappyPathHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            await client.heat_circuit.set_heating_curve_slope(0.5)
+            await client.heat_circuit.set_cooling_curve_slope(0.5)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.heatCurveGradient", "value": "0.5"}]',
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.coolCurveGradient", "value": "0.5"}]',
                 method="POST",
                 auth=None,
                 ssl=False,
