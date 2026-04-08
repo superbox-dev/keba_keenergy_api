@@ -3594,26 +3594,6 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_str_value(response, section=HeatCircuit.HEATING_CURVE, position=position)
 
-    async def get_cooling_curve(self, position: int = 1) -> str:
-        """Get the cooling curve from the heat circuit.
-
-        Parameters
-        ----------
-        position
-            The number of the heat circuits
-
-        Returns
-        -------
-        string
-
-        """
-        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=HeatCircuit.COOLING_CURVE,
-            position=position,
-            extra_attributes=True,
-        )
-        return self._get_str_value(response, section=HeatCircuit.COOLING_CURVE, position=position)
-
     async def set_heating_curve(self, heating_curve: str, position: int = 1) -> None:
         """Set the heating curve from the heat circuit.
 
@@ -3641,6 +3621,54 @@ class HeatCircuitEndpoints(BaseEndpoints):
         names: list[str | None] = [_name if position == p else None for p in range(1, position + 1)]
 
         await self._write_values(request={HeatCircuit.HEATING_CURVE: names})
+
+    async def get_cooling_curve(self, position: int = 1) -> str:
+        """Get the cooling curve from the heat circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the heat circuits
+
+        Returns
+        -------
+        string
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.COOLING_CURVE,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_str_value(response, section=HeatCircuit.COOLING_CURVE, position=position)
+
+    async def set_cooling_curve(self, cooling_curve: str, position: int = 1) -> None:
+        """Set the cooling curve from the heat circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        cooling_curve
+            The heating curve name
+        position
+            The number of the heat circuits
+
+        """
+        cooling_curves: tuple[tuple[int, str], ...] = await self.get_available_heating_curves()
+
+        curve_map: dict[str, tuple[int, str]] = {name: (idx, name) for idx, name in cooling_curves}
+
+        try:
+            _idx, _name = curve_map[cooling_curve]
+        except KeyError as error:
+            message: str = f"Invalid value! Allowed values are {[name for _, name in cooling_curves]}"
+            raise APIError(message) from error
+
+        names: list[str | None] = [_name if position == p else None for p in range(1, position + 1)]
+
+        await self._write_values(request={HeatCircuit.COOLING_CURVE: names})
 
     async def get_heating_curve_points(self, heating_curve: str | None = None) -> HeatingCurves:
         """Get the heating curve points.

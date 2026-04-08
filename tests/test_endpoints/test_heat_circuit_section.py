@@ -1369,35 +1369,6 @@ class TestHappyPathHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_cooling_curve(self) -> None:
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.coollinTab.fileName",
-                        "attributes": {"longText": "Name of linTab"},
-                        "value": "HC1",
-                    }
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: str = await client.heat_circuit.get_cooling_curve()
-
-            assert isinstance(data, str)
-            assert data == "HC1"
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.coollinTab.fileName", "attr": "1"}]',
-                method="POST",
-                auth=None,
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("name", "expected_value"),
         [
@@ -1440,6 +1411,88 @@ class TestHappyPathHeatCircuitSection:
                         kwargs={
                             "data": (
                                 '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.linTab.fileName", '  # noqa: UP031
+                                '"value": "%s"}]' % expected_value
+                            ),
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    )
+                ],
+            }
+
+    @pytest.mark.asyncio
+    async def test_get_cooling_curve(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.coollinTab.fileName",
+                        "attributes": {"longText": "Name of linTab"},
+                        "value": "HC1",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: str = await client.heat_circuit.get_cooling_curve()
+
+            assert isinstance(data, str)
+            assert data == "HC1"
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.coollinTab.fileName", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("name", "expected_value"),
+        [
+            ("HC1", "HC1"),
+            ("HC FBH", "HC FBH"),
+        ],
+    )
+    async def test_set_cooling_curve(self, name: str, expected_value: str) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=heating_curve_names_payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_circuit.set_cooling_curve(name)
+
+            assert mock_keenergy_api.requests == {
+                ("POST", URL("http://mocked-host/var/readWriteVars")): [
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": heating_curve_names_expected_data,
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    )
+                ],
+                ("POST", URL("http://mocked-host/var/readWriteVars?action=set")): [
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": (
+                                '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.coollinTab.fileName", '  # noqa: UP031
                                 '"value": "%s"}]' % expected_value
                             ),
                             "auth": None,
