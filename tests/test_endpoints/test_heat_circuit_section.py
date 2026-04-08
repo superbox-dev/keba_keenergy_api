@@ -73,7 +73,6 @@ class TestHappyPathHeatCircuitSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -549,6 +548,61 @@ class TestHappyPathHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
+    async def test_get_target_cooling_temperature_day(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.normalCoolSetTemp",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Room temp. Day",
+                            "unitId": "Temp",
+                            "upperLimit": "30",
+                            "lowerLimit": "10",
+                        },
+                        "value": "22",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float | None = await client.heat_circuit.get_target_cooling_temperature_day()
+
+            assert isinstance(data, float)
+            assert data == 22.0  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.normalCoolSetTemp", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_set_target_cooling_temperature_day(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_circuit.set_target_cooling_temperature_day(23)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.normalCoolSetTemp", "value": "23"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     async def test_get_heating_limit_day(self) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
@@ -578,6 +632,84 @@ class TestHappyPathHeatCircuitSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.thresholdDayTemp.value", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_set_heating_limit_day(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_circuit.set_heating_limit_day(23)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.thresholdDayTemp.value", "value": "23"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_cooling_limit_day(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.thresholdDayCoolTemp.value",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Cooling limit Day",
+                            "unitId": "Temp",
+                            "upperLimit": "40",
+                            "lowerLimit": "-20",
+                        },
+                        "value": "24",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float | None = await client.heat_circuit.get_cooling_limit_day()
+
+            assert isinstance(data, float)
+            assert data == 24.0  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.thresholdDayCoolTemp.value", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_set_cooling_limit_day(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_circuit.set_cooling_limit_day(23)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.thresholdDayCoolTemp.value", '
+                    '"value": "23"}]'
+                ),
                 method="POST",
                 auth=None,
                 ssl=False,
@@ -640,8 +772,62 @@ class TestHappyPathHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_heating_limit_night(self) -> None:
+    async def test_get_target_cooling_temperature_night(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.reducedCoolSetTemp",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Room temp. Night",
+                            "unitId": "Temp",
+                            "upperLimit": "30",
+                            "lowerLimit": "10",
+                        },
+                        "value": "22",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
 
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float | None = await client.heat_circuit.get_target_cooling_temperature_night()
+
+            assert isinstance(data, float)
+            assert data == 22.0  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.reducedCoolSetTemp", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_set_target_cooling_temperature_night(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_circuit.set_target_cooling_temperature_night(23)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.reducedCoolSetTemp", "value": "23"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_heating_limit_night(self) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -676,8 +862,88 @@ class TestHappyPathHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    async def test_get_target_temperature_away(self) -> None:
+    async def test_set_heating_limit_night(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
 
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_circuit.set_heating_limit_night(23)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.thresholdNightTemp.value", "value": "23"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_cooling_limit_night(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.thresholdNightCoolTemp.value",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Cooling limit night",
+                            "unitId": "Temp",
+                            "upperLimit": "40",
+                            "lowerLimit": "-20",
+                        },
+                        "value": "24",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float | None = await client.heat_circuit.get_cooling_limit_night()
+
+            assert isinstance(data, float)
+            assert data == 24.0  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.thresholdNightCoolTemp.value", '
+                    '"attr": "1"}]'
+                ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_set_cooling_limit_night(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_circuit.set_cooling_limit_night(23)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.thresholdNightCoolTemp.value", '
+                    '"value": "23"}]'
+                ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_target_temperature_away(self) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -713,7 +979,6 @@ class TestHappyPathHeatCircuitSection:
 
     @pytest.mark.asyncio
     async def test_set_target_temperature_away(self) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -734,7 +999,6 @@ class TestHappyPathHeatCircuitSection:
 
     @pytest.mark.asyncio
     async def test_get_target_temperature_offset(self) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -770,7 +1034,6 @@ class TestHappyPathHeatCircuitSection:
 
     @pytest.mark.asyncio
     async def test_set_target_temperature_offset(self) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -800,7 +1063,6 @@ class TestHappyPathHeatCircuitSection:
         payload_value: int,
         expected_value: str,
     ) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -849,7 +1111,6 @@ class TestHappyPathHeatCircuitSection:
         operating_mode: int | str,
         expected_value: int,
     ) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -895,7 +1156,6 @@ class TestHappyPathHeatCircuitSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -953,7 +1213,6 @@ class TestHappyPathHeatCircuitSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1826,7 +2085,6 @@ class TestUnhappyPathHeatCircuitSection:
         self,
         operating_mode: int,
     ) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -1857,7 +2115,6 @@ class TestUnhappyPathHeatCircuitSection:
         human_readable: bool,  # noqa: FBT001
         payload_value: str,
     ) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -1941,6 +2198,47 @@ class TestUnhappyPathHeatCircuitSection:
                 ),
             ):
                 await client.heat_circuit.set_heating_curve(name)
+
+            assert mock_keenergy_api.requests == {
+                ("POST", URL("http://mocked-host/var/readWriteVars")): [
+                    RequestCall(
+                        args=(),
+                        kwargs={
+                            "data": heating_curve_names_expected_data,
+                            "auth": None,
+                            "ssl": False,
+                            "allow_redirects": True,
+                        },
+                    )
+                ]
+            }
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "name",
+        ["INVALID"],
+    )
+    async def test_set_invalid_cooling_curve(
+        self,
+        name: str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=heating_curve_names_payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(
+                APIError,
+                match=(
+                    "Invalid value! Allowed values are "
+                    r"\['HC1', 'HC2', 'HC3', 'HC4', 'HC5', 'HC6', 'HC7', 'HC8', 'HC FBH', 'HC HK']"
+                ),
+            ):
+                await client.heat_circuit.set_cooling_curve(name)
 
             assert mock_keenergy_api.requests == {
                 ("POST", URL("http://mocked-host/var/readWriteVars")): [

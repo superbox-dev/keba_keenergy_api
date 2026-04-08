@@ -3079,6 +3079,44 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
         await self._write_values(request={HeatCircuit.TARGET_TEMPERATURE_DAY: temperatures})
 
+    async def get_target_cooling_temperature_day(self, position: int = 1) -> float:
+        """Get the target cooling temperature for the day from the heat circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the heat circuits
+
+        Returns
+        -------
+        float
+            Temperature in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.TARGET_COOLING_TEMPERATURE_DAY,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatCircuit.TARGET_COOLING_TEMPERATURE_DAY, position=position)
+
+    async def set_target_cooling_temperature_day(self, temperature: float, position: int = 1) -> None:
+        """Set the target cooling temperature for the day from the heat circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        temperature
+            The target cooling temperature for the day in °C
+        position
+            The number of the heat circuits
+
+        """
+        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={HeatCircuit.TARGET_COOLING_TEMPERATURE_DAY: temperatures})
+
     async def get_heating_limit_day(self, position: int = 1) -> float:
         """Get the heating limit for the day from the heat circuit.
 
@@ -3099,6 +3137,61 @@ class HeatCircuitEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_float_value(response, section=HeatCircuit.HEATING_LIMIT_DAY, position=position)
+
+    async def set_heating_limit_day(self, temperature: float, position: int = 1) -> None:
+        """Set the heating limit for the day from the heat circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        temperature
+            The heating limit temperature for the day in °C
+        position
+            The number of the heat circuits
+
+        """
+        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={HeatCircuit.HEATING_LIMIT_DAY: temperatures})
+
+    async def get_cooling_limit_day(self, position: int = 1) -> float:
+        """Get the cooling limit for the day from the heat circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the heat circuits
+
+        Returns
+        -------
+        float
+            Temperature in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.COOLING_LIMIT_DAY,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatCircuit.COOLING_LIMIT_DAY, position=position)
+
+    async def set_cooling_limit_day(self, temperature: float, position: int = 1) -> None:
+        """Set the cooling limit for the day from the heat circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        temperature
+            The cooling limit temperature for the day in °C
+        position
+            The number of the heat circuits
+
+        """
+        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={HeatCircuit.COOLING_LIMIT_DAY: temperatures})
 
     async def get_target_temperature_night(self, position: int = 1) -> float:
         """Get the target temperature for the night from the heat circuit.
@@ -3138,6 +3231,44 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
         await self._write_values(request={HeatCircuit.TARGET_TEMPERATURE_NIGHT: temperatures})
 
+    async def get_target_cooling_temperature_night(self, position: int = 1) -> float:
+        """Get the target cooling temperature for the night from the heat circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the heat circuits
+
+        Returns
+        -------
+        float
+            Temperature in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.TARGET_COOLING_TEMPERATURE_NIGHT,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatCircuit.TARGET_COOLING_TEMPERATURE_NIGHT, position=position)
+
+    async def set_target_cooling_temperature_night(self, temperature: float, position: int = 1) -> None:
+        """Set the target cooling temperature for the night from the heat circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        temperature
+            The target cooling temperature for the day in °C
+        position
+            The number of the heat circuits
+
+        """
+        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={HeatCircuit.TARGET_COOLING_TEMPERATURE_NIGHT: temperatures})
+
     async def get_heating_limit_night(self, position: int = 1) -> float:
         """Get the heating limit for the night from the heat circuit.
 
@@ -3158,6 +3289,61 @@ class HeatCircuitEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_float_value(response, section=HeatCircuit.HEATING_LIMIT_NIGHT, position=position)
+
+    async def set_heating_limit_night(self, temperature: float, position: int = 1) -> None:
+        """Set the heating limit for the night from the heat circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        temperature
+            The heating limit temperature for the night in °C
+        position
+            The number of the heat circuits
+
+        """
+        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={HeatCircuit.HEATING_LIMIT_NIGHT: temperatures})
+
+    async def get_cooling_limit_night(self, position: int = 1) -> float:
+        """Get the cooling limit for the night from the heat circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the heat circuits
+
+        Returns
+        -------
+        float
+            Temperature in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.COOLING_LIMIT_NIGHT,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatCircuit.COOLING_LIMIT_NIGHT, position=position)
+
+    async def set_cooling_limit_night(self, temperature: float, position: int = 1) -> None:
+        """Set the cooling limit for the night from the heat circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        temperature
+            The cooling limit temperature for the night in °C
+        position
+            The number of the heat circuits
+
+        """
+        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={HeatCircuit.COOLING_LIMIT_NIGHT: temperatures})
 
     async def get_target_temperature_away(self, position: int = 1) -> float:
         """Get the target temperature when away for the heat circuit.

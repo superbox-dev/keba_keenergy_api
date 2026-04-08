@@ -745,16 +745,32 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.normalSetTemp",
         value_type=float,
     )
+    TARGET_COOLING_TEMPERATURE_DAY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.normalCoolSetTemp",
+        value_type=float,
+    )
     HEATING_LIMIT_DAY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdDayTemp.value",
+        value_type=float,
+    )
+    COOLING_LIMIT_DAY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdDayCoolTemp.value",
         value_type=float,
     )
     TARGET_TEMPERATURE_NIGHT = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.reducedSetTemp",
         value_type=float,
     )
+    TARGET_COOLING_TEMPERATURE_NIGHT = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.reducedCoolSetTemp",
+        value_type=float,
+    )
     HEATING_LIMIT_NIGHT = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdNightTemp.value",
+        value_type=float,
+    )
+    COOLING_LIMIT_NIGHT = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdNightCoolTemp.value",
         value_type=float,
     )
     TARGET_TEMPERATURE_AWAY = EndpointProperties(
