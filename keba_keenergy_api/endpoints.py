@@ -3556,6 +3556,26 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_str_value(response, section=HeatCircuit.HEATING_CURVE, position=position)
 
+    async def get_cooling_curve(self, position: int = 1) -> str:
+        """Get the cooling curve from the heat circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the heat circuits
+
+        Returns
+        -------
+        string
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.COOLING_CURVE,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_str_value(response, section=HeatCircuit.COOLING_CURVE, position=position)
+
     async def set_heating_curve(self, heating_curve: str, position: int = 1) -> None:
         """Set the heating curve from the heat circuit.
 

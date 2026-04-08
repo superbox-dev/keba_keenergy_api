@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added endpoint `get_mode()` to heating circuit
+- Added endpoint `get_cooling_curve()` to heating circuit
 
 ## [2.10.2] - 2026-04-03
 

@@ -805,6 +805,10 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.linTab.fileName",
         value_type=str,
     )
+    COOLING_CURVE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.coollinTab.fileName",
+        value_type=str,
+    )
     PUMP_SPEED = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].pumpAO.values.setValueScaled",
         value_type=float,

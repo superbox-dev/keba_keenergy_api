@@ -1315,6 +1315,35 @@ class TestHappyPathHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
+    async def test_get_cooling_curve(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.coollinTab.fileName",
+                        "attributes": {"longText": "Name of linTab"},
+                        "value": "HC1",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: str = await client.heat_circuit.get_cooling_curve()
+
+            assert isinstance(data, str)
+            assert data == "HC1"
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.coollinTab.fileName", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("name", "expected_value"),
         [
