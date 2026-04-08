@@ -1151,6 +1151,61 @@ class TestHappyPathHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
+    async def test_get_cooling_curve_offset(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.coolCurveOffset",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Cool curve offset",
+                            "unitId": "TempRel",
+                            "upperLimit": "10",
+                            "lowerLimit": "-10",
+                        },
+                        "value": "3.5",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_circuit.get_cooling_curve_offset()
+
+            assert isinstance(data, float)
+            assert data == 3.5  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.coolCurveOffset", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_set_cooling_curve_offset(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_circuit.set_cooling_curve_offset(3.5)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.coolCurveOffset", "value": "3.5"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     async def test_get_heating_curve_slope(self) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
