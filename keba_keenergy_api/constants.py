@@ -755,6 +755,11 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.refluxTemp.values.actValue",
         value_type=float,
     )
+    HAS_RETURN_FLOW_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasRefluxTemp",
+        value_type=str,
+        human_readable=HeatCircuitHasReturnFlowTemperature,
+    )
     RETURN_FLOW_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].tempReflux.values.actValue",
         value_type=float,

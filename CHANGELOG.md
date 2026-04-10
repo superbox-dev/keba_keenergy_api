@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `get_cooling_limit_night()` to the heating circuit
 - Added endpoint `get_cooling_limit_night()` to the heating circuit
 - Added endpoint `has_mixer()` to the heating circuit
+- Added endpoint `has_return_flow_temperature()` to the heating circuit
 - Added endpoint `has_active_cooling()` to the heat pump
 - Added endpoint `has_outdoor_temperature()` to the system
 - Added endpoint `has_fresh_water_module()` to the hot water tank

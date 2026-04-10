@@ -5,6 +5,7 @@ from yarl import URL
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.constants import HeatCircuitHasMixer
+from keba_keenergy_api.constants import HeatCircuitHasReturnFlowTemperature
 from keba_keenergy_api.constants import HeatCircuitHasRoomTemperature
 from keba_keenergy_api.constants import HeatCircuitHeatRequest
 from keba_keenergy_api.constants import HeatCircuitMode
@@ -436,6 +437,51 @@ class TestHappyPathHeatCircuitSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].heatCircuitMixer.refluxTemp.values.actValue", "attr": "1"}]',  # noqa: E501
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (False, HeatCircuitHasReturnFlowTemperature.ON.value, 1),
+            (True, "false", "off"),
+            (False, HeatCircuitHasReturnFlowTemperature.OFF.value, 0),
+        ],
+    )
+    async def test_has_return_flow_temperature(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.heatCircuit[0].hasRefluxTemp",
+                        "attributes": {
+                            "longText": "With reflux sensor",
+                        },
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_circuit.has_return_flow_temperature(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.options.heatCircuit[0].hasRefluxTemp", "attr": "1"}]',
                 method="POST",
                 auth=None,
                 ssl=False,

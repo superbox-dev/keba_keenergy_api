@@ -3064,6 +3064,30 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatCircuit.MIXER_RETURN_FLOW_TEMPERATURE, position=position)
 
+    async def has_return_flow_temperature(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Check if return flow temperature sensor cooling is available.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.HAS_RETURN_FLOW_TEMPERATURE,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HeatCircuit.HAS_RETURN_FLOW_TEMPERATURE, position=position)
+
     async def get_return_flow_temperature(self, position: int = 1) -> float:
         """Get the return flow temperature from the heat circuit.
 
