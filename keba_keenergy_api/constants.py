@@ -56,6 +56,9 @@ HeatPumpHasVFDFailure: type[BoolEnum] = BoolEnum
 HeatCircuitHasRoomTemperature: type[BoolEnum] = BoolEnum
 HeatCircuitHasRoomHumidity: type[BoolEnum] = BoolEnum
 HeatCircuitUseHeatingCurve: type[BoolEnum] = BoolEnum
+HeatCircuitHasMixer: type[BoolEnum] = BoolEnum
+HeatCircuitHasReturnFlowTemperature: type[BoolEnum] = BoolEnum
+HeatCircuitHasPump: type[BoolEnum] = BoolEnum
 SolarCircuitOperatingMode: type[BoolEnum] = BoolEnum
 SolarCircuitConsumer1PrioritySolar: type[BoolEnum] = BoolEnum
 SolarCircuitHeatRequest: type[BoolEnum] = BoolEnum
@@ -733,7 +736,12 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.flowSetTemp",
         value_type=float,
     )
-    FLOW_TEMPERATURE = EndpointProperties(
+    HAS_MIXER = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasMixer",
+        value_type=str,
+        human_readable=HeatCircuitHasMixer,
+    )
+    MIXER_FLOW_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.flowTemp.values.actValue",
         value_type=float,
     )

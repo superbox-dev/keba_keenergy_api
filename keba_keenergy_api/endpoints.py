@@ -2977,6 +2977,27 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatCircuit.FLOW_TEMPERATURE_SETPOINT, position=position)
 
+    async def has_mixer(self, *, human_readable: bool = True) -> int | str:
+        """Check if heating circuit mixer is available.
+
+        Parameters
+        ----------
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.HAS_MIXER,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HeatCircuit.HAS_MIXER)
+
     async def get_mixer_flow_temperature(self, position: int = 1) -> float:
         """Get the mixer flow temperature from the heat circuit.
 
@@ -2992,11 +3013,11 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=HeatCircuit.FLOW_TEMPERATURE,
+            request=HeatCircuit.MIXER_FLOW_TEMPERATURE,
             position=position,
             extra_attributes=True,
         )
-        return self._get_float_value(response, section=HeatCircuit.FLOW_TEMPERATURE, position=position)
+        return self._get_float_value(response, section=HeatCircuit.MIXER_FLOW_TEMPERATURE, position=position)
 
     async def get_mixer_return_flow_temperature(self, position: int = 1) -> float:
         """Get the mixer return flow temperature from the heat circuit.
