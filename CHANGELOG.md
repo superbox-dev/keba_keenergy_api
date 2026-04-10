@@ -13,24 +13,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added endpoint `get_mode()` to heating circuit
-- Added endpoint `get_cooling_curve()` to heating circuit
-- Added endpoint `set_cooling_curve()` to heating circuit
-- Added endpoint `get_cooling_curve_slope()` to heating circuit
-- Added endpoint `set_cooling_curve_slope()` to heating circuit
-- Added endpoint `get_cooling_curve_offset()` to heating circuit
-- Added endpoint `set_cooling_curve_offset()` to heating circuit
-- Added endpoint `get_target_cooling_temperature_day()` to heating circuit
-- Added endpoint `set_target_cooling_temperature_day()` to heating circuit
-- Added endpoint `set_heating_limit_day()` to heating circuit
-- Added endpoint `get_cooling_limit_day()` to heating circuit
-- Added endpoint `set_cooling_limit_day()` to heating circuit
-- Added endpoint `get_target_cooling_temperature_night()` to heating circuit
-- Added endpoint `set_target_cooling_temperature_night()` to heating circuit
-- Added endpoint `set_heating_limit_night()` to heating circuit
-- Added endpoint `get_cooling_limit_night()` to heating circuit
-- Added endpoint `get_cooling_limit_night()` to heating circuit
-- Added endpoint `has_outdoor_temperature()` to system
+- Added endpoint `get_mode()` to the heating circuit
+- Added endpoint `get_cooling_curve()` to the heating circuit
+- Added endpoint `set_cooling_curve()` to the heating circuit
+- Added endpoint `get_cooling_curve_slope()` to the heating circuit
+- Added endpoint `set_cooling_curve_slope()` to the heating circuit
+- Added endpoint `get_cooling_curve_offset()` to the heating circuit
+- Added endpoint `set_cooling_curve_offset()` to the heating circuit
+- Added endpoint `get_target_cooling_temperature_day()` to the heating circuit
+- Added endpoint `set_target_cooling_temperature_day()` to the heating circuit
+- Added endpoint `set_heating_limit_day()` to the heating circuit
+- Added endpoint `get_cooling_limit_day()` to the heating circuit
+- Added endpoint `set_cooling_limit_day()` to the heating circuit
+- Added endpoint `get_target_cooling_temperature_night()` to the heating circuit
+- Added endpoint `set_target_cooling_temperature_night()` to the heating circuit
+- Added endpoint `set_heating_limit_night()` to the heating circuit
+- Added endpoint `get_cooling_limit_night()` to the heating circuit
+- Added endpoint `get_cooling_limit_night()` to the heating circuit
+- Added endpoint `has_outdoor_temperature()` to the system
+- Added endpoint `has_fresh_water_module()` to the hot water tank
 
 ## [2.10.2] - 2026-04-03
 
@@ -60,21 +61,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added endpoint `get_target_overheating()` to heat pump [(Issue #100)][issue-100]
-- Added endpoint `get_current_overheating()` to heat pump [(Issue #100)][issue-100]
-- Added endpoint `get_expansion_valve_position()` to heat pump [(Issue #100)][issue-100]
-- Added endpoint `get_circulation_return_temperature()` to hot water tank [(Issue #100)][issue-100]
-- Added endpoint `get_circulation_pump_state()` to hot water tank [(Issue #97)][issue-97]
-- Added endpoint `get_heating_curve_offset()` to heating circuit [(Issue #97)][issue-97]
-- Added endpoint `set_heating_curve_offset()` to heating circuit [(Issue #97)][issue-97]
-- Added endpoint `get_heating_curve_slope()` to heating circuit [(Issue #97)][issue-97]
-- Added endpoint `set_heating_curve_slope()` to heating circuit [(Issue #97)][issue-97]
-- Added endpoint `get_use_heating_curve()` to heating circuit [(Issue #97)][issue-97]
-- Added endpoint `set_use_heating_curve()` to heating circuit [(Issue #97)][issue-97]
-- Added endpoint `get_heating_curve()` to heating circuit [(Issue #97)][issue-97]
-- Added endpoint `set_heating_curve()` to heating circuit [(Issue #97)][issue-97]
-- Added endpoint `get_heating_curve_points()` to heating circuit [(Issue #97)][issue-97]
-- Added endpoint `set_heating_curve_points()` to heating circuit [(Issue #97)][issue-97]
+- Added endpoint `get_target_overheating()` to the heat pump [(Issue #100)][issue-100]
+- Added endpoint `get_current_overheating()` to the heat pump [(Issue #100)][issue-100]
+- Added endpoint `get_expansion_valve_position()` to the heat pump [(Issue #100)][issue-100]
+- Added endpoint `get_circulation_return_temperature()` to the hot water tank [(Issue #100)][issue-100]
+- Added endpoint `get_circulation_pump_state()` to the hot water tank [(Issue #97)][issue-97]
+- Added endpoint `get_heating_curve_offset()` to the heating circuit [(Issue #97)][issue-97]
+- Added endpoint `set_heating_curve_offset()` to the heating circuit [(Issue #97)][issue-97]
+- Added endpoint `get_heating_curve_slope()` to the heating circuit [(Issue #97)][issue-97]
+- Added endpoint `set_heating_curve_slope()` to the heating circuit [(Issue #97)][issue-97]
+- Added endpoint `get_use_heating_curve()` to the heating circuit [(Issue #97)][issue-97]
+- Added endpoint `set_use_heating_curve()` to the heating circuit [(Issue #97)][issue-97]
+- Added endpoint `get_heating_curve()` to the heating circuit [(Issue #97)][issue-97]
+- Added endpoint `set_heating_curve()` to the heating circuit [(Issue #97)][issue-97]
+- Added endpoint `get_heating_curve_points()` to the heating circuit [(Issue #97)][issue-97]
+- Added endpoint `set_heating_curve_points()` to the heating circuit [(Issue #97)][issue-97]
 - Added extra attributes heating curve points to the heating curve [(Issue #97)][issue-97]
 
 [issue-97]: https://github.com/superbox-dev/keba_keenergy_api/issues/97

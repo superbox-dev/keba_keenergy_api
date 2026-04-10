@@ -3,6 +3,7 @@ from aioresponses.core import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.constants import HotWaterTankCirculationPumpState
+from keba_keenergy_api.constants import HotWaterTankHasFreshWaterModule
 from keba_keenergy_api.constants import HotWaterTankHeatRequest
 from keba_keenergy_api.constants import HotWaterTankOperatingMode
 from keba_keenergy_api.error import APIError
@@ -381,12 +382,57 @@ class TestHappyPathHotWaterTankSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
+            (False, HotWaterTankHasFreshWaterModule.ON.value, 1),
+            (True, "false", "off"),
+            (False, HotWaterTankHasFreshWaterModule.OFF.value, 0),
+        ],
+    )
+    async def test_has_fresh_water_module(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.hotWaterTank[0].hasFreshWaterModule",
+                        "attributes": {
+                            "longText": "Fresh water module",
+                        },
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.hot_water_tank.has_fresh_water_module(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.options.hotWaterTank[0].hasFreshWaterModule", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
             (False, HotWaterTankHeatRequest.ON.value, 1),
             (True, "false", "off"),
             (False, HotWaterTankHeatRequest.OFF.value, 0),
         ],
     )
-    async def test_get_hot_water_flow(
+    async def test_get_fresh_water_flow(
         self,
         human_readable: bool,  # noqa: FBT001
         payload_value: str,
@@ -408,7 +454,7 @@ class TestHappyPathHotWaterTankSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.hot_water_tank.get_hot_water_flow(human_readable=human_readable)
+            data: int | str = await client.hot_water_tank.get_fresh_water_flow(human_readable=human_readable)
 
             assert isinstance(data, (int | str))
             assert data == expected_value

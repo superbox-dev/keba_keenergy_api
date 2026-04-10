@@ -1396,8 +1396,29 @@ class HotWaterTankEndpoints(BaseEndpoints):
         )
         return self._get_int_or_str_value(response, section=HotWaterTank.HEAT_REQUEST, position=position)
 
-    async def get_hot_water_flow(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Get the hot water flow from the fresh water module.
+    async def has_fresh_water_module(self, *, human_readable: bool = True) -> int | str:
+        """Check if fresh water module is available.
+
+        Parameters
+        ----------
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HotWaterTank.HAS_FRESH_WATER_MODULE,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HotWaterTank.HAS_FRESH_WATER_MODULE)
+
+    async def get_fresh_water_flow(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Get the fresh water flow from the fresh water module.
 
         Parameters
         ----------
@@ -1413,12 +1434,12 @@ class HotWaterTankEndpoints(BaseEndpoints):
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=HotWaterTank.HOT_WATER_FLOW,
+            request=HotWaterTank.FRESH_WATER_FLOW,
             position=position,
             human_readable=human_readable,
             extra_attributes=True,
         )
-        return self._get_int_or_str_value(response, section=HotWaterTank.HOT_WATER_FLOW, position=position)
+        return self._get_int_or_str_value(response, section=HotWaterTank.FRESH_WATER_FLOW, position=position)
 
     async def get_fresh_water_module_temperature(self, position: int = 1) -> float:
         """Get the fresh water module temperature.
