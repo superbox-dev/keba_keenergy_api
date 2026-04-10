@@ -2535,6 +2535,30 @@ class HeatPumpEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatPump.TOTAL_SPF, position=position)
 
+    async def has_active_cooling(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Check if active cooling for the heat pump is available.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.HAS_ACTIVE_COOLING,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HeatPump.HAS_ACTIVE_COOLING, position=position)
+
     async def has_passive_cooling(self, position: int = 1, *, human_readable: bool = True) -> int | str:
         """Check if passive cooling for the heat pump is available.
 

@@ -46,6 +46,7 @@ class BoolEnum(BaseEnum):
 SystemHasPhotovoltaics: type[BoolEnum] = BoolEnum
 SystemHasOutdoorTemperature: type[BoolEnum] = BoolEnum
 HeatPumpCompressorUseNightSpeed: type[BoolEnum] = BoolEnum
+HeatPumpHasActiveCooling: type[BoolEnum] = BoolEnum
 HeatPumpHasPassiveCooling: type[BoolEnum] = BoolEnum
 HeatPumpHasCompressorFailure: type[BoolEnum] = BoolEnum
 HeatPumpHasSourceFailure: type[BoolEnum] = BoolEnum
@@ -648,6 +649,11 @@ class HeatPump(Enum):
     TOTAL_SPF = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatio",
         value_type=float,
+    )
+    HAS_ACTIVE_COOLING = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.options.heatpump[%s].hasActiveCooling",
+        value_type=str,
+        human_readable=HeatPumpHasActiveCooling,
     )
     HAS_PASSIVE_COOLING = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.heatpump[%s].hasPassiveCooling",
