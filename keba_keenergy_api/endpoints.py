@@ -4195,6 +4195,30 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         return tuple(heating_curves)
 
+    async def has_pump(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Check if return heating circuit pump is available.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.HAS_PUMP,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HeatCircuit.HAS_PUMP, position=position)
+
     async def get_pump_speed(self, position: int = 1) -> float:
         """Get pump speed.
 

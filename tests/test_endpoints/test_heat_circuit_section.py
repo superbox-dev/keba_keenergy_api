@@ -5,6 +5,7 @@ from yarl import URL
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.constants import HeatCircuitHasMixer
+from keba_keenergy_api.constants import HeatCircuitHasPump
 from keba_keenergy_api.constants import HeatCircuitHasReturnFlowTemperature
 from keba_keenergy_api.constants import HeatCircuitHasRoomTemperature
 from keba_keenergy_api.constants import HeatCircuitHeatRequest
@@ -2128,6 +2129,51 @@ class TestHappyPathHeatCircuitSection:
                     )
                 ]
             }
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (False, HeatCircuitHasPump.ON.value, 1),
+            (True, "false", "off"),
+            (False, HeatCircuitHasPump.OFF.value, 0),
+        ],
+    )
+    async def test_has_pump(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.heatCircuit[0].hasVarSpeedPump",
+                        "attributes": {
+                            "longText": "Var.speed pump",
+                        },
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_circuit.has_pump(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.options.heatCircuit[0].hasVarSpeedPump", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
 
     @pytest.mark.asyncio
     async def test_get_pump_speed(self) -> None:

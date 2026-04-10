@@ -864,6 +864,11 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.coollinTab.fileName",
         value_type=str,
     )
+    HAS_PUMP = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasVarSpeedPump",
+        value_type=str,
+        human_readable=HeatCircuitHasPump,
+    )
     PUMP_SPEED = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].pumpAO.values.setValueScaled",
         value_type=float,
