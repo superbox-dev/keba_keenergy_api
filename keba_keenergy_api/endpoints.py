@@ -687,6 +687,27 @@ class SystemEndpoints(BaseEndpoints):
         )
         return self._get_int_or_str_value(response, section=System.HAS_PHOTOVOLTAICS)
 
+    async def has_outdoor_temperature(self, *, human_readable: bool = True) -> int | str:
+        """Check if outdoor temperature sensor is available.
+
+        Parameters
+        ----------
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=System.HAS_OUTDOOR_TEMPERATURE,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=System.HAS_OUTDOOR_TEMPERATURE)
+
     async def get_outdoor_temperature(self) -> float:
         """Get the outdoor temperature.
 

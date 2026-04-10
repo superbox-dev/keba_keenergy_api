@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `set_heating_limit_night()` to heating circuit
 - Added endpoint `get_cooling_limit_night()` to heating circuit
 - Added endpoint `get_cooling_limit_night()` to heating circuit
+- Added endpoint `has_outdoor_temperature()` to system
 
 ## [2.10.2] - 2026-04-03
 

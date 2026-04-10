@@ -44,6 +44,7 @@ class BoolEnum(BaseEnum):
 
 
 SystemHasPhotovoltaics: type[BoolEnum] = BoolEnum
+SystemHasOutdoorTemperature: type[BoolEnum] = BoolEnum
 HeatPumpCompressorUseNightSpeed: type[BoolEnum] = BoolEnum
 HeatPumpHasPassiveCooling: type[BoolEnum] = BoolEnum
 HeatPumpHasCompressorFailure: type[BoolEnum] = BoolEnum
@@ -293,6 +294,11 @@ class System(Enum):
         f"{PAYLOAD_PREFIX}.sParam.options.hasPhotovoltaics",
         value_type=str,
         human_readable=SystemHasPhotovoltaics,
+    )
+    HAS_OUTDOOR_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.options.hasOutdoorTemp",
+        value_type=str,
+        human_readable=SystemHasOutdoorTemperature,
     )
     OPERATING_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.param.operatingMode",

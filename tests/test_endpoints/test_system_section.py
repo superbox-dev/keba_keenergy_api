@@ -452,7 +452,9 @@ class TestHappyPathSystemSection:
                 payload=[
                     {
                         "name": "APPL.CtrlAppl.sParam.options.hasPhotovoltaics",
-                        "attributes": {"longText": "With photovoltaics"},
+                        "attributes": {
+                            "longText": "With photovoltaics",
+                        },
                         "value": payload_value,
                     },
                 ],
@@ -468,6 +470,51 @@ class TestHappyPathSystemSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.hasPhotovoltaics", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (False, SystemHasPhotovoltaics.ON.value, 1),
+            (True, "false", "off"),
+            (False, SystemHasPhotovoltaics.OFF.value, 0),
+        ],
+    )
+    async def test_has_outdoor_temperature(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.hasOutdoorTemp",
+                        "attributes": {
+                            "longText": "With exterior sensor",
+                        },
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.system.has_outdoor_temperature(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.options.hasOutdoorTemp", "attr": "1"}]',
                 method="POST",
                 auth=None,
                 ssl=False,
