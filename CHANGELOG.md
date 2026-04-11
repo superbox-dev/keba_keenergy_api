@@ -36,6 +36,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `has_active_cooling()` to the heat pump
 - Added endpoint `has_outdoor_temperature()` to the system
 - Added endpoint `has_fresh_water_module()` to the hot water tank
+- Added endpoint `get_temperature()` to passive cooling
+- Added endpoint `get_switch_valve_position()` to passive cooling
+- Added endpoint `get_circulation_pump_speed()` to passive cooling
+- Added endpoint `get_mixer_target_temperature()` to passive cooling
+- Added endpoint `get_mixer_flow_temperature()` to passive cooling
 
 ## [2.10.2] - 2026-04-03
 

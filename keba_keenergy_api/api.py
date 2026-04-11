@@ -15,6 +15,7 @@ from keba_keenergy_api.endpoints import HeatCircuitEndpoints
 from keba_keenergy_api.endpoints import HeatPumpEndpoints
 from keba_keenergy_api.endpoints import HeatingCurves
 from keba_keenergy_api.endpoints import HotWaterTankEndpoints
+from keba_keenergy_api.endpoints import PassiveCoolingEndpoints
 from keba_keenergy_api.endpoints import PhotovoltaicsEndpoints
 from keba_keenergy_api.endpoints import Position
 from keba_keenergy_api.endpoints import Response
@@ -179,6 +180,17 @@ class KebaKeEnergyAPI(BaseEndpoints):
     def switch_valve(self) -> SwitchValveEndpoints:
         """Get switch valve endpoints."""
         return SwitchValveEndpoints(
+            base_url=self.device_url,
+            auth=self.auth,
+            ssl=self.ssl,
+            skip_ssl_verification=self.skip_ssl_verification,
+            session=self.session,
+        )
+
+    @property
+    def passive_cooling(self) -> PassiveCoolingEndpoints:
+        """Get passive cooling endpoints."""
+        return PassiveCoolingEndpoints(
             base_url=self.device_url,
             auth=self.auth,
             ssl=self.ssl,

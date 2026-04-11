@@ -423,6 +423,13 @@ class TestHappyPathHeatCircuitSection:
                 payload=[
                     {
                         "name": "APPL.CtrlAppl.sParam.heatCircuit[0].heatCircuitMixer.refluxTemp.values.actValue",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Reflux temp. act.",
+                            "unitId": "Temp",
+                            "upperLimit": "100",
+                            "lowerLimit": "0",
+                        },
                         "value": "31.254391",
                     },
                 ],

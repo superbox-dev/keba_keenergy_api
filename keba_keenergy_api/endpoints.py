@@ -31,6 +31,7 @@ from keba_keenergy_api.constants import HotWaterTankOperatingMode
 from keba_keenergy_api.constants import LineTablePool
 from keba_keenergy_api.constants import MAX_HEATING_CURVE_POINTS
 from keba_keenergy_api.constants import MIN_HEATING_CURVE_POINTS
+from keba_keenergy_api.constants import PassiveCooling
 from keba_keenergy_api.constants import Photovoltaic
 from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import SolarCircuit
@@ -1854,11 +1855,11 @@ class HeatPumpEndpoints(BaseEndpoints):
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=HeatPump.CIRCULATION_PUMP,
+            request=HeatPump.CIRCULATION_PUMP_SPEED,
             position=position,
             extra_attributes=True,
         )
-        return self._get_float_value(response, section=HeatPump.CIRCULATION_PUMP, position=position)
+        return self._get_float_value(response, section=HeatPump.CIRCULATION_PUMP_SPEED, position=position)
 
     async def get_source_pump_speed(self, position: int = 1) -> float:
         """Get the source pump speed.
@@ -4942,6 +4943,148 @@ class SwitchValveEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_int_or_str_value(response, section=SwitchValve.POSITION, position=position)
+
+
+class PassiveCoolingEndpoints(BaseEndpoints):
+    """API Endpoints to retrieve the passive cooling data.
+
+    Examples
+    --------
+    >>> client = KebaKeEnergyAPI(
+    >>>     host="ap4400.local",
+    >>>     username="test",
+    >>>     password="test",
+    >>>     ssl=True,
+    >>>     skip_ssl_verification=True
+    >>> )
+    >>> client.passive_cooling.get_temperature()
+
+    """
+
+    def __init__(
+        self,
+        base_url: str,
+        *,
+        auth: BasicAuth | None = None,
+        ssl: bool,
+        skip_ssl_verification: bool,
+        session: ClientSession | None = None,
+    ) -> None:
+        super().__init__(
+            base_url=base_url,
+            auth=auth,
+            ssl=ssl,
+            skip_ssl_verification=skip_ssl_verification,
+            session=session,
+        )
+
+    async def get_temperature(self, position: int = 1) -> float:
+        """Get the temperature from passive cooling.
+
+        Parameters
+        ----------
+        position
+            The number of passive cooling
+
+        Returns
+        -------
+        float
+            Temperature in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=PassiveCooling.TEMPERATURE,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=PassiveCooling.TEMPERATURE, position=position)
+
+    async def get_switch_valve_position(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Get switch valve position from passive cooling.
+
+        Parameters
+        ----------
+        position
+            The number of passive cooling
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            (0) NEUTRAL / (1) OPEN / (2) CLOSED
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=PassiveCooling.SWITCH_VALVE_POSITION,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=PassiveCooling.SWITCH_VALVE_POSITION, position=position)
+
+    async def get_circulation_pump_speed(self, position: int = 1) -> float:
+        """Get the circulation pump speed from passive cooling.
+
+        Parameters
+        ----------
+        position
+            The number of passive cooling
+
+        Returns
+        -------
+        float
+            Circulation pump speed in percent
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=PassiveCooling.CIRCULATION_PUMP_SPEED,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=PassiveCooling.CIRCULATION_PUMP_SPEED, position=position)
+
+    async def get_mixer_target_temperature(self, position: int = 1) -> float:
+        """Get the mixer target temperature from passive cooling.
+
+        Parameters
+        ----------
+        position
+            The number of passive cooling
+
+        Returns
+        -------
+        float
+            Temperature in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=PassiveCooling.MIXER_TARGET_TEMPERATURE,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=PassiveCooling.MIXER_TARGET_TEMPERATURE, position=position)
+
+    async def get_mixer_flow_temperature(self, position: int = 1) -> float:
+        """Get the mixer flow temperature from passive cooling.
+
+        Parameters
+        ----------
+        position
+            The number of passive cooling
+
+        Returns
+        -------
+        float
+            Temperature in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=PassiveCooling.MIXER_FLOW_TEMPERATURE,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=PassiveCooling.MIXER_FLOW_TEMPERATURE, position=position)
 
 
 class PhotovoltaicsEndpoints(BaseEndpoints):

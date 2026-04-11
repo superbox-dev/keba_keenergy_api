@@ -469,7 +469,7 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatPumpPowerCtrl.param.maxPowerScaledNight",
         value_type=float,
     )
-    CIRCULATION_PUMP = EndpointProperties(
+    CIRCULATION_PUMP_SPEED = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CircPump.values.setValueScaled",
         value_type=float,
     )
@@ -1011,6 +1011,30 @@ class SwitchValve(Enum):
     )
 
 
+class PassiveCooling(Enum):
+    TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].TempCoolPassive.values.actValue",
+        value_type=float,
+    )
+    SWITCH_VALVE_POSITION = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].SwitchValvePassiveCool.values.actPosition",
+        value_type=int,
+        human_readable=SwitchValvePosition,
+    )
+    CIRCULATION_PUMP_SPEED = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Pump.values.setValueScaled",
+        value_type=float,
+    )
+    MIXER_TARGET_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.values.setValue",
+        value_type=float,
+    )
+    MIXER_FLOW_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.flowTemp.values.actValue",
+        value_type=float,
+    )
+
+
 class Photovoltaic(Enum):
     EXCESS_POWER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.photovoltaics.ElectricEnergyMeter.values.power",
@@ -1049,5 +1073,6 @@ Section: TypeAlias = (
     | SolarCircuit
     | ExternalHeatSource
     | SwitchValve
+    | PassiveCooling
     | Photovoltaic
 )
