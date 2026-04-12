@@ -39,6 +39,17 @@ read_data_payload_1: list[dict[str, Any]] = [
         "value": "22.56",
     },
     {
+        "name": "APPL.CtrlAppl.sParam.passivecooling[0].TempCoolPassive.values.actValue",
+        "attributes": {
+            "formatId": "fmtTemp",
+            "longText": "Temp. passive cool",
+            "unitId": "Temp",
+            "upperLimit": "100",
+            "lowerLimit": "-100",
+        },
+        "value": "21.16",
+    },
+    {
         "name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.accumulatedHeat",
         "attributes": {
             "formatId": "fmt6p0",
@@ -53,6 +64,7 @@ read_data_expected_data_1: str = (
     '[{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks", "attr": "1"}, '
     '{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].topTemp.values.actValue", "attr": "1"}, '
     '{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].values.setTemp", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.passivecooling[0].TempCoolPassive.values.actValue", "attr": "1"}, '
     '{"name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.accumulatedHeat", "attr": "1"}]'
 )
 
@@ -81,7 +93,17 @@ read_data_expected_response_1: dict[str, Any] = {
             },
         ],
     },
-    "passive_cooling": {},
+    "passive_cooling": {
+        "temperature": [
+            {
+                "attributes": {
+                    "lower_limit": "-100",
+                    "upper_limit": "100",
+                },
+                "value": 21.16,
+            },
+        ],
+    },
     "photovoltaic": {
         "total_energy": {
             "attributes": {},
