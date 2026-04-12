@@ -1,5 +1,6 @@
 import json
 import re
+from dataclasses import dataclass
 from enum import Enum
 from http import HTTPStatus
 from re import Pattern
@@ -58,7 +59,8 @@ class ReadChildrenPayload(TypedDict):
     filter: str
 
 
-class Position(NamedTuple):
+@dataclass
+class Position:
     heat_pump: int
     heat_circuit: int
     solar_circuit: int
@@ -66,6 +68,11 @@ class Position(NamedTuple):
     hot_water_tank: int
     external_heat_source: int
     switch_valve: int
+
+    @property
+    def passive_cooling(self) -> int:
+        """Get passive cooling position for every heat pump."""
+        return self.heat_pump
 
 
 class HeatingCurvePoint(NamedTuple):

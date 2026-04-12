@@ -130,7 +130,9 @@ class TestHappyPathPassiveCoolingSection:
                 payload=[
                     {
                         "name": "APPL.CtrlAppl.sParam.passivecooling[0].Mixer.values.setValue",
-                        "attributes": {"longText": "Set temp"},
+                        "attributes": {
+                            "longText": "Set temp",
+                        },
                         "value": "22",
                     },
                 ],

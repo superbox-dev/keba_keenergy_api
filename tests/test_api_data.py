@@ -316,6 +316,28 @@ read_data_payload_3: list[dict[str, Any]] = [
         "value": "23.2",
     },
     {
+        "name": "APPL.CtrlAppl.sParam.passivecooling[0].TempCoolPassive.values.actValue",
+        "attributes": {
+            "formatId": "fmtTemp",
+            "longText": "Temp. passive cool",
+            "unitId": "Temp",
+            "upperLimit": "100",
+            "lowerLimit": "-100",
+        },
+        "value": "21.21",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.passivecooling[1].TempCoolPassive.values.actValue",
+        "attributes": {
+            "formatId": "fmtTemp",
+            "longText": "Temp. passive cool",
+            "unitId": "Temp",
+            "upperLimit": "100",
+            "lowerLimit": "-100",
+        },
+        "value": "20.16",
+    },
+    {
         "name": "APPL.CtrlAppl.sParam.switchvalve[0].values.actPosition",
         "attributes": {
             "formatId": "fmtSwitchValveStateV1",
@@ -336,6 +358,8 @@ read_data_expected_data_3: str = (
     '{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.linTab.fileName", "attr": "1"}, '
     '{"name": "APPL.CtrlAppl.sParam.heatpump[0].TempHeatFlow.values.actValue", "attr": "1"}, '
     '{"name": "APPL.CtrlAppl.sParam.heatpump[1].TempHeatFlow.values.actValue", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.passivecooling[0].TempCoolPassive.values.actValue", "attr": "1"}, '
+    '{"name": "APPL.CtrlAppl.sParam.passivecooling[1].TempCoolPassive.values.actValue", "attr": "1"}, '
     '{"name": "APPL.CtrlAppl.sParam.switchvalve[0].values.actPosition", "attr": "1"}]'
 )
 
@@ -421,7 +445,24 @@ read_data_expected_response_3: dict[str, Any] = {
         ],
     },
     "external_heat_source": {},
-    "passive_cooling": {},
+    "passive_cooling": {
+        "temperature": [
+            {
+                "attributes": {
+                    "lower_limit": "-100",
+                    "upper_limit": "100",
+                },
+                "value": 21.21,
+            },
+            {
+                "attributes": {
+                    "lower_limit": "-100",
+                    "upper_limit": "100",
+                },
+                "value": 20.16,
+            },
+        ],
+    },
     "photovoltaic": {},
 }
 

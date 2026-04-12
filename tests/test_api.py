@@ -204,6 +204,7 @@ class TestKebaKeEnergyAPI:
                     HeatCircuit.HEATING_CURVE,
                     HeatPump.FLOW_TEMPERATURE,
                     ExternalHeatSource.TARGET_TEMPERATURE,
+                    PassiveCooling.TEMPERATURE,
                     SwitchValve.POSITION,
                 ],
                 None,
