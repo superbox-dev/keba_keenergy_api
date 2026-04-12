@@ -81,6 +81,7 @@ read_data_expected_response_1: dict[str, Any] = {
             },
         ],
     },
+    "passive_cooling": {},
     "photovoltaic": {
         "total_energy": {
             "attributes": {},
@@ -155,6 +156,7 @@ read_data_expected_response_2: dict[str, Any] = {
     "solar_circuit": {},
     "switch_valve": {},
     "external_heat_source": {},
+    "passive_cooling": {},
     "photovoltaic": {},
 }
 
@@ -397,6 +399,7 @@ read_data_expected_response_3: dict[str, Any] = {
         ],
     },
     "external_heat_source": {},
+    "passive_cooling": {},
     "photovoltaic": {},
 }
 
@@ -824,5 +827,6 @@ read_data_expected_response_4: dict[str, Any] = {
     },
     "switch_valve": {},
     "external_heat_source": {},
+    "passive_cooling": {},
     "photovoltaic": {},
 }
