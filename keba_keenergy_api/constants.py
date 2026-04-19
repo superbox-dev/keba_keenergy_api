@@ -838,6 +838,14 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdDayCoolTemp.value",
         value_type=float,
     )
+    EXCESS_ENERGY_HEATING_LIMIT_DAY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergy.thresholdDayTemp",
+        value_type=float,
+    )
+    EXCESS_ENERGY_COOLING_LIMIT_DAY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergy.thresholdDayCoolTemp",
+        value_type=float,
+    )
     TARGET_TEMPERATURE_NIGHT = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.reducedSetTemp",
         value_type=float,

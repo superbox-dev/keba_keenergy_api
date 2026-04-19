@@ -1039,6 +1039,128 @@ class TestHappyPathHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
+    async def test_get_excess_energy_heating_limit_day(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergy.thresholdDayTemp",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Heating limit day",
+                            "unitId": "Temp",
+                            "upperLimit": "100",
+                            "lowerLimit": "-20",
+                        },
+                        "value": "25",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float | None = await client.heat_circuit.get_excess_energy_heating_limit_day()
+
+            assert isinstance(data, float)
+            assert data == 25.0  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergy.thresholdDayTemp", '
+                    '"attr": "1"}]'
+                ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_set_excess_energy_heating_limit_day(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_circuit.set_excess_energy_heating_limit_day(23)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergy.thresholdDayTemp", '
+                    '"value": "23"}]'
+                ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_excess_energy_cooling_limit_day(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergy.thresholdDayCoolTemp",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Cooling limit day",
+                            "unitId": "Temp",
+                            "upperLimit": "100",
+                            "lowerLimit": "-20",
+                        },
+                        "value": "10",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float | None = await client.heat_circuit.get_excess_energy_cooling_limit_day()
+
+            assert isinstance(data, float)
+            assert data == 10.0  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergy.thresholdDayCoolTemp", '
+                    '"attr": "1"}]'
+                ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_set_excess_energy_cooling_limit_day(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_circuit.set_excess_energy_cooling_limit_day(11)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergy.thresholdDayCoolTemp", '
+                    '"value": "11"}]'
+                ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     async def test_get_target_temperature_night(self) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(

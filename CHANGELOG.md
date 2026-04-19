@@ -33,6 +33,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `set_excess_energy_target_cooling_temperature()` to the heating circuit
 - Added endpoint `get_excess_energy_target_cooling_temperature_hysteresis()` to the heating circuit
 - Added endpoint `set_excess_energy_target_cooling_temperature_hysteresis()` to the heating circuit
+- Added endpoint `get_excess_energy_heating_limit_day()` to the heating circuit
+- Added endpoint `set_excess_energy_heating_limit_day()` to the heating circuit
+- Added endpoint `get_excess_energy_cooling_limit_day()` to the heating circuit
+- Added endpoint `set_excess_energy_cooling_limit_day()` to the heating circuit
 
 ## [2.11.0] - 2026-04-13
 
