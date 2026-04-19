@@ -331,6 +331,67 @@ class TestHappyPathBufferTankSection:
             )
 
     @pytest.mark.asyncio
+    async def test_get_outdoor_temperature_excess_energy_limit(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.bufferTank[0].param.thresholdOutTempExcessEnergy.value",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Außentemp. ÜE Grenze",
+                            "unitId": "Temp",
+                            "upperLimit": "50.0",
+                            "lowerLimit": "0",
+                        },
+                        "value": "25",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.buffer_tank.get_outdoor_temperature_excess_energy_limit()
+
+            assert isinstance(data, float)
+            assert data == 25.0  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.thresholdOutTempExcessEnergy.value", '
+                    '"attr": "1"}]'
+                ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_set_outdoor_temperature_excess_energy_limit(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.buffer_tank.set_outdoor_temperature_excess_energy_limit(22)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.thresholdOutTempExcessEnergy.value", '
+                    '"value": "22"}]'
+                ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [
