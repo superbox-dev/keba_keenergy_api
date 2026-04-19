@@ -80,6 +80,7 @@ ConsumingExcessEnergy: type[BoolEnum] = BoolEnum
 ExternalHeatSourceOperatingMode: type[BoolEnum] = BoolEnum
 ExternalHeatSourceHeatRequest: type[BoolEnum] = BoolEnum
 ExternalHeatSourceUseExcessEnergy: type[BoolEnum] = BoolEnum
+PhotovoltaicsExcessEnergyActive: type[BoolEnum] = BoolEnum
 
 
 class SystemOperatingMode(BaseEnum):
@@ -1140,6 +1141,11 @@ class PassiveCooling(Enum):
 
 
 class Photovoltaic(Enum):
+    EXCESS_ENERGY_AVAILABLE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.photovoltaics.values.excessEnergyActive",
+        value_type=str,
+        human_readable=PhotovoltaicsExcessEnergyActive,
+    )
     EXCESS_POWER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.photovoltaics.ElectricEnergyMeter.values.power",
         value_type=float,

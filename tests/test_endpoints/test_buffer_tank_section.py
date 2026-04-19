@@ -556,7 +556,7 @@ class TestHappyPathBufferTankSection:
             (False, BufferTankExcessEnergyAvailable.OFF.value, 0),
         ],
     )
-    async def test_get_get_excess_energy_available(
+    async def test_get_excess_energy_available(
         self,
         human_readable: bool,  # noqa: FBT001
         payload_value: str,
