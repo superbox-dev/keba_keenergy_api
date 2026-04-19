@@ -49,6 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `get_excess_energy_available()` to the heating circuit
 - Added endpoint `get_use_excess_energy()` to the heating circuit
 - Added endpoint `set_use_excess_energy()` to the heating circuit
+- Added endpoint `get_use_excess_energy()` to the external heat source
+- Added endpoint `set_use_excess_energy()` to the external heat source
 
 ## [2.11.0] - 2026-04-13
 
