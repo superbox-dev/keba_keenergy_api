@@ -45,6 +45,7 @@ class BoolEnum(BaseEnum):
 
 SystemHasPhotovoltaics: type[BoolEnum] = BoolEnum
 SystemHasOutdoorTemperature: type[BoolEnum] = BoolEnum
+BufferTankUseExcessEnergy: type[BoolEnum] = BoolEnum
 HeatPumpCompressorUseNightSpeed: type[BoolEnum] = BoolEnum
 HeatPumpHasActiveCooling: type[BoolEnum] = BoolEnum
 HeatPumpHasPassiveCooling: type[BoolEnum] = BoolEnum
@@ -367,6 +368,15 @@ class BufferTank(Enum):
     TARGET_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.setTemp",
         value_type=float,
+    )
+    EXCESS_ENERGY_TARGET_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.excessEnergyTemp.value",
+        value_type=float,
+    )
+    USE_EXCESS_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.useExcessEnergy",
+        value_type=str,
+        human_readable=BufferTankUseExcessEnergy,
     )
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.heatRequestTop",
