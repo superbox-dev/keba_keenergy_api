@@ -564,13 +564,68 @@ class TestHappyPathHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
+    async def test_get_excess_energy_target_temperature(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergyTemp.value",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Set heat temp.",
+                            "unitId": "Temp",
+                            "upperLimit": "30",
+                            "lowerLimit": "10",
+                        },
+                        "value": "23",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float | None = await client.heat_circuit.get_excess_energy_target_temperature()
+
+            assert isinstance(data, float)
+            assert data == 23.0  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergyTemp.value", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_set_excess_energy_target_temperature(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_circuit.set_target_temperature_day(23)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.normalSetTemp", "value": "23"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     async def test_get_selected_target_temperature(self) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
                 payload=[
                     {
-                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.selectedSetTemp",
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergyTemp.value",
                         "attributes": {},
                         "value": "21.5",
                     },
@@ -579,14 +634,14 @@ class TestHappyPathHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_circuit.get_selected_target_temperature()
+            data: float = await client.heat_circuit.get_excess_energy_target_temperature()
 
             assert isinstance(data, float)
             assert data == 21.5  # noqa: PLR2004
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.selectedSetTemp", "attr": "1"}]',
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergyTemp.value", "attr": "1"}]',
                 method="POST",
                 auth=None,
                 ssl=False,

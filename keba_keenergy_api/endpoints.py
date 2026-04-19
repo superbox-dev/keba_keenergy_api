@@ -3402,6 +3402,44 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatCircuit.TARGET_TEMPERATURE, position=position)
 
+    async def get_excess_energy_target_temperature(self, position: int = 1) -> float:
+        """Get the excess energy target temperature from the heat circuit.
+
+        Parameters
+        ----------
+        position
+            The number of the heat circuits
+
+        Returns
+        -------
+        float
+            Temperature in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.EXCESS_ENERGY_TARGET_TEMPERATURE,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatCircuit.EXCESS_ENERGY_TARGET_TEMPERATURE, position=position)
+
+    async def set_excess_energy_target_temperature(self, temperature: float, position: int = 1) -> None:
+        """Set the excess energy target temperature from the heat circuit.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        temperature
+            The excess energy target temperature for the day in °C
+        position
+            The number of the heat circuits
+
+        """
+        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={HeatCircuit.EXCESS_ENERGY_TARGET_TEMPERATURE: temperatures})
+
     async def get_selected_target_temperature(self, position: int = 1) -> float:
         """Get the selected target temperature from the heat circuit.
 
