@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--start-->
 
+## [2.12.0] - 2026-04-19
+
+### Added
+
+- Added endpoint `get_excess_energy_target_temperature()` to the hot water tank
+- Added endpoint `set_excess_energy_target_temperature()` to the hot water tank
+
 ## [2.11.0] - 2026-04-13
 
 ### Added

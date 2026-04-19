@@ -335,6 +335,61 @@ class TestHappyPathHotWaterTankSection:
             )
 
     @pytest.mark.asyncio
+    async def test_get_excess_energy_target_temperature(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.excessEnergyTemp.value",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Set heat temp.",
+                            "unitId": "Temp",
+                            "upperLimit": "95",
+                            "lowerLimit": "0",
+                        },
+                        "value": "55",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.hot_water_tank.get_excess_energy_target_temperature()
+
+            assert isinstance(data, float)
+            assert data == 55.0  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.excessEnergyTemp.value", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_set_excess_energy_target_temperature(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.hot_water_tank.set_excess_energy_target_temperature(60)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.excessEnergyTemp.value", "value": "60"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [
