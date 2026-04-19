@@ -79,6 +79,7 @@ HeatPumpHeatRequest: type[BoolEnum] = BoolEnum
 ConsumingExcessEnergy: type[BoolEnum] = BoolEnum
 ExternalHeatSourceOperatingMode: type[BoolEnum] = BoolEnum
 ExternalHeatSourceHeatRequest: type[BoolEnum] = BoolEnum
+ExternalHeatSourceUseExcessEnergy: type[BoolEnum] = BoolEnum
 
 
 class SystemOperatingMode(BaseEnum):
@@ -1094,6 +1095,11 @@ class ExternalHeatSource(Enum):
     ACTIVATION_COUNTER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].DO.operationalData.activationCounter",
         value_type=int,
+    )
+    USE_EXCESS_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.supportExcessEnergy",
+        value_type=str,
+        human_readable=ExternalHeatSourceUseExcessEnergy,
     )
 
 

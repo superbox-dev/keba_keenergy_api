@@ -22,6 +22,7 @@ from keba_keenergy_api.constants import BufferTankUseExcessEnergy
 from keba_keenergy_api.constants import EndpointPath
 from keba_keenergy_api.constants import ExternalHeatSource
 from keba_keenergy_api.constants import ExternalHeatSourceOperatingMode
+from keba_keenergy_api.constants import ExternalHeatSourceUseExcessEnergy
 from keba_keenergy_api.constants import HeatCircuit
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
 from keba_keenergy_api.constants import HeatCircuitUseExcessEnergy
@@ -5675,6 +5676,61 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_int_value(response, section=ExternalHeatSource.ACTIVATION_COUNTER, position=position)
+
+    async def get_use_excess_energy(
+        self,
+        position: int = 1,
+        *,
+        human_readable: bool = True,
+    ) -> int | str:
+        """Get the use excess energy state.
+
+        Parameters
+        ----------
+        position
+            The number of the external heat sources
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            (0) OFF / (1) ON
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=ExternalHeatSource.USE_EXCESS_ENERGY,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=ExternalHeatSource.USE_EXCESS_ENERGY, position=position)
+
+    async def set_use_excess_energy(self, mode: int | str, position: int = 1) -> None:
+        """Set the use excess energy.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        mode
+            Set the mode as integer or string (human-readable) e.g. 0 or OFF
+        position
+            The number of the external heat sources
+
+        """
+        try:
+            _mode: int | None = mode if isinstance(mode, int) else ExternalHeatSourceUseExcessEnergy[mode.upper()].value
+        except KeyError as error:
+            message: str = (
+                f"Invalid value! Allowed values are {self._get_allowed_values(ExternalHeatSourceUseExcessEnergy)}"
+            )
+            raise APIError(message) from error
+
+        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+
+        await self._write_values(request={ExternalHeatSource.USE_EXCESS_ENERGY: modes})
 
 
 class SwitchValveEndpoints(BaseEndpoints):
