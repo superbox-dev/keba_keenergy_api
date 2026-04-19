@@ -62,6 +62,7 @@ HeatCircuitUseHeatingCurve: type[BoolEnum] = BoolEnum
 HeatCircuitHasMixer: type[BoolEnum] = BoolEnum
 HeatCircuitHasReturnFlowTemperature: type[BoolEnum] = BoolEnum
 HeatCircuitUseExcessEnergy: type[BoolEnum] = BoolEnum
+HeatCircuitExcessEnergyAvailable: type[BoolEnum] = BoolEnum
 HeatCircuitHasPump: type[BoolEnum] = BoolEnum
 SolarCircuitOperatingMode: type[BoolEnum] = BoolEnum
 SolarCircuitConsumer1PrioritySolar: type[BoolEnum] = BoolEnum
@@ -807,6 +808,11 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.useExcessEnergy",
         value_type=str,
         human_readable=HeatCircuitUseExcessEnergy,
+    )
+    EXCESS_ENERGY_AVAILABLE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.useExcessEnergy",
+        value_type=str,
+        human_readable=HeatCircuitExcessEnergyAvailable,
     )
     EXCESS_ENERGY_TARGET_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergyTemp.value",
