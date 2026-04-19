@@ -331,6 +331,61 @@ class TestHappyPathBufferTankSection:
             )
 
     @pytest.mark.asyncio
+    async def test_get_excess_energy_target_temperature_hysteresis(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.bufferTank[0].param.excessEnergyTemp.hyst",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Hyst. heat temp.",
+                            "unitId": "TempRel",
+                            "upperLimit": "5",
+                            "lowerLimit": "0",
+                        },
+                        "value": "2",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.buffer_tank.get_excess_energy_target_temperature_hysteresis()
+
+            assert isinstance(data, float)
+            assert data == 2.0  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.excessEnergyTemp.hyst", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_set_excess_energy_target_temperature_hysteresis(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.buffer_tank.set_excess_energy_target_temperature_hysteresis(3)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.excessEnergyTemp.hyst", "value": "3"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     async def test_get_outdoor_temperature_excess_energy_limit(self) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
