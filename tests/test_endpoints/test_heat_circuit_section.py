@@ -680,7 +680,7 @@ class TestHappyPathHeatCircuitSection:
                 "http://mocked-host/var/readWriteVars",
                 payload=[
                     {
-                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergyTemp.value",
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.selectedSetTemp",
                         "attributes": {},
                         "value": "21.5",
                     },
@@ -689,14 +689,14 @@ class TestHappyPathHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.heat_circuit.get_excess_energy_target_temperature()
+            data: float = await client.heat_circuit.get_selected_target_temperature()
 
             assert isinstance(data, float)
             assert data == 21.5  # noqa: PLR2004
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergyTemp.value", "attr": "1"}]',
+                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].values.selectedSetTemp", "attr": "1"}]',
                 method="POST",
                 auth=None,
                 ssl=False,
