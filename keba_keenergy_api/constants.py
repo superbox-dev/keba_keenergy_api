@@ -810,6 +810,14 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergyTemp.hyst",
         value_type=float,
     )
+    EXCESS_ENERGY_TARGET_COOLING_TEMPERATURE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergyTempCool.value",
+        value_type=float,
+    )
+    EXCESS_ENERGY_TARGET_COOLING_TEMPERATURE_HYSTERESIS = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergyTempCool.hyst",
+        value_type=float,
+    )
     SELECTED_TARGET_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.selectedSetTemp",
         value_type=float,
