@@ -1119,6 +1119,46 @@ class BufferTankEndpoints(BaseEndpoints):
         temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
         await self._write_values(request={BufferTank.EXCESS_ENERGY_TARGET_TEMPERATURE: temperatures})
 
+    async def get_excess_energy_target_temperature_hysteresis(self, position: int = 1) -> float:
+        """Get the excess energy target temperature hysteresis from the buffer tank.
+
+        Parameters
+        ----------
+        position
+            The number of the buffer tanks
+
+        Returns
+        -------
+        float
+            Temperature in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=BufferTank.EXCESS_ENERGY_TARGET_TEMPERATURE_HYSTERESIS,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(
+            response, section=BufferTank.EXCESS_ENERGY_TARGET_TEMPERATURE_HYSTERESIS, position=position
+        )
+
+    async def set_excess_energy_target_temperature_hysteresis(self, temperature: float, position: int = 1) -> None:
+        """Set the excess energy target temperature hysteresis from the buffer tank.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        temperature
+            The excess energy target temperature in °C
+        position
+            The number of the buffer tanks
+
+        """
+        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={BufferTank.EXCESS_ENERGY_TARGET_TEMPERATURE_HYSTERESIS: temperatures})
+
     async def get_outdoor_temperature_excess_energy_limit(self, position: int = 1) -> float:
         """Get the outdoor temperature excess energy limit from the buffer tank.
 
