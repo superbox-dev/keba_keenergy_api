@@ -6004,6 +6004,31 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
             session=session,
         )
 
+    async def get_excess_energy_available(
+        self,
+        *,
+        human_readable: bool = True,
+    ) -> int | str:
+        """Get the excess energy available state.
+
+        Parameters
+        ----------
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            (0) OFF / (1) ON
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=Photovoltaic.EXCESS_ENERGY_AVAILABLE,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=Photovoltaic.EXCESS_ENERGY_AVAILABLE)
+
     async def get_excess_power(self) -> float:
         """Get excess power.
 
