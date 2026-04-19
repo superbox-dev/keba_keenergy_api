@@ -5,6 +5,7 @@ from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.constants import BufferTankCoolRequest
 from keba_keenergy_api.constants import BufferTankHeatRequest
 from keba_keenergy_api.constants import BufferTankOperatingMode
+from keba_keenergy_api.constants import BufferTankUseExcessEnergy
 from keba_keenergy_api.error import APIError
 
 
@@ -269,6 +270,140 @@ class TestHappyPathBufferTankSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].values.setTemp", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_excess_energy_target_temperature(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.bufferTank[0].param.excessEnergyTemp.value",
+                        "attributes": {
+                            "formatId": "fmtTemp",
+                            "longText": "Set heat temp.",
+                            "unitId": "Temp",
+                            "upperLimit": "95",
+                            "lowerLimit": "0",
+                        },
+                        "value": "55",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.buffer_tank.get_excess_energy_target_temperature()
+
+            assert isinstance(data, float)
+            assert data == 55.0  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.excessEnergyTemp.value", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_set_excess_energy_target_temperature(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.buffer_tank.set_excess_energy_target_temperature(43)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.excessEnergyTemp.value", "value": "43"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (True, "false", "off"),
+            (False, "true", 1),
+            (False, "false", 0),
+        ],
+    )
+    async def test_get_use_excess_energy(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: int,
+        expected_value: str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.bufferTank[0].param.useExcessEnergy",
+                        "attributes": {
+                            "longText": "Use excess en.",
+                        },
+                        "value": f"{payload_value}",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.buffer_tank.get_use_excess_energy(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.useExcessEnergy", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("mode", "expected_value"),
+        [
+            ("off", "0"),
+            ("ON", "1"),
+            (BufferTankUseExcessEnergy.ON.value, "1"),
+            (BufferTankUseExcessEnergy.OFF.value, "0"),
+        ],
+    )
+    async def test_set_use_excess_energy(
+        self,
+        mode: int | str,
+        expected_value: str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.buffer_tank.set_use_excess_energy(mode)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.useExcessEnergy", "value": "%s"}]'  # noqa: UP031
+                % expected_value,
                 method="POST",
                 auth=None,
                 ssl=False,

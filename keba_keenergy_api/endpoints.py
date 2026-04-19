@@ -18,6 +18,7 @@ from aiohttp import ClientTimeout
 from keba_keenergy_api.constants import API_DEFAULT_TIMEOUT
 from keba_keenergy_api.constants import BufferTank
 from keba_keenergy_api.constants import BufferTankOperatingMode
+from keba_keenergy_api.constants import BufferTankUseExcessEnergy
 from keba_keenergy_api.constants import EndpointPath
 from keba_keenergy_api.constants import ExternalHeatSource
 from keba_keenergy_api.constants import ExternalHeatSourceOperatingMode
@@ -1079,6 +1080,97 @@ class BufferTankEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_float_value(response, section=BufferTank.TARGET_TEMPERATURE, position=position)
+
+    async def get_excess_energy_target_temperature(self, position: int = 1) -> float:
+        """Get the excess energy target temperature from the buffer tank.
+
+        Parameters
+        ----------
+        position
+            The number of the buffer tanks
+
+        Returns
+        -------
+        float
+            Temperature in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=BufferTank.EXCESS_ENERGY_TARGET_TEMPERATURE,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=BufferTank.EXCESS_ENERGY_TARGET_TEMPERATURE, position=position)
+
+    async def set_excess_energy_target_temperature(self, temperature: float, position: int = 1) -> None:
+        """Set the excess energy target temperature from the buffer tank.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        temperature
+            The excess energy target temperature in °C
+        position
+            The number of the buffer tanks
+
+        """
+        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={BufferTank.EXCESS_ENERGY_TARGET_TEMPERATURE: temperatures})
+
+    async def get_use_excess_energy(
+        self,
+        position: int = 1,
+        *,
+        human_readable: bool = True,
+    ) -> int | str:
+        """Get the use excess energy state.
+
+        Parameters
+        ----------
+        position
+            The number of the buffer tanks
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            (0) OFF / (1) ON
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=BufferTank.USE_EXCESS_ENERGY,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=BufferTank.USE_EXCESS_ENERGY, position=position)
+
+    async def set_use_excess_energy(self, mode: int | str, position: int = 1) -> None:
+        """Set the use excess energy.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        mode
+            Set the mode as integer or string (human-readable) e.g. 0 or OFF
+        position
+            The number of the buffer tanks
+
+        """
+        try:
+            _mode: int | None = mode if isinstance(mode, int) else BufferTankUseExcessEnergy[mode.upper()].value
+        except KeyError as error:
+            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BufferTankUseExcessEnergy)}"
+            raise APIError(message) from error
+
+        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+
+        await self._write_values(request={BufferTank.USE_EXCESS_ENERGY: modes})
 
     async def get_heat_request(self, position: int = 1, *, human_readable: bool = True) -> int | str:
         """Get the heat request state from the buffer tank.
