@@ -365,6 +365,61 @@ class TestHappyPathExternalHeatSourceSection:
 
             mock_keenergy_api.assert_not_called()
 
+    @pytest.mark.asyncio
+    async def test_get_min_runtime_excess_energy(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.extHeatSource[0].param.minRunTimeExcessEnergy",
+                        "attributes": {
+                            "formatId": "fmt3p0",
+                            "longText": "Min runtime excess e.",
+                            "unitId": "TimeMin",
+                            "upperLimit": "10800",
+                            "lowerLimit": "0",
+                        },
+                        "value": "2",
+                    }
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | None = await client.external_heat_source.get_min_runtime_excess_energy()
+
+            assert isinstance(data, int)
+            assert data == 2  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].param.minRunTimeExcessEnergy", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_set_min_runtime_excess_energy(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.external_heat_source.set_min_runtime_excess_energy(5)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].param.minRunTimeExcessEnergy", "value": "5"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
 
 @pytest.mark.unhappy
 class TestUnhappyPathExternalHeatSourceSection:
