@@ -1119,6 +1119,46 @@ class BufferTankEndpoints(BaseEndpoints):
         temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
         await self._write_values(request={BufferTank.EXCESS_ENERGY_TARGET_TEMPERATURE: temperatures})
 
+    async def get_outdoor_temperature_excess_energy_limit(self, position: int = 1) -> float:
+        """Get the outdoor temperature excess energy limit from the buffer tank.
+
+        Parameters
+        ----------
+        position
+            The number of the buffer tanks
+
+        Returns
+        -------
+        float
+            Temperature in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=BufferTank.OUTDOOR_TEMPERATURE_EXCESS_ENERGY_LIMIT,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(
+            response, section=BufferTank.OUTDOOR_TEMPERATURE_EXCESS_ENERGY_LIMIT, position=position
+        )
+
+    async def set_outdoor_temperature_excess_energy_limit(self, temperature: float, position: int = 1) -> None:
+        """Set the outdoor temperature excess energy limit from the buffer tank.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        temperature
+            The outdoor temperature excess energy limit temperature in °C
+        position
+            The number of the buffer tanks
+
+        """
+        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={BufferTank.OUTDOOR_TEMPERATURE_EXCESS_ENERGY_LIMIT: temperatures})
+
     async def get_use_excess_energy(
         self,
         position: int = 1,

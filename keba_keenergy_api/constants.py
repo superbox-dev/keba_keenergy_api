@@ -374,6 +374,10 @@ class BufferTank(Enum):
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.excessEnergyTemp.value",
         value_type=float,
     )
+    OUTDOOR_TEMPERATURE_EXCESS_ENERGY_LIMIT = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.thresholdOutTempExcessEnergy.value",
+        value_type=float,
+    )
     USE_EXCESS_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.useExcessEnergy",
         value_type=str,
