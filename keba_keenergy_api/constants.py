@@ -62,6 +62,8 @@ HeatCircuitUseHeatingCurve: type[BoolEnum] = BoolEnum
 HeatCircuitHasMixer: type[BoolEnum] = BoolEnum
 HeatCircuitHasReturnFlowTemperature: type[BoolEnum] = BoolEnum
 HeatCircuitUseExcessEnergy: type[BoolEnum] = BoolEnum
+HotWaterTankUseExcessEnergy: type[BoolEnum] = BoolEnum
+HotWaterTankExcessEnergyAvailable: type[BoolEnum] = BoolEnum
 HeatCircuitExcessEnergyAvailable: type[BoolEnum] = BoolEnum
 HeatCircuitHasPump: type[BoolEnum] = BoolEnum
 SolarCircuitOperatingMode: type[BoolEnum] = BoolEnum
@@ -438,6 +440,16 @@ class HotWaterTank(Enum):
     EXCESS_ENERGY_TARGET_TEMPERATURE_HYSTERESIS = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.excessEnergyTemp.hyst",
         value_type=float,
+    )
+    USE_EXCESS_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.useExcessEnergy",
+        value_type=str,
+        human_readable=HotWaterTankUseExcessEnergy,
+    )
+    EXCESS_ENERGY_AVAILABLE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].values.useExcessEnergy",
+        value_type=str,
+        human_readable=HotWaterTankExcessEnergyAvailable,
     )
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].values.heatRequestTop",
