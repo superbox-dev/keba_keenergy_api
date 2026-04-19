@@ -2337,6 +2337,30 @@ class HeatPumpEndpoints(BaseEndpoints):
         )
         return self._get_int_or_str_value(response, section=HeatPump.HEAT_REQUEST, position=position)
 
+    async def get_consuming_excess_energy(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Get the consuming excess energy from the heat pump.
+
+        Parameters
+        ----------
+        position
+            The number of the external heat pumps
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.CONSUMING_EXCESS_ENERGY,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HeatPump.CONSUMING_EXCESS_ENERGY, position=position)
+
     async def get_compressor_power(self, position: int = 1) -> float:
         """Get the compressor power from the heat pump.
 

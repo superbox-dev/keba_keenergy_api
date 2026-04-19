@@ -71,6 +71,7 @@ HotWaterTankHotWaterFlow: type[BoolEnum] = BoolEnum
 HotWaterTankHasFreshWaterModule: type[BoolEnum] = BoolEnum
 HotWaterTankCirculationPumpState: type[BoolEnum] = BoolEnum
 HeatPumpHeatRequest: type[BoolEnum] = BoolEnum
+ConsumingExcessEnergy: type[BoolEnum] = BoolEnum
 ExternalHeatSourceOperatingMode: type[BoolEnum] = BoolEnum
 ExternalHeatSourceHeatRequest: type[BoolEnum] = BoolEnum
 
@@ -551,6 +552,11 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].values.request",
         value_type=str,
         human_readable=HeatPumpHeatRequest,
+    )
+    CONSUMING_EXCESS_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].values.consumingExcessEnergy",
+        value_type=str,
+        human_readable=ConsumingExcessEnergy,
     )
     # TOTAL_HEATING_ENERGY = EndpointProperties(
     #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.accumulatedHeat",
