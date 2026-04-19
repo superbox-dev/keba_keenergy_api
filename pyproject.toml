@@ -73,7 +73,7 @@ audit = [
 ]
 build = [
     "setuptools>=80.9,<82.1",
-    "build==1.4.2",
+    "build==1.4.3",
 ]
 docs = [
     "mkdocs>=1.6.1",
