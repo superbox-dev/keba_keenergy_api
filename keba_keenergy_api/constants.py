@@ -435,6 +435,10 @@ class HotWaterTank(Enum):
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.excessEnergyTemp.value",
         value_type=float,
     )
+    EXCESS_ENERGY_TARGET_TEMPERATURE_HYSTERESIS = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.excessEnergyTemp.hyst",
+        value_type=float,
+    )
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].values.heatRequestTop",
         value_type=str,
