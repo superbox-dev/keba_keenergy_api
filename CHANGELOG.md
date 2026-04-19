@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `set_excess_energy_target_temperature()` to the hot water tank
 - Added endpoint `get_excess_energy_target_temperature()` to the heating circuit
 - Added endpoint `set_excess_energy_target_temperature()` to the heating circuit
+- Added endpoint `get_excess_energy_target_temperature_hysteresis()` to the heating circuit
+- Added endpoint `set_excess_energy_target_temperature_hysteresis()` to the heating circuit
 
 ## [2.11.0] - 2026-04-13
 
