@@ -5732,6 +5732,44 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
 
         await self._write_values(request={ExternalHeatSource.USE_EXCESS_ENERGY: modes})
 
+    async def get_min_runtime_excess_energy(self, position: int = 1) -> int:
+        """Get the minimum runtime excess energy.
+
+        Parameters
+        ----------
+        position
+            The number of the external heat sources
+
+        Returns
+        -------
+        int
+            Runtime in minutes
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=ExternalHeatSource.MIN_RUNTIME_EXCESS_ENERGY,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=ExternalHeatSource.MIN_RUNTIME_EXCESS_ENERGY, position=position)
+
+    async def set_min_runtime_excess_energy(self, minute: int, position: int = 1) -> None:
+        """Set the minimum runtime excess energy.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        minute
+            The excess energy target temperature in minutes
+        position
+           The number of the external heat sources
+
+        """
+        minutes: list[float | None] = [minute if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={ExternalHeatSource.MIN_RUNTIME_EXCESS_ENERGY: minutes})
+
 
 class SwitchValveEndpoints(BaseEndpoints):
     """API Endpoints to retrieve the switch valve data.

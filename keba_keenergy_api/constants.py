@@ -1101,6 +1101,10 @@ class ExternalHeatSource(Enum):
         value_type=str,
         human_readable=ExternalHeatSourceUseExcessEnergy,
     )
+    MIN_RUNTIME_EXCESS_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.minRunTimeExcessEnergy",
+        value_type=int,
+    )
 
 
 class SwitchValve(Enum):
