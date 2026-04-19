@@ -862,6 +862,14 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdNightCoolTemp.value",
         value_type=float,
     )
+    EXCESS_ENERGY_HEATING_LIMIT_NIGHT = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergy.thresholdNightTemp",
+        value_type=float,
+    )
+    EXCESS_ENERGY_COOLING_LIMIT_NIGHT = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergy.thresholdNightCoolTemp",
+        value_type=float,
+    )
     TARGET_TEMPERATURE_AWAY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.holidaySetTemp",
         value_type=float,
