@@ -1380,6 +1380,44 @@ class HotWaterTankEndpoints(BaseEndpoints):
         temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
         await self._write_values(request={HotWaterTank.TARGET_TEMPERATURE: temperatures})
 
+    async def get_excess_energy_target_temperature(self, position: int = 1) -> float:
+        """Get the excess energy target temperature from the hot water tank.
+
+        Parameters
+        ----------
+        position
+            The number of the hot water tanks
+
+        Returns
+        -------
+        float
+            Temperature in °C
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HotWaterTank.EXCESS_ENERGY_TARGET_TEMPERATURE,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HotWaterTank.EXCESS_ENERGY_TARGET_TEMPERATURE, position=position)
+
+    async def set_excess_energy_target_temperature(self, temperature: float, position: int = 1) -> None:
+        """Set the excess energy target temperature from the hot water tank.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        temperature
+            The excess energy target temperature in °C
+        position
+            The number of the hot water tanks
+
+        """
+        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        await self._write_values(request={HotWaterTank.EXCESS_ENERGY_TARGET_TEMPERATURE: temperatures})
+
     async def get_heat_request(self, position: int = 1, *, human_readable: bool = True) -> int | str:
         """Get the heat request state from the hot water tank.
 
