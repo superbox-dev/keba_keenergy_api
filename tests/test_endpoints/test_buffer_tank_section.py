@@ -411,6 +411,26 @@ class TestHappyPathBufferTankSection:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
+        "mode",
+        ["INVALID"],
+    )
+    async def test_set_invalid_use_excess_energy(self, mode: int | str) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
+                await client.buffer_tank.set_use_excess_energy(mode)
+
+            mock_keenergy_api.assert_not_called()
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
