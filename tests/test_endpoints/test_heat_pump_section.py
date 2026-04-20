@@ -2,8 +2,8 @@ import pytest
 from aioresponses.core import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
-from keba_keenergy_api.constants import ConsumingExcessEnergy
 from keba_keenergy_api.constants import HeatPumpCompressorUseNightSpeed
+from keba_keenergy_api.constants import HeatPumpConsumingExcessEnergy
 from keba_keenergy_api.constants import HeatPumpHasCompressorFailure
 from keba_keenergy_api.constants import HeatPumpHasPassiveCooling
 from keba_keenergy_api.constants import HeatPumpHasSourceActuatorFailure
@@ -1001,9 +1001,9 @@ class TestHappyPathHeatPumpSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, ConsumingExcessEnergy.ON.value, 1),
+            (False, HeatPumpConsumingExcessEnergy.ON.value, 1),
             (True, "false", "off"),
-            (False, ConsumingExcessEnergy.OFF.value, 0),
+            (False, HeatPumpConsumingExcessEnergy.OFF.value, 0),
         ],
     )
     async def test_get_consuming_excess_energy(
