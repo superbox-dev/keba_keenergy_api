@@ -290,7 +290,9 @@ class TestHappyPathExternalHeatSourceSection:
                 payload=[
                     {
                         "name": "APPL.CtrlAppl.sParam.extHeatSource[0].param.supportExcessEnergy",
-                        "attributes": {"longText": "Support excess energy"},
+                        "attributes": {
+                            "longText": "Support excess energy",
+                        },
                         "value": f"{payload_value}",
                     },
                 ],
