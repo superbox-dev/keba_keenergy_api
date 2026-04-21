@@ -1255,13 +1255,13 @@ class BufferTankEndpoints(BaseEndpoints):
 
         await self._write_values(request={BufferTank.USE_EXCESS_ENERGY: modes})
 
-    async def get_excess_energy_available(
+    async def get_excess_energy_mode(
         self,
         position: int = 1,
         *,
         human_readable: bool = True,
     ) -> int | str:
-        """Get the excess energy available state.
+        """Get the excess energy mode.
 
         Parameters
         ----------
@@ -1273,16 +1273,16 @@ class BufferTankEndpoints(BaseEndpoints):
         Returns
         -------
         integer or string
-            (0) OFF / (1) ON
+            (0) OFF / (1) HEATING / (1) COOLING
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=BufferTank.EXCESS_ENERGY_AVAILABLE,
+            request=BufferTank.EXCESS_ENERGY_MODE,
             position=position,
             human_readable=human_readable,
             extra_attributes=True,
         )
-        return self._get_int_or_str_value(response, section=BufferTank.EXCESS_ENERGY_AVAILABLE, position=position)
+        return self._get_int_or_str_value(response, section=BufferTank.EXCESS_ENERGY_MODE, position=position)
 
     async def get_heat_request(self, position: int = 1, *, human_readable: bool = True) -> int | str:
         """Get the heat request state from the buffer tank.
@@ -1715,13 +1715,13 @@ class HotWaterTankEndpoints(BaseEndpoints):
 
         await self._write_values(request={HotWaterTank.USE_EXCESS_ENERGY: modes})
 
-    async def get_excess_energy_available(
+    async def get_excess_energy_mode(
         self,
         position: int = 1,
         *,
         human_readable: bool = True,
     ) -> int | str:
-        """Get the excess energy available state.
+        """Get the excess energy mode.
 
         Parameters
         ----------
@@ -1733,16 +1733,16 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Returns
         -------
         integer or string
-            (0) OFF / (1) ON
+            (0) OFF / (1) HEATING / (1) COOLING
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=HotWaterTank.EXCESS_ENERGY_AVAILABLE,
+            request=HotWaterTank.EXCESS_ENERGY_MODE,
             position=position,
             human_readable=human_readable,
             extra_attributes=True,
         )
-        return self._get_int_or_str_value(response, section=HotWaterTank.EXCESS_ENERGY_AVAILABLE, position=position)
+        return self._get_int_or_str_value(response, section=HotWaterTank.EXCESS_ENERGY_MODE, position=position)
 
     async def get_heat_request(self, position: int = 1, *, human_readable: bool = True) -> int | str:
         """Get the heat request state from the hot water tank.
@@ -3580,13 +3580,13 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         await self._write_values(request={HeatCircuit.USE_EXCESS_ENERGY: modes})
 
-    async def get_excess_energy_available(
+    async def get_excess_energy_mode(
         self,
         position: int = 1,
         *,
         human_readable: bool = True,
     ) -> int | str:
-        """Get the excess energy available state.
+        """Get the excess energy mode.
 
         Parameters
         ----------
@@ -3598,16 +3598,16 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Returns
         -------
         integer or string
-            (0) OFF / (1) ON
+            (0) OFF / (1) HEATING / (1) COOLING
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=HeatCircuit.EXCESS_ENERGY_AVAILABLE,
+            request=HeatCircuit.EXCESS_ENERGY_MODE,
             position=position,
             human_readable=human_readable,
             extra_attributes=True,
         )
-        return self._get_int_or_str_value(response, section=HeatCircuit.EXCESS_ENERGY_AVAILABLE, position=position)
+        return self._get_int_or_str_value(response, section=HeatCircuit.EXCESS_ENERGY_MODE, position=position)
 
     async def get_excess_energy_target_temperature(self, position: int = 1) -> float:
         """Get the excess energy target temperature from the heat circuit.
@@ -6004,12 +6004,12 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
             session=session,
         )
 
-    async def get_excess_energy_available(
+    async def get_excess_energy_active(
         self,
         *,
         human_readable: bool = True,
     ) -> int | str:
-        """Get the excess energy available state.
+        """Get the excess energy active.
 
         Parameters
         ----------
@@ -6023,11 +6023,11 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=Photovoltaic.EXCESS_ENERGY_AVAILABLE,
-            human_readable=human_readable,
+            request=Photovoltaic.EXCESS_ENERGY_ACTIVE,
             extra_attributes=True,
+            human_readable=human_readable,
         )
-        return self._get_int_or_str_value(response, section=Photovoltaic.EXCESS_ENERGY_AVAILABLE)
+        return self._get_int_or_str_value(response, section=Photovoltaic.EXCESS_ENERGY_ACTIVE)
 
     async def get_excess_power(self) -> float:
         """Get excess power.

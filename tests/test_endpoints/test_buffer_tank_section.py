@@ -3,7 +3,7 @@ from aioresponses.core import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.constants import BufferTankCoolRequest
-from keba_keenergy_api.constants import BufferTankExcessEnergyAvailable
+from keba_keenergy_api.constants import BufferTankExcessEnergyMode
 from keba_keenergy_api.constants import BufferTankHeatRequest
 from keba_keenergy_api.constants import BufferTankOperatingMode
 from keba_keenergy_api.constants import BufferTankUseExcessEnergy
@@ -550,13 +550,12 @@ class TestHappyPathBufferTankSection:
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [
-            (True, "true", "on"),
-            (False, BufferTankExcessEnergyAvailable.ON.value, 1),
-            (True, "false", "off"),
-            (False, BufferTankExcessEnergyAvailable.OFF.value, 0),
+            (True, 2, "cooling"),
+            (False, BufferTankExcessEnergyMode.HEATING.value, 1),
+            (True, BufferTankExcessEnergyMode.OFF.value, "off"),
         ],
     )
-    async def test_get_excess_energy_available(
+    async def test_get_excess_energy_mode(
         self,
         human_readable: bool,  # noqa: FBT001
         payload_value: str,
@@ -575,14 +574,14 @@ class TestHappyPathBufferTankSection:
                             "upperLimit": "2",
                             "lowerLimit": "0",
                         },
-                        "value": payload_value,
+                        "value": f"{payload_value}",
                     },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.buffer_tank.get_excess_energy_available(human_readable=human_readable)
+            data: int | str = await client.buffer_tank.get_excess_energy_mode(human_readable=human_readable)
 
             assert isinstance(data, (int | str))
             assert data == expected_value

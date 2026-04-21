@@ -4,7 +4,7 @@ from aioresponses.core import aioresponses
 from yarl import URL
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
-from keba_keenergy_api.constants import HeatCircuitExcessEnergyAvailable
+from keba_keenergy_api.constants import HeatCircuitExcessEnergyMode
 from keba_keenergy_api.constants import HeatCircuitHasMixer
 from keba_keenergy_api.constants import HeatCircuitHasPump
 from keba_keenergy_api.constants import HeatCircuitHasReturnFlowTemperature
@@ -614,13 +614,12 @@ class TestHappyPathHeatCircuitSection:
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [
-            (True, "true", "on"),
-            (False, HeatCircuitExcessEnergyAvailable.ON.value, 1),
-            (True, "false", "off"),
-            (False, HeatCircuitExcessEnergyAvailable.OFF.value, 0),
+            (True, 2, "cooling"),
+            (False, HeatCircuitExcessEnergyMode.OFF.value, 0),
+            (False, HeatCircuitExcessEnergyMode.HEATING.value, 1),
         ],
     )
-    async def test_get_excess_energy_available(
+    async def test_get_excess_energy_mode(
         self,
         human_readable: bool,  # noqa: FBT001
         payload_value: str,
@@ -639,14 +638,14 @@ class TestHappyPathHeatCircuitSection:
                             "upperLimit": "2",
                             "lowerLimit": "0",
                         },
-                        "value": payload_value,
+                        "value": f"{payload_value}",
                     },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.heat_circuit.get_excess_energy_available(human_readable=human_readable)
+            data: int | str = await client.heat_circuit.get_excess_energy_mode(human_readable=human_readable)
 
             assert isinstance(data, (int | str))
             assert data == expected_value

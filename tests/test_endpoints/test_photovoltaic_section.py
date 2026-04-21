@@ -18,7 +18,7 @@ class TestHappyPathPhotovoltaicSection:
             (False, PhotovoltaicsExcessEnergyActive.OFF.value, 0),
         ],
     )
-    async def test_get_excess_energy_available(
+    async def test_get_excess_energy_active(
         self,
         human_readable: bool,  # noqa: FBT001
         payload_value: str,
@@ -40,7 +40,7 @@ class TestHappyPathPhotovoltaicSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.photovoltaics.get_excess_energy_available(human_readable=human_readable)
+            data: int | str = await client.photovoltaics.get_excess_energy_active(human_readable=human_readable)
 
             assert isinstance(data, (int | str))
             assert data == expected_value
