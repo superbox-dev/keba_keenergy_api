@@ -844,7 +844,7 @@ class HeatCircuit(Enum):
         value_type=float,
     )
     USE_EXCESS_ENERGY = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.useExcessEnergy",
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergy.useExcessEnergy",
         value_type=str,
         human_readable=HeatCircuitUseExcessEnergy,
     )

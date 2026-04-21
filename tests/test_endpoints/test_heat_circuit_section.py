@@ -586,7 +586,7 @@ class TestHappyPathHeatCircuitSection:
                 "http://mocked-host/var/readWriteVars",
                 payload=[
                     {
-                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.useExcessEnergy",
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergy.useExcessEnergy",
                         "attributes": {
                             "longText": "Use excess en.",
                         },
@@ -604,7 +604,10 @@ class TestHappyPathHeatCircuitSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.useExcessEnergy", "attr": "1"}]',
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergy.useExcessEnergy", '
+                    '"attr": "1"}]'
+                ),
                 method="POST",
                 auth=None,
                 ssl=False,
@@ -685,8 +688,10 @@ class TestHappyPathHeatCircuitSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.useExcessEnergy", "value": "%s"}]'  # noqa: UP031
-                % expected_value,
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergy.useExcessEnergy", '  # noqa: UP031
+                    '"value": "%s"}]' % expected_value
+                ),
                 method="POST",
                 auth=None,
                 ssl=False,
