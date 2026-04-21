@@ -3,7 +3,7 @@ from aioresponses.core import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.constants import HotWaterTankCirculationPumpState
-from keba_keenergy_api.constants import HotWaterTankExcessEnergyAvailable
+from keba_keenergy_api.constants import HotWaterTankExcessEnergyMode
 from keba_keenergy_api.constants import HotWaterTankHasFreshWaterModule
 from keba_keenergy_api.constants import HotWaterTankHeatRequest
 from keba_keenergy_api.constants import HotWaterTankOperatingMode
@@ -549,13 +549,12 @@ class TestHappyPathHotWaterTankSection:
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
         [
-            (True, "true", "on"),
-            (False, HotWaterTankExcessEnergyAvailable.ON.value, 1),
-            (True, "false", "off"),
-            (False, HotWaterTankExcessEnergyAvailable.OFF.value, 0),
+            (True, 2, "cooling"),
+            (False, HotWaterTankExcessEnergyMode.OFF.value, 0),
+            (False, HotWaterTankExcessEnergyMode.HEATING.value, 1),
         ],
     )
-    async def test_get_excess_energy_available(
+    async def test_get_excess_energy_mode(
         self,
         human_readable: bool,  # noqa: FBT001
         payload_value: str,
@@ -581,7 +580,7 @@ class TestHappyPathHotWaterTankSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.hot_water_tank.get_excess_energy_available(human_readable=human_readable)
+            data: int | str = await client.hot_water_tank.get_excess_energy_mode(human_readable=human_readable)
 
             assert isinstance(data, (int | str))
             assert data == expected_value

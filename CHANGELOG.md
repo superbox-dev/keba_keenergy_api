@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--start-->
 
-## [2.12.0] - 2026-04-19
+## [2.12.0] - 2026-04-21
 
 ### Added
 
@@ -20,14 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `set_excess_energy_target_temperature_hysteresis()` to the buffer tank
 - Added endpoint `get_outdoor_temperature_excess_energy_limit()` to the buffer tank
 - Added endpoint `set_outdoor_temperature_excess_energy_limit()` to the buffer tank
-- Added endpoint `get_excess_energy_available()` to the buffer tank
+- Added endpoint `get_excess_energy_mode()` to the buffer tank
 - Added endpoint `get_use_excess_energy()` to the buffer tank
 - Added endpoint `set_use_excess_energy()` to the buffer tank
 - Added endpoint `get_excess_energy_target_temperature_hysteresis()` to the hot water tank
 - Added endpoint `set_excess_energy_target_temperature_hysteresis()` to the hot water tank
 - Added endpoint `get_excess_energy_target_temperature()` to the hot water tank
 - Added endpoint `set_excess_energy_target_temperature()` to the hot water tank
-- Added endpoint `get_excess_energy_available()` to the hot water tank
+- Added endpoint `get_excess_energy_mode()` to the hot water tank
 - Added endpoint `get_use_excess_energy()` to the hot water tank
 - Added endpoint `set_use_excess_energy()` to the hot water tank
 - Added endpoint `get_excess_energy_target_temperature()` to the heating circuit
@@ -46,14 +46,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `set_excess_energy_heating_limit_night()` to the heating circuit
 - Added endpoint `get_excess_energy_cooling_limit_night()` to the heating circuit
 - Added endpoint `set_excess_energy_cooling_limit_night()` to the heating circuit
-- Added endpoint `get_excess_energy_available()` to the heating circuit
+- Added endpoint `get_excess_energy_mode()` to the heating circuit
 - Added endpoint `get_use_excess_energy()` to the heating circuit
 - Added endpoint `set_use_excess_energy()` to the heating circuit
 - Added endpoint `get_use_excess_energy()` to the external heat source
 - Added endpoint `set_use_excess_energy()` to the external heat source
 - Added endpoint `get_min_runtime_excess_energy()` to the external heat source
 - Added endpoint `set_min_runtime_excess_energy()` to the external heat source
-- Added endpoint `get_excess_energy_available()` to the photovoltaics
+- Added endpoint `get_excess_energy_active()` to the photovoltaics
 
 ## [2.11.0] - 2026-04-13
 

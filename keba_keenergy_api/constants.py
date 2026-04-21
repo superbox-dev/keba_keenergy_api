@@ -46,7 +46,6 @@ class BoolEnum(BaseEnum):
 SystemHasPhotovoltaics: type[BoolEnum] = BoolEnum
 SystemHasOutdoorTemperature: type[BoolEnum] = BoolEnum
 BufferTankUseExcessEnergy: type[BoolEnum] = BoolEnum
-BufferTankExcessEnergyAvailable: type[BoolEnum] = BoolEnum
 HeatPumpCompressorUseNightSpeed: type[BoolEnum] = BoolEnum
 HeatPumpHasActiveCooling: type[BoolEnum] = BoolEnum
 HeatPumpHasPassiveCooling: type[BoolEnum] = BoolEnum
@@ -63,8 +62,6 @@ HeatCircuitHasMixer: type[BoolEnum] = BoolEnum
 HeatCircuitHasReturnFlowTemperature: type[BoolEnum] = BoolEnum
 HeatCircuitUseExcessEnergy: type[BoolEnum] = BoolEnum
 HotWaterTankUseExcessEnergy: type[BoolEnum] = BoolEnum
-HotWaterTankExcessEnergyAvailable: type[BoolEnum] = BoolEnum
-HeatCircuitExcessEnergyAvailable: type[BoolEnum] = BoolEnum
 HeatCircuitHasPump: type[BoolEnum] = BoolEnum
 SolarCircuitOperatingMode: type[BoolEnum] = BoolEnum
 SolarCircuitConsumer1PrioritySolar: type[BoolEnum] = BoolEnum
@@ -102,6 +99,14 @@ class BufferTankOperatingMode(BaseEnum):
     HEAT_UP = 2
 
 
+class BufferTankExcessEnergyMode(BaseEnum):
+    """Available buffer tank excess energy modes."""
+
+    OFF = 0
+    HEATING = 1
+    COOLING = 2
+
+
 class HotWaterTankOperatingMode(BaseEnum):
     """Available hot water tank operating modes."""
 
@@ -109,6 +114,14 @@ class HotWaterTankOperatingMode(BaseEnum):
     AUTO = 1
     ON = 2
     HEAT_UP = 3
+
+
+class HotWaterTankExcessEnergyMode(BaseEnum):
+    """Available  hot water tank excess energy modes."""
+
+    OFF = 0
+    HEATING = 1
+    COOLING = 2
 
 
 class HeatPumpState(BaseEnum):
@@ -176,6 +189,14 @@ class HeatCircuitMode(BaseEnum):
     COOLING = 1
     HEATING_AND_COOLING = 2
     HEATING_AND_ACTIVE_COOLING = 3
+
+
+class HeatCircuitExcessEnergyMode(BaseEnum):
+    """Available heat circuit excess energy modes."""
+
+    OFF = 0
+    HEATING = 1
+    COOLING = 2
 
 
 class HeatCircuitOperatingMode(BaseEnum):
@@ -394,10 +415,10 @@ class BufferTank(Enum):
         value_type=str,
         human_readable=BufferTankUseExcessEnergy,
     )
-    EXCESS_ENERGY_AVAILABLE = EndpointProperties(
+    EXCESS_ENERGY_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.useExcessEnergy",
-        value_type=str,
-        human_readable=BufferTankExcessEnergyAvailable,
+        value_type=int,
+        human_readable=BufferTankExcessEnergyMode,
     )
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.heatRequestTop",
@@ -448,10 +469,10 @@ class HotWaterTank(Enum):
         value_type=str,
         human_readable=HotWaterTankUseExcessEnergy,
     )
-    EXCESS_ENERGY_AVAILABLE = EndpointProperties(
+    EXCESS_ENERGY_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].values.useExcessEnergy",
-        value_type=str,
-        human_readable=HotWaterTankExcessEnergyAvailable,
+        value_type=int,
+        human_readable=HotWaterTankExcessEnergyMode,
     )
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].values.heatRequestTop",
@@ -827,10 +848,10 @@ class HeatCircuit(Enum):
         value_type=str,
         human_readable=HeatCircuitUseExcessEnergy,
     )
-    EXCESS_ENERGY_AVAILABLE = EndpointProperties(
+    EXCESS_ENERGY_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.useExcessEnergy",
-        value_type=str,
-        human_readable=HeatCircuitExcessEnergyAvailable,
+        value_type=int,
+        human_readable=HeatCircuitExcessEnergyMode,
     )
     EXCESS_ENERGY_TARGET_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergyTemp.value",
@@ -1141,7 +1162,7 @@ class PassiveCooling(Enum):
 
 
 class Photovoltaic(Enum):
-    EXCESS_ENERGY_AVAILABLE = EndpointProperties(
+    EXCESS_ENERGY_ACTIVE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.photovoltaics.values.excessEnergyActive",
         value_type=str,
         human_readable=PhotovoltaicsExcessEnergyActive,
