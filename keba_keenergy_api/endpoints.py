@@ -37,7 +37,7 @@ from keba_keenergy_api.constants import LineTablePool
 from keba_keenergy_api.constants import MAX_HEATING_CURVE_POINTS
 from keba_keenergy_api.constants import MIN_HEATING_CURVE_POINTS
 from keba_keenergy_api.constants import PassiveCooling
-from keba_keenergy_api.constants import Photovoltaic
+from keba_keenergy_api.constants import Photovoltaics
 from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import SolarCircuit
 from keba_keenergy_api.constants import SolarCircuitOperatingMode
@@ -172,7 +172,7 @@ class BaseEndpoints:
     def _get_position_index(self, section: Section, position: Position | list[int]) -> list[bool | int]:
         idx: list[bool | int] = []
 
-        if isinstance(section, System | Photovoltaic):
+        if isinstance(section, System | Photovoltaics):
             idx = [True]
         elif isinstance(position, Position):
             position_key: str = f"{self.KEY_PATTERN.sub('_', section.__class__.__name__).lower()}"
@@ -5972,7 +5972,7 @@ class PassiveCoolingEndpoints(BaseEndpoints):
 
 
 class PhotovoltaicsEndpoints(BaseEndpoints):
-    """API Endpoints to retrieve the photovoltaic data.
+    """API Endpoints to retrieve the photovoltaics data.
 
     Examples
     --------
@@ -6023,11 +6023,11 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=Photovoltaic.EXCESS_ENERGY_ACTIVE,
+            request=Photovoltaics.EXCESS_ENERGY_ACTIVE,
             extra_attributes=True,
             human_readable=human_readable,
         )
-        return self._get_int_or_str_value(response, section=Photovoltaic.EXCESS_ENERGY_ACTIVE)
+        return self._get_int_or_str_value(response, section=Photovoltaics.EXCESS_ENERGY_ACTIVE)
 
     async def get_excess_power(self) -> float:
         """Get excess power.
@@ -6039,10 +6039,10 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=Photovoltaic.EXCESS_POWER,
+            request=Photovoltaics.EXCESS_POWER,
             extra_attributes=True,
         )
-        return self._get_float_value(response, section=Photovoltaic.EXCESS_POWER)
+        return self._get_float_value(response, section=Photovoltaics.EXCESS_POWER)
 
     async def get_daily_energy(self) -> float:
         """Get daily energy.
@@ -6054,10 +6054,10 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=Photovoltaic.DAILY_ENERGY,
+            request=Photovoltaics.DAILY_ENERGY,
             extra_attributes=True,
         )
-        return self._get_float_value(response, section=Photovoltaic.DAILY_ENERGY)
+        return self._get_float_value(response, section=Photovoltaics.DAILY_ENERGY)
 
     async def get_total_energy(self) -> float:
         """Get total energy.
@@ -6069,7 +6069,7 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
-            request=Photovoltaic.TOTAL_ENERGY,
+            request=Photovoltaics.TOTAL_ENERGY,
             extra_attributes=True,
         )
-        return self._get_float_value(response, section=Photovoltaic.TOTAL_ENERGY)
+        return self._get_float_value(response, section=Photovoltaics.TOTAL_ENERGY)

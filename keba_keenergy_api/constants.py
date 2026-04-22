@@ -1161,7 +1161,7 @@ class PassiveCooling(Enum):
     )
 
 
-class Photovoltaic(Enum):
+class Photovoltaics(Enum):
     EXCESS_ENERGY_ACTIVE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.photovoltaics.values.excessEnergyActive",
         value_type=str,
@@ -1193,7 +1193,7 @@ class SectionPrefix(str, Enum):
     EXTERNAL_HEAT_SOURCE = "external_heat_source"
     SWITCH_VALVE = "switch_valve"
     PASSIVE_COOLING = "passive_cooling"
-    PHOTOVOLTAIC = "photovoltaic"
+    PHOTOVOLTAICS = "photovoltaics"
 
 
 Section: TypeAlias = (
@@ -1206,5 +1206,5 @@ Section: TypeAlias = (
     | ExternalHeatSource
     | SwitchValve
     | PassiveCooling
-    | Photovoltaic
+    | Photovoltaics
 )

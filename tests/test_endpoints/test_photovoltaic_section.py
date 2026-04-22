@@ -6,7 +6,7 @@ from keba_keenergy_api.constants import PhotovoltaicsExcessEnergyActive
 
 
 @pytest.mark.happy
-class TestHappyPathPhotovoltaicSection:
+class TestHappyPathPhotovoltaicsSection:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(

@@ -14,7 +14,7 @@ from keba_keenergy_api.constants import HeatCircuit
 from keba_keenergy_api.constants import HeatPump
 from keba_keenergy_api.constants import HotWaterTank
 from keba_keenergy_api.constants import PassiveCooling
-from keba_keenergy_api.constants import Photovoltaic
+from keba_keenergy_api.constants import Photovoltaics
 from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import SolarCircuit
 from keba_keenergy_api.constants import SwitchValve
@@ -177,7 +177,7 @@ class TestKebaKeEnergyAPI:
                     HotWaterTank.CURRENT_TEMPERATURE,
                     ExternalHeatSource.TARGET_TEMPERATURE,
                     PassiveCooling.TEMPERATURE,
-                    Photovoltaic.TOTAL_ENERGY,
+                    Photovoltaics.TOTAL_ENERGY,
                 ],
                 1,
                 None,

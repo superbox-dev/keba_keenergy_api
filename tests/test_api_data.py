@@ -104,7 +104,7 @@ read_data_expected_response_1: dict[str, Any] = {
             },
         ],
     },
-    "photovoltaic": {
+    "photovoltaics": {
         "total_energy": {
             "attributes": {},
             "value": 349442.23,
@@ -179,7 +179,7 @@ read_data_expected_response_2: dict[str, Any] = {
     "switch_valve": {},
     "external_heat_source": {},
     "passive_cooling": {},
-    "photovoltaic": {},
+    "photovoltaics": {},
 }
 
 read_data_option_payload_3: list[dict[str, Any]] = [
@@ -463,7 +463,7 @@ read_data_expected_response_3: dict[str, Any] = {
             },
         ],
     },
-    "photovoltaic": {},
+    "photovoltaics": {},
 }
 
 read_data_expected_extra_attributes_3: str = heating_curve_points_expected_data
@@ -891,5 +891,5 @@ read_data_expected_response_4: dict[str, Any] = {
     "switch_valve": {},
     "external_heat_source": {},
     "passive_cooling": {},
-    "photovoltaic": {},
+    "photovoltaics": {},
 }
