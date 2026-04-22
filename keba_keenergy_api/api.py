@@ -226,7 +226,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
             SectionPrefix.EXTERNAL_HEAT_SOURCE.value: {},
             SectionPrefix.SWITCH_VALVE.value: {},
             SectionPrefix.PASSIVE_COOLING.value: {},
-            SectionPrefix.PHOTOVOLTAIC.value: {},
+            SectionPrefix.PHOTOVOLTAICS.value: {},
         }
 
         for key, value in response.items():
@@ -263,9 +263,9 @@ class KebaKeEnergyAPI(BaseEndpoints):
             elif key.startswith(SectionPrefix.PASSIVE_COOLING):
                 _key = key.lower().replace(f"{SectionPrefix.PASSIVE_COOLING.value}_", "")
                 data[SectionPrefix.PASSIVE_COOLING][_key] = value
-            elif key.startswith(SectionPrefix.PHOTOVOLTAIC):
-                _key = key.lower().replace(f"{SectionPrefix.PHOTOVOLTAIC.value}_", "")
-                data[SectionPrefix.PHOTOVOLTAIC][_key] = value[0]
+            elif key.startswith(SectionPrefix.PHOTOVOLTAICS):
+                _key = key.lower().replace(f"{SectionPrefix.PHOTOVOLTAICS.value}_", "")
+                data[SectionPrefix.PHOTOVOLTAICS][_key] = value[0]
 
         return data
 
