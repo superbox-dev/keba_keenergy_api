@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added endpoint `get_excess_energy_consumption()` to the heat pump
+- Added endpoint `get_heating_excess_energy_consumption()` to the heat pump
+- Added endpoint `get_cooling_excess_energy_consumption()` to the heat pump
+- Added endpoint `get_hot_water_excess_energy_consumption()` to the heat pump
 - Added endpoint `get_consuming_excess_energy()` to the heat pump
 - Added endpoint `get_excess_energy_target_temperature()` to the buffer tank
 - Added endpoint `set_excess_energy_target_temperature()` to the buffer tank
