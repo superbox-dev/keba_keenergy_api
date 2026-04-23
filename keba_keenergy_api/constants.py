@@ -721,6 +721,22 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.electricalenergy",
         value_type=float,
     )
+    EXCESS_ENERGY_CONSUMPTION = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.consumedExcessEnergy",
+        value_type=float,
+    )
+    HEATING_EXCESS_ENERGY_CONSUMPTION = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.heating.consumedExcessEnergy",
+        value_type=float,
+    )
+    COOLING_EXCESS_ENERGY_CONSUMPTION = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.cooling.consumedExcessEnergy",
+        value_type=float,
+    )
+    HOT_WATER_EXCESS_ENERGY_CONSUMPTION = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.domHotWater.consumedExcessEnergy",
+        value_type=float,
+    )
     TOTAL_SPF = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatio",
         value_type=float,

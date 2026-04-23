@@ -2910,6 +2910,90 @@ class HeatPumpEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatPump.TOTAL_ENERGY_CONSUMPTION, position=position)
 
+    async def get_excess_energy_consumption(self, position: int = 1) -> float:
+        """Get the excess energy consumption from the heat pump.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+
+        Returns
+        -------
+        float
+            Excess energy consumption in kWh
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.EXCESS_ENERGY_CONSUMPTION,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatPump.EXCESS_ENERGY_CONSUMPTION, position=position)
+
+    async def get_heating_excess_energy_consumption(self, position: int = 1) -> float:
+        """Get the heating excess energy consumption from the heat pump.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+
+        Returns
+        -------
+        float
+            Heating excess energy consumption in kWh
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.HEATING_EXCESS_ENERGY_CONSUMPTION,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatPump.HEATING_EXCESS_ENERGY_CONSUMPTION, position=position)
+
+    async def get_cooling_excess_energy_consumption(self, position: int = 1) -> float:
+        """Get the cooling excess energy consumption from the heat pump.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+
+        Returns
+        -------
+        float
+            Cooling excess energy consumption in kWh
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.COOLING_EXCESS_ENERGY_CONSUMPTION,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatPump.COOLING_EXCESS_ENERGY_CONSUMPTION, position=position)
+
+    async def get_hot_water_excess_energy_consumption(self, position: int = 1) -> float:
+        """Get the hot water excess energy consumption from the heat pump.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+
+        Returns
+        -------
+        float
+            Hot water excess energy consumption in kWh
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.HOT_WATER_EXCESS_ENERGY_CONSUMPTION,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_float_value(response, section=HeatPump.HOT_WATER_EXCESS_ENERGY_CONSUMPTION, position=position)
+
     async def get_total_spf(self, position: int = 1) -> float:
         """Get the SPF from the heat pump.
 
