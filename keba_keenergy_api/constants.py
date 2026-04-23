@@ -76,6 +76,7 @@ HeatPumpHeatRequest: type[BoolEnum] = BoolEnum
 HeatPumpConsumingExcessEnergy: type[BoolEnum] = BoolEnum
 ExternalHeatSourceOperatingMode: type[BoolEnum] = BoolEnum
 ExternalHeatSourceHeatRequest: type[BoolEnum] = BoolEnum
+ExternalHeatSourceConsumingExcessEnergy: type[BoolEnum] = BoolEnum
 ExternalHeatSourceUseExcessEnergy: type[BoolEnum] = BoolEnum
 PhotovoltaicsExcessEnergyActive: type[BoolEnum] = BoolEnum
 
@@ -613,6 +614,18 @@ class HeatPump(Enum):
         value_type=str,
         human_readable=HeatPumpConsumingExcessEnergy,
     )
+    EXCESS_ENERGY_OPERATING_TIME = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalDataExcessEnergy.operationalTimeS",
+        value_type=int,
+    )
+    EXCESS_ENERGY_MAX_RUNTIME = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalDataExcessEnergy.maxRunTimeS",
+        value_type=int,
+    )
+    EXCESS_ENERGY_ACTIVATION_COUNTER = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalDataExcessEnergy.activationCounter",
+        value_type=int,
+    )
     # TOTAL_HEATING_ENERGY = EndpointProperties(
     #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.accumulatedHeat",
     #     value_type=float,
@@ -1132,6 +1145,23 @@ class ExternalHeatSource(Enum):
     )
     ACTIVATION_COUNTER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].DO.operationalData.activationCounter",
+        value_type=int,
+    )
+    CONSUMING_EXCESS_ENERGY = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].values.consumingExcessEnergy",
+        value_type=str,
+        human_readable=ExternalHeatSourceConsumingExcessEnergy,
+    )
+    EXCESS_ENERGY_OPERATING_TIME = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].operationalDataExcessEnergy.operationalTimeS",
+        value_type=int,
+    )
+    EXCESS_ENERGY_MAX_RUNTIME = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].operationalDataExcessEnergy.maxRunTimeS",
+        value_type=int,
+    )
+    EXCESS_ENERGY_ACTIVATION_COUNTER = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].operationalDataExcessEnergy.activationCounter",
         value_type=int,
     )
     USE_EXCESS_ENERGY = EndpointProperties(

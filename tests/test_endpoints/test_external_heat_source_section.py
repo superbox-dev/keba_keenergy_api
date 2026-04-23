@@ -2,6 +2,7 @@ import pytest
 from aioresponses.core import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
+from keba_keenergy_api.constants import ExternalHeatSourceConsumingExcessEnergy
 from keba_keenergy_api.constants import ExternalHeatSourceHeatRequest
 from keba_keenergy_api.constants import ExternalHeatSourceOperatingMode
 from keba_keenergy_api.constants import ExternalHeatSourceUseExcessEnergy
@@ -21,7 +22,6 @@ class TestHappyPathExternalHeatSourceSection:
         payload_value: int,
         expected_value: str,
     ) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -65,7 +65,6 @@ class TestHappyPathExternalHeatSourceSection:
         operating_mode: int | str,
         expected_value: int,
     ) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -87,7 +86,6 @@ class TestHappyPathExternalHeatSourceSection:
 
     @pytest.mark.asyncio
     async def test_get_target_temperature(self) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -137,7 +135,6 @@ class TestHappyPathExternalHeatSourceSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -169,7 +166,6 @@ class TestHappyPathExternalHeatSourceSection:
 
     @pytest.mark.asyncio
     async def test_get_operating_time(self) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -203,7 +199,6 @@ class TestHappyPathExternalHeatSourceSection:
 
     @pytest.mark.asyncio
     async def test_get_max_runtime(self) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -237,7 +232,6 @@ class TestHappyPathExternalHeatSourceSection:
 
     @pytest.mark.asyncio
     async def test_get_activation_counter(self) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -263,6 +257,154 @@ class TestHappyPathExternalHeatSourceSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.operationalData.activationCounter", "attr": "1"}]',  # noqa: E501
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (False, ExternalHeatSourceConsumingExcessEnergy.ON.value, 1),
+            (True, "false", "off"),
+            (False, ExternalHeatSourceConsumingExcessEnergy.OFF.value, 0),
+        ],
+    )
+    async def test_get_consuming_excess_energy(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.extHeatSource[0].values.consumingExcessEnergy",
+                        "attributes": {
+                            "longText": "Ext. HS with excess en.",
+                        },
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.external_heat_source.get_consuming_excess_energy(
+                human_readable=human_readable
+            )
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].values.consumingExcessEnergy", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_excess_energy_operating_time(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.extHeatSource[0].operationalDataExcessEnergy.operationalTimeS",
+                        "attributes": {
+                            "formatId": "fmt6p0",
+                            "longText": "Ext. HS with excess en.",
+                            "unitId": "TimeHour",
+                        },
+                        "value": "3809028",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int = await client.external_heat_source.get_excess_energy_operating_time()
+
+            assert isinstance(data, int)
+            assert data == 3809028  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].operationalDataExcessEnergy.operationalTimeS", "attr": "1"}]',  # noqa: E501
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_excess_energy_max_runtime(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.extHeatSource[0].operationalDataExcessEnergy.maxRunTimeS",
+                        "attributes": {
+                            "formatId": "fmt6p1",
+                            "longText": "Max run-time",
+                            "unitId": "TimeHour",
+                        },
+                        "value": "602403",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int = await client.external_heat_source.get_excess_energy_max_runtime()
+
+            assert isinstance(data, int)
+            assert data == 602403  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].operationalDataExcessEnergy.maxRunTimeS", '
+                    '"attr": "1"}]'
+                ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_excess_energy_activation_counter(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.extHeatSource[0].operationalDataExcessEnergy.activationCounter",
+                        "attributes": {
+                            "formatId": "fmt6p0",
+                            "longText": "Turn-on cycles",
+                        },
+                        "value": "477",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int = await client.external_heat_source.get_excess_energy_activation_counter()
+
+            assert isinstance(data, int)
+            assert data == 477  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].operationalDataExcessEnergy.activationCounter", "attr": "1"}]',  # noqa: E501
                 method="POST",
                 auth=None,
                 ssl=False,
@@ -435,7 +577,6 @@ class TestUnhappyPathExternalHeatSourceSection:
         self,
         operating_mode: int | str,
     ) -> None:
-
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
