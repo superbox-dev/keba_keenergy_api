@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added endpoint `get_excess_energy_operating_time()` to the heat pump
+- Added endpoint `get_excess_energy_max_runtime()` to the heat pump
+- Added endpoint `get_excess_energy_activation_counter()` to the heat pump
 - Added endpoint `get_excess_energy_consumption()` to the heat pump
 - Added endpoint `get_heating_excess_energy_consumption()` to the heat pump
 - Added endpoint `get_cooling_excess_energy_consumption()` to the heat pump
@@ -55,6 +58,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `set_use_excess_energy()` to the heating circuit
 - Added endpoint `get_use_excess_energy()` to the external heat source
 - Added endpoint `set_use_excess_energy()` to the external heat source
+- Added endpoint `get_excess_energy_operating_time()` to the external heat source
+- Added endpoint `get_excess_energy_max_runtime()`to the external heat source
+- Added endpoint `get_excess_energy_activation_counter()` to the external heat source
+- Added endpoint `get_consuming_excess_energy()` to the external heat source
 - Added endpoint `get_min_runtime_excess_energy()` to the external heat source
 - Added endpoint `set_min_runtime_excess_energy()` to the external heat source
 - Added endpoint `get_excess_energy_active()` to the photovoltaics

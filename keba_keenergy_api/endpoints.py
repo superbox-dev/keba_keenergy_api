@@ -2553,7 +2553,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat pumps
+            The number of the heat pumps
         human_readable
             Return a human-readable string
 
@@ -2577,7 +2577,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat pumps
+            The number of the heat pumps
         human_readable
             Return a human-readable string
 
@@ -2594,6 +2594,69 @@ class HeatPumpEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_int_or_str_value(response, section=HeatPump.CONSUMING_EXCESS_ENERGY, position=position)
+
+    async def get_excess_energy_operating_time(self, position: int = 1) -> int:
+        """Get the excess energy operating time from the heat pump.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+
+        Returns
+        -------
+        integer
+            Operating time in seconds
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.EXCESS_ENERGY_OPERATING_TIME,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=HeatPump.EXCESS_ENERGY_OPERATING_TIME, position=position)
+
+    async def get_excess_energy_max_runtime(self, position: int = 1) -> int:
+        """Get the excess energy maximum runtime from the heat pump.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+
+        Returns
+        -------
+        integer
+            Excess energy maximum runtime in seconds
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.EXCESS_ENERGY_MAX_RUNTIME,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=HeatPump.EXCESS_ENERGY_MAX_RUNTIME, position=position)
+
+    async def get_excess_energy_activation_counter(self, position: int = 1) -> int:
+        """Get the activation counter from the heat pump.
+
+        Parameters
+        ----------
+        position
+            The number of the heat pumps
+
+        Returns
+        -------
+        integer
+            Number of excess energy activation
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatPump.EXCESS_ENERGY_ACTIVATION_COUNTER,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=HeatPump.EXCESS_ENERGY_ACTIVATION_COUNTER, position=position)
 
     async def get_compressor_power(self, position: int = 1) -> float:
         """Get the compressor power from the heat pump.
@@ -3064,12 +3127,12 @@ class HeatPumpEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=HeatPump.HAS_PASSIVE_COOLING, position=position)
 
     async def get_operating_time(self, position: int = 1) -> int:
-        """Get the operating time from the external heat pump.
+        """Get the operating time from the heat pump.
 
         Parameters
         ----------
         position
-            The number of the external heat pumps
+            The number of the heat pumps
 
         Returns
         -------
@@ -3085,12 +3148,12 @@ class HeatPumpEndpoints(BaseEndpoints):
         return self._get_int_value(response, section=HeatPump.OPERATING_TIME, position=position)
 
     async def get_max_runtime(self, position: int = 1) -> int:
-        """Get the maximum runtime from the external heat pump.
+        """Get the maximum runtime from the heat pump.
 
         Parameters
         ----------
         position
-            The number of the external heat pumps
+            The number of the heat pumps
 
         Returns
         -------
@@ -3111,12 +3174,12 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat pumps
+            The number of the heat pumps
 
         Returns
         -------
         integer
-            Number of external heat source activation
+            Number of external heat pump activation
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
@@ -5760,6 +5823,97 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_int_value(response, section=ExternalHeatSource.ACTIVATION_COUNTER, position=position)
+
+    async def get_consuming_excess_energy(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Get the consuming excess energy from the external heat source.
+
+        Parameters
+        ----------
+        position
+            The number of the external heat sources
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=ExternalHeatSource.CONSUMING_EXCESS_ENERGY,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(
+            response, section=ExternalHeatSource.CONSUMING_EXCESS_ENERGY, position=position
+        )
+
+    async def get_excess_energy_operating_time(self, position: int = 1) -> int:
+        """Get the excess energy operating time from the external heat source.
+
+        Parameters
+        ----------
+        position
+            The number of the external heat sources
+
+        Returns
+        -------
+        integer
+            Excess energy operating time in seconds
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=ExternalHeatSource.EXCESS_ENERGY_OPERATING_TIME,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=ExternalHeatSource.EXCESS_ENERGY_OPERATING_TIME, position=position)
+
+    async def get_excess_energy_max_runtime(self, position: int = 1) -> int:
+        """Get the excess energy maximum runtime from the external heat source.
+
+        Parameters
+        ----------
+        position
+            The number of the external heat sources
+
+        Returns
+        -------
+        integer
+            Excess energy maximum runtime in seconds
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=ExternalHeatSource.EXCESS_ENERGY_MAX_RUNTIME,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_int_value(response, section=ExternalHeatSource.EXCESS_ENERGY_MAX_RUNTIME, position=position)
+
+    async def get_excess_energy_activation_counter(self, position: int = 1) -> int:
+        """Get the excess energy activation counter from the external heat source.
+
+        Parameters
+        ----------
+        position
+            The number of the external heat sources
+
+        Returns
+        -------
+        integer
+            Number of excess energy external heat source activation
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=ExternalHeatSource.EXCESS_ENERGY_ACTIVATION_COUNTER,
+            position=position,
+            extra_attributes=True,
+        )
+        return self._get_int_value(
+            response, section=ExternalHeatSource.EXCESS_ENERGY_ACTIVATION_COUNTER, position=position
+        )
 
     async def get_use_excess_energy(
         self,

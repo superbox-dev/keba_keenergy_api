@@ -377,7 +377,10 @@ class TestHappyPathHeatPumpSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight", '
+                    '"attr": "1"}]'
+                ),
                 method="POST",
                 auth=None,
                 ssl=False,
@@ -412,7 +415,10 @@ class TestHappyPathHeatPumpSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight", '
+                    '"attr": "1"}]'
+                ),
                 method="POST",
                 auth=None,
                 ssl=False,
@@ -1069,6 +1075,110 @@ class TestHappyPathHeatPumpSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].ElectricEnergyMeter.values.power", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_excess_energy_operating_time(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].operationalDataExcessEnergy.operationalTimeS",
+                        "attributes": {
+                            "formatId": "fmt6p0",
+                            "longText": "HP 1 with excess energy",
+                            "unitId": "TimeHour",
+                        },
+                        "value": "602403",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int = await client.heat_pump.get_excess_energy_operating_time()
+
+            assert isinstance(data, int)
+            assert data == 602403  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].operationalDataExcessEnergy.operationalTimeS", "attr": "1"}]',  # noqa: E501
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_excess_energy_max_runtime(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].operationalDataExcessEnergy.maxRunTimeS",
+                        "attributes": {
+                            "formatId": "fmt6p1",
+                            "longText": "Max run-time",
+                            "unitId": "TimeHour",
+                        },
+                        "value": "602403",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int = await client.heat_pump.get_excess_energy_max_runtime()
+
+            assert isinstance(data, int)
+            assert data == 602403  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatpump[0].operationalDataExcessEnergy.maxRunTimeS", '
+                    '"attr": "1"}]'
+                ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_excess_energy_activation_counter(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatpump[0].operationalDataExcessEnergy.activationCounter",
+                        "attributes": {
+                            "formatId": "fmt6p0",
+                            "longText": "Turn-on cycles",
+                        },
+                        "value": "477",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int = await client.heat_pump.get_excess_energy_activation_counter()
+
+            assert isinstance(data, int)
+            assert data == 477  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatpump[0].operationalDataExcessEnergy.activationCounter", '
+                    '"attr": "1"}]'
+                ),
                 method="POST",
                 auth=None,
                 ssl=False,
