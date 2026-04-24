@@ -806,6 +806,22 @@ class HeatPump(Enum):
         value_type=str,
         human_readable=HeatPumpHasVFDFailure,
     )
+    ELECTRIC_ENERGY_METER_TYPE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.options.heatpump[%s].ElectricEnergyMeter.type",
+        value_type=int,
+    )
+    HEAT_METER_TYPE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.options.heatpump[%s].HeatMeter.type",
+        value_type=int,
+    )
+    COOL_METER_TYPE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.options.heatpump[%s].CoolMeter.type",
+        value_type=int,
+    )
+    HOT_WATER_METER_TYPE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.options.heatpump[%s].HotWaterMeter.type",
+        value_type=int,
+    )
 
 
 class HeatCircuit(Enum):
