@@ -4,7 +4,7 @@ import pytest
 from aioresponses.core import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
-from keba_keenergy_api.constants import SystemHasPhotovoltaics
+from keba_keenergy_api.constants import BoolEnum
 from keba_keenergy_api.constants import SystemOperatingMode
 from keba_keenergy_api.endpoints import Position
 from keba_keenergy_api.error import APIError
@@ -435,9 +435,9 @@ class TestHappyPathSystemSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, SystemHasPhotovoltaics.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, SystemHasPhotovoltaics.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_has_photovoltaics(
@@ -480,9 +480,9 @@ class TestHappyPathSystemSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, SystemHasPhotovoltaics.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, SystemHasPhotovoltaics.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_has_outdoor_temperature(

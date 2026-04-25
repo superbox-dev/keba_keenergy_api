@@ -43,44 +43,6 @@ class BoolEnum(BaseEnum):
     ON = 1
 
 
-SystemHasPhotovoltaics: type[BoolEnum] = BoolEnum
-SystemHasOutdoorTemperature: type[BoolEnum] = BoolEnum
-BufferTankUseExcessEnergy: type[BoolEnum] = BoolEnum
-HeatPumpCompressorUseNightSpeed: type[BoolEnum] = BoolEnum
-HeatPumpHasActiveCooling: type[BoolEnum] = BoolEnum
-HeatPumpHasPassiveCooling: type[BoolEnum] = BoolEnum
-HeatPumpHasCompressorFailure: type[BoolEnum] = BoolEnum
-HeatPumpHasSourceFailure: type[BoolEnum] = BoolEnum
-HeatPumpHasSourceActuatorFailure: type[BoolEnum] = BoolEnum
-HeatPumpHasThreePhaseFailure: type[BoolEnum] = BoolEnum
-HeatPumpHasSourcePressureFailure: type[BoolEnum] = BoolEnum
-HeatPumpHasVFDFailure: type[BoolEnum] = BoolEnum
-HeatCircuitHasRoomTemperature: type[BoolEnum] = BoolEnum
-HeatCircuitHasRoomHumidity: type[BoolEnum] = BoolEnum
-HeatCircuitUseHeatingCurve: type[BoolEnum] = BoolEnum
-HeatCircuitHasMixer: type[BoolEnum] = BoolEnum
-HeatCircuitHasReturnFlowTemperature: type[BoolEnum] = BoolEnum
-HeatCircuitUseExcessEnergy: type[BoolEnum] = BoolEnum
-HotWaterTankUseExcessEnergy: type[BoolEnum] = BoolEnum
-HeatCircuitHasPump: type[BoolEnum] = BoolEnum
-SolarCircuitOperatingMode: type[BoolEnum] = BoolEnum
-SolarCircuitConsumer1PrioritySolar: type[BoolEnum] = BoolEnum
-SolarCircuitHeatRequest: type[BoolEnum] = BoolEnum
-BufferTankHeatRequest: type[BoolEnum] = BoolEnum
-BufferTankCoolRequest: type[BoolEnum] = BoolEnum
-HotWaterTankHeatRequest: type[BoolEnum] = BoolEnum
-HotWaterTankHotWaterFlow: type[BoolEnum] = BoolEnum
-HotWaterTankHasFreshWaterModule: type[BoolEnum] = BoolEnum
-HotWaterTankCirculationPumpState: type[BoolEnum] = BoolEnum
-HeatPumpHeatRequest: type[BoolEnum] = BoolEnum
-HeatPumpConsumingExcessEnergy: type[BoolEnum] = BoolEnum
-ExternalHeatSourceOperatingMode: type[BoolEnum] = BoolEnum
-ExternalHeatSourceHeatRequest: type[BoolEnum] = BoolEnum
-ExternalHeatSourceConsumingExcessEnergy: type[BoolEnum] = BoolEnum
-ExternalHeatSourceUseExcessEnergy: type[BoolEnum] = BoolEnum
-PhotovoltaicsExcessEnergyActive: type[BoolEnum] = BoolEnum
-
-
 class SystemOperatingMode(BaseEnum):
     """Available system operating modes."""
 
@@ -256,6 +218,14 @@ class SwitchValvePosition(BaseEnum):
     CLOSED = 2
 
 
+class MixerSwitchValvePosition(BaseEnum):
+    """Available mixer switch valve positons."""
+
+    CLOSED = -1
+    OFF = 0
+    OPEN = 1
+
+
 PAYLOAD_PREFIX: Final[str] = "APPL.CtrlAppl"
 
 
@@ -329,12 +299,12 @@ class System(Enum):
     HAS_PHOTOVOLTAICS = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.hasPhotovoltaics",
         value_type=str,
-        human_readable=SystemHasPhotovoltaics,
+        human_readable=BoolEnum,
     )
     HAS_OUTDOOR_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.hasOutdoorTemp",
         value_type=str,
-        human_readable=SystemHasOutdoorTemperature,
+        human_readable=BoolEnum,
     )
     OPERATING_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.param.operatingMode",
@@ -414,7 +384,7 @@ class BufferTank(Enum):
     USE_EXCESS_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.useExcessEnergy",
         value_type=str,
-        human_readable=BufferTankUseExcessEnergy,
+        human_readable=BoolEnum,
     )
     EXCESS_ENERGY_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.useExcessEnergy",
@@ -424,12 +394,12 @@ class BufferTank(Enum):
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.heatRequestTop",
         value_type=str,
-        human_readable=BufferTankHeatRequest,
+        human_readable=BoolEnum,
     )
     COOL_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.coolRequestBot",
         value_type=str,
-        human_readable=BufferTankCoolRequest,
+        human_readable=BoolEnum,
     )
 
 
@@ -468,7 +438,7 @@ class HotWaterTank(Enum):
     USE_EXCESS_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.useExcessEnergy",
         value_type=str,
-        human_readable=HotWaterTankUseExcessEnergy,
+        human_readable=BoolEnum,
     )
     EXCESS_ENERGY_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].values.useExcessEnergy",
@@ -478,17 +448,17 @@ class HotWaterTank(Enum):
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].values.heatRequestTop",
         value_type=str,
-        human_readable=HotWaterTankHeatRequest,
+        human_readable=BoolEnum,
     )
     HAS_FRESH_WATER_MODULE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.hotWaterTank[%s].hasFreshWaterModule",
         value_type=str,
-        human_readable=HotWaterTankHasFreshWaterModule,
+        human_readable=BoolEnum,
     )
     FRESH_WATER_FLOW = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterFlow.values.actValue",
         value_type=str,
-        human_readable=HotWaterTankHotWaterFlow,
+        human_readable=BoolEnum,
     )
     FRESH_WATER_MODULE_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterTemp.values.actValue",
@@ -505,7 +475,7 @@ class HotWaterTank(Enum):
     CIRCULATION_PUMP_STATE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].circPump.pump.values.setValueB",
         value_type=str,
-        human_readable=HotWaterTankCirculationPumpState,
+        human_readable=BoolEnum,
     )
 
 
@@ -534,7 +504,7 @@ class HeatPump(Enum):
     COMPRESSOR_USE_NIGHT_SPEED = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatPumpPowerCtrl.param.useDayNightSpeed",
         value_type=str,
-        human_readable=HeatPumpCompressorUseNightSpeed,
+        human_readable=BoolEnum,
     )
     COMPRESSOR_NIGHT_SPEED = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatPumpPowerCtrl.param.maxPowerScaledNight",
@@ -607,12 +577,12 @@ class HeatPump(Enum):
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].values.request",
         value_type=str,
-        human_readable=HeatPumpHeatRequest,
+        human_readable=BoolEnum,
     )
     CONSUMING_EXCESS_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].values.consumingExcessEnergy",
         value_type=str,
-        human_readable=HeatPumpConsumingExcessEnergy,
+        human_readable=BoolEnum,
     )
     EXCESS_ENERGY_OPERATING_TIME = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalDataExcessEnergy.operationalTimeS",
@@ -757,12 +727,12 @@ class HeatPump(Enum):
     HAS_ACTIVE_COOLING = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.heatpump[%s].hasActiveCooling",
         value_type=str,
-        human_readable=HeatPumpHasActiveCooling,
+        human_readable=BoolEnum,
     )
     HAS_PASSIVE_COOLING = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.heatpump[%s].hasPassiveCooling",
         value_type=str,
-        human_readable=HeatPumpHasPassiveCooling,
+        human_readable=BoolEnum,
     )
     OPERATING_TIME = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalData.operationalTimeS",
@@ -779,32 +749,32 @@ class HeatPump(Enum):
     HAS_COMPRESSOR_FAILURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureCompressor.values.actValue",
         value_type=str,
-        human_readable=HeatPumpHasCompressorFailure,
+        human_readable=BoolEnum,
     )
     HAS_SOURCE_FAILURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureSource.values.actValue",
         value_type=str,
-        human_readable=HeatPumpHasSourceFailure,
+        human_readable=BoolEnum,
     )
     HAS_SOURCE_ACTUATOR_FAILURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureActuatorSource.values.actValue",
         value_type=str,
-        human_readable=HeatPumpHasSourceActuatorFailure,
+        human_readable=BoolEnum,
     )
     HAS_THREE_PHASE_FAILURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureThreePhase.values.actValue",
         value_type=str,
-        human_readable=HeatPumpHasThreePhaseFailure,
+        human_readable=BoolEnum,
     )
     HAS_SOURCE_PRESSURE_FAILURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureSrcPressure.values.actValue",
         value_type=str,
-        human_readable=HeatPumpHasSourcePressureFailure,
+        human_readable=BoolEnum,
     )
     HAS_VFD_FAILURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureVFD.values.actValue",
         value_type=str,
-        human_readable=HeatPumpHasVFDFailure,
+        human_readable=BoolEnum,
     )
     ELECTRIC_ENERGY_METER_TYPE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.heatpump[%s].ElectricEnergyMeter.type",
@@ -839,7 +809,7 @@ class HeatCircuit(Enum):
     HAS_ROOM_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasRoomTemp",
         value_type=str,
-        human_readable=HeatCircuitHasRoomTemperature,
+        human_readable=BoolEnum,
     )
     ROOM_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].tempRoom.values.actValue",
@@ -848,7 +818,7 @@ class HeatCircuit(Enum):
     HAS_ROOM_HUMIDITY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasRoomHumidity",
         value_type=str,
-        human_readable=HeatCircuitHasRoomHumidity,
+        human_readable=BoolEnum,
     )
     ROOM_HUMIDITY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].humidityRoom.values.actValue",
@@ -865,7 +835,7 @@ class HeatCircuit(Enum):
     HAS_MIXER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasMixer",
         value_type=str,
-        human_readable=HeatCircuitHasMixer,
+        human_readable=BoolEnum,
     )
     MIXER_FLOW_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.flowTemp.values.actValue",
@@ -875,10 +845,20 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.refluxTemp.values.actValue",
         value_type=float,
     )
+    MIXER_POSITION = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.mixer.values.setValueScaled",
+        value_type=int,
+        human_readable=MixerSwitchValvePosition,
+    )
+    PUMP_STATE = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].pump.values.setValueB",
+        value_type=str,
+        human_readable=BoolEnum,
+    )
     HAS_RETURN_FLOW_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasRefluxTemp",
         value_type=str,
-        human_readable=HeatCircuitHasReturnFlowTemperature,
+        human_readable=BoolEnum,
     )
     RETURN_FLOW_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].tempReflux.values.actValue",
@@ -891,7 +871,7 @@ class HeatCircuit(Enum):
     USE_EXCESS_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergy.useExcessEnergy",
         value_type=str,
-        human_readable=HeatCircuitUseExcessEnergy,
+        human_readable=BoolEnum,
     )
     EXCESS_ENERGY_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.useExcessEnergy",
@@ -1016,7 +996,7 @@ class HeatCircuit(Enum):
     USE_HEATING_CURVE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.enableHeatCurveLinTab",
         value_type=str,
-        human_readable=HeatCircuitUseHeatingCurve,
+        human_readable=BoolEnum,
     )
     HEATING_CURVE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.linTab.fileName",
@@ -1029,7 +1009,7 @@ class HeatCircuit(Enum):
     HAS_PUMP = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasVarSpeedPump",
         value_type=str,
-        human_readable=HeatCircuitHasPump,
+        human_readable=BoolEnum,
     )
     PUMP_SPEED = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].pumpAO.values.setValueScaled",
@@ -1081,7 +1061,7 @@ class SolarCircuit(Enum):
     OPERATING_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].param.operatingMode",
         value_type=int,
-        human_readable=SolarCircuitOperatingMode,
+        human_readable=BoolEnum,
     )
     SOURCE_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].collectorTemp.values.actValue",
@@ -1108,7 +1088,7 @@ class SolarCircuit(Enum):
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.genericHeat[%s].values.heatRequest",
         value_type=str,
-        human_readable=SolarCircuitHeatRequest,
+        human_readable=BoolEnum,
         quantity=2,
     )
     HEATING_ENERGY = EndpointProperties(
@@ -1126,7 +1106,7 @@ class SolarCircuit(Enum):
     PRIORITY_1_BEFORE_2 = SolarCircuitPriority1Before2EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hmiRetainData.consumer1PrioritySolar[%s]",
         value_type=str,
-        human_readable=SolarCircuitConsumer1PrioritySolar,
+        human_readable=BoolEnum,
         read_only=False,
     )
     _PRIORITY = EndpointProperties(
@@ -1140,7 +1120,7 @@ class ExternalHeatSource(Enum):
     OPERATING_MODE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.operatingMode",
         value_type=int,
-        human_readable=ExternalHeatSourceOperatingMode,
+        human_readable=BoolEnum,
     )
     TARGET_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].values.setTemp",
@@ -1149,7 +1129,7 @@ class ExternalHeatSource(Enum):
     HEAT_REQUEST = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].DO.values.setValueB",
         value_type=str,
-        human_readable=ExternalHeatSourceHeatRequest,
+        human_readable=BoolEnum,
     )
     OPERATING_TIME = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].DO.operationalData.operationalTimeS",
@@ -1166,7 +1146,7 @@ class ExternalHeatSource(Enum):
     CONSUMING_EXCESS_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].values.consumingExcessEnergy",
         value_type=str,
-        human_readable=ExternalHeatSourceConsumingExcessEnergy,
+        human_readable=BoolEnum,
     )
     EXCESS_ENERGY_OPERATING_TIME = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].operationalDataExcessEnergy.operationalTimeS",
@@ -1183,7 +1163,7 @@ class ExternalHeatSource(Enum):
     USE_EXCESS_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.supportExcessEnergy",
         value_type=str,
-        human_readable=ExternalHeatSourceUseExcessEnergy,
+        human_readable=BoolEnum,
     )
     MIN_RUNTIME_EXCESS_ENERGY = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.minRunTimeExcessEnergy",
@@ -1221,13 +1201,18 @@ class PassiveCooling(Enum):
         f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.flowTemp.values.actValue",
         value_type=float,
     )
+    MIXER_POSITION = EndpointProperties(
+        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.mixer.values.setValueScaled",
+        value_type=int,
+        human_readable=MixerSwitchValvePosition,
+    )
 
 
 class Photovoltaics(Enum):
     EXCESS_ENERGY_ACTIVE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.photovoltaics.values.excessEnergyActive",
         value_type=str,
-        human_readable=PhotovoltaicsExcessEnergyActive,
+        human_readable=BoolEnum,
     )
     EXCESS_POWER = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.photovoltaics.ElectricEnergyMeter.values.power",

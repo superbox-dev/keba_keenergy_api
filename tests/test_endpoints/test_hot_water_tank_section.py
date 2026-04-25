@@ -2,12 +2,9 @@ import pytest
 from aioresponses.core import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
-from keba_keenergy_api.constants import HotWaterTankCirculationPumpState
+from keba_keenergy_api.constants import BoolEnum
 from keba_keenergy_api.constants import HotWaterTankExcessEnergyMode
-from keba_keenergy_api.constants import HotWaterTankHasFreshWaterModule
-from keba_keenergy_api.constants import HotWaterTankHeatRequest
 from keba_keenergy_api.constants import HotWaterTankOperatingMode
-from keba_keenergy_api.constants import HotWaterTankUseExcessEnergy
 from keba_keenergy_api.error import APIError
 
 
@@ -497,8 +494,8 @@ class TestHappyPathHotWaterTankSection:
         [
             ("off", "0"),
             ("ON", "1"),
-            (HotWaterTankUseExcessEnergy.ON.value, "1"),
-            (HotWaterTankUseExcessEnergy.OFF.value, "0"),
+            (BoolEnum.ON.value, "1"),
+            (BoolEnum.OFF.value, "0"),
         ],
     )
     async def test_set_use_excess_energy(
@@ -598,9 +595,9 @@ class TestHappyPathHotWaterTankSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HotWaterTankHeatRequest.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HotWaterTankHeatRequest.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_get_heat_request(
@@ -641,9 +638,9 @@ class TestHappyPathHotWaterTankSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HotWaterTankHasFreshWaterModule.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HotWaterTankHasFreshWaterModule.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_has_fresh_water_module(
@@ -686,9 +683,9 @@ class TestHappyPathHotWaterTankSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HotWaterTankHeatRequest.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HotWaterTankHeatRequest.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_get_fresh_water_flow(
@@ -839,9 +836,9 @@ class TestHappyPathHotWaterTankSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HotWaterTankCirculationPumpState.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HotWaterTankCirculationPumpState.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_get_circulation_pump_state(

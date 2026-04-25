@@ -187,3 +187,51 @@ class TestHappyPathPassiveCoolingSection:
                 auth=None,
                 ssl=False,
             )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [(True, -1, "closed"), (False, 0, 0), (True, 1, "open")],
+    )
+    async def test_get_mixer_position(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: int,
+        expected_value: str,
+    ) -> None:
+
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.passivecooling[0].Mixer.mixer.values.setValueScaled",
+                        "attributes": {
+                            "formatId": "fmt3p0",
+                            "longText": "Mixer nom. value",
+                            "unitId": "Pct100",
+                            "upperLimit": "1",
+                            "lowerLimit": "-1",
+                        },
+                        "value": f"{payload_value}",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.passive_cooling.get_mixer_position(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.passivecooling[0].Mixer.mixer.values.setValueScaled", '
+                    '"attr": "1"}]'
+                ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
