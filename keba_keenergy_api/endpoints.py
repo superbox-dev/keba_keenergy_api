@@ -16,23 +16,17 @@ from aiohttp import ClientSession
 from aiohttp import ClientTimeout
 
 from keba_keenergy_api.constants import API_DEFAULT_TIMEOUT
+from keba_keenergy_api.constants import BoolEnum
 from keba_keenergy_api.constants import BufferTank
 from keba_keenergy_api.constants import BufferTankOperatingMode
-from keba_keenergy_api.constants import BufferTankUseExcessEnergy
 from keba_keenergy_api.constants import EndpointPath
 from keba_keenergy_api.constants import ExternalHeatSource
-from keba_keenergy_api.constants import ExternalHeatSourceOperatingMode
-from keba_keenergy_api.constants import ExternalHeatSourceUseExcessEnergy
 from keba_keenergy_api.constants import HeatCircuit
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
-from keba_keenergy_api.constants import HeatCircuitUseExcessEnergy
-from keba_keenergy_api.constants import HeatCircuitUseHeatingCurve
 from keba_keenergy_api.constants import HeatPump
-from keba_keenergy_api.constants import HeatPumpCompressorUseNightSpeed
 from keba_keenergy_api.constants import HeatPumpOperatingMode
 from keba_keenergy_api.constants import HotWaterTank
 from keba_keenergy_api.constants import HotWaterTankOperatingMode
-from keba_keenergy_api.constants import HotWaterTankUseExcessEnergy
 from keba_keenergy_api.constants import LineTablePool
 from keba_keenergy_api.constants import MAX_HEATING_CURVE_POINTS
 from keba_keenergy_api.constants import MIN_HEATING_CURVE_POINTS
@@ -40,7 +34,6 @@ from keba_keenergy_api.constants import PassiveCooling
 from keba_keenergy_api.constants import Photovoltaics
 from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import SolarCircuit
-from keba_keenergy_api.constants import SolarCircuitOperatingMode
 from keba_keenergy_api.constants import SwitchValve
 from keba_keenergy_api.constants import System
 from keba_keenergy_api.constants import SystemOperatingMode
@@ -1246,9 +1239,9 @@ class BufferTankEndpoints(BaseEndpoints):
 
         """
         try:
-            _mode: int | None = mode if isinstance(mode, int) else BufferTankUseExcessEnergy[mode.upper()].value
+            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
         except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BufferTankUseExcessEnergy)}"
+            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
             raise APIError(message) from error
 
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
@@ -1706,9 +1699,9 @@ class HotWaterTankEndpoints(BaseEndpoints):
 
         """
         try:
-            _mode: int | None = mode if isinstance(mode, int) else HotWaterTankUseExcessEnergy[mode.upper()].value
+            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
         except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(HotWaterTankUseExcessEnergy)}"
+            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
             raise APIError(message) from error
 
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
@@ -2102,11 +2095,9 @@ class HeatPumpEndpoints(BaseEndpoints):
 
         """
         try:
-            _mode: int | None = mode if isinstance(mode, int) else HeatPumpCompressorUseNightSpeed[mode.upper()].value
+            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
         except KeyError as error:
-            message: str = (
-                f"Invalid value! Allowed values are {self._get_allowed_values(HeatPumpCompressorUseNightSpeed)}"
-            )
+            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
             raise APIError(message) from error
 
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
@@ -3607,6 +3598,55 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatCircuit.MIXER_RETURN_FLOW_TEMPERATURE, position=position)
 
+    async def get_mixer_position(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Get the mixer position.
+
+        Parameters
+        ----------
+        position
+            The number of the heat circuits
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            -1 (CLOSED) / 0 (OFF) / 1 (OPEN)
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.MIXER_POSITION,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+
+        return self._get_int_or_str_value(response, section=HeatCircuit.MIXER_POSITION, position=position)
+
+    async def get_pump_state(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Get the pump state.
+
+        Parameters
+        ----------
+        position
+            The number of the heat circuits
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            0 (OFF) / 1 (ON)
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=HeatCircuit.PUMP_STATE,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+        return self._get_int_or_str_value(response, section=HeatCircuit.PUMP_STATE, position=position)
+
     async def has_return_flow_temperature(self, position: int = 1, *, human_readable: bool = True) -> int | str:
         """Check if return flow temperature sensor cooling is available.
 
@@ -3718,9 +3758,9 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         """
         try:
-            _mode: int | None = mode if isinstance(mode, int) else HeatCircuitUseExcessEnergy[mode.upper()].value
+            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
         except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(HeatCircuitUseExcessEnergy)}"
+            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
             raise APIError(message) from error
 
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
@@ -4839,9 +4879,9 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         """
         try:
-            _mode: int | None = mode if isinstance(mode, int) else HeatCircuitUseHeatingCurve[mode.upper()].value
+            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
         except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(HeatCircuitUseHeatingCurve)}"
+            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
             raise APIError(message) from error
 
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
@@ -5273,9 +5313,9 @@ class SolarCircuitEndpoints(BaseEndpoints):
 
         """
         try:
-            _mode: int | None = mode if isinstance(mode, int) else SolarCircuitOperatingMode[mode.upper()].value
+            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
         except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(SolarCircuitOperatingMode)}"
+            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
             raise APIError(message) from error
 
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
@@ -5321,9 +5361,9 @@ class SolarCircuitEndpoints(BaseEndpoints):
 
         """
         try:
-            _mode: int | None = mode if isinstance(mode, int) else SolarCircuitOperatingMode[mode.upper()].value
+            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
         except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(SolarCircuitOperatingMode)}"
+            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
             raise APIError(message) from error
 
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
@@ -5705,11 +5745,9 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
 
         """
         try:
-            _mode: int | None = mode if isinstance(mode, int) else ExternalHeatSourceOperatingMode[mode.upper()].value
+            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
         except KeyError as error:
-            message: str = (
-                f"Invalid value! Allowed values are {self._get_allowed_values(ExternalHeatSourceOperatingMode)}"
-            )
+            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
             raise APIError(message) from error
 
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
@@ -5959,11 +5997,9 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
 
         """
         try:
-            _mode: int | None = mode if isinstance(mode, int) else ExternalHeatSourceUseExcessEnergy[mode.upper()].value
+            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
         except KeyError as error:
-            message: str = (
-                f"Invalid value! Allowed values are {self._get_allowed_values(ExternalHeatSourceUseExcessEnergy)}"
-            )
+            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
             raise APIError(message) from error
 
         modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
@@ -6207,6 +6243,31 @@ class PassiveCoolingEndpoints(BaseEndpoints):
             extra_attributes=True,
         )
         return self._get_float_value(response, section=PassiveCooling.MIXER_FLOW_TEMPERATURE, position=position)
+
+    async def get_mixer_position(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Get the mixer position.
+
+        Parameters
+        ----------
+        position
+            The number of passive cooling
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        integer or string
+            -1 (CLOSED) / 0 (OFF) / 1 (OPEN)
+
+        """
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=PassiveCooling.MIXER_POSITION,
+            position=position,
+            human_readable=human_readable,
+            extra_attributes=True,
+        )
+
+        return self._get_int_or_str_value(response, section=PassiveCooling.MIXER_POSITION, position=position)
 
 
 class PhotovoltaicsEndpoints(BaseEndpoints):

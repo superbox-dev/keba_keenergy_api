@@ -2,10 +2,7 @@ import pytest
 from aioresponses.core import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
-from keba_keenergy_api.constants import ExternalHeatSourceConsumingExcessEnergy
-from keba_keenergy_api.constants import ExternalHeatSourceHeatRequest
-from keba_keenergy_api.constants import ExternalHeatSourceOperatingMode
-from keba_keenergy_api.constants import ExternalHeatSourceUseExcessEnergy
+from keba_keenergy_api.constants import BoolEnum
 from keba_keenergy_api.error import APIError
 
 
@@ -58,7 +55,7 @@ class TestHappyPathExternalHeatSourceSection:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("operating_mode", "expected_value"),
-        [("on", 1), ("OFF", 0), (ExternalHeatSourceOperatingMode.ON.value, 1)],
+        [("on", 1), ("OFF", 0), (BoolEnum.ON.value, 1)],
     )
     async def test_set_operating_mode(
         self,
@@ -124,9 +121,9 @@ class TestHappyPathExternalHeatSourceSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, ExternalHeatSourceHeatRequest.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, ExternalHeatSourceHeatRequest.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_get_heat_request(
@@ -267,9 +264,9 @@ class TestHappyPathExternalHeatSourceSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, ExternalHeatSourceConsumingExcessEnergy.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, ExternalHeatSourceConsumingExcessEnergy.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_get_consuming_excess_energy(
@@ -461,8 +458,8 @@ class TestHappyPathExternalHeatSourceSection:
         [
             ("off", "0"),
             ("ON", "1"),
-            (ExternalHeatSourceUseExcessEnergy.ON.value, "1"),
-            (ExternalHeatSourceUseExcessEnergy.OFF.value, "0"),
+            (BoolEnum.ON.value, "1"),
+            (BoolEnum.OFF.value, "0"),
         ],
     )
     async def test_set_use_excess_energy(

@@ -2,7 +2,7 @@ import pytest
 from aioresponses.core import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
-from keba_keenergy_api.constants import PhotovoltaicsExcessEnergyActive
+from keba_keenergy_api.constants import BoolEnum
 
 
 @pytest.mark.happy
@@ -13,9 +13,9 @@ class TestHappyPathPhotovoltaicsSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, PhotovoltaicsExcessEnergyActive.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, PhotovoltaicsExcessEnergyActive.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_get_excess_energy_active(

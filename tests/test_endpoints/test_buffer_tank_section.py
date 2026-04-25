@@ -2,11 +2,9 @@ import pytest
 from aioresponses.core import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
-from keba_keenergy_api.constants import BufferTankCoolRequest
+from keba_keenergy_api.constants import BoolEnum
 from keba_keenergy_api.constants import BufferTankExcessEnergyMode
-from keba_keenergy_api.constants import BufferTankHeatRequest
 from keba_keenergy_api.constants import BufferTankOperatingMode
-from keba_keenergy_api.constants import BufferTankUseExcessEnergy
 from keba_keenergy_api.error import APIError
 
 
@@ -498,8 +496,8 @@ class TestHappyPathBufferTankSection:
         [
             ("off", "0"),
             ("ON", "1"),
-            (BufferTankUseExcessEnergy.ON.value, "1"),
-            (BufferTankUseExcessEnergy.OFF.value, "0"),
+            (BoolEnum.ON.value, "1"),
+            (BoolEnum.OFF.value, "0"),
         ],
     )
     async def test_set_use_excess_energy(
@@ -599,9 +597,9 @@ class TestHappyPathBufferTankSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, BufferTankHeatRequest.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, BufferTankHeatRequest.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_get_heat_request(
@@ -642,9 +640,9 @@ class TestHappyPathBufferTankSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, BufferTankCoolRequest.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, BufferTankCoolRequest.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_get_cool_request(

@@ -2,16 +2,7 @@ import pytest
 from aioresponses.core import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
-from keba_keenergy_api.constants import HeatPumpCompressorUseNightSpeed
-from keba_keenergy_api.constants import HeatPumpConsumingExcessEnergy
-from keba_keenergy_api.constants import HeatPumpHasCompressorFailure
-from keba_keenergy_api.constants import HeatPumpHasPassiveCooling
-from keba_keenergy_api.constants import HeatPumpHasSourceActuatorFailure
-from keba_keenergy_api.constants import HeatPumpHasSourceFailure
-from keba_keenergy_api.constants import HeatPumpHasSourcePressureFailure
-from keba_keenergy_api.constants import HeatPumpHasThreePhaseFailure
-from keba_keenergy_api.constants import HeatPumpHasVFDFailure
-from keba_keenergy_api.constants import HeatPumpHeatRequest
+from keba_keenergy_api.constants import BoolEnum
 from keba_keenergy_api.constants import HeatPumpOperatingMode
 from keba_keenergy_api.error import APIError
 
@@ -265,8 +256,8 @@ class TestHappyPathHeatPumpSection:
         [
             ("off", "0"),
             ("ON", "1"),
-            (HeatPumpCompressorUseNightSpeed.ON.value, "1"),
-            (HeatPumpCompressorUseNightSpeed.OFF.value, "0"),
+            (BoolEnum.ON.value, "1"),
+            (BoolEnum.OFF.value, "0"),
         ],
     )
     async def test_set_compressor_use_night_speed(
@@ -964,9 +955,9 @@ class TestHappyPathHeatPumpSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HeatPumpHeatRequest.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HeatPumpHeatRequest.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_get_heat_request(
@@ -1007,9 +998,9 @@ class TestHappyPathHeatPumpSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HeatPumpConsumingExcessEnergy.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HeatPumpConsumingExcessEnergy.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_get_consuming_excess_energy(
@@ -1821,9 +1812,9 @@ class TestHappyPathHeatPumpSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HeatPumpHasPassiveCooling.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HeatPumpHasPassiveCooling.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_has_active_cooling(
@@ -1866,9 +1857,9 @@ class TestHappyPathHeatPumpSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HeatPumpHasPassiveCooling.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HeatPumpHasPassiveCooling.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_has_passive_cooling(
@@ -2007,9 +1998,9 @@ class TestHappyPathHeatPumpSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HeatPumpHasCompressorFailure.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HeatPumpHasCompressorFailure.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_has_compressor_failure(
@@ -2052,9 +2043,9 @@ class TestHappyPathHeatPumpSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HeatPumpHasSourceFailure.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HeatPumpHasSourceFailure.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_has_source_failure(
@@ -2097,9 +2088,9 @@ class TestHappyPathHeatPumpSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HeatPumpHasSourceActuatorFailure.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HeatPumpHasSourceActuatorFailure.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_has_source_actuator_failure(
@@ -2144,9 +2135,9 @@ class TestHappyPathHeatPumpSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HeatPumpHasThreePhaseFailure.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HeatPumpHasThreePhaseFailure.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_has_three_phase_failure(
@@ -2189,9 +2180,9 @@ class TestHappyPathHeatPumpSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HeatPumpHasSourcePressureFailure.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HeatPumpHasSourcePressureFailure.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_has_source_pressure_failure(
@@ -2234,9 +2225,9 @@ class TestHappyPathHeatPumpSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HeatPumpHasVFDFailure.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HeatPumpHasVFDFailure.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_has_vfd_failure(

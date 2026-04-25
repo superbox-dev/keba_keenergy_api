@@ -4,16 +4,11 @@ from aioresponses.core import aioresponses
 from yarl import URL
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
+from keba_keenergy_api.constants import BoolEnum
 from keba_keenergy_api.constants import HeatCircuitExcessEnergyMode
-from keba_keenergy_api.constants import HeatCircuitHasMixer
-from keba_keenergy_api.constants import HeatCircuitHasPump
-from keba_keenergy_api.constants import HeatCircuitHasReturnFlowTemperature
-from keba_keenergy_api.constants import HeatCircuitHasRoomTemperature
 from keba_keenergy_api.constants import HeatCircuitHeatRequest
 from keba_keenergy_api.constants import HeatCircuitMode
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
-from keba_keenergy_api.constants import HeatCircuitUseExcessEnergy
-from keba_keenergy_api.constants import HeatCircuitUseHeatingCurve
 from keba_keenergy_api.endpoints import HeatingCurvePoint
 from keba_keenergy_api.endpoints import HeatingCurves
 from keba_keenergy_api.error import APIError
@@ -116,9 +111,9 @@ class TestHappyPathHeatCircuitSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HeatCircuitHasRoomTemperature.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HeatCircuitHasRoomTemperature.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_has_room_temperature(
@@ -194,9 +189,9 @@ class TestHappyPathHeatCircuitSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HeatCircuitHasRoomTemperature.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HeatCircuitHasRoomTemperature.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_has_room_humidity(
@@ -342,9 +337,9 @@ class TestHappyPathHeatCircuitSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HeatCircuitHasMixer.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HeatCircuitHasMixer.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_has_mixer(
@@ -455,11 +450,104 @@ class TestHappyPathHeatCircuitSection:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
+        [(True, -1, "closed"), (False, 0, 0), (True, 1, "open")],
+    )
+    async def test_get_mixer_position(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: int,
+        expected_value: str,
+    ) -> None:
+
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].heatCircuitMixer.mixer.values.setValueScaled",
+                        "attributes": {
+                            "formatId": "fmt3p0",
+                            "longText": "Mixer nom. value",
+                            "unitId": "Pct100",
+                            "upperLimit": "1",
+                            "lowerLimit": "-1",
+                        },
+                        "value": f"{payload_value}",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_circuit.get_mixer_position(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].heatCircuitMixer.mixer.values.setValueScaled", '
+                    '"attr": "1"}]'
+                ),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HeatCircuitHasReturnFlowTemperature.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HeatCircuitHasReturnFlowTemperature.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
+        ],
+    )
+    async def test_get_pump_state(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].pump.values.setValueB",
+                        "attributes": {
+                            "longText": "Pump nom.value",
+                        },
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_circuit.get_pump_state(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data=('[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].pump.values.setValueB", "attr": "1"}]'),
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (False, BoolEnum.ON.value, 1),
+            (True, "false", "off"),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_has_return_flow_temperature(
@@ -667,8 +755,8 @@ class TestHappyPathHeatCircuitSection:
         [
             ("off", "0"),
             ("ON", "1"),
-            (HeatCircuitUseExcessEnergy.ON.value, "1"),
-            (HeatCircuitUseExcessEnergy.OFF.value, "0"),
+            (BoolEnum.ON.value, "1"),
+            (BoolEnum.OFF.value, "0"),
         ],
     )
     async def test_set_use_excess_energy(
@@ -2342,8 +2430,8 @@ class TestHappyPathHeatCircuitSection:
         [
             ("off", "0"),
             ("ON", "1"),
-            (HeatCircuitUseHeatingCurve.ON.value, "1"),
-            (HeatCircuitUseHeatingCurve.OFF.value, "0"),
+            (BoolEnum.ON.value, "1"),
+            (BoolEnum.OFF.value, "0"),
         ],
     )
     async def test_set_use_heating_curve(
@@ -2763,9 +2851,9 @@ class TestHappyPathHeatCircuitSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, HeatCircuitHasPump.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, HeatCircuitHasPump.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_has_pump(

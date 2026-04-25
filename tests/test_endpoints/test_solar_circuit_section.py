@@ -2,9 +2,7 @@ import pytest
 from aioresponses.core import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
-from keba_keenergy_api.constants import SolarCircuitConsumer1PrioritySolar
-from keba_keenergy_api.constants import SolarCircuitHeatRequest
-from keba_keenergy_api.constants import SolarCircuitOperatingMode
+from keba_keenergy_api.constants import BoolEnum
 from keba_keenergy_api.error import APIError
 
 
@@ -90,7 +88,7 @@ class TestHappyPathSolarCircuitSection:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("operating_mode", "expected_value"),
-        [("on", 1), ("OFF", 0), (SolarCircuitOperatingMode.ON.value, 1)],
+        [("on", 1), ("OFF", 0), (BoolEnum.ON.value, 1)],
     )
     async def test_set_operating_mode(
         self,
@@ -161,7 +159,7 @@ class TestHappyPathSolarCircuitSection:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("operating_mode", "expected_value"),
-        [("on", (1, 14)), ("OFF", (0, 15)), (SolarCircuitConsumer1PrioritySolar.ON.value, (1, 14))],
+        [("on", (1, 14)), ("OFF", (0, 15)), (BoolEnum.ON.value, (1, 14))],
     )
     async def test_set_priority_1_before_2(
         self,
@@ -537,9 +535,9 @@ class TestHappyPathSolarCircuitSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, SolarCircuitHeatRequest.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, SolarCircuitHeatRequest.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_get_heat_request_1(
@@ -593,9 +591,9 @@ class TestHappyPathSolarCircuitSection:
         ("human_readable", "payload_value", "expected_value"),
         [
             (True, "true", "on"),
-            (False, SolarCircuitHeatRequest.ON.value, 1),
+            (False, BoolEnum.ON.value, 1),
             (True, "false", "off"),
-            (False, SolarCircuitHeatRequest.OFF.value, 0),
+            (False, BoolEnum.OFF.value, 0),
         ],
     )
     async def test_get_heat_request_2(
