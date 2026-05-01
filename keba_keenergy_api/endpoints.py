@@ -233,7 +233,7 @@ class BaseEndpoints:
         try:
             value: float | int | str = section.value.value_type(response[0]["value"])
         except ValueError as error:
-            message = f'Can\'t convert value to type "{section.value.value_type}" readable value! {response[0]}'
+            message = f'Can\'t convert value to type "{section.value.value_type.__name__}"! {response[0]}'
             raise APIError(message) from error
         else:
             value = round(value, 2) if isinstance(value, float) else value
