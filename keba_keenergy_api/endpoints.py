@@ -228,18 +228,25 @@ class BaseEndpoints:
 
     @staticmethod
     def _convert_value(section: Section, response: Response, *, human_readable: bool) -> float | int | str:
-        value: float | int | str = section.value.value_type(response[0]["value"])
-        value = round(value, 2) if isinstance(value, float) else value
+        message: str
 
-        if value in ["true", "false"]:
-            value = 1 if value == "true" else 0
+        try:
+            value: float | int | str = section.value.value_type(response[0]["value"])
+        except ValueError as error:
+            message = f'Can\'t convert value to type "{section.value.value_type}" readable value! {response[0]}'
+            raise APIError(message) from error
+        else:
+            value = round(value, 2) if isinstance(value, float) else value
 
-        if human_readable and section.value.human_readable:
-            try:
-                value = section.value.human_readable(value).name.lower()
-            except ValueError as error:
-                message: str = f"Can't convert value to human readable value! {response[0]}"
-                raise APIError(message) from error
+            if value in ["true", "false"]:
+                value = 1 if value == "true" else 0
+
+            if human_readable and section.value.human_readable:
+                try:
+                    value = section.value.human_readable(value).name.lower()
+                except ValueError as error:
+                    message = f"Can't convert value to human readable value! {response[0]}"
+                    raise APIError(message) from error
 
         return value
 
