@@ -683,6 +683,48 @@ class TestHappyPathBufferTankSection:
 class TestUnhappyPathBufferTankSection:
 
     @pytest.mark.asyncio
+    async def test_get_invalid_type_operating_mode(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.bufferTank[0].param.operatingMode",
+                        "attributes": {
+                            "formatId": "fmtBufferMode",
+                            "longText": "Oper. mode",
+                            "unitId": "Enum",
+                            "upperLimit": "32767",
+                            "lowerLimit": "0",
+                        },
+                        "value": "-0.010321236",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(
+                APIError,
+                match=(
+                    'Can\'t convert value to type "int"! '
+                    r"{'name': 'APPL\.CtrlAppl\.sParam\.bufferTank\[0]\.param\.operatingMode', "
+                    r"'attributes': {'formatId': 'fmtBufferMode', 'longText': 'Oper\. mode', "
+                    "'unitId': 'Enum', 'upperLimit': '32767', 'lowerLimit': '0'}, 'value': '-0.010321236'}"
+                ),
+            ):
+                await client.buffer_tank.get_operating_mode(human_readable=False)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.operatingMode", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value"),
         [(True, 10)],
