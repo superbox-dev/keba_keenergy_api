@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from itertools import chain
 from typing import Any
+from collections.abc import Callable
 from typing import Final
 from typing import TypeAlias
 
@@ -236,7 +237,9 @@ class EndpointProperties:
     value: str
     value_type: type[float | int | str]
     human_readable: type[Enum] | None = None
+    normalize: Callable[[Any], Any] = lambda x: x
     quantity: int = 1
+    decimals: int = 2
     read_only: bool = True
 
     def __post_init__(self) -> None:
@@ -467,6 +470,7 @@ class HotWaterTank(Enum):
     FRESH_WATER_MODULE_PUMP_SPEED = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterPump.values.setValueScaled",
         value_type=float,
+        decimals=4,
     )
     CIRCULATION_RETURN_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].circTemp.values.actValue",
@@ -513,10 +517,12 @@ class HeatPump(Enum):
     CIRCULATION_PUMP_SPEED = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CircPump.values.setValueScaled",
         value_type=float,
+        decimals=4,
     )
     SOURCE_PUMP_SPEED = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].Source.values.setValueScaled",
         value_type=float,
+        decimals=4,
     )
     FLOW_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempHeatFlow.values.actValue",
@@ -545,6 +551,7 @@ class HeatPump(Enum):
     COMPRESSOR = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].Compressor.values.setValueScaled",
         value_type=float,
+        decimals=4,
     )
     CONDENSER_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.tempCond",
@@ -847,9 +854,11 @@ class HeatCircuit(Enum):
     )
     MIXER_POSITION = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.mixer.values.setValueScaled",
-        value_type=int,
+        value_type=float,
         human_readable=MixerSwitchValvePosition,
+        normalize=lambda value: -1 if value < 0 else (1 if value > 0 else 0),
     )
+
     PUMP_STATE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].pump.values.setValueB",
         value_type=str,
@@ -1014,6 +1023,7 @@ class HeatCircuit(Enum):
     PUMP_SPEED = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].pumpAO.values.setValueScaled",
         value_type=float,
+        decimals=4,
     )
 
 
@@ -1192,6 +1202,7 @@ class PassiveCooling(Enum):
     CIRCULATION_PUMP_SPEED = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Pump.values.setValueScaled",
         value_type=float,
+        decimals=4,
     )
     MIXER_TARGET_TEMPERATURE = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.values.setValue",
@@ -1203,8 +1214,9 @@ class PassiveCooling(Enum):
     )
     MIXER_POSITION = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.mixer.values.setValueScaled",
-        value_type=int,
+        value_type=float,
         human_readable=MixerSwitchValvePosition,
+        normalize=lambda value: -1 if value < 0 else (1 if value > 0 else 0),
     )
 
 

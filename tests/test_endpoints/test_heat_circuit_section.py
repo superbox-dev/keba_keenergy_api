@@ -450,7 +450,12 @@ class TestHappyPathHeatCircuitSection:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
-        [(True, -1, "closed"), (False, 0, 0), (True, 1, "open")],
+        [
+            (True, -1, "closed"),
+            (False, 0, 0),
+            (True, 1, "open"),
+            (True, "-0.045793723", "closed"),
+        ],
     )
     async def test_get_mixer_position(
         self,

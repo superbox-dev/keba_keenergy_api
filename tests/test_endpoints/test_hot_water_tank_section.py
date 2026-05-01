@@ -773,7 +773,7 @@ class TestHappyPathHotWaterTankSection:
                             "upperLimit": "1",
                             "lowerLimit": "0.0",
                         },
-                        "value": "0.40000001",
+                        "value": "0.40020001",
                     },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
@@ -783,7 +783,7 @@ class TestHappyPathHotWaterTankSection:
             data: float = await client.hot_water_tank.get_fresh_water_module_pump_speed()
 
             assert isinstance(data, float)
-            assert data == 0.4  # noqa: PLR2004
+            assert data == 0.4002  # noqa: PLR2004
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",

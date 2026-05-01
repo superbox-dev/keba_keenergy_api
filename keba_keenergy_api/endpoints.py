@@ -236,7 +236,8 @@ class BaseEndpoints:
             message = f'Can\'t convert value to type "{section.value.value_type.__name__}"! {response[0]}'
             raise APIError(message) from error
         else:
-            value = round(value, 2) if isinstance(value, float) else value
+            value = section.value.normalize(value)
+            value = round(value, section.value.decimals) if isinstance(value, float) else value
 
             if value in ["true", "false"]:
                 value = 1 if value == "true" else 0
@@ -287,13 +288,26 @@ class BaseEndpoints:
                     response_group: list[Value] = []
 
                     for _ in range(1, section.value.quantity + 1):
+                        value: float | int | str = self._convert_value(
+                            section,
+                            response=response,
+                            human_readable=human_readable,
+                        )
+
+                        raw_value: float | int | str = self._convert_value(
+                            section,
+                            response=response,
+                            human_readable=False,
+                        )
+
+                        attributes: dict[str, Any] = self._clean_attributes(response=response)
+
+                        if value != raw_value:
+                            attributes = attributes | {"raw_value": raw_value}
+
                         _value: Value = {
-                            "value": self._convert_value(
-                                section,
-                                response=response,
-                                human_readable=human_readable,
-                            ),
-                            "attributes": self._clean_attributes(response=response),
+                            "value": value,
+                            "attributes": attributes,
                         }
 
                         response_group.append(_value)
