@@ -438,6 +438,7 @@ read_data_expected_response_3: dict[str, Any] = {
             {
                 "attributes": {
                     "lower_limit": "0",
+                    "raw_value": 1,
                     "upper_limit": "2",
                 },
                 "value": "open",
@@ -766,6 +767,7 @@ read_data_expected_response_4: dict[str, Any] = {
             {
                 "attributes": {
                     "lower_limit": "0",
+                    "raw_value": 21,
                     "upper_limit": "32767",
                 },
                 "value": "pressure_equalization",
@@ -773,6 +775,7 @@ read_data_expected_response_4: dict[str, Any] = {
             {
                 "attributes": {
                     "lower_limit": "0",
+                    "raw_value": 5,
                     "upper_limit": "32767",
                 },
                 "value": "pressure_equalization",
@@ -808,6 +811,7 @@ read_data_expected_response_4: dict[str, Any] = {
                 {
                     "attributes": {
                         "lower_limit": "0",
+                        "raw_value": 0,
                         "upper_limit": "6",
                     },
                     "value": "off",
@@ -815,6 +819,7 @@ read_data_expected_response_4: dict[str, Any] = {
                 {
                     "attributes": {
                         "lower_limit": "0",
+                        "raw_value": 1,
                         "upper_limit": "6",
                     },
                     "value": "on",
@@ -824,6 +829,7 @@ read_data_expected_response_4: dict[str, Any] = {
                 {
                     "attributes": {
                         "lower_limit": "0",
+                        "raw_value": 0,
                         "upper_limit": "6",
                     },
                     "value": "off",
@@ -831,6 +837,7 @@ read_data_expected_response_4: dict[str, Any] = {
                 {
                     "attributes": {
                         "lower_limit": "0",
+                        "raw_value": 1,
                         "upper_limit": "6",
                     },
                     "value": "on",

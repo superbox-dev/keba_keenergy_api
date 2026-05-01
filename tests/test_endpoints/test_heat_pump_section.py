@@ -475,7 +475,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_source_pump_speed()
 
             assert isinstance(data, float)
-            assert data == 0.45  # noqa: PLR2004
+            assert data == 0.4488  # noqa: PLR2004
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
