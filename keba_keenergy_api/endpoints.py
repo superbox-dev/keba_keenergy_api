@@ -236,7 +236,6 @@ class BaseEndpoints:
             message = f'Can\'t convert value to type "{section.value.value_type.__name__}"! {response[0]}'
             raise APIError(message) from error
         else:
-            value = section.value.normalize(value)
             value = round(value, section.value.decimals) if isinstance(value, float) else value
 
             if value in ["true", "false"]:
@@ -3619,30 +3618,27 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatCircuit.MIXER_RETURN_FLOW_TEMPERATURE, position=position)
 
-    async def get_mixer_position(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+    async def get_mixer_position(self, position: int = 1) -> float:
         """Get the mixer position.
 
         Parameters
         ----------
         position
             The number of the heat circuits
-        human_readable
-            Return a human-readable string
 
         Returns
         -------
-        integer or string
-            -1 (CLOSED) / 0 (OFF) / 1 (OPEN)
+        float
+             Step position
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HeatCircuit.MIXER_POSITION,
             position=position,
-            human_readable=human_readable,
             extra_attributes=True,
         )
 
-        return self._get_int_or_str_value(response, section=HeatCircuit.MIXER_POSITION, position=position)
+        return self._get_float_value(response, section=HeatCircuit.MIXER_POSITION, position=position)
 
     async def get_pump_state(self, position: int = 1, *, human_readable: bool = True) -> int | str:
         """Get the pump state.
@@ -6265,30 +6261,27 @@ class PassiveCoolingEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=PassiveCooling.MIXER_FLOW_TEMPERATURE, position=position)
 
-    async def get_mixer_position(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+    async def get_mixer_position(self, position: int = 1) -> float:
         """Get the mixer position.
 
         Parameters
         ----------
         position
             The number of passive cooling
-        human_readable
-            Return a human-readable string
 
         Returns
         -------
-        integer or string
-            -1 (CLOSED) / 0 (OFF) / 1 (OPEN)
+        float
+             Step position
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=PassiveCooling.MIXER_POSITION,
             position=position,
-            human_readable=human_readable,
             extra_attributes=True,
         )
 
-        return self._get_int_or_str_value(response, section=PassiveCooling.MIXER_POSITION, position=position)
+        return self._get_float_value(response, section=PassiveCooling.MIXER_POSITION, position=position)
 
 
 class PhotovoltaicsEndpoints(BaseEndpoints):
