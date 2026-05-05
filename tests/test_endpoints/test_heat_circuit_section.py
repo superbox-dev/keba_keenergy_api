@@ -448,22 +448,7 @@ class TestHappyPathHeatCircuitSection:
             )
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("human_readable", "payload_value", "expected_value"),
-        [
-            (True, -1, "closed"),
-            (False, 0, 0),
-            (True, 1, "open"),
-            (True, "-0.045793723", "closed"),
-        ],
-    )
-    async def test_get_mixer_position(
-        self,
-        human_readable: bool,  # noqa: FBT001
-        payload_value: int,
-        expected_value: str,
-    ) -> None:
-
+    async def test_get_mixer_position(self) -> None:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -477,17 +462,17 @@ class TestHappyPathHeatCircuitSection:
                             "upperLimit": "1",
                             "lowerLimit": "-1",
                         },
-                        "value": f"{payload_value}",
+                        "value": "-0.045793723",
                     },
                 ],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.heat_circuit.get_mixer_position(human_readable=human_readable)
+            data: float = await client.heat_circuit.get_mixer_position()
 
-            assert isinstance(data, (int | str))
-            assert data == expected_value
+            assert isinstance(data, float)
+            assert data == -0.0458  # noqa: PLR2004
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
