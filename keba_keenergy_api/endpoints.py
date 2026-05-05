@@ -235,19 +235,21 @@ class BaseEndpoints:
         except ValueError as error:
             message = f'Can\'t convert value to type "{section.value.value_type.__name__}"! {response[0]}'
             raise APIError(message) from error
-        else:
-            value = section.value.normalize(value)
-            value = round(value, section.value.decimals) if isinstance(value, float) else value
 
-            if value in ["true", "false"]:
-                value = 1 if value == "true" else 0
+        value = section.value.normalize(value)
 
-            if human_readable and section.value.human_readable:
-                try:
-                    value = section.value.human_readable(value).name.lower()
-                except ValueError as error:
-                    message = f"Can't convert value to human readable value! {response[0]}"
-                    raise APIError(message) from error
+        if isinstance(value, float):
+            value = round(value, section.value.decimals)
+
+        if value in ["true", "false"]:
+            value = 1 if value == "true" else 0
+
+        if human_readable and section.value.human_readable:
+            try:
+                value = section.value.human_readable(value).name.lower()
+            except ValueError as error:
+                message = f"Can't convert value to human readable value! {response[0]}"
+                raise APIError(message) from error
 
         return value
 
