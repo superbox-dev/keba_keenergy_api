@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from itertools import chain
 from typing import Any
+from collections.abc import Callable
 from typing import Final
 from typing import TypeAlias
 
@@ -218,6 +219,14 @@ class SwitchValvePosition(BaseEnum):
     CLOSED = 2
 
 
+class MixerSwitchValvePosition(BaseEnum):
+    """Available mixer switch valve positons."""
+
+    CLOSED = -1
+    OFF = 0
+    OPEN = 1
+
+
 PAYLOAD_PREFIX: Final[str] = "APPL.CtrlAppl"
 
 
@@ -228,6 +237,7 @@ class EndpointProperties:
     value: str
     value_type: type[float | int | str]
     human_readable: type[Enum] | None = None
+    normalize: Callable[[Any], Any] = lambda x: x
     quantity: int = 1
     decimals: int = 2
     read_only: bool = True
@@ -845,7 +855,8 @@ class HeatCircuit(Enum):
     MIXER_POSITION = EndpointProperties(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.mixer.values.setValueScaled",
         value_type=float,
-        decimals=4,
+        human_readable=MixerSwitchValvePosition,
+        normalize=lambda value: -1 if value < 0 else (1 if value > 0 else 0),
     )
 
     PUMP_STATE = EndpointProperties(
@@ -1202,7 +1213,10 @@ class PassiveCooling(Enum):
         value_type=float,
     )
     MIXER_POSITION = EndpointProperties(
-        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.mixer.values.setValueScaled", value_type=float, decimals=4
+        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.mixer.values.setValueScaled",
+        value_type=float,
+        human_readable=MixerSwitchValvePosition,
+        normalize=lambda value: -1 if value < 0 else (1 if value > 0 else 0),
     )
 
 
