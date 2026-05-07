@@ -737,7 +737,7 @@ class HeatCircuit(Enum):
     MIXER_POSITION = FloatEndpoint(
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.mixer.values.setValueScaled",
         human_readable=MixerSwitchValvePosition,
-        normalize=lambda value: -1 if value < 0 else (1 if value > 0 else 0),
+        normalize=lambda v: (v >= 1) - (v <= -1),
     )
 
     PUMP_STATE = StringEndpoint(
@@ -1022,7 +1022,7 @@ class PassiveCooling(Enum):
     MIXER_POSITION = FloatEndpoint(
         f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.mixer.values.setValueScaled",
         human_readable=MixerSwitchValvePosition,
-        normalize=lambda value: -1 if value < 0 else (1 if value > 0 else 0),
+        normalize=lambda v: (v >= 1) - (v <= -1),
     )
 
 

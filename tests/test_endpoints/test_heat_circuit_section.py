@@ -454,7 +454,8 @@ class TestHappyPathHeatCircuitSection:
             (True, -1, "closed"),
             (False, 0, 0),
             (True, 1, "open"),
-            (True, "-0.045793723", "closed"),
+            (True, "-0.045793723", "off"),
+            (True, "0.045793723", "off"),
         ],
     )
     async def test_get_mixer_position(
