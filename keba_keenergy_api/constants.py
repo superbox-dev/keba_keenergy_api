@@ -860,6 +860,10 @@ class HeatCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.coollinTab.fileName",
     )
     HAS_PUMP = StringEndpoint(
+        f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasPump",
+        human_readable=BoolEnum,
+    )
+    HAS_VAR_SPEED_PUMP = StringEndpoint(
         f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasVarSpeedPump",
         human_readable=BoolEnum,
     )
