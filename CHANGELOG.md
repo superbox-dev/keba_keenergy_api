@@ -9,10 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--start-->
 
-## [2.12.0] - 2026-04-23
+## [2.12.0] - 2026-05-08
 
 ### Added
 
+- Added endpoint `has_var_speed_pump()` to the heating circuit
 - Added endpoint `get_excess_energy_operating_time()` to the heat pump
 - Added endpoint `get_excess_energy_max_runtime()` to the heat pump
 - Added endpoint `get_excess_energy_activation_counter()` to the heat pump

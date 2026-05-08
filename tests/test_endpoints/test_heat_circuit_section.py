@@ -2873,6 +2873,49 @@ class TestHappyPathHeatCircuitSection:
                 "http://mocked-host/var/readWriteVars",
                 payload=[
                     {
+                        "name": "APPL.CtrlAppl.sParam.options.heatCircuit[0].hasPump",
+                        "attributes": {"longText": "HC pump"},
+                        "value": payload_value,
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_circuit.has_pump(human_readable=human_readable)
+
+            assert isinstance(data, (int | str))
+            assert data == expected_value
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.options.heatCircuit[0].hasPump", "attr": "1"}]',
+                method="POST",
+                auth=None,
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("human_readable", "payload_value", "expected_value"),
+        [
+            (True, "true", "on"),
+            (False, BoolEnum.ON.value, 1),
+            (True, "false", "off"),
+            (False, BoolEnum.OFF.value, 0),
+        ],
+    )
+    async def test_has_var_speed_pump(
+        self,
+        human_readable: bool,  # noqa: FBT001
+        payload_value: str,
+        expected_value: str,
+    ) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
                         "name": "APPL.CtrlAppl.sParam.options.heatCircuit[0].hasVarSpeedPump",
                         "attributes": {
                             "longText": "Var.speed pump",
@@ -2884,7 +2927,7 @@ class TestHappyPathHeatCircuitSection:
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.heat_circuit.has_pump(human_readable=human_readable)
+            data: int | str = await client.heat_circuit.has_var_speed_pump(human_readable=human_readable)
 
             assert isinstance(data, (int | str))
             assert data == expected_value
