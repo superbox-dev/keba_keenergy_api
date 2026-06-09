@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--start-->
 
+## [2.12.1] - 2026-06-09
+
+### Security
+
+- Bump aiohttp from `3.13.5` to `3.14.0`
+
 ## [2.12.0] - 2026-05-08
 
 ### Added
