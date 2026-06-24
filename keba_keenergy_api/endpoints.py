@@ -6085,7 +6085,7 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         minute
             The excess energy target temperature in minutes
         position
-            The number of the external heat sources
+           The number of the external heat sources
 
         """
         minutes: list[float | None] = [minute if position == p else None for p in range(1, position + 1)]
