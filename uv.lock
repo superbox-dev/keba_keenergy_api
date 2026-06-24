@@ -965,7 +965,7 @@ dev = [
     { name = "build", specifier = "==1.5.0" },
     { name = "coverage", specifier = ">=7.10.4" },
     { name = "genbadge", extras = ["coverage"], specifier = ">=1.1.2" },
-    { name = "mkdocs", specifier = ">=1.6.1" },
+    { name = "mkdocs", specifier = "~=1.6.1" },
     { name = "mkdocs-include-markdown-plugin", specifier = ">=7.2.0" },
     { name = "mkdocs-material", specifier = ">=9.7.1" },
     { name = "mkdocstrings", extras = ["python"], specifier = ">=1.0.0" },
@@ -983,7 +983,7 @@ dev = [
     { name = "yamllint", specifier = ">=1.37.1" },
 ]
 docs = [
-    { name = "mkdocs", specifier = ">=1.6.1" },
+    { name = "mkdocs", specifier = "~=1.6.1" },
     { name = "mkdocs-include-markdown-plugin", specifier = ">=7.2.0" },
     { name = "mkdocs-material", specifier = ">=9.7.1" },
     { name = "mkdocstrings", extras = ["python"], specifier = ">=1.0.0" },
