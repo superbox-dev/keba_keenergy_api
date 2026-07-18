@@ -49,7 +49,7 @@ class TestHappyPathPhotovoltaicsSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.photovoltaics.values.excessEnergyActive", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -83,7 +83,7 @@ class TestHappyPathPhotovoltaicsSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.power", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -117,7 +117,7 @@ class TestHappyPathPhotovoltaicsSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.heatDay", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -151,6 +151,6 @@ class TestHappyPathPhotovoltaicsSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.accumulatedHeat", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )

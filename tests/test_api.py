@@ -2,9 +2,9 @@ from typing import Any
 from typing import TYPE_CHECKING
 
 import pytest
-from aiohttp import BasicAuth
 from aiohttp import ClientSession
 from aiohttp import ServerTimeoutError
+from aiohttp import encode_basic_auth
 from aioresponses import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
@@ -75,7 +75,7 @@ class TestKebaKeEnergyAPI:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -115,7 +115,7 @@ class TestKebaKeEnergyAPI:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -154,7 +154,9 @@ class TestKebaKeEnergyAPI:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=BasicAuth(login="test", password="test", encoding="utf-8"),  # noqa: S106
+                headers={
+                    "Authorization": encode_basic_auth("test", "test"),
+                },
                 ssl=False,
             )
 
@@ -285,7 +287,7 @@ class TestKebaKeEnergyAPI:
                 url="http://mocked-host/var/readWriteVars",
                 data=expected_data,
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -294,7 +296,7 @@ class TestKebaKeEnergyAPI:
                     url="http://mocked-host/var/readWriteVars",
                     data=expected_extra_attributes,
                     method="POST",
-                    auth=None,
+                    headers={},
                     ssl=False,
                 )
 
@@ -367,7 +369,7 @@ class TestKebaKeEnergyAPI:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data=expected_data,
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 

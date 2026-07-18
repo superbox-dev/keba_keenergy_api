@@ -36,7 +36,7 @@ class TestHappyPathSolarCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.solarCircuit[0].param.name", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -81,7 +81,7 @@ class TestHappyPathSolarCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.solarCircuit[0].param.operatingMode", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -111,7 +111,7 @@ class TestHappyPathSolarCircuitSection:
                 data='[{"name": "APPL.CtrlAppl.sParam.solarCircuit[0].param.operatingMode", "value": "%s"}]'  # noqa: UP031
                 % expected_value,
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -152,7 +152,7 @@ class TestHappyPathSolarCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hmiRetainData.consumer1PrioritySolar[0]", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -184,7 +184,7 @@ class TestHappyPathSolarCircuitSection:
                     '{"name": "APPL.CtrlAppl.sParam.genericHeat[2].param.priority", "value": "%s"}]' % expected_value
                 ),
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -220,7 +220,7 @@ class TestHappyPathSolarCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.solarCircuit[0].collectorTemp.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -256,7 +256,7 @@ class TestHappyPathSolarCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.solarCircuit[0].values.pump1", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -292,7 +292,7 @@ class TestHappyPathSolarCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.solarCircuit[0].values.pump2", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -338,7 +338,7 @@ class TestHappyPathSolarCircuitSection:
                     '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].referenceTemp.values.actValue", "attr": "1"}]'
                 ),
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -384,7 +384,7 @@ class TestHappyPathSolarCircuitSection:
                     '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].referenceTemp.values.actValue", "attr": "1"}]'
                 ),
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -434,7 +434,7 @@ class TestHappyPathSolarCircuitSection:
                     '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].param.setTempMax.value", "attr": "1"}]'
                 ),
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -455,7 +455,7 @@ class TestHappyPathSolarCircuitSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.genericHeat[0].param.setTempMax.value", "value": "47"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -505,7 +505,7 @@ class TestHappyPathSolarCircuitSection:
                     '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].param.setTempMax.value", "attr": "1"}]'
                 ),
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -526,7 +526,7 @@ class TestHappyPathSolarCircuitSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.genericHeat[1].param.setTempMax.value", "value": "37"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -582,7 +582,7 @@ class TestHappyPathSolarCircuitSection:
                     '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].values.heatRequest", "attr": "1"}]'
                 ),
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -638,7 +638,7 @@ class TestHappyPathSolarCircuitSection:
                     '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].values.heatRequest", "attr": "1"}]'
                 ),
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -674,7 +674,7 @@ class TestHappyPathSolarCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.solarCircuit[0].heatMeter.values.accumulatedHeat", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -708,7 +708,7 @@ class TestHappyPathSolarCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.solarCircuit[0].heatMeter.values.heatDay", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -742,7 +742,7 @@ class TestHappyPathSolarCircuitSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.solarCircuit[0].heatMeter.values.power", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 

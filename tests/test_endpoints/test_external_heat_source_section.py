@@ -48,7 +48,7 @@ class TestHappyPathExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].param.operatingMode", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -77,7 +77,7 @@ class TestHappyPathExternalHeatSourceSection:
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].param.operatingMode", "value": "%s"}]'  # noqa: UP031
                 % expected_value,
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -112,7 +112,7 @@ class TestHappyPathExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].values.setTemp", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -157,7 +157,7 @@ class TestHappyPathExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.values.setValueB", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -190,7 +190,7 @@ class TestHappyPathExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.operationalData.operationalTimeS", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -223,7 +223,7 @@ class TestHappyPathExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.operationalData.maxRunTimeS", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -255,7 +255,7 @@ class TestHappyPathExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.operationalData.activationCounter", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -302,7 +302,7 @@ class TestHappyPathExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].values.consumingExcessEnergy", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -335,7 +335,7 @@ class TestHappyPathExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].operationalDataExcessEnergy.operationalTimeS", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -371,7 +371,7 @@ class TestHappyPathExternalHeatSourceSection:
                     '"attr": "1"}]'
                 ),
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -403,7 +403,7 @@ class TestHappyPathExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].operationalDataExcessEnergy.activationCounter", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -448,7 +448,7 @@ class TestHappyPathExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].param.supportExcessEnergy", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -482,7 +482,7 @@ class TestHappyPathExternalHeatSourceSection:
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].param.supportExcessEnergy", "value": "%s"}]'  # noqa: UP031
                 % expected_value,
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -537,7 +537,7 @@ class TestHappyPathExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].param.minRunTimeExcessEnergy", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -557,7 +557,7 @@ class TestHappyPathExternalHeatSourceSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].param.minRunTimeExcessEnergy", "value": "5"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
