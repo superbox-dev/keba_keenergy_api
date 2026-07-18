@@ -10,7 +10,6 @@ from typing import TypeAlias
 from typing import TypedDict
 from typing import cast
 
-from aiohttp import BasicAuth
 from aiohttp import ClientError
 from aiohttp import ClientSession
 from aiohttp import ClientTimeout
@@ -99,13 +98,13 @@ class BaseEndpoints:
         self,
         base_url: str,
         *,
-        auth: BasicAuth | None,
+        auth: str | None,
         ssl: bool,
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
     ) -> None:
         self._base_url: str = base_url
-        self._auth: BasicAuth | None = auth
+        self._auth: str | None = auth
         self._ssl: bool = ssl
         self._skip_ssl_verification: bool = skip_ssl_verification
         self._session: ClientSession | None = session
@@ -120,10 +119,14 @@ class BaseEndpoints:
 
         try:
             url: str = f"{self._base_url}{endpoint or ''}"
+            headers: dict[str, str] = {}
+
+            if self._auth is not None:
+                headers["Authorization"] = self._auth
 
             async with session.post(
                 url,
-                auth=self._auth,
+                headers=headers,
                 ssl=False if self._skip_ssl_verification else self._ssl,
                 data=payload,
             ) as resp:
@@ -517,7 +520,7 @@ class SystemEndpoints(BaseEndpoints):
         self,
         base_url: str,
         *,
-        auth: BasicAuth | None = None,
+        auth: str | None,
         ssl: bool,
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
@@ -917,7 +920,7 @@ class BufferTankEndpoints(BaseEndpoints):
         self,
         base_url: str,
         *,
-        auth: BasicAuth | None = None,
+        auth: str | None,
         ssl: bool,
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
@@ -1369,7 +1372,7 @@ class HotWaterTankEndpoints(BaseEndpoints):
         self,
         base_url: str,
         *,
-        auth: BasicAuth | None = None,
+        auth: str | None,
         ssl: bool,
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
@@ -1937,7 +1940,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         self,
         base_url: str,
         *,
-        auth: BasicAuth | None = None,
+        auth: str | None,
         ssl: bool,
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
@@ -3368,7 +3371,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         self,
         base_url: str,
         *,
-        auth: BasicAuth | None = None,
+        auth: str | None,
         ssl: bool,
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
@@ -5287,7 +5290,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         self,
         base_url: str,
         *,
-        auth: BasicAuth | None = None,
+        auth: str | None,
         ssl: bool,
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
@@ -5740,7 +5743,7 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         self,
         base_url: str,
         *,
-        auth: BasicAuth | None = None,
+        auth: str | None,
         ssl: bool,
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
@@ -6112,7 +6115,7 @@ class SwitchValveEndpoints(BaseEndpoints):
         self,
         base_url: str,
         *,
-        auth: BasicAuth | None = None,
+        auth: str | None,
         ssl: bool,
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
@@ -6170,7 +6173,7 @@ class PassiveCoolingEndpoints(BaseEndpoints):
         self,
         base_url: str,
         *,
-        auth: BasicAuth | None = None,
+        auth: str | None,
         ssl: bool,
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
@@ -6337,7 +6340,7 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
         self,
         base_url: str,
         *,
-        auth: BasicAuth | None = None,
+        auth: str | None,
         ssl: bool,
         skip_ssl_verification: bool,
         session: ClientSession | None = None,

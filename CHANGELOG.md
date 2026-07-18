@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--start-->
 
+## [2.12.2] - 2026-06-18
+
+### Fix
+
+- Fix deprecation warning: "BasicAuth is deprecated and will be removed in aiohttp 4.0; use aiohttp"
+
 ## [2.12.1] - 2026-06-24
 
 ### Security

@@ -1,8 +1,8 @@
 import json
 from typing import Any
 
-from aiohttp import BasicAuth
 from aiohttp import ClientSession
+from aiohttp import encode_basic_auth
 
 from keba_keenergy_api.constants import EndpointPath
 from keba_keenergy_api.constants import HeatCircuit
@@ -70,10 +70,10 @@ class KebaKeEnergyAPI(BaseEndpoints):
         self.host: str = host
         self.schema: str = "https" if ssl else "http"
 
-        self.auth: BasicAuth | None = None
+        self.auth: str | None = None
 
         if username and password:
-            self.auth = BasicAuth(login=username, password=password, encoding="utf-8")
+            self.auth = encode_basic_auth(username, password)
 
         self.ssl: bool = ssl
         self.skip_ssl_verification: bool = skip_ssl_verification

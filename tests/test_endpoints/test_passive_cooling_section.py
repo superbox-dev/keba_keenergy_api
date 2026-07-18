@@ -38,7 +38,7 @@ class TestHappyPathPassiveCoolingSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.passivecooling[0].TempCoolPassive.values.actValue", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -83,7 +83,7 @@ class TestHappyPathPassiveCoolingSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.passivecooling[0].SwitchValvePassiveCool.values.actPosition", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -118,7 +118,7 @@ class TestHappyPathPassiveCoolingSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.passivecooling[0].Pump.values.setValueScaled", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -149,7 +149,7 @@ class TestHappyPathPassiveCoolingSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.passivecooling[0].Mixer.values.setValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -184,7 +184,7 @@ class TestHappyPathPassiveCoolingSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.passivecooling[0].Mixer.flowTemp.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -232,6 +232,6 @@ class TestHappyPathPassiveCoolingSection:
                     '"attr": "1"}]'
                 ),
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )

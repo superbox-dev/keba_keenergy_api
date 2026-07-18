@@ -128,7 +128,7 @@ class TestHappyPathSystemSection:
                     '{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfSwitchValves", "attr": "1"}]'
                 ),
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -159,7 +159,7 @@ class TestHappyPathSystemSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/swupdate?action=getSystemInstalled",
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -188,7 +188,7 @@ class TestHappyPathSystemSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/swupdate?action=getHmiInstalled",
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -225,7 +225,7 @@ class TestHappyPathSystemSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/deviceControl?action=getDeviceInfo",
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -261,7 +261,7 @@ class TestHappyPathSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfBuffers", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -297,7 +297,7 @@ class TestHappyPathSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -333,7 +333,7 @@ class TestHappyPathSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatPumps", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -369,7 +369,7 @@ class TestHappyPathSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatingCircuits", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -403,7 +403,7 @@ class TestHappyPathSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfExtHeatSources", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -426,7 +426,7 @@ class TestHappyPathSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.systemNumberOfSwitchValves", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -471,7 +471,7 @@ class TestHappyPathSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.hasPhotovoltaics", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -516,7 +516,7 @@ class TestHappyPathSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.hasOutdoorTemp", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -560,7 +560,7 @@ class TestHappyPathSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.param.operatingMode", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -589,7 +589,7 @@ class TestHappyPathSystemSection:
                 data='[{"name": "APPL.CtrlAppl.sParam.param.operatingMode", "value": "%s"}]'  # noqa: UP031
                 % expected_value,
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -622,7 +622,7 @@ class TestHappyPathSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sProcData.globalCpuTimePercent", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -655,7 +655,7 @@ class TestHappyPathSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sProcData.processStatus[0].cpuTimePercent", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -688,7 +688,7 @@ class TestHappyPathSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sProcData.processStatus[1].cpuTimePercent", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -721,7 +721,7 @@ class TestHappyPathSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sProcData.processStatus[2].cpuTimePercent", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -754,7 +754,7 @@ class TestHappyPathSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sProcData.RAMstatus.tmpfs", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -787,7 +787,7 @@ class TestHappyPathSystemSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sProcData.totFreeRAM", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -809,7 +809,7 @@ class TestHappyPathSystemSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/dateTime?action=getTimeZone",
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 

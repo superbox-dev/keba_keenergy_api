@@ -37,7 +37,7 @@ class TestHappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.name", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -72,7 +72,7 @@ class TestHappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].topTemp.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -107,7 +107,7 @@ class TestHappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].midTemp.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -151,7 +151,7 @@ class TestHappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.operatingMode", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -180,7 +180,7 @@ class TestHappyPathBufferTankSection:
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.operatingMode", "value": "%s"}]'  # noqa: UP031
                 % expected_value,
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -215,7 +215,7 @@ class TestHappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.backupTemp", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -235,7 +235,7 @@ class TestHappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.backupTemp", "value": "10"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -270,7 +270,7 @@ class TestHappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].values.setTemp", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -305,7 +305,7 @@ class TestHappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.excessEnergyTemp.value", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -325,7 +325,7 @@ class TestHappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.excessEnergyTemp.value", "value": "43"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -360,7 +360,7 @@ class TestHappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.excessEnergyTemp.hyst", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -380,7 +380,7 @@ class TestHappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.excessEnergyTemp.hyst", "value": "3"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -418,7 +418,7 @@ class TestHappyPathBufferTankSection:
                     '"attr": "1"}]'
                 ),
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -441,7 +441,7 @@ class TestHappyPathBufferTankSection:
                     '"value": "22"}]'
                 ),
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -486,7 +486,7 @@ class TestHappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.useExcessEnergy", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -520,7 +520,7 @@ class TestHappyPathBufferTankSection:
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.useExcessEnergy", "value": "%s"}]'  # noqa: UP031
                 % expected_value,
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -588,7 +588,7 @@ class TestHappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].values.useExcessEnergy", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -631,7 +631,7 @@ class TestHappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].values.heatRequestTop", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -674,7 +674,7 @@ class TestHappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].values.coolRequestBot", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -720,7 +720,7 @@ class TestUnhappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.operatingMode", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -770,7 +770,7 @@ class TestUnhappyPathBufferTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.operatingMode", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 

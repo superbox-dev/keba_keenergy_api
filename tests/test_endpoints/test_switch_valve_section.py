@@ -47,6 +47,6 @@ class TestHappyPathSwitchValveSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.switchvalve[0].values.actPosition", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )

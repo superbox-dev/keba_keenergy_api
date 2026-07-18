@@ -37,7 +37,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.name", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -72,7 +72,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].topTemp.values.actValue", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -116,7 +116,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -145,7 +145,7 @@ class TestHappyPathHotWaterTankSection:
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode", "value": "%s"}]'  # noqa: UP031
                 % expected_value,
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -181,7 +181,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -217,7 +217,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -253,7 +253,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -273,7 +273,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value", "value": "47"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -309,7 +309,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.reducedSetTempMax.value", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -329,7 +329,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.reducedSetTempMax.value", "value": "10"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -364,7 +364,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.excessEnergyTemp.value", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -384,7 +384,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.excessEnergyTemp.value", "value": "60"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -419,7 +419,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.excessEnergyTemp.hyst", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -439,7 +439,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.excessEnergyTemp.hyst", "value": "3"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -484,7 +484,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.useExcessEnergy", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -518,7 +518,7 @@ class TestHappyPathHotWaterTankSection:
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.useExcessEnergy", "value": "%s"}]'  # noqa: UP031
                 % expected_value,
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -586,7 +586,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].values.useExcessEnergy", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -629,7 +629,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].values.heatRequestTop", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -674,7 +674,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.options.hotWaterTank[0].hasFreshWaterModule", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -719,7 +719,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterFlow.values.actValue", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -754,7 +754,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterTemp.values.actValue", "attr": "1"}]',  # noqa: E501
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -792,7 +792,7 @@ class TestHappyPathHotWaterTankSection:
                     '"attr": "1"}]'
                 ),
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -827,7 +827,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data=('[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].circTemp.values.actValue", "attr": "1"}]'),
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -872,7 +872,7 @@ class TestHappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data=('[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].circPump.pump.values.setValueB", "attr": "1"}]'),
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
@@ -926,7 +926,7 @@ class TestUnhappyPathHotWaterTankSection:
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode", "attr": "1"}]',
                 method="POST",
-                auth=None,
+                headers={},
                 ssl=False,
             )
 
