@@ -1,3 +1,5 @@
+"""KEBA KeEnergy API endpoint definitions."""
+
 import json
 import re
 from dataclasses import dataclass
@@ -15,11 +17,14 @@ from aiohttp import ClientSession
 from aiohttp import ClientTimeout
 
 from keba_keenergy_api.constants import API_DEFAULT_TIMEOUT
+from keba_keenergy_api.constants import MAX_HEATING_CURVE_POINTS
+from keba_keenergy_api.constants import MIN_HEATING_CURVE_POINTS
 from keba_keenergy_api.constants import BoolEnum
 from keba_keenergy_api.constants import BufferTank
 from keba_keenergy_api.constants import BufferTankOperatingMode
 from keba_keenergy_api.constants import EndpointPath
 from keba_keenergy_api.constants import ExternalHeatSource
+from keba_keenergy_api.constants import FloatEndpoint
 from keba_keenergy_api.constants import HeatCircuit
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
 from keba_keenergy_api.constants import HeatPump
@@ -27,8 +32,6 @@ from keba_keenergy_api.constants import HeatPumpOperatingMode
 from keba_keenergy_api.constants import HotWaterTank
 from keba_keenergy_api.constants import HotWaterTankOperatingMode
 from keba_keenergy_api.constants import LineTablePool
-from keba_keenergy_api.constants import MAX_HEATING_CURVE_POINTS
-from keba_keenergy_api.constants import MIN_HEATING_CURVE_POINTS
 from keba_keenergy_api.constants import PassiveCooling
 from keba_keenergy_api.constants import Photovoltaics
 from keba_keenergy_api.constants import Section
@@ -41,22 +44,30 @@ from keba_keenergy_api.error import AuthenticationError
 
 
 class ReadPayload(TypedDict):
+    """Payload for reading an API endpoint."""
+
     name: str
     attr: str
 
 
 class WritePayload(TypedDict):
+    """Payload for writing an API endpoint."""
+
     name: str
     value: str
 
 
 class ReadChildrenPayload(TypedDict):
+    """Payload for reading child API endpoints."""
+
     parent: str
     filter: str
 
 
 @dataclass
 class Position:
+    """Number of installed KEBA devices."""
+
     heat_pump: int
     heat_circuit: int
     solar_circuit: int
@@ -72,11 +83,15 @@ class Position:
 
 
 class HeatingCurvePoint(NamedTuple):
+    """Point on a heating curve."""
+
     outdoor: float
     flow: float
 
 
 class Value(TypedDict, total=False):
+    """API response value with optional attributes."""
+
     value: Any
     attributes: dict[str, Any]
 
@@ -103,6 +118,7 @@ class BaseEndpoints:
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
     ) -> None:
+        """Initialize endpoints."""
         self._base_url: str = base_url
         self._auth: str | None = auth
         self._ssl: bool = ssl
@@ -241,7 +257,7 @@ class BaseEndpoints:
 
         value = section.value.normalize(value)
 
-        if isinstance(value, float):
+        if isinstance(section.value, FloatEndpoint) and isinstance(value, float):
             value = round(value, section.value.decimals)
 
         if value in ["true", "false"]:
@@ -395,8 +411,10 @@ class BaseEndpoints:
                         ]
 
                 # Append extra calls from a helper function
-                if hasattr(endpoint_properties.value, "helper"):
-                    child_request: dict[Section, Any] = endpoint_properties.value.helper(values)
+                helper = getattr(endpoint_properties.value, "helper", None)
+
+                if helper is not None:
+                    child_request: dict[Section, Any] = helper(values)
                     child_payload: Payload = self._generate_write_payload(child_request)
 
                     payload += child_payload
@@ -525,6 +543,7 @@ class SystemEndpoints(BaseEndpoints):
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
     ) -> None:
+        """Initialize endpoints."""
         super().__init__(
             base_url=base_url,
             auth=auth,
@@ -925,6 +944,7 @@ class BufferTankEndpoints(BaseEndpoints):
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
     ) -> None:
+        """Initialize endpoints."""
         super().__init__(
             base_url=base_url,
             auth=auth,
@@ -1377,6 +1397,7 @@ class HotWaterTankEndpoints(BaseEndpoints):
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
     ) -> None:
+        """Initialize endpoints."""
         super().__init__(
             base_url=base_url,
             auth=auth,
@@ -1945,6 +1966,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
     ) -> None:
+        """Initialize endpoints."""
         super().__init__(
             base_url=base_url,
             auth=auth,
@@ -3376,6 +3398,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
     ) -> None:
+        """Initialize endpoints."""
         super().__init__(
             base_url=base_url,
             auth=auth,
@@ -5295,6 +5318,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
     ) -> None:
+        """Initialize endpoints."""
         super().__init__(
             base_url=base_url,
             auth=auth,
@@ -5748,6 +5772,7 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
     ) -> None:
+        """Initialize endpoints."""
         super().__init__(
             base_url=base_url,
             auth=auth,
@@ -6120,6 +6145,7 @@ class SwitchValveEndpoints(BaseEndpoints):
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
     ) -> None:
+        """Initialize endpoints."""
         super().__init__(
             base_url=base_url,
             auth=auth,
@@ -6178,6 +6204,7 @@ class PassiveCoolingEndpoints(BaseEndpoints):
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
     ) -> None:
+        """Initialize endpoints."""
         super().__init__(
             base_url=base_url,
             auth=auth,
@@ -6345,6 +6372,7 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
     ) -> None:
+        """Initialize endpoints."""
         super().__init__(
             base_url=base_url,
             auth=auth,

@@ -8,7 +8,6 @@ from keba_keenergy_api.constants import HotWaterTankOperatingMode
 from keba_keenergy_api.error import APIError
 
 
-@pytest.mark.happy
 class TestHappyPathHotWaterTankSection:
     @pytest.mark.asyncio
     async def test_get_name(self) -> None:
@@ -877,9 +876,7 @@ class TestHappyPathHotWaterTankSection:
             )
 
 
-@pytest.mark.unhappy
 class TestUnhappyPathHotWaterTankSection:
-
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value"),

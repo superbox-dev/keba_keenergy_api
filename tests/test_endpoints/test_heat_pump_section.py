@@ -7,7 +7,6 @@ from keba_keenergy_api.constants import HeatPumpOperatingMode
 from keba_keenergy_api.error import APIError
 
 
-@pytest.mark.happy
 class TestHappyPathHeatPumpSection:
     @pytest.mark.asyncio
     async def test_get_name(self) -> None:
@@ -2266,9 +2265,7 @@ class TestHappyPathHeatPumpSection:
             )
 
 
-@pytest.mark.unhappy
 class TestUnhappyPathHeatPumpSection:
-
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "operating_mode",

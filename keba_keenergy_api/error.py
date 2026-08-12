@@ -13,6 +13,16 @@ class APIError(Exception):
         *,
         status: HTTPStatus | None = None,
     ) -> None:
+        """Initialize an API error.
+
+        Parameters
+        ----------
+        message
+            Additional error message.
+        status
+            HTTP status associated with the error.
+
+        """
         _message: str = message
 
         if status:
@@ -22,9 +32,10 @@ class APIError(Exception):
                 _message = f"{_message} - {message}"
 
         self.message: str = _message
-        self.status: int | None = status
+        self.status: HTTPStatus | None = status
 
     def __str__(self) -> str:
+        """Return the error message."""
         return self.message
 
 

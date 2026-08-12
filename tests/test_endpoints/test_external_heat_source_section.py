@@ -6,7 +6,6 @@ from keba_keenergy_api.constants import BoolEnum
 from keba_keenergy_api.error import APIError
 
 
-@pytest.mark.happy
 class TestHappyPathExternalHeatSourceSection:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -562,9 +561,7 @@ class TestHappyPathExternalHeatSourceSection:
             )
 
 
-@pytest.mark.unhappy
 class TestUnhappyPathExternalHeatSourceSection:
-
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "operating_mode",

@@ -22,8 +22,11 @@ class EndpointPath:
 
 
 class BaseEnum(Enum):
+    """Base enum with support for alternative values."""
+
     @classmethod
     def _missing_(cls, value: object) -> "BaseEnum":
+        """Return the enum member matching the given value."""
         for member in cls:
             member_value = member._value_
 
@@ -232,6 +235,8 @@ PAYLOAD_PREFIX: Final[str] = "APPL.CtrlAppl"
 
 @dataclass
 class Endpoint:
+    """Definition of a KEBA API endpoint."""
+
     value: str
     value_type: type[Any]
     human_readable: type[Enum] | None = None
@@ -240,28 +245,37 @@ class Endpoint:
     read_only: bool = True
 
     def __post_init__(self) -> None:
+        """Set read-only status based on the endpoint path."""
         if ".param." in self.value:
             self.read_only = False
 
 
 @dataclass
 class FloatEndpoint(Endpoint):
+    """Definition of a floating-point KEBA API endpoint."""
+
     value_type: type[float] = float
     decimals: int = 2
 
 
 @dataclass
 class IntegerEndpoint(Endpoint):
+    """Definition of an integer KEBA API endpoint."""
+
     value_type: type[int] = int
 
 
 @dataclass
 class StringEndpoint(Endpoint):
+    """Definition of a string KEBA API endpoint."""
+
     value_type: type[str] = str
 
 
 @dataclass
 class SolarCircuitPriority1Before2StringEndpoint(StringEndpoint):
+    """String endpoint for solar circuit priority configuration."""
+
     @staticmethod
     def helper(modes: list[int | None]) -> dict["Section", Any]:
         """Add extra calls."""
@@ -955,6 +969,8 @@ class SolarCircuit(Enum):
 
 
 class ExternalHeatSource(Enum):
+    """External heat source API endpoints."""
+
     OPERATING_MODE = IntegerEndpoint(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.operatingMode",
         human_readable=BoolEnum,
@@ -999,6 +1015,8 @@ class ExternalHeatSource(Enum):
 
 
 class SwitchValve(Enum):
+    """Switch valve API endpoints."""
+
     POSITION = IntegerEndpoint(
         f"{PAYLOAD_PREFIX}.sParam.switchvalve[%s].values.actPosition",
         human_readable=SwitchValvePosition,
@@ -1006,6 +1024,8 @@ class SwitchValve(Enum):
 
 
 class PassiveCooling(Enum):
+    """Passive cooling API endpoints."""
+
     TEMPERATURE = FloatEndpoint(
         f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].TempCoolPassive.values.actValue",
     )
@@ -1031,6 +1051,8 @@ class PassiveCooling(Enum):
 
 
 class Photovoltaics(Enum):
+    """Photovoltaics API endpoints."""
+
     EXCESS_ENERGY_ACTIVE = StringEndpoint(
         f"{PAYLOAD_PREFIX}.sParam.photovoltaics.values.excessEnergyActive",
         human_readable=BoolEnum,
