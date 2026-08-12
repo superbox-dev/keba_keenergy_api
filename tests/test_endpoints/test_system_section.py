@@ -10,7 +10,6 @@ from keba_keenergy_api.endpoints import Position
 from keba_keenergy_api.error import APIError
 
 
-@pytest.mark.happy
 class TestHappyPathSystemSection:
     @pytest.mark.asyncio
     async def test_get_positions(self) -> None:
@@ -814,9 +813,7 @@ class TestHappyPathSystemSection:
             )
 
 
-@pytest.mark.unhappy
 class TestUnhappyPathSystemSection:
-
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "operating_mode",

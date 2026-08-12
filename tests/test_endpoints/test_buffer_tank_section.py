@@ -8,7 +8,6 @@ from keba_keenergy_api.constants import BufferTankOperatingMode
 from keba_keenergy_api.error import APIError
 
 
-@pytest.mark.happy
 class TestHappyPathBufferTankSection:
     @pytest.mark.asyncio
     async def test_get_name(self) -> None:
@@ -679,9 +678,7 @@ class TestHappyPathBufferTankSection:
             )
 
 
-@pytest.mark.unhappy
 class TestUnhappyPathBufferTankSection:
-
     @pytest.mark.asyncio
     async def test_get_invalid_type_operating_mode(self) -> None:
         with aioresponses() as mock_keenergy_api:

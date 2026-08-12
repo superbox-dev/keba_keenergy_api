@@ -4,7 +4,6 @@ from aioresponses.core import aioresponses
 from keba_keenergy_api.api import KebaKeEnergyAPI
 
 
-@pytest.mark.happy
 class TestHappyPathSwitchValveSection:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(

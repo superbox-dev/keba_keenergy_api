@@ -5,9 +5,7 @@ from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.constants import BoolEnum
 
 
-@pytest.mark.happy
 class TestHappyPathPhotovoltaicsSection:
-
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),

@@ -4,9 +4,7 @@ from aioresponses.core import aioresponses
 from keba_keenergy_api.api import KebaKeEnergyAPI
 
 
-@pytest.mark.happy
 class TestHappyPathPassiveCoolingSection:
-
     @pytest.mark.asyncio
     async def test_get_temperature(self) -> None:
         with aioresponses() as mock_keenergy_api:

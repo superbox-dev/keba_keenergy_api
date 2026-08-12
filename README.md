@@ -4,11 +4,14 @@
 A Python wrapper for the KEBA KeEnergy API used by the Web HMI.
 
 ![coverage-badge](https://raw.githubusercontent.com/superbox-dev/keba_keenergy_api/main/coverage-badge.svg)
-[![Version](https://img.shields.io/pypi/pyversions/keba-keenergy-api.svg)][pypi-version]
-[![CI](https://github.com/superbox-dev/keba_keenergy_api/actions/workflows/ci.yml/badge.svg?branch=main)][workflow-ci]
 
-[pypi-version]: https://pypi.python.org/pypi/keba-keenergy-api
+[![CI](https://github.com/superbox-dev/keba_keenergy_api/actions/workflows/ci.yml/badge.svg?branch=main)][workflow-ci]
+![Typing: strict][typing-strict]
+![Code style: Ruff][code-ruff]
+
 [workflow-ci]: https://github.com/superbox-dev/keba_keenergy_api/actions/workflows/ci.yml
+[typing-strict]: https://img.shields.io/badge/typing-strict-green.svg
+[code-ruff]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json
 
 <!--end-home-->
 
@@ -44,37 +47,25 @@ from keba_keenergy_api import KebaKeEnergyAPI
 from keba_keenergy_api.constants import HeatCircuit
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
 
+
 async def main():
     client = KebaKeEnergyAPI(
-        host="ap4400.local",
-        username="test",
-        password="test",
-        ssl=True,
-        skip_ssl_verification=True
+        host="ap4400.local", username="test", password="test", ssl=True, skip_ssl_verification=True
     )
 
     # Get current outdoor temperature
     outdoor_temperature = await client.system.get_outdoor_temperature()
 
     # Get heat circuit temperature from heat circuit 2
-    heat_circuit_temperature = await client.heat_circuit.get_target_temperature(
-        position=2
-    )
+    heat_circuit_temperature = await client.heat_circuit.get_target_temperature(position=2)
 
     # Read multiple values
     data = await client.read_data(
-        request=[
-            HeatCircuit.TARGET_TEMPERATURE,
-            HeatCircuit.TARGET_TEMPERATURE_DAY
-        ],
-        extra_attributes=True
+        request=[HeatCircuit.TARGET_TEMPERATURE, HeatCircuit.TARGET_TEMPERATURE_DAY], extra_attributes=True
     )
 
     # Enable "day" mode for heat circuit 2
-    await client.heat_circuit.set_operating_mode(
-        mode=HeatCircuitOperatingMode.DAY.value,
-        position=2
-    )
+    await client.heat_circuit.set_operating_mode(mode=HeatCircuitOperatingMode.DAY.value, position=2)
 
     # Write multiple values
     await client.write_data(
@@ -85,6 +76,7 @@ async def main():
             HeatCircuit.TARGET_TEMPERATURE_NIGHT: (16,),
         },
     )
+
 
 asyncio.run(main())
 ```
@@ -99,17 +91,14 @@ from keba_keenergy_api import KebaKeEnergyAPI
 
 from aiohttp import ClientSession
 
+
 async def main():
     async with ClientSession() as session:
         client = KebaKeEnergyAPI(
-            host="ap4400.local",
-            username="test",
-            password="test",
-            ssl=True,
-            skip_ssl_verification=True,
-            session=session
+            host="ap4400.local", username="test", password="test", ssl=True, skip_ssl_verification=True, session=session
         )
         ...
+
 
 asyncio.run(main())
 ```

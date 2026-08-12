@@ -20,7 +20,6 @@ from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_po
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_points_payload
 
 
-@pytest.mark.happy
 class TestHappyPathHeatCircuitSection:
     @pytest.mark.asyncio
     async def test_get_name(self) -> None:
@@ -699,8 +698,7 @@ class TestHappyPathHeatCircuitSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data=(
-                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergy.useExcessEnergy", '
-                    '"attr": "1"}]'
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergy.useExcessEnergy", "attr": "1"}]'
                 ),
                 method="POST",
                 headers={},
@@ -971,8 +969,7 @@ class TestHappyPathHeatCircuitSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data=(
-                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergyTempCool.value", '
-                    '"value": "23"}]'
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergyTempCool.value", "value": "23"}]'
                 ),
                 method="POST",
                 headers={},
@@ -1278,8 +1275,7 @@ class TestHappyPathHeatCircuitSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data=(
-                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.thresholdDayCoolTemp.value", '
-                    '"value": "23"}]'
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.thresholdDayCoolTemp.value", "value": "23"}]'
                 ),
                 method="POST",
                 headers={},
@@ -1316,8 +1312,7 @@ class TestHappyPathHeatCircuitSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data=(
-                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergy.thresholdDayTemp", '
-                    '"attr": "1"}]'
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergy.thresholdDayTemp", "attr": "1"}]'
                 ),
                 method="POST",
                 headers={},
@@ -1604,8 +1599,7 @@ class TestHappyPathHeatCircuitSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data=(
-                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.thresholdNightCoolTemp.value", '
-                    '"attr": "1"}]'
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.thresholdNightCoolTemp.value", "attr": "1"}]'
                 ),
                 method="POST",
                 headers={},
@@ -2976,9 +2970,7 @@ class TestHappyPathHeatCircuitSection:
             )
 
 
-@pytest.mark.unhappy
 class TestUnhappyPathHeatCircuitSection:
-
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "operating_mode",

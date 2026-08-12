@@ -1,0 +1,24 @@
+line-length = 120
+
+[lint]
+select = ["ALL"]
+ignore = [
+    "ANN401",  # any-type
+    "COM812",  # missing-trailing-comma
+    "CPY001",  # missing-copyright-notice
+    "D203",    # one-blank-line-before-class
+    "D213",    # multi-line-summary-second-line
+    "ERA001",  # commented-out-code
+    "PLR0913", # too-many-arguments
+    "S101",    # assert
+    "TRY003",  # raise-vanilla-args
+]
+
+[lint.per-file-ignores]
+"tests/*" = [
+    "D",
+    "PLR0917", # too-many-positional-arguments
+]
+
+[lint.isort]
+force-single-line = true

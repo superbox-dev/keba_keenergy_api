@@ -6,7 +6,6 @@ from keba_keenergy_api.constants import BoolEnum
 from keba_keenergy_api.error import APIError
 
 
-@pytest.mark.happy
 class TestHappyPathSolarCircuitSection:
     @pytest.mark.asyncio
     async def test_get_name(self) -> None:
@@ -747,9 +746,7 @@ class TestHappyPathSolarCircuitSection:
             )
 
 
-@pytest.mark.unhappy
 class TestUnhappyPathSolarCircuitSection:
-
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "operating_mode",
