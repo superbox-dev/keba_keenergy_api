@@ -300,7 +300,9 @@ class BaseEndpoints:
         _response_with_quantity: dict[str, list[list[Value]]] = {}
 
         for section in request:
-            if (allowed_type and type(section) in allowed_type) or not allowed_type:
+            if not allowed_type or type(section) in (
+                allowed_type if isinstance(allowed_type, list) else [allowed_type]
+            ):
                 for idx in self._get_position_index(section=section, position=position):
                     if idx is False:
                         continue
