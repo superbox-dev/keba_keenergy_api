@@ -1,3 +1,6 @@
+from copy import deepcopy
+from typing import Any
+
 import pytest
 from aioresponses.core import RequestCall
 from aioresponses.core import aioresponses
@@ -3400,3 +3403,26 @@ class TestUnhappyPathHeatCircuitSection:
                     ),
                 ]
             }
+
+    @pytest.mark.asyncio
+    async def test_too_many_points_in_get_heating_curve_points(self) -> None:
+        payload: list[dict[str, Any]] = deepcopy(heating_curve_points_payload)
+        payload[1]["value"] = "99"
+
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=heating_curve_names_payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            response: HeatingCurves = await client.heat_circuit.get_heating_curve_points("HC1")
+
+            assert len(response["HC1"]) == 16  # noqa: PLR2004

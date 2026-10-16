@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `has_message_id` and `message_id_path` to `Endpoint` for all 31 confirmed `values.actValue` sensors
 - Added the optional `position` argument to `has_mixer()` of the heating circuit and `has_fresh_water_module()`
   of the hot water tank
+- Added `APITimeoutError`, raised when a request times out. It inherits from `APIError` and `TimeoutError`
 
 ### Changed
 
@@ -25,10 +26,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Converted all docstrings to the NumPy style
 - Added the `Apache-2.0` license expression and the `Typing :: Typed` / `Framework :: AsyncIO` classifiers
   to the package metadata
+- `write_data()` and the setters no longer send a request if there is nothing to write
 
 ### Fixed
 
 - Fixed `IndexError` in single getters with a `position` greater than 1
+- Fixed `InvalidJsonError` not being raised for invalid JSON responses
+- Fixed timeouts not being raised as `APIError` (now `APITimeoutError`)
+- Fixed `UnboundLocalError` for HTTP status codes between 301 and 399, e.g. a redirect of a reverse proxy.
+  Every HTTP status other than 2xx now raises an `APIError`
+- Fixed `KeyError` instead of `APIError` in single getters with a `position` lower than 1
+- Fixed `write_data()` writing a literal `%s` path for a single value of a device section
+- Fixed `write_data()` raising a `TypeError` instead of `APIError` for more than one value of a system-wide
+  section, and a `TypeError` for a single value of `SolarCircuit.PRIORITY_1_BEFORE_2`
+- Fixed `KeyError` in `read_data()` with extra attributes if the heating curve is not in the line table pool
+- Fixed `IndexError` in `get_heating_curve_points()` if the control unit reports more than 16 points
+- Fixed `KeyError` in `get_info()`, `get_hmi_info()` and `get_device_info()` if the response has no `ret`
 
 <!--start-->
 
