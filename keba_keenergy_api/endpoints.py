@@ -2,6 +2,7 @@
 
 import json
 import re
+from collections.abc import Iterator
 from dataclasses import dataclass
 from enum import Enum
 from http import HTTPStatus
@@ -10,15 +11,16 @@ from typing import Any
 from typing import NamedTuple
 from typing import TypeAlias
 from typing import TypedDict
+from typing import TypeVar
 from typing import cast
 
 from aiohttp import ClientError
 from aiohttp import ClientSession
 from aiohttp import ClientTimeout
 
-from keba_keenergy_api.constants import API_DEFAULT_TIMEOUT
-from keba_keenergy_api.constants import MAX_HEATING_CURVE_POINTS
-from keba_keenergy_api.constants import MIN_HEATING_CURVE_POINTS
+from keba_keenergy_api.constants import _API_DEFAULT_TIMEOUT
+from keba_keenergy_api.constants import _MAX_HEATING_CURVE_POINTS
+from keba_keenergy_api.constants import _MIN_HEATING_CURVE_POINTS
 from keba_keenergy_api.constants import BoolEnum
 from keba_keenergy_api.constants import BufferTank
 from keba_keenergy_api.constants import BufferTankOperatingMode
@@ -41,6 +43,13 @@ from keba_keenergy_api.constants import System
 from keba_keenergy_api.constants import SystemOperatingMode
 from keba_keenergy_api.error import APIError
 from keba_keenergy_api.error import AuthenticationError
+
+_T = TypeVar("_T")
+
+# Attributes returned by the Web HMI that are not useful for API consumers
+_IGNORED_ATTRIBUTES: frozenset[str] = frozenset({"unitId", "longText", "formatId", "dynLowerLimit", "dynUpperLimit"})
+# Number of heating curve slots in the line table pool that are scanned for heating curves
+_HEATING_CURVE_POOL_SIZE: int = 30
 
 
 class ReadPayload(TypedDict):
@@ -66,7 +75,7 @@ class ReadChildrenPayload(TypedDict):
 
 @dataclass
 class Position:
-    """Number of installed KEBA devices."""
+    """Number of installed devices per device type, as configured in the control unit."""
 
     heat_pump: int
     heat_circuit: int
@@ -78,7 +87,7 @@ class Position:
 
     @property
     def passive_cooling(self) -> int:
-        """Get passive cooling position for every heat pump."""
+        """Return the number of passive cooling units (one per heat pump)."""
         return self.heat_pump
 
 
@@ -90,7 +99,7 @@ class HeatingCurvePoint(NamedTuple):
 
 
 class Value(TypedDict, total=False):
-    """API response value with optional attributes."""
+    """Converted API value with its (cleaned) attributes, e.g. limits and ``raw_value``."""
 
     value: Any
     attributes: dict[str, Any]
@@ -105,7 +114,11 @@ HeatingCurves: TypeAlias = dict[str, HeatingCurvePoints]
 
 
 class BaseEndpoints:
-    """Base class for all endpoint classes."""
+    """Base class for all endpoint classes.
+
+    Holds the connection settings and the shared logic to build request payloads, send them to the
+    Web HMI and convert the responses.
+    """
 
     KEY_PATTERN: Pattern[str] = re.compile(r"(?<!^)(?=[A-Z])")
 
@@ -118,7 +131,22 @@ class BaseEndpoints:
         skip_ssl_verification: bool,
         session: ClientSession | None = None,
     ) -> None:
-        """Initialize endpoints."""
+        """Initialize the endpoints.
+
+        Parameters
+        ----------
+        base_url
+            Base URL of the control unit, e.g. ``https://ap4400.local``.
+        auth
+            Value of the ``Authorization`` header, or ``None`` without authentication.
+        ssl
+            Whether HTTPS is used.
+        skip_ssl_verification
+            Disable TLS certificate verification.
+        session
+            Optional shared session. Without a session, a new one is created and closed per request.
+
+        """
         self._base_url: str = base_url
         self._auth: str | None = auth
         self._ssl: bool = ssl
@@ -126,11 +154,32 @@ class BaseEndpoints:
         self._session: ClientSession | None = session
 
     async def _post(self, payload: str | None = None, endpoint: str | None = None) -> Response:
-        """Run a POST request against the API."""
+        """Send a POST request to the Web HMI and return the JSON response as a list.
+
+        Parameters
+        ----------
+        payload
+            JSON encoded request body.
+        endpoint
+            Endpoint path, e.g. ``/var/readWriteVars``.
+
+        Returns
+        -------
+        Response
+            The response items. A single JSON object is wrapped in a list.
+
+        Raises
+        ------
+        AuthenticationError
+            The credentials were rejected (HTTP 401).
+        APIError
+            The Web HMI returned an error (HTTP 500) or the connection failed.
+
+        """
         session: ClientSession = (
             self._session
             if self._session and not self._session.closed
-            else ClientSession(timeout=ClientTimeout(total=API_DEFAULT_TIMEOUT))
+            else ClientSession(timeout=ClientTimeout(total=_API_DEFAULT_TIMEOUT))
         )
 
         try:
@@ -173,6 +222,7 @@ class BaseEndpoints:
                 await session.close()
 
     def _get_real_key(self, key: Section, /, *, key_prefix: bool = True) -> str:
+        """Return the response key of a section, e.g. ``heat_pump_state`` or ``state``."""
         class_name: str = key.__class__.__name__
         _real_key: str = key.name.lower()
 
@@ -182,6 +232,11 @@ class BaseEndpoints:
         return _real_key
 
     def _get_position_index(self, section: Section, position: Position | list[int]) -> list[bool | int]:
+        """Return the zero-based device indexes to request for a section.
+
+        ``True`` means the section has no device index (system wide), ``False`` means the device is not
+        installed and must be skipped.
+        """
         idx: list[bool | int] = []
 
         if isinstance(section, System | Photovoltaics):
@@ -195,6 +250,40 @@ class BaseEndpoints:
 
         return idx
 
+    def _iter_variable_names(
+        self,
+        section: Section,
+        position: Position | list[int],
+        template: str | None = None,
+    ) -> Iterator[str]:
+        """Yield the variable names of a section, in the order of the read payload.
+
+        Parameters
+        ----------
+        section
+            The section to resolve.
+        position
+            Installed device position(s).
+        template
+            Variable name template, defaults to the section path. Used e.g. for the message id path.
+
+        """
+        template = template or section.value.value
+        quantity: int = section.value.quantity
+
+        for idx in self._get_position_index(section=section, position=position):
+            if idx is False:
+                continue
+
+            # Sections with a quantity > 1 (e.g. two consumers per solar circuit) use a sub index
+            for sub_idx in range(idx * 2, quantity + idx * 2):
+                if quantity > 1:
+                    yield template % sub_idx
+                elif idx is True:
+                    yield template
+                else:
+                    yield template % idx
+
     def _generate_read_payload(
         self,
         request: list[Section],
@@ -203,56 +292,60 @@ class BaseEndpoints:
         *,
         extra_attributes: bool = False,
     ) -> Payload:
-        payload: Payload = []
+        """Build the payload to read all requested sections with one request."""
+        attr: str = str(int(extra_attributes is True))
 
-        for section in request:
-            if (allowed_type and type(section) in allowed_type) or allowed_type is None:
-                for idx in self._get_position_index(section=section, position=position):
-                    if idx is False:
-                        continue
-
-                    for sub_idx in range(idx * 2, section.value.quantity + idx * 2):
-                        name: str = section.value.value if idx is True else section.value.value % idx
-
-                        if section.value.quantity > 1:
-                            name = section.value.value % sub_idx
-
-                        payload += [
-                            ReadPayload(
-                                name=name,
-                                attr=str(int(extra_attributes is True)),
-                            ),
-                        ]
-
-        return payload
+        return [
+            ReadPayload(name=name, attr=attr)
+            for section in request
+            if allowed_type is None or type(section) in allowed_type
+            for name in self._iter_variable_names(section, position)
+        ]
 
     def _generate_read_children_payloads(
         self,
         request: list[Section],
         position: Position | list[int],
     ) -> list[tuple[Section, ReadChildrenPayload]]:
-        payloads: list[tuple[Section, ReadChildrenPayload]] = []
+        """Build one read-children payload per section and device, to check whether a variable exists."""
+        return [
+            (section, ReadChildrenPayload(parent=name, filter="none"))
+            for section in request
+            for name in self._iter_variable_names(section, position)
+        ]
 
-        for section in request:
-            for idx in self._get_position_index(section=section, position=position):
-                for sub_idx in range(idx * 2, section.value.quantity + idx * 2):
-                    parent: str = section.value.value if idx is True else section.value.value % idx
+    def _generate_message_id_requests(
+        self,
+        request: list[Section],
+        position: Position | list[int],
+    ) -> list[tuple[Section, str]]:
+        """Return one (section, path) pair per message id variable, in the order of the read payload."""
+        return [
+            (section, name)
+            for section in request
+            if (path := section.value.message_id_path)
+            for name in self._iter_variable_names(section, position, template=path)
+        ]
 
-                    if section.value.quantity > 1:
-                        parent = section.value.value % sub_idx
+    async def _read_message_ids(self, paths: list[str]) -> list[int]:
+        """Read the given message id variables with one request."""
+        if not paths:
+            return []
 
-                    payloads += [(section, ReadChildrenPayload(parent=parent, filter="none"))]
+        response: Response = await self._post(
+            payload=json.dumps([ReadPayload(name=path, attr="0") for path in paths]),
+            endpoint=EndpointPath.READ_WRITE_VARS,
+        )
 
-        return payloads
+        return [int(item["value"]) for item in response]
 
     @staticmethod
-    def _convert_value(section: Section, response: Response, *, human_readable: bool) -> float | int | str:
-        message: str
-
+    def _convert_raw_value(section: Section, item: dict[str, Any]) -> float | int | str:
+        """Convert a single response item to the endpoint type (without the human-readable mapping)."""
         try:
-            value: float | int | str = section.value.value_type(response[0]["value"])
+            value: float | int | str = section.value.value_type(item["value"])
         except ValueError as error:
-            message = f'Can\'t convert value to type "{section.value.value_type.__name__}"! {response[0]}'
+            message: str = f'Can\'t convert value to type "{section.value.value_type.__name__}"! {item}'
             raise APIError(message) from error
 
         value = section.value.normalize(value)
@@ -263,27 +356,36 @@ class BaseEndpoints:
         if value in ["true", "false"]:
             value = 1 if value == "true" else 0
 
-        if human_readable and section.value.human_readable:
-            try:
-                value = section.value.human_readable(value).name.lower()
-            except ValueError as error:
-                message = f"Can't convert value to human readable value! {response[0]}"
-                raise APIError(message) from error
-
         return value
 
     @staticmethod
-    def _clean_attributes(response: Response) -> dict[str, Any]:
+    def _to_human_readable(section: Section, value: float | str, item: dict[str, Any]) -> float | int | str:
+        """Map a raw value to its human-readable name, if the endpoint defines one."""
+        if not section.value.human_readable:
+            return value
+
+        try:
+            return str(section.value.human_readable(value).name.lower())
+        except ValueError as error:
+            message: str = f"Can't convert value to human readable value! {item}"
+            raise APIError(message) from error
+
+    @classmethod
+    def _convert_value(cls, section: Section, response: Response, *, human_readable: bool) -> float | int | str:
+        """Convert the first response item to the endpoint type."""
+        value: float | int | str = cls._convert_raw_value(section, response[0])
+        return cls._to_human_readable(section, value, response[0]) if human_readable else value
+
+    @classmethod
+    def _clean_attributes(cls, response: Response) -> dict[str, Any]:
+        """Return the attributes of the first response item with snake_case keys, without ignored keys."""
         attributes: dict[str, Any] = response[0].get("attributes", {})
-        converted_attributes: dict[str, Any] = {}
-        re_pattern: Pattern[str] = re.compile(r"(?<!^)(?=[A-Z])")
 
-        for key, value in attributes.items():
-            if key not in ["unitId", "longText", "formatId", "dynLowerLimit", "dynUpperLimit"]:
-                new_attr_key: str = re_pattern.sub("_", key).lower()
-                converted_attributes[new_attr_key] = value
-
-        return converted_attributes
+        return {
+            cls.KEY_PATTERN.sub("_", key).lower(): value
+            for key, value in attributes.items()
+            if key not in _IGNORED_ATTRIBUTES
+        }
 
     def _get_response_data(
         self,
@@ -296,56 +398,48 @@ class BaseEndpoints:
         key_prefix: bool = True,
         human_readable: bool = True,
     ) -> dict[str, list[list[Value]] | list[Value]]:
+        """Map a read response back to the requested sections.
+
+        The response items are consumed in the same order as the read payload was built.
+        Sections with a quantity > 1 return a nested list per device.
+        """
+        if isinstance(allowed_type, type):
+            allowed_type = [allowed_type]
+
+        items: Iterator[dict[str, Any]] = iter(response)
         _response_without_quantity: dict[str, list[Value]] = {}
         _response_with_quantity: dict[str, list[list[Value]]] = {}
 
         for section in request:
-            if not allowed_type or type(section) in (
-                allowed_type if isinstance(allowed_type, list) else [allowed_type]
-            ):
-                for idx in self._get_position_index(section=section, position=position):
-                    if idx is False:
-                        continue
+            if allowed_type and type(section) not in allowed_type:
+                continue
 
-                    response_key: str = self._get_real_key(section, key_prefix=key_prefix)
-                    response_group: list[Value] = []
+            for idx in self._get_position_index(section=section, position=position):
+                if idx is False:
+                    continue
 
-                    for _ in range(1, section.value.quantity + 1):
-                        value: float | int | str = self._convert_value(
-                            section,
-                            response=response,
-                            human_readable=human_readable,
-                        )
+                response_key: str = self._get_real_key(section, key_prefix=key_prefix)
+                response_group: list[Value] = []
 
-                        raw_value: float | int | str = self._convert_value(
-                            section,
-                            response=response,
-                            human_readable=False,
-                        )
+                for _ in range(section.value.quantity):
+                    item: dict[str, Any] = next(items)
+                    raw_value: float | int | str = self._convert_raw_value(section, item)
+                    value: float | int | str = (
+                        self._to_human_readable(section, raw_value, item) if human_readable else raw_value
+                    )
+                    attributes: dict[str, Any] = self._clean_attributes([item])
 
-                        attributes: dict[str, Any] = self._clean_attributes(response=response)
+                    if value != raw_value:
+                        attributes = attributes | {"raw_value": raw_value}
 
-                        if value != raw_value:
-                            attributes = attributes | {"raw_value": raw_value}
+                    response_group.append({"value": value, "attributes": attributes})
 
-                        _value: Value = {
-                            "value": value,
-                            "attributes": attributes,
-                        }
+                if section.value.quantity == 1:
+                    _response_without_quantity.setdefault(response_key, []).append(response_group[0])
+                else:
+                    _response_with_quantity.setdefault(response_key, []).append(response_group)
 
-                        response_group.append(_value)
-                        del response[0]
-
-                    if section.value.quantity == 1:
-                        _response_without_quantity.setdefault(response_key, []).append(response_group[0])
-                    else:
-                        _response_with_quantity.setdefault(response_key, []).append(response_group)
-
-        _response: dict[str, list[Value] | list[list[Value]]] = {}
-        _response.update(_response_without_quantity)
-        _response.update(_response_with_quantity)
-
-        return _response
+        return {**_response_without_quantity, **_response_with_quantity}
 
     async def _read_data(
         self,
@@ -357,6 +451,7 @@ class BaseEndpoints:
         human_readable: bool = True,
         extra_attributes: bool = False,
     ) -> dict[str, list[list[Value]] | list[Value]]:
+        """Read the requested sections with one request and return the converted values."""
         if not isinstance(request, list):
             request = [request]
 
@@ -388,42 +483,33 @@ class BaseEndpoints:
         )
 
     def _generate_write_payload(self, request: dict[Section, Any]) -> Payload:
+        """Build the write payload. A list or tuple value writes one value per device index (``None`` skips)."""
         payload: Payload = []
 
         for endpoint_properties, values in request.items():
-            if isinstance(endpoint_properties, Section):
-                if not endpoint_properties.value.read_only:
-                    if isinstance(values, list | tuple):
-                        for idx, value in enumerate(values):
-                            if value is not None:
-                                name: str = endpoint_properties.value.value % idx
+            if not isinstance(endpoint_properties, Section):
+                continue
 
-                                payload += [
-                                    WritePayload(
-                                        name=name,
-                                        value=str(value),
-                                    ),
-                                ]
-                    else:
-                        payload += [
-                            WritePayload(
-                                name=endpoint_properties.value.value,
-                                value=str(values),
-                            ),
-                        ]
+            if not endpoint_properties.value.read_only:
+                if isinstance(values, list | tuple):
+                    payload += [
+                        WritePayload(name=endpoint_properties.value.value % idx, value=str(value))
+                        for idx, value in enumerate(values)
+                        if value is not None
+                    ]
+                else:
+                    payload += [WritePayload(name=endpoint_properties.value.value, value=str(values))]
 
-                # Append extra calls from a helper function
-                helper = getattr(endpoint_properties.value, "helper", None)
+            # Some endpoints need additional writes (e.g. the solar circuit priority)
+            helper = getattr(endpoint_properties.value, "helper", None)
 
-                if helper is not None:
-                    child_request: dict[Section, Any] = helper(values)
-                    child_payload: Payload = self._generate_write_payload(child_request)
-
-                    payload += child_payload
+            if helper is not None:
+                payload += self._generate_write_payload(helper(values))
 
         return payload
 
     async def _write_values(self, request: dict[Section, Any]) -> None:
+        """Write the requested values with one request."""
         payload: Payload = self._generate_write_payload(request)
 
         await self._post(
@@ -433,7 +519,47 @@ class BaseEndpoints:
 
     @staticmethod
     def _get_allowed_values(enum: type[Enum], /) -> list[str]:
+        """Return all names and values of an enum, for error messages."""
         return [item for pair in ((_.name, str(_.value)) for _ in enum) for item in pair]
+
+    @classmethod
+    def _parse_enum_value(cls, value: int | str, enum: type[Enum], /) -> int:
+        """Return the integer value for a mode given as integer or (case-insensitive) enum name."""
+        if isinstance(value, int):
+            return value
+
+        try:
+            return int(enum[value.upper()].value)
+        except KeyError as error:
+            message: str = f"Invalid value! Allowed values are {cls._get_allowed_values(enum)}"
+            raise APIError(message) from error
+
+    @staticmethod
+    def _values_for_position(value: _T, position: int, /) -> list[_T | None]:
+        """Return a write list that only sets the value for the given (1-based) position."""
+        return [value if position == p else None for p in range(1, position + 1)]
+
+    def _get_value(
+        self,
+        response: dict[str, list[list[Value]] | list[Value]],
+        /,
+        *,
+        section: Section,
+        position: int | None = None,
+        index: int = 0,
+        attribute: str | None = None,
+    ) -> float | str:
+        """Return a single value (or attribute) from a ``_read_data`` response.
+
+        The getters read exactly one device, so the response holds one entry, even for ``position > 1``.
+        """
+        values: list[list[Value]] | list[Value] = response[self._get_real_key(section)]
+        _idx: int = position - 1 if position and position <= len(values) else 0
+
+        value: Value | list[Value] = values[_idx]
+        item: Value = value[index] if isinstance(value, list) else value
+
+        return cast("float | str", item["attributes"][attribute] if attribute else item["value"])
 
     def _get_int_or_str_value(
         self,
@@ -444,18 +570,13 @@ class BaseEndpoints:
         position: int | None = None,
         index: int = 0,
     ) -> int | str:
-        _idx: int = position - 1 if position else 0
-        _key: str = self._get_real_key(section)
-
-        value: Value | list[Value] = response[_key][_idx]
-        _value: str | int = value[index]["value"] if isinstance(value, list) else value["value"]
+        """Return a value as integer if possible, otherwise as string."""
+        _value: float | str = self._get_value(response, section=section, position=position, index=index)
 
         try:
-            _value = int(_value)
+            return int(_value)
         except ValueError:
-            _value = str(_value)
-
-        return _value
+            return str(_value)
 
     def _get_float_value(
         self,
@@ -467,18 +588,8 @@ class BaseEndpoints:
         index: int = 0,
         attribute: str | None = None,
     ) -> float:
-        _idx: int = position - 1 if position else 0
-        _key: str = self._get_real_key(section)
-
-        value: Value | list[Value] = response[_key][_idx]
-
-        return float(
-            (
-                (value[index]["attributes"][attribute] if attribute else value[index]["value"])
-                if isinstance(value, list)
-                else (value["attributes"][attribute] if attribute else value["value"])
-            ),
-        )
+        """Return a value (or attribute) as float."""
+        return float(self._get_value(response, section=section, position=position, index=index, attribute=attribute))
 
     def _get_int_value(
         self,
@@ -490,18 +601,8 @@ class BaseEndpoints:
         index: int = 0,
         attribute: str | None = None,
     ) -> int:
-        _idx: int = position - 1 if position else 0
-        _key: str = self._get_real_key(section)
-
-        value: Value | list[Value] = response[_key][_idx]
-
-        return int(
-            (
-                (value[index]["attributes"][attribute] if attribute else value[index]["value"])
-                if isinstance(value, list)
-                else (value["attributes"][attribute] if attribute else value["value"])
-            ),
-        )
+        """Return a value (or attribute) as integer."""
+        return int(self._get_value(response, section=section, position=position, index=index, attribute=attribute))
 
     def _get_str_value(
         self,
@@ -512,12 +613,8 @@ class BaseEndpoints:
         position: int | None = None,
         index: int = 0,
     ) -> str:
-        _idx: int = position - 1 if position else 0
-        _key: str = self._get_real_key(section)
-
-        value: Value | list[Value] = response[_key][_idx]
-
-        return str(value[index]["value"] if isinstance(value, list) else value["value"])
+        """Return a value as string."""
+        return str(self._get_value(response, section=section, position=position, index=index))
 
 
 class SystemEndpoints(BaseEndpoints):
@@ -526,41 +623,23 @@ class SystemEndpoints(BaseEndpoints):
     Examples
     --------
     >>> client = KebaKeEnergyAPI(
-    >>>     host="ap4400.local",
-    >>>     username="test",
-    >>>     password="test",
-    >>>     ssl=True,
-    >>>     skip_ssl_verification=True
-    >>> )
-    >>> client.system.get_info()
+    ...     host="ap4400.local",
+    ...     username="test",
+    ...     password="test",
+    ...     ssl=True,
+    ...     skip_ssl_verification=True
+    ... )
+    >>> await client.system.get_info()
 
     """
-
-    def __init__(
-        self,
-        base_url: str,
-        *,
-        auth: str | None,
-        ssl: bool,
-        skip_ssl_verification: bool,
-        session: ClientSession | None = None,
-    ) -> None:
-        """Initialize endpoints."""
-        super().__init__(
-            base_url=base_url,
-            auth=auth,
-            ssl=ssl,
-            skip_ssl_verification=skip_ssl_verification,
-            session=session,
-        )
 
     async def get_positions(self) -> Position:
         """Get the number of installed devices e.g. heat circuit, solar circuit, etc.
 
         Returns
         -------
-        tuple
-            A named tuple with the position information
+        Position
+            The number of installed devices per device type
 
         """
         response: dict[str, list[Value]] = cast(
@@ -588,7 +667,7 @@ class SystemEndpoints(BaseEndpoints):
 
         Returns
         -------
-        dict
+        dict[str, Any]
             A dictionary with system information
 
         """
@@ -603,7 +682,7 @@ class SystemEndpoints(BaseEndpoints):
 
         Returns
         -------
-        dict
+        dict[str, Any]
             A dictionary with Web HMI information
 
         """
@@ -618,7 +697,7 @@ class SystemEndpoints(BaseEndpoints):
 
         Returns
         -------
-        dict
+        dict[str, Any]
             A dictionary with control unit information
 
         """
@@ -728,7 +807,7 @@ class SystemEndpoints(BaseEndpoints):
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -749,7 +828,7 @@ class SystemEndpoints(BaseEndpoints):
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -785,7 +864,7 @@ class SystemEndpoints(BaseEndpoints):
 
         Returns
         -------
-        integer or string
+        int | str
             -1(SETUP) / (0) STANDBY / (1) SUMMER / (2) AUTO_HEAT / (3) AUTO_COOL / (4) AUTO
 
         """
@@ -808,11 +887,7 @@ class SystemEndpoints(BaseEndpoints):
             Set the mode as integer or string (human-readable) e.g. 0 or STANDBY
 
         """
-        try:
-            _mode: int | None = mode if isinstance(mode, int) else SystemOperatingMode[mode.upper()].value
-        except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(SystemOperatingMode)}"
-            raise APIError(message) from error
+        _mode: int = self._parse_enum_value(mode, SystemOperatingMode)
 
         await self._write_values(request={System.OPERATING_MODE: _mode})
 
@@ -927,33 +1002,15 @@ class BufferTankEndpoints(BaseEndpoints):
     Examples
     --------
     >>> client = KebaKeEnergyAPI(
-    >>>     host="ap4400.local",
-    >>>     username="test",
-    >>>     password="test",
-    >>>     ssl=True,
-    >>>     skip_ssl_verification=True
-    >>> )
-    >>> client.buffer_tank.get_name()
+    ...     host="ap4400.local",
+    ...     username="test",
+    ...     password="test",
+    ...     ssl=True,
+    ...     skip_ssl_verification=True
+    ... )
+    >>> await client.buffer_tank.get_name()
 
     """
-
-    def __init__(
-        self,
-        base_url: str,
-        *,
-        auth: str | None,
-        ssl: bool,
-        skip_ssl_verification: bool,
-        session: ClientSession | None = None,
-    ) -> None:
-        """Initialize endpoints."""
-        super().__init__(
-            base_url=base_url,
-            auth=auth,
-            ssl=ssl,
-            skip_ssl_verification=skip_ssl_verification,
-            session=session,
-        )
 
     async def get_name(self, position: int = 1) -> str:
         """Get the buffer tank name.
@@ -961,11 +1018,11 @@ class BufferTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
 
         Returns
         -------
-        string
+        str
             Buffer tank name
 
         """
@@ -982,7 +1039,7 @@ class BufferTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
 
         Returns
         -------
@@ -1003,7 +1060,7 @@ class BufferTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
 
         Returns
         -------
@@ -1024,13 +1081,13 @@ class BufferTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON) / 2 (HEAT_UP)
 
         """
@@ -1053,16 +1110,12 @@ class BufferTankEndpoints(BaseEndpoints):
         mode
             Set the mode as integer or string (human-readable) e.g. 0 or OFF
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
 
         """
-        try:
-            _mode: int | None = mode if isinstance(mode, int) else BufferTankOperatingMode[mode.upper()].value
-        except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BufferTankOperatingMode)}"
-            raise APIError(message) from error
+        _mode: int = self._parse_enum_value(mode, BufferTankOperatingMode)
 
-        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+        modes: list[int | None] = self._values_for_position(_mode, position)
 
         await self._write_values(request={BufferTank.OPERATING_MODE: modes})
 
@@ -1072,7 +1125,7 @@ class BufferTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
 
         Returns
         -------
@@ -1098,10 +1151,10 @@ class BufferTankEndpoints(BaseEndpoints):
         temperature
             The standby temperature in °C
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={BufferTank.STANDBY_TEMPERATURE: temperatures})
 
     async def get_target_temperature(self, position: int = 1) -> float:
@@ -1110,7 +1163,7 @@ class BufferTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
 
         Returns
         -------
@@ -1131,7 +1184,7 @@ class BufferTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
 
         Returns
         -------
@@ -1157,10 +1210,10 @@ class BufferTankEndpoints(BaseEndpoints):
         temperature
             The excess energy target temperature in °C
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={BufferTank.EXCESS_ENERGY_TARGET_TEMPERATURE: temperatures})
 
     async def get_excess_energy_target_temperature_hysteresis(self, position: int = 1) -> float:
@@ -1169,7 +1222,7 @@ class BufferTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
 
         Returns
         -------
@@ -1197,10 +1250,10 @@ class BufferTankEndpoints(BaseEndpoints):
         temperature
             The excess energy target temperature in °C
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={BufferTank.EXCESS_ENERGY_TARGET_TEMPERATURE_HYSTERESIS: temperatures})
 
     async def get_outdoor_temperature_excess_energy_limit(self, position: int = 1) -> float:
@@ -1209,7 +1262,7 @@ class BufferTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
 
         Returns
         -------
@@ -1237,10 +1290,10 @@ class BufferTankEndpoints(BaseEndpoints):
         temperature
             The outdoor temperature excess energy limit temperature in °C
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={BufferTank.OUTDOOR_TEMPERATURE_EXCESS_ENERGY_LIMIT: temperatures})
 
     async def get_use_excess_energy(
@@ -1254,13 +1307,13 @@ class BufferTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             (0) OFF / (1) ON
 
         """
@@ -1283,16 +1336,12 @@ class BufferTankEndpoints(BaseEndpoints):
         mode
             Set the mode as integer or string (human-readable) e.g. 0 or OFF
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
 
         """
-        try:
-            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
-        except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
-            raise APIError(message) from error
+        _mode: int = self._parse_enum_value(mode, BoolEnum)
 
-        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+        modes: list[int | None] = self._values_for_position(_mode, position)
 
         await self._write_values(request={BufferTank.USE_EXCESS_ENERGY: modes})
 
@@ -1307,14 +1356,14 @@ class BufferTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
-            (0) OFF / (1) HEATING / (1) COOLING
+        int | str
+            (0) OFF / (1) HEATING / (2) COOLING
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
@@ -1331,13 +1380,13 @@ class BufferTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -1355,13 +1404,13 @@ class BufferTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the buffer tanks
+            Position of the buffer tank, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -1380,33 +1429,15 @@ class HotWaterTankEndpoints(BaseEndpoints):
     Examples
     --------
     >>> client = KebaKeEnergyAPI(
-    >>>     host="ap4400.local",
-    >>>     username="test",
-    >>>     password="test",
-    >>>     ssl=True,
-    >>>     skip_ssl_verification=True
-    >>> )
-    >>> client.hot_water_tank.get_name()
+    ...     host="ap4400.local",
+    ...     username="test",
+    ...     password="test",
+    ...     ssl=True,
+    ...     skip_ssl_verification=True
+    ... )
+    >>> await client.hot_water_tank.get_name()
 
     """
-
-    def __init__(
-        self,
-        base_url: str,
-        *,
-        auth: str | None,
-        ssl: bool,
-        skip_ssl_verification: bool,
-        session: ClientSession | None = None,
-    ) -> None:
-        """Initialize endpoints."""
-        super().__init__(
-            base_url=base_url,
-            auth=auth,
-            ssl=ssl,
-            skip_ssl_verification=skip_ssl_verification,
-            session=session,
-        )
 
     async def get_name(self, position: int = 1) -> str:
         """Get the hot water tank name.
@@ -1414,11 +1445,11 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         Returns
         -------
-        string
+        str
             Hot water tank name
 
         """
@@ -1435,7 +1466,7 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         Returns
         -------
@@ -1456,13 +1487,13 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             (0) OFF / (1) AUTO / (2) ON / (3) HEAT_UP
 
         """
@@ -1485,16 +1516,12 @@ class HotWaterTankEndpoints(BaseEndpoints):
         mode
             Set the mode as integer or string (human-readable) e.g. 0 or OFF
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         """
-        try:
-            _mode: int | None = mode if isinstance(mode, int) else HotWaterTankOperatingMode[mode.upper()].value
-        except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(HotWaterTankOperatingMode)}"
-            raise APIError(message) from error
+        _mode: int = self._parse_enum_value(mode, HotWaterTankOperatingMode)
 
-        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+        modes: list[int | None] = self._values_for_position(_mode, position)
 
         await self._write_values(request={HotWaterTank.OPERATING_MODE: modes})
 
@@ -1504,11 +1531,11 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         Returns
         -------
-        float
+        int
             Temperature in °C
 
         """
@@ -1530,11 +1557,11 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         Returns
         -------
-        float
+        int
             Temperature in °C
 
         """
@@ -1556,7 +1583,7 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         Returns
         -------
@@ -1582,10 +1609,10 @@ class HotWaterTankEndpoints(BaseEndpoints):
         temperature
             The standby temperature in °C
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HotWaterTank.STANDBY_TEMPERATURE: temperatures})
 
     async def get_target_temperature(self, position: int = 1) -> float:
@@ -1594,7 +1621,7 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         Returns
         -------
@@ -1620,10 +1647,10 @@ class HotWaterTankEndpoints(BaseEndpoints):
         temperature
             The target temperature in °C
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HotWaterTank.TARGET_TEMPERATURE: temperatures})
 
     async def get_excess_energy_target_temperature(self, position: int = 1) -> float:
@@ -1632,7 +1659,7 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         Returns
         -------
@@ -1658,10 +1685,10 @@ class HotWaterTankEndpoints(BaseEndpoints):
         temperature
             The excess energy target temperature in °C
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HotWaterTank.EXCESS_ENERGY_TARGET_TEMPERATURE: temperatures})
 
     async def get_excess_energy_target_temperature_hysteresis(self, position: int = 1) -> float:
@@ -1670,7 +1697,7 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         Returns
         -------
@@ -1698,10 +1725,10 @@ class HotWaterTankEndpoints(BaseEndpoints):
         temperature
             The excess energy target temperature in °C
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HotWaterTank.EXCESS_ENERGY_TARGET_TEMPERATURE_HYSTERESIS: temperatures})
 
     async def get_use_excess_energy(
@@ -1715,13 +1742,13 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             (0) OFF / (1) ON
 
         """
@@ -1744,16 +1771,12 @@ class HotWaterTankEndpoints(BaseEndpoints):
         mode
             Set the mode as integer or string (human-readable) e.g. 0 or OFF
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         """
-        try:
-            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
-        except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
-            raise APIError(message) from error
+        _mode: int = self._parse_enum_value(mode, BoolEnum)
 
-        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+        modes: list[int | None] = self._values_for_position(_mode, position)
 
         await self._write_values(request={HotWaterTank.USE_EXCESS_ENERGY: modes})
 
@@ -1768,14 +1791,14 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
-            (0) OFF / (1) HEATING / (1) COOLING
+        int | str
+            (0) OFF / (1) HEATING / (2) COOLING
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
@@ -1792,13 +1815,13 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -1810,26 +1833,29 @@ class HotWaterTankEndpoints(BaseEndpoints):
         )
         return self._get_int_or_str_value(response, section=HotWaterTank.HEAT_REQUEST, position=position)
 
-    async def has_fresh_water_module(self, *, human_readable: bool = True) -> int | str:
+    async def has_fresh_water_module(self, position: int = 1, *, human_readable: bool = True) -> int | str:
         """Check if fresh water module is available.
 
         Parameters
         ----------
+        position
+            Position of the hot water tank, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HotWaterTank.HAS_FRESH_WATER_MODULE,
+            position=position,
             human_readable=human_readable,
             extra_attributes=True,
         )
-        return self._get_int_or_str_value(response, section=HotWaterTank.HAS_FRESH_WATER_MODULE)
+        return self._get_int_or_str_value(response, section=HotWaterTank.HAS_FRESH_WATER_MODULE, position=position)
 
     async def get_fresh_water_flow(self, position: int = 1, *, human_readable: bool = True) -> int | str:
         """Get the fresh water flow from the fresh water module.
@@ -1837,13 +1863,13 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -1861,7 +1887,7 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         Returns
         -------
@@ -1882,7 +1908,7 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         Returns
         -------
@@ -1903,7 +1929,7 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
 
         Returns
         -------
@@ -1924,13 +1950,13 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the hot water tank, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -1949,33 +1975,15 @@ class HeatPumpEndpoints(BaseEndpoints):
     Examples
     --------
     >>> client = KebaKeEnergyAPI(
-    >>>     host="ap4400.local",
-    >>>     username="test",
-    >>>     password="test",
-    >>>     ssl=True,
-    >>>     skip_ssl_verification=True
-    >>> )
-    >>> client.heat_pump.get_name()
+    ...     host="ap4400.local",
+    ...     username="test",
+    ...     password="test",
+    ...     ssl=True,
+    ...     skip_ssl_verification=True
+    ... )
+    >>> await client.heat_pump.get_name()
 
     """
-
-    def __init__(
-        self,
-        base_url: str,
-        *,
-        auth: str | None,
-        ssl: bool,
-        skip_ssl_verification: bool,
-        session: ClientSession | None = None,
-    ) -> None:
-        """Initialize endpoints."""
-        super().__init__(
-            base_url=base_url,
-            auth=auth,
-            ssl=ssl,
-            skip_ssl_verification=skip_ssl_verification,
-            session=session,
-        )
 
     async def get_name(self, position: int = 1) -> str:
         """Get the heat pump name.
@@ -1983,12 +1991,12 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
-        string
-            Heat pum tank name
+        str
+            Heat pump name
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
@@ -2004,13 +2012,13 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             (0) STANDBY / (1) FLOW / (2) AUTO_HEAT / (3) DEFROST / (4) AUTO_COOL / (5) INFLOW / (6) PUMP_DOWN /
             (7) SHUTDOWN / (8) ERROR
 
@@ -2029,19 +2037,19 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
-            (0) NONE /(1) OIL_PREHEATING / (2, 3) PUMP_PRE_RUN / (4) RANDOM_DELAY / (5, 21, 22) PRESSURE_EQUALIZATION
+        int | str
+            (0) NONE / (1) OIL_PREHEATING / (2, 3) PUMP_PRE_RUN / (4) RANDOM_DELAY / (5, 21, 22) PRESSURE_EQUALIZATION /
             (6) DEFROST_PRE_FLOW / (7) DEFROST_MONITORING / (8) SNOW_DETECTION / (9) FLUSHING /
             (10) DEFROST_INITIALIZATION / (11) PREHEAT_FLOW / (12) DEFROST / (13, 25) DRIP / (14) DEFROST_END /
             (15, 16) OPEN / (17) COMPRESSOR_POST_RUN / (18) PUMP_POST_RUN / (19) LUBRICATION_PULSE /
-            (20, 26) / REDUCED_SPEED / (23) COMPRESSOR_DELAY / (24) DEFROST_VENTING / (27) SWITCH_HEATING_COOLING /
-            (28, 33) / WAIT_FOR_COMPRESSOR / (29) COMPRESSOR_STOP / (30) BIVALENT_LOCK / (31) LOCKED /
+            (20, 26) REDUCED_SPEED / (23) COMPRESSOR_DELAY / (24) DEFROST_VENTING / (27) SWITCH_HEATING_COOLING /
+            (28, 33) WAIT_FOR_COMPRESSOR / (29) COMPRESSOR_STOP / (30) BIVALENT_LOCK / (31) LOCKED /
             (32) RETURN_FLOW_OFF / (34) MIXER_OPEN / (35) ZONE_VALVE / (36) ELECTRIC_DEFROST / (37) COUNTERFLOW_VALVE
 
         """
@@ -2059,13 +2067,13 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             (0) OFF / (1) ON / (2) BACKUP
 
         """
@@ -2088,16 +2096,12 @@ class HeatPumpEndpoints(BaseEndpoints):
         mode
             Set the mode as integer or string (human-readable) e.g. 0 or OFF
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         """
-        try:
-            _mode: int | None = mode if isinstance(mode, int) else HeatPumpOperatingMode[mode.upper()].value
-        except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(HeatPumpOperatingMode)}"
-            raise APIError(message) from error
+        _mode: int = self._parse_enum_value(mode, HeatPumpOperatingMode)
 
-        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+        modes: list[int | None] = self._values_for_position(_mode, position)
 
         await self._write_values(request={HeatPump.OPERATING_MODE: modes})
 
@@ -2112,13 +2116,13 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the heat pump, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             (0) OFF / (1) ON
 
         """
@@ -2141,16 +2145,12 @@ class HeatPumpEndpoints(BaseEndpoints):
         mode
             Set the mode as integer or string (human-readable) e.g. 0 or OFF
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         """
-        try:
-            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
-        except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
-            raise APIError(message) from error
+        _mode: int = self._parse_enum_value(mode, BoolEnum)
 
-        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+        modes: list[int | None] = self._values_for_position(_mode, position)
 
         await self._write_values(request={HeatPump.COMPRESSOR_USE_NIGHT_SPEED: modes})
 
@@ -2165,9 +2165,9 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the hot water tanks
+            Position of the heat pump, starting at 1
         human_readable
-            Return a human-readable string
+            Has no effect, kept for backwards compatibility
 
         Returns
         -------
@@ -2194,10 +2194,10 @@ class HeatPumpEndpoints(BaseEndpoints):
         speed
             Set the speed in percent
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         """
-        speeds: list[float | None] = [speed if position == p else None for p in range(1, position + 1)]
+        speeds: list[float | None] = self._values_for_position(speed, position)
         await self._write_values(request={HeatPump.COMPRESSOR_NIGHT_SPEED: speeds})
 
     async def get_min_compressor_night_speed(self, position: int = 1) -> float:
@@ -2206,7 +2206,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2232,7 +2232,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2258,7 +2258,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2279,7 +2279,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2300,7 +2300,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2321,7 +2321,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2342,7 +2342,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2363,7 +2363,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2384,7 +2384,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2405,7 +2405,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2426,7 +2426,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2447,7 +2447,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2468,7 +2468,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2489,7 +2489,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2510,7 +2510,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2531,7 +2531,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2552,7 +2552,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2573,7 +2573,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2594,13 +2594,13 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -2618,13 +2618,13 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -2642,11 +2642,11 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
-        integer
+        int
             Operating time in seconds
 
         """
@@ -2663,11 +2663,11 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
-        integer
+        int
             Excess energy maximum runtime in seconds
 
         """
@@ -2684,11 +2684,11 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
-        integer
+        int
             Number of excess energy activation
 
         """
@@ -2705,7 +2705,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2726,7 +2726,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2747,7 +2747,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2768,7 +2768,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2789,7 +2789,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2810,7 +2810,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2831,7 +2831,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2852,7 +2852,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2873,7 +2873,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2894,7 +2894,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2915,7 +2915,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2936,7 +2936,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2957,7 +2957,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2978,7 +2978,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -2999,7 +2999,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -3020,7 +3020,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -3041,7 +3041,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -3062,7 +3062,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -3083,7 +3083,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -3104,7 +3104,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
@@ -3125,13 +3125,13 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -3149,13 +3149,13 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -3173,11 +3173,11 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
-        integer
+        int
             Operating time in seconds
 
         """
@@ -3194,11 +3194,11 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
-        integer
+        int
             Maximum runtime in seconds
 
         """
@@ -3215,11 +3215,11 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
 
         Returns
         -------
-        integer
+        int
             Number of external heat pump activation
 
         """
@@ -3236,13 +3236,13 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -3260,13 +3260,13 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -3284,13 +3284,13 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -3308,13 +3308,13 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -3332,13 +3332,13 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -3356,13 +3356,13 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heat pump, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -3381,33 +3381,15 @@ class HeatCircuitEndpoints(BaseEndpoints):
     Examples
     --------
     >>> client = KebaKeEnergyAPI(
-    >>>     host="ap4400.local",
-    >>>     username="test",
-    >>>     password="test",
-    >>>     ssl=True,
-    >>>     skip_ssl_verification=True
-    >>> )
-    >>> client.heat_circuit.get_name()
+    ...     host="ap4400.local",
+    ...     username="test",
+    ...     password="test",
+    ...     ssl=True,
+    ...     skip_ssl_verification=True
+    ... )
+    >>> await client.heat_circuit.get_name()
 
     """
-
-    def __init__(
-        self,
-        base_url: str,
-        *,
-        auth: str | None,
-        ssl: bool,
-        skip_ssl_verification: bool,
-        session: ClientSession | None = None,
-    ) -> None:
-        """Initialize endpoints."""
-        super().__init__(
-            base_url=base_url,
-            auth=auth,
-            ssl=ssl,
-            skip_ssl_verification=skip_ssl_verification,
-            session=session,
-        )
 
     async def get_name(self, position: int = 1) -> str:
         """Get the heat circuit name.
@@ -3415,11 +3397,11 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
-        string
+        str
             Heat circuit name
 
         """
@@ -3436,13 +3418,13 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat circuits
+            Position of the heating circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (HEATING) / 1 (COOLING) / 2 (HEATING_AND_COOLING) / 3 (HEATING_AND_ACTIVE_COOLING)
 
         """
@@ -3460,13 +3442,13 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -3484,7 +3466,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -3505,13 +3487,13 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -3529,7 +3511,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -3550,7 +3532,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -3571,7 +3553,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -3586,26 +3568,29 @@ class HeatCircuitEndpoints(BaseEndpoints):
         )
         return self._get_float_value(response, section=HeatCircuit.FLOW_TEMPERATURE_SETPOINT, position=position)
 
-    async def has_mixer(self, *, human_readable: bool = True) -> int | str:
+    async def has_mixer(self, position: int = 1, *, human_readable: bool = True) -> int | str:
         """Check if heating circuit mixer is available.
 
         Parameters
         ----------
+        position
+            Position of the heating circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=HeatCircuit.HAS_MIXER,
+            position=position,
             human_readable=human_readable,
             extra_attributes=True,
         )
-        return self._get_int_or_str_value(response, section=HeatCircuit.HAS_MIXER)
+        return self._get_int_or_str_value(response, section=HeatCircuit.HAS_MIXER, position=position)
 
     async def get_mixer_flow_temperature(self, position: int = 1) -> float:
         """Get the mixer flow temperature from the heat circuit.
@@ -3613,7 +3598,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -3634,7 +3619,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -3655,13 +3640,13 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             -1 (CLOSED) / 0 (OFF) / 1 (OPEN)
 
         """
@@ -3680,13 +3665,13 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -3699,18 +3684,18 @@ class HeatCircuitEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=HeatCircuit.PUMP_STATE, position=position)
 
     async def has_return_flow_temperature(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Check if return flow temperature sensor cooling is available.
+        """Check if the return flow temperature sensor is available.
 
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heating circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -3728,7 +3713,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -3750,7 +3735,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -3776,13 +3761,13 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             (0) OFF / (1) ON
 
         """
@@ -3805,16 +3790,12 @@ class HeatCircuitEndpoints(BaseEndpoints):
         mode
             Set the mode as integer or string (human-readable) e.g. 0 or OFF
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        try:
-            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
-        except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
-            raise APIError(message) from error
+        _mode: int = self._parse_enum_value(mode, BoolEnum)
 
-        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+        modes: list[int | None] = self._values_for_position(_mode, position)
 
         await self._write_values(request={HeatCircuit.USE_EXCESS_ENERGY: modes})
 
@@ -3829,14 +3810,14 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
-            (0) OFF / (1) HEATING / (1) COOLING
+        int | str
+            (0) OFF / (1) HEATING / (2) COOLING
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
@@ -3853,7 +3834,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -3879,10 +3860,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The excess energy target temperature for the day in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HeatCircuit.EXCESS_ENERGY_TARGET_TEMPERATURE: temperatures})
 
     async def get_excess_energy_target_temperature_hysteresis(self, position: int = 1) -> float:
@@ -3891,7 +3872,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -3919,10 +3900,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The excess energy target temperature in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HeatCircuit.EXCESS_ENERGY_TARGET_TEMPERATURE_HYSTERESIS: temperatures})
 
     async def get_excess_energy_target_cooling_temperature(self, position: int = 1) -> float:
@@ -3931,7 +3912,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -3959,10 +3940,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The excess energy target cooling temperature for the day in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HeatCircuit.EXCESS_ENERGY_TARGET_COOLING_TEMPERATURE: temperatures})
 
     async def get_excess_energy_target_cooling_temperature_hysteresis(self, position: int = 1) -> float:
@@ -3971,7 +3952,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4001,10 +3982,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The excess energy target cooling temperature in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(
             request={HeatCircuit.EXCESS_ENERGY_TARGET_COOLING_TEMPERATURE_HYSTERESIS: temperatures}
         )
@@ -4015,7 +3996,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4036,7 +4017,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4062,10 +4043,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The target temperature for the day in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HeatCircuit.TARGET_TEMPERATURE_DAY: temperatures})
 
     async def get_target_cooling_temperature_day(self, position: int = 1) -> float:
@@ -4074,7 +4055,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4100,10 +4081,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The target cooling temperature for the day in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HeatCircuit.TARGET_COOLING_TEMPERATURE_DAY: temperatures})
 
     async def get_heating_limit_day(self, position: int = 1) -> float:
@@ -4112,7 +4093,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4138,10 +4119,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The heating limit temperature for the day in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HeatCircuit.HEATING_LIMIT_DAY: temperatures})
 
     async def get_cooling_limit_day(self, position: int = 1) -> float:
@@ -4150,7 +4131,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4176,10 +4157,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The cooling limit temperature for the day in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HeatCircuit.COOLING_LIMIT_DAY: temperatures})
 
     async def get_excess_energy_heating_limit_day(self, position: int = 1) -> float:
@@ -4188,7 +4169,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4214,10 +4195,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The excess energy heating limit temperature for the day in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HeatCircuit.EXCESS_ENERGY_HEATING_LIMIT_DAY: temperatures})
 
     async def get_excess_energy_cooling_limit_day(self, position: int = 1) -> float:
@@ -4226,7 +4207,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4252,10 +4233,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The excess energy cooling limit temperature for the day in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HeatCircuit.EXCESS_ENERGY_COOLING_LIMIT_DAY: temperatures})
 
     async def get_target_temperature_night(self, position: int = 1) -> float:
@@ -4264,7 +4245,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4290,10 +4271,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The target temperature for the day in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HeatCircuit.TARGET_TEMPERATURE_NIGHT: temperatures})
 
     async def get_target_cooling_temperature_night(self, position: int = 1) -> float:
@@ -4302,7 +4283,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4328,10 +4309,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The target cooling temperature for the day in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HeatCircuit.TARGET_COOLING_TEMPERATURE_NIGHT: temperatures})
 
     async def get_heating_limit_night(self, position: int = 1) -> float:
@@ -4340,7 +4321,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4366,10 +4347,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The heating limit temperature for the night in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HeatCircuit.HEATING_LIMIT_NIGHT: temperatures})
 
     async def get_cooling_limit_night(self, position: int = 1) -> float:
@@ -4378,7 +4359,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4404,10 +4385,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The cooling limit temperature for the night in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HeatCircuit.COOLING_LIMIT_NIGHT: temperatures})
 
     async def get_excess_energy_heating_limit_night(self, position: int = 1) -> float:
@@ -4416,7 +4397,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4442,10 +4423,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The excess energy heating limit temperature for the night in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HeatCircuit.EXCESS_ENERGY_HEATING_LIMIT_NIGHT: temperatures})
 
     async def get_excess_energy_cooling_limit_night(self, position: int = 1) -> float:
@@ -4454,7 +4435,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4480,10 +4461,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The excess energy cooling limit temperature for the night in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HeatCircuit.EXCESS_ENERGY_COOLING_LIMIT_NIGHT: temperatures})
 
     async def get_target_temperature_away(self, position: int = 1) -> float:
@@ -4492,7 +4473,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4518,10 +4499,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         temperature
             The target temperature for the day in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [temperature if position == p else None for p in range(1, position + 1)]
+        temperatures: list[float | None] = self._values_for_position(temperature, position)
         await self._write_values(request={HeatCircuit.TARGET_TEMPERATURE_AWAY: temperatures})
 
     async def get_target_temperature_offset(self, position: int = 1) -> float:
@@ -4530,7 +4511,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4556,10 +4537,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         offset
             The target temperature offset
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        offsets: list[float | None] = [offset if position == p else None for p in range(1, position + 1)]
+        offsets: list[float | None] = self._values_for_position(offset, position)
         await self._write_values(request={HeatCircuit.TARGET_TEMPERATURE_OFFSET: offsets})
 
     async def get_operating_mode(self, position: int = 1, *, human_readable: bool = True) -> int | str:
@@ -4568,13 +4549,13 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (AUTO) / (2) DAY / (3) NIGHT / (4) HOLIDAY / (5) PARTY / (8) EXTERNAL / (9) ROOM_CONTROL
 
         """
@@ -4597,16 +4578,12 @@ class HeatCircuitEndpoints(BaseEndpoints):
         mode
             Set the mode as integer or string (human-readable) e.g. 0 or OFF
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        try:
-            _mode: int | None = mode if isinstance(mode, int) else HeatCircuitOperatingMode[mode.upper()].value
-        except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(HeatCircuitOperatingMode)}"
-            raise APIError(message) from error
+        _mode: int = self._parse_enum_value(mode, HeatCircuitOperatingMode)
 
-        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+        modes: list[int | None] = self._values_for_position(_mode, position)
 
         await self._write_values(request={HeatCircuit.OPERATING_MODE: modes})
 
@@ -4616,13 +4593,13 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat circuits
+            Position of the heating circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -4640,13 +4617,13 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat circuits
+            Position of the heating circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -4664,11 +4641,11 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
-        integer
+        int
             Start date as unix timestamp
 
         """
@@ -4690,10 +4667,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         timestamp
             Start date as unix timestamp
         position
-            The number of the external heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        timestamps: list[float | None] = [timestamp if position == p else None for p in range(1, position + 1)]
+        timestamps: list[float | None] = self._values_for_position(timestamp, position)
         await self._write_values(request={HeatCircuit.AWAY_START_DATE: timestamps})
 
     async def get_away_end_date(self, position: int = 1) -> int:
@@ -4702,11 +4679,11 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
-        integer
+        int
             Start date as unix timestamp
 
         """
@@ -4728,10 +4705,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         timestamp
             Start date as unix timestamp
         position
-            The number of the external heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        timestamps: list[float | None] = [timestamp if position == p else None for p in range(1, position + 1)]
+        timestamps: list[float | None] = self._values_for_position(timestamp, position)
         await self._write_values(request={HeatCircuit.AWAY_END_DATE: timestamps})
 
     async def get_heating_curve_offset(self, position: int = 1) -> float:
@@ -4740,7 +4717,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4766,10 +4743,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         offset
             The offset in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        offsets: list[float | None] = [offset if position == p else None for p in range(1, position + 1)]
+        offsets: list[float | None] = self._values_for_position(offset, position)
         await self._write_values(request={HeatCircuit.HEATING_CURVE_OFFSET: offsets})
 
     async def get_cooling_curve_offset(self, position: int = 1) -> float:
@@ -4778,7 +4755,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4804,10 +4781,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         offset
             The offset in °C
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        offsets: list[float | None] = [offset if position == p else None for p in range(1, position + 1)]
+        offsets: list[float | None] = self._values_for_position(offset, position)
         await self._write_values(request={HeatCircuit.COOLING_CURVE_OFFSET: offsets})
 
     async def get_heating_curve_slope(self, position: int = 1) -> float:
@@ -4816,7 +4793,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4842,10 +4819,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         slope
             The slope
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        slopes: list[float | None] = [slope if position == p else None for p in range(1, position + 1)]
+        slopes: list[float | None] = self._values_for_position(slope, position)
         await self._write_values(request={HeatCircuit.HEATING_CURVE_SLOPE: slopes})
 
     async def get_cooling_curve_slope(self, position: int = 1) -> float:
@@ -4854,7 +4831,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -4880,10 +4857,10 @@ class HeatCircuitEndpoints(BaseEndpoints):
         slope
             The slope
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        slopes: list[float | None] = [slope if position == p else None for p in range(1, position + 1)]
+        slopes: list[float | None] = self._values_for_position(slope, position)
         await self._write_values(request={HeatCircuit.COOLING_CURVE_SLOPE: slopes})
 
     async def get_use_heating_curve(
@@ -4897,13 +4874,13 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             (0) OFF / (1) ON
 
         """
@@ -4926,16 +4903,12 @@ class HeatCircuitEndpoints(BaseEndpoints):
         mode
             Set the mode as integer or string (human-readable) e.g. 0 or OFF
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        try:
-            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
-        except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
-            raise APIError(message) from error
+        _mode: int = self._parse_enum_value(mode, BoolEnum)
 
-        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+        modes: list[int | None] = self._values_for_position(_mode, position)
 
         await self._write_values(request={HeatCircuit.USE_HEATING_CURVE: modes})
 
@@ -4945,11 +4918,12 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
-        string
+        str
+            Name of the heating curve, e.g. HC1
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
@@ -4968,22 +4942,18 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         heating_curve
-            The heating curve name
+            The heating curve name, e.g. HC1
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        heating_curves: tuple[tuple[int, str], ...] = await self.get_available_heating_curves()
+        curve_names: list[str] = [name for _, name in await self.get_available_heating_curves()]
 
-        curve_map: dict[str, tuple[int, str]] = {name: (idx, name) for idx, name in heating_curves}
+        if heating_curve not in curve_names:
+            message: str = f"Invalid value! Allowed values are {curve_names}"
+            raise APIError(message)
 
-        try:
-            _idx, _name = curve_map[heating_curve]
-        except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {[name for _, name in heating_curves]}"
-            raise APIError(message) from error
-
-        names: list[str | None] = [_name if position == p else None for p in range(1, position + 1)]
+        names: list[str | None] = self._values_for_position(heating_curve, position)
 
         await self._write_values(request={HeatCircuit.HEATING_CURVE: names})
 
@@ -4993,11 +4963,12 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
-        string
+        str
+            Name of the cooling curve, e.g. HC1
 
         """
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
@@ -5016,22 +4987,18 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         cooling_curve
-            The heating curve name
+            The cooling curve name, e.g. HC2
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         """
-        cooling_curves: tuple[tuple[int, str], ...] = await self.get_available_heating_curves()
+        curve_names: list[str] = [name for _, name in await self.get_available_heating_curves()]
 
-        curve_map: dict[str, tuple[int, str]] = {name: (idx, name) for idx, name in cooling_curves}
+        if cooling_curve not in curve_names:
+            message: str = f"Invalid value! Allowed values are {curve_names}"
+            raise APIError(message)
 
-        try:
-            _idx, _name = curve_map[cooling_curve]
-        except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {[name for _, name in cooling_curves]}"
-            raise APIError(message) from error
-
-        names: list[str | None] = [_name if position == p else None for p in range(1, position + 1)]
+        names: list[str | None] = self._values_for_position(cooling_curve, position)
 
         await self._write_values(request={HeatCircuit.COOLING_CURVE: names})
 
@@ -5045,7 +5012,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         Returns
         -------
-        dict
+        HeatingCurves
             One or more heating curves and the points
 
         """
@@ -5065,7 +5032,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
                 ),
             ]
 
-            for point_idx in range(16):
+            for point_idx in range(_MAX_HEATING_CURVE_POINTS):
                 payload += [
                     ReadPayload(
                         name=LineTablePool.HEATING_CURVE_POINT_X.value.value % (idx, point_idx),
@@ -5085,7 +5052,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         data: HeatingCurves = {}
 
         data_idx: int = 0
-        points_per_table: int = 16
+        points_per_table: int = _MAX_HEATING_CURVE_POINTS
         values_per_point: int = 2
 
         valid_curves: set[str] = {name for _, name in heating_curves}
@@ -5160,11 +5127,11 @@ class HeatCircuitEndpoints(BaseEndpoints):
             write_payload: Payload = [
                 WritePayload(
                     name=LineTablePool.HEATING_CURVE_POINTS.value.value % idx,
-                    value=str(len(points) or MIN_HEATING_CURVE_POINTS),
+                    value=str(len(points) or _MIN_HEATING_CURVE_POINTS),
                 ),
             ]
 
-            for point_idx in range(MAX_HEATING_CURVE_POINTS):
+            for point_idx in range(_MAX_HEATING_CURVE_POINTS):
                 point: HeatingCurvePoint | None = None
 
                 if point_idx < len(points):
@@ -5198,46 +5165,35 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         Returns
         -------
-        tuple
+        tuple[tuple[int, str], ...]
             Index and heating curve name pairs
 
         """
-        payload: Payload = []
-
-        for idx in list(range(30)):
-            payload += [
-                ReadPayload(
-                    name=LineTablePool.HEATING_CURVE_NAME.value.value % idx,
-                    attr="1",
-                ),
-            ]
-
-        heating_curves: list[tuple[int, str]] = []
+        payload: Payload = [
+            ReadPayload(name=LineTablePool.HEATING_CURVE_NAME.value.value % idx, attr="1")
+            for idx in range(_HEATING_CURVE_POOL_SIZE)
+        ]
 
         response: Response = await self._post(
             payload=json.dumps(payload),
             endpoint=EndpointPath.READ_WRITE_VARS,
         )
 
-        for idx, item in enumerate(response):
-            if item["value"].startswith("HC"):
-                heating_curves.append((idx, item["value"]))
-
-        return tuple(heating_curves)
+        return tuple((idx, item["value"]) for idx, item in enumerate(response) if item["value"].startswith("HC"))
 
     async def has_pump(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Check if return heating circuit pump is available.
+        """Check if the heating circuit pump is available.
 
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heating circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -5250,18 +5206,18 @@ class HeatCircuitEndpoints(BaseEndpoints):
         return self._get_int_or_str_value(response, section=HeatCircuit.HAS_PUMP, position=position)
 
     async def has_var_speed_pump(self, position: int = 1, *, human_readable: bool = True) -> int | str:
-        """Check if return heating circuit variable sped pump is available.
+        """Check if the heating circuit pump has a variable speed.
 
         Parameters
         ----------
         position
-            The number of the heat pumps
+            Position of the heating circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -5279,7 +5235,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the heat circuits
+            Position of the heating circuit, starting at 1
 
         Returns
         -------
@@ -5301,33 +5257,15 @@ class SolarCircuitEndpoints(BaseEndpoints):
     Examples
     --------
     >>> client = KebaKeEnergyAPI(
-    >>>     host="ap4400.local",
-    >>>     username="test",
-    >>>     password="test",
-    >>>     ssl=True,
-    >>>     skip_ssl_verification=True
-    >>> )
-    >>> client.solar_circuit.get_name()
+    ...     host="ap4400.local",
+    ...     username="test",
+    ...     password="test",
+    ...     ssl=True,
+    ...     skip_ssl_verification=True
+    ... )
+    >>> await client.solar_circuit.get_name()
 
     """
-
-    def __init__(
-        self,
-        base_url: str,
-        *,
-        auth: str | None,
-        ssl: bool,
-        skip_ssl_verification: bool,
-        session: ClientSession | None = None,
-    ) -> None:
-        """Initialize endpoints."""
-        super().__init__(
-            base_url=base_url,
-            auth=auth,
-            ssl=ssl,
-            skip_ssl_verification=skip_ssl_verification,
-            session=session,
-        )
 
     async def get_name(self, position: int = 1) -> str:
         """Get the solar circuit name.
@@ -5335,11 +5273,11 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
 
         Returns
         -------
-        string
+        str
             Solar circuit name
 
         """
@@ -5356,13 +5294,13 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -5385,16 +5323,12 @@ class SolarCircuitEndpoints(BaseEndpoints):
         mode
             Set the mode as integer or string (human-readable) e.g. 0 or OFF
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
 
         """
-        try:
-            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
-        except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
-            raise APIError(message) from error
+        _mode: int = self._parse_enum_value(mode, BoolEnum)
 
-        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+        modes: list[int | None] = self._values_for_position(_mode, position)
 
         await self._write_values(request={SolarCircuit.OPERATING_MODE: modes})
 
@@ -5404,13 +5338,13 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -5433,16 +5367,12 @@ class SolarCircuitEndpoints(BaseEndpoints):
         mode
             Set the mode as integer or string (human-readable) e.g. 0 or OFF
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
 
         """
-        try:
-            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
-        except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
-            raise APIError(message) from error
+        _mode: int = self._parse_enum_value(mode, BoolEnum)
 
-        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+        modes: list[int | None] = self._values_for_position(_mode, position)
 
         await self._write_values(
             request={
@@ -5456,7 +5386,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
 
         Returns
         -------
@@ -5477,7 +5407,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
 
         Returns
         -------
@@ -5498,7 +5428,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
 
         Returns
         -------
@@ -5519,7 +5449,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
 
         Returns
         -------
@@ -5540,7 +5470,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
 
         Returns
         -------
@@ -5561,7 +5491,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
 
         Returns
         -------
@@ -5585,15 +5515,14 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         temperature
-            Set the mode as integer or string (human-readable) e.g. 0 or OFF
+            The target temperature in °C
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [
-            temperature if SolarCircuit.TARGET_TEMPERATURE.value.quantity * position - 1 == p else None
-            for p in range(1, SolarCircuit.TARGET_TEMPERATURE.value.quantity * position + 1)
-        ]
+        # Two consumers per solar circuit: consumer 1 is genericHeat[2 * (position - 1)]
+        quantity: int = SolarCircuit.TARGET_TEMPERATURE.value.quantity
+        temperatures: list[float | None] = self._values_for_position(temperature, quantity * position - 1)
         await self._write_values(request={SolarCircuit.TARGET_TEMPERATURE: temperatures})
 
     async def get_target_temperature_2(self, position: int = 1) -> float:
@@ -5602,7 +5531,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
 
         Returns
         -------
@@ -5626,15 +5555,14 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         temperature
-            Set the mode as integer or string (human-readable) e.g. 0 or OFF
+            The target temperature in °C
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
 
         """
-        temperatures: list[float | None] = [
-            temperature if SolarCircuit.TARGET_TEMPERATURE.value.quantity * position == p else None
-            for p in range(1, SolarCircuit.TARGET_TEMPERATURE.value.quantity * position + 1)
-        ]
+        # Two consumers per solar circuit: consumer 2 is genericHeat[2 * (position - 1) + 1]
+        quantity: int = SolarCircuit.TARGET_TEMPERATURE.value.quantity
+        temperatures: list[float | None] = self._values_for_position(temperature, quantity * position)
         await self._write_values(request={SolarCircuit.TARGET_TEMPERATURE: temperatures})
 
     async def get_heat_request_1(self, position: int = 1, *, human_readable: bool = True) -> int | str:
@@ -5643,13 +5571,13 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external solar circuits
+            Position of the solar circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -5667,13 +5595,13 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external solar circuits
+            Position of the solar circuit, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -5691,7 +5619,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
 
         Returns
         -------
@@ -5712,7 +5640,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
 
         Returns
         -------
@@ -5733,7 +5661,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the solar circuits
+            Position of the solar circuit, starting at 1
 
         Returns
         -------
@@ -5755,33 +5683,15 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
     Examples
     --------
     >>> client = KebaKeEnergyAPI(
-    >>>     host="ap4400.local",
-    >>>     username="test",
-    >>>     password="test",
-    >>>     ssl=True,
-    >>>     skip_ssl_verification=True
-    >>> )
-    >>> client.external_heat_source.get_operating_mode()
+    ...     host="ap4400.local",
+    ...     username="test",
+    ...     password="test",
+    ...     ssl=True,
+    ...     skip_ssl_verification=True
+    ... )
+    >>> await client.external_heat_source.get_operating_mode()
 
     """
-
-    def __init__(
-        self,
-        base_url: str,
-        *,
-        auth: str | None,
-        ssl: bool,
-        skip_ssl_verification: bool,
-        session: ClientSession | None = None,
-    ) -> None:
-        """Initialize endpoints."""
-        super().__init__(
-            base_url=base_url,
-            auth=auth,
-            ssl=ssl,
-            skip_ssl_verification=skip_ssl_verification,
-            session=session,
-        )
 
     async def get_operating_mode(self, position: int = 1, *, human_readable: bool = True) -> int | str:
         """Get the operating mode from the external heat source.
@@ -5789,13 +5699,13 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat sources
+            Position of the external heat source, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -5818,16 +5728,12 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         mode
             Set the mode as integer or string (human-readable) e.g. 0 or OFF
         position
-            The number of the external heat sources
+            Position of the external heat source, starting at 1
 
         """
-        try:
-            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
-        except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
-            raise APIError(message) from error
+        _mode: int = self._parse_enum_value(mode, BoolEnum)
 
-        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+        modes: list[int | None] = self._values_for_position(_mode, position)
 
         await self._write_values(request={ExternalHeatSource.OPERATING_MODE: modes})
 
@@ -5837,7 +5743,7 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat sources
+            Position of the external heat source, starting at 1
 
         Returns
         -------
@@ -5858,13 +5764,13 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat sources
+            Position of the external heat source, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -5882,11 +5788,11 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat sources
+            Position of the external heat source, starting at 1
 
         Returns
         -------
-        integer
+        int
             Operating time in seconds
 
         """
@@ -5903,11 +5809,11 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat sources
+            Position of the external heat source, starting at 1
 
         Returns
         -------
-        integer
+        int
             Maximum runtime in seconds
 
         """
@@ -5924,11 +5830,11 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat sources
+            Position of the external heat source, starting at 1
 
         Returns
         -------
-        integer
+        int
             Number of external heat source activation
 
         """
@@ -5945,13 +5851,13 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat sources
+            Position of the external heat source, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             0 (OFF) / 1 (ON)
 
         """
@@ -5971,11 +5877,11 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat sources
+            Position of the external heat source, starting at 1
 
         Returns
         -------
-        integer
+        int
             Excess energy operating time in seconds
 
         """
@@ -5992,11 +5898,11 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat sources
+            Position of the external heat source, starting at 1
 
         Returns
         -------
-        integer
+        int
             Excess energy maximum runtime in seconds
 
         """
@@ -6013,11 +5919,11 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat sources
+            Position of the external heat source, starting at 1
 
         Returns
         -------
-        integer
+        int
             Number of excess energy external heat source activation
 
         """
@@ -6041,13 +5947,13 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat sources
+            Position of the external heat source, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             (0) OFF / (1) ON
 
         """
@@ -6070,16 +5976,12 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         mode
             Set the mode as integer or string (human-readable) e.g. 0 or OFF
         position
-            The number of the external heat sources
+            Position of the external heat source, starting at 1
 
         """
-        try:
-            _mode: int | None = mode if isinstance(mode, int) else BoolEnum[mode.upper()].value
-        except KeyError as error:
-            message: str = f"Invalid value! Allowed values are {self._get_allowed_values(BoolEnum)}"
-            raise APIError(message) from error
+        _mode: int = self._parse_enum_value(mode, BoolEnum)
 
-        modes: list[int | None] = [_mode if position == p else None for p in range(1, position + 1)]
+        modes: list[int | None] = self._values_for_position(_mode, position)
 
         await self._write_values(request={ExternalHeatSource.USE_EXCESS_ENERGY: modes})
 
@@ -6089,7 +5991,7 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the external heat sources
+            Position of the external heat source, starting at 1
 
         Returns
         -------
@@ -6113,12 +6015,12 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         Parameters
         ----------
         minute
-            The excess energy target temperature in minutes
+            The minimum runtime in minutes
         position
-            The number of the external heat sources
+            Position of the external heat source, starting at 1
 
         """
-        minutes: list[float | None] = [minute if position == p else None for p in range(1, position + 1)]
+        minutes: list[int | None] = self._values_for_position(minute, position)
         await self._write_values(request={ExternalHeatSource.MIN_RUNTIME_EXCESS_ENERGY: minutes})
 
 
@@ -6128,33 +6030,15 @@ class SwitchValveEndpoints(BaseEndpoints):
     Examples
     --------
     >>> client = KebaKeEnergyAPI(
-    >>>     host="ap4400.local",
-    >>>     username="test",
-    >>>     password="test",
-    >>>     ssl=True,
-    >>>     skip_ssl_verification=True
-    >>> )
-    >>> client.switch_valve.get_position()
+    ...     host="ap4400.local",
+    ...     username="test",
+    ...     password="test",
+    ...     ssl=True,
+    ...     skip_ssl_verification=True
+    ... )
+    >>> await client.switch_valve.get_position()
 
     """
-
-    def __init__(
-        self,
-        base_url: str,
-        *,
-        auth: str | None,
-        ssl: bool,
-        skip_ssl_verification: bool,
-        session: ClientSession | None = None,
-    ) -> None:
-        """Initialize endpoints."""
-        super().__init__(
-            base_url=base_url,
-            auth=auth,
-            ssl=ssl,
-            skip_ssl_verification=skip_ssl_verification,
-            session=session,
-        )
 
     async def get_position(self, position: int = 1, *, human_readable: bool = True) -> int | str:
         """Get switch valve position.
@@ -6162,13 +6046,13 @@ class SwitchValveEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of the switch valves
+            Position of the switch valve, starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             (0) NEUTRAL / (1) OPEN / (2) CLOSED
 
         """
@@ -6187,33 +6071,15 @@ class PassiveCoolingEndpoints(BaseEndpoints):
     Examples
     --------
     >>> client = KebaKeEnergyAPI(
-    >>>     host="ap4400.local",
-    >>>     username="test",
-    >>>     password="test",
-    >>>     ssl=True,
-    >>>     skip_ssl_verification=True
-    >>> )
-    >>> client.passive_cooling.get_temperature()
+    ...     host="ap4400.local",
+    ...     username="test",
+    ...     password="test",
+    ...     ssl=True,
+    ...     skip_ssl_verification=True
+    ... )
+    >>> await client.passive_cooling.get_temperature()
 
     """
-
-    def __init__(
-        self,
-        base_url: str,
-        *,
-        auth: str | None,
-        ssl: bool,
-        skip_ssl_verification: bool,
-        session: ClientSession | None = None,
-    ) -> None:
-        """Initialize endpoints."""
-        super().__init__(
-            base_url=base_url,
-            auth=auth,
-            ssl=ssl,
-            skip_ssl_verification=skip_ssl_verification,
-            session=session,
-        )
 
     async def get_temperature(self, position: int = 1) -> float:
         """Get the temperature from passive cooling.
@@ -6221,7 +6087,7 @@ class PassiveCoolingEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of passive cooling
+            Position of the passive cooling unit (one per heat pump), starting at 1
 
         Returns
         -------
@@ -6242,13 +6108,13 @@ class PassiveCoolingEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of passive cooling
+            Position of the passive cooling unit (one per heat pump), starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             (0) NEUTRAL / (1) OPEN / (2) CLOSED
 
         """
@@ -6266,7 +6132,7 @@ class PassiveCoolingEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of passive cooling
+            Position of the passive cooling unit (one per heat pump), starting at 1
 
         Returns
         -------
@@ -6287,7 +6153,7 @@ class PassiveCoolingEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of passive cooling
+            Position of the passive cooling unit (one per heat pump), starting at 1
 
         Returns
         -------
@@ -6308,7 +6174,7 @@ class PassiveCoolingEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of passive cooling
+            Position of the passive cooling unit (one per heat pump), starting at 1
 
         Returns
         -------
@@ -6329,13 +6195,13 @@ class PassiveCoolingEndpoints(BaseEndpoints):
         Parameters
         ----------
         position
-            The number of passive cooling
+            Position of the passive cooling unit (one per heat pump), starting at 1
         human_readable
             Return a human-readable string
 
         Returns
         -------
-        integer or string
+        int | str
             -1 (CLOSED) / 0 (OFF) / 1 (OPEN)
 
         """
@@ -6355,33 +6221,15 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
     Examples
     --------
     >>> client = KebaKeEnergyAPI(
-    >>>     host="ap4400.local",
-    >>>     username="test",
-    >>>     password="test",
-    >>>     ssl=True,
-    >>>     skip_ssl_verification=True
-    >>> )
-    >>> client.photovoltaics.get_excess_power()
+    ...     host="ap4400.local",
+    ...     username="test",
+    ...     password="test",
+    ...     ssl=True,
+    ...     skip_ssl_verification=True
+    ... )
+    >>> await client.photovoltaics.get_excess_power()
 
     """
-
-    def __init__(
-        self,
-        base_url: str,
-        *,
-        auth: str | None,
-        ssl: bool,
-        skip_ssl_verification: bool,
-        session: ClientSession | None = None,
-    ) -> None:
-        """Initialize endpoints."""
-        super().__init__(
-            base_url=base_url,
-            auth=auth,
-            ssl=ssl,
-            skip_ssl_verification=skip_ssl_verification,
-            session=session,
-        )
 
     async def get_excess_energy_active(
         self,
@@ -6397,7 +6245,7 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
 
         Returns
         -------
-        integer or string
+        int | str
             (0) OFF / (1) ON
 
         """

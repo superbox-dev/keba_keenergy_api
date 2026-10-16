@@ -1,4 +1,4 @@
-"""All API Constants."""
+"""Constants and endpoint definitions of the KEBA KeEnergy API."""
 
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -8,7 +8,7 @@ from typing import Any
 from typing import Final
 from typing import TypeAlias
 
-API_DEFAULT_TIMEOUT: int = 10
+_API_DEFAULT_TIMEOUT: int = 10
 
 
 class EndpointPath:
@@ -22,7 +22,7 @@ class EndpointPath:
 
 
 class BaseEnum(Enum):
-    """Base enum with support for alternative values."""
+    """Base enum that also matches values inside tuple members, e.g. ``DRIP = (13, 25)``."""
 
     @classmethod
     def _missing_(cls, value: object) -> "BaseEnum":
@@ -41,7 +41,7 @@ class BaseEnum(Enum):
 
 
 class BoolEnum(BaseEnum):
-    """Bool enum for ON / OFF."""
+    """Boolean values (OFF / ON)."""
 
     OFF = 0
     ON = 1
@@ -84,7 +84,7 @@ class HotWaterTankOperatingMode(BaseEnum):
 
 
 class HotWaterTankExcessEnergyMode(BaseEnum):
-    """Available  hot water tank excess energy modes."""
+    """Available hot water tank excess energy modes."""
 
     OFF = 0
     HEATING = 1
@@ -92,7 +92,7 @@ class HotWaterTankExcessEnergyMode(BaseEnum):
 
 
 class HeatPumpState(BaseEnum):
-    """Available heat pump stats."""
+    """Available heat pump states."""
 
     STANDBY = 0
     FLOW = 1
@@ -106,7 +106,7 @@ class HeatPumpState(BaseEnum):
 
 
 class HeatPumpSubState(BaseEnum):
-    """Available heat pump sub stats."""
+    """Available heat pump substates. Some substates have more than one value."""
 
     NONE = 0
     OIL_PREHEATING = 1
@@ -180,14 +180,14 @@ class HeatCircuitOperatingMode(BaseEnum):
 
 
 class SolarCircuitPriority(BaseEnum):
-    """Available solar circuit priority."""
+    """Available solar circuit consumer priorities."""
 
     LOW = 14
     HIGH = 15
 
 
 class HeatCircuitHeatRequest(BaseEnum):
-    """Available heat circuit heat request stats."""
+    """Available heat circuit heat request states."""
 
     OFF = 0
     ON = 1
@@ -199,7 +199,7 @@ class HeatCircuitHeatRequest(BaseEnum):
 
 
 class HeatCircuitCoolRequest(BaseEnum):
-    """Available heat circuit cool request stats."""
+    """Available heat circuit cool request states."""
 
     OFF = 0
     ON = 1
@@ -210,12 +210,12 @@ class HeatCircuitCoolRequest(BaseEnum):
     INFLOW_OFF = 6
 
 
-MIN_HEATING_CURVE_POINTS: Final[int] = 7
-MAX_HEATING_CURVE_POINTS: Final[int] = 16
+_MIN_HEATING_CURVE_POINTS: Final[int] = 7
+_MAX_HEATING_CURVE_POINTS: Final[int] = 16
 
 
 class SwitchValvePosition(BaseEnum):
-    """Available switch valve positons."""
+    """Available switch valve positions."""
 
     NEUTRAL = 0
     OPEN = 1
@@ -223,19 +223,40 @@ class SwitchValvePosition(BaseEnum):
 
 
 class MixerSwitchValvePosition(BaseEnum):
-    """Available mixer switch valve positons."""
+    """Available mixer positions."""
 
     CLOSED = -1
     OFF = 0
     OPEN = 1
 
 
-PAYLOAD_PREFIX: Final[str] = "APPL.CtrlAppl"
+_PAYLOAD_PREFIX: Final[str] = "APPL.CtrlAppl"
+_ACT_VALUE_SUFFIX: Final[str] = ".values.actValue"
+_MESSAGE_ID_SUFFIX: Final[str] = ".state.msgId"
 
 
 @dataclass
 class Endpoint:
-    """Definition of a KEBA API endpoint."""
+    """Definition of a KEBA API endpoint.
+
+    Attributes
+    ----------
+    value
+        Variable path, ``%s`` is replaced by the zero-based device index.
+    value_type
+        Type the raw value is converted to.
+    human_readable
+        Enum to map the value to a readable name.
+    normalize
+        Function applied to the converted value, e.g. to round a mixer position.
+    quantity
+        Number of values per device, e.g. two consumers per solar circuit.
+    read_only
+        Whether the endpoint can be written. Paths containing ``.param.`` are always writable.
+    has_message_id
+        Whether a ``state.msgId`` next to ``values.actValue`` is confirmed for this sensor.
+
+    """
 
     value: str
     value_type: type[Any]
@@ -243,11 +264,28 @@ class Endpoint:
     normalize: Callable[[Any], Any] = lambda x: x
     quantity: int = 1
     read_only: bool = True
+    has_message_id: bool = False
 
     def __post_init__(self) -> None:
-        """Set read-only status based on the endpoint path."""
+        """Derive the read-only state from the path and validate the message id flag."""
         if ".param." in self.value:
             self.read_only = False
+
+        if self.has_message_id and not self.value.endswith(_ACT_VALUE_SUFFIX):
+            msg: str = f"message id is not supported for {self.value!r}"
+            raise ValueError(msg)
+
+    @property
+    def message_id_path(self) -> str | None:
+        """Return the path of the sensor message id, or ``None`` if the endpoint has none.
+
+        A message id other than 0 means that the control unit has a message for this sensor,
+        e.g. that the sensor is not connected.
+        """
+        if not self.has_message_id:
+            return None
+
+        return self.value.removesuffix(_ACT_VALUE_SUFFIX) + _MESSAGE_ID_SUFFIX
 
 
 @dataclass
@@ -278,10 +316,22 @@ class SolarCircuitPriority1Before2StringEndpoint(StringEndpoint):
 
     @staticmethod
     def helper(modes: list[int | None]) -> dict["Section", Any]:
-        """Add extra calls."""
-        # The switch in the Web HMI calls to API endpoints
-        # If priority_1 is on then priority is 14 and if off the priority is 15
+        """Return the additional writes for the consumer priorities.
 
+        The switch in the Web HMI also writes the priority of the first consumer of each solar circuit:
+        14 (LOW) if priority 1 before 2 is on, 15 (HIGH) if it is off.
+
+        Parameters
+        ----------
+        modes
+            Priority 1 before 2 per solar circuit, ``1`` (ON), ``0`` (OFF) or ``None`` to skip.
+
+        Returns
+        -------
+        dict[Section, Any]
+            Additional write request for the consumer priorities.
+
+        """
         priorities: list[int | None] = list(
             chain.from_iterable(
                 (
@@ -299,58 +349,59 @@ class System(Enum):
     """The system endpoint settings."""
 
     BUFFER_TANK_NUMBERS = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfBuffers",
+        f"{_PAYLOAD_PREFIX}.sParam.options.systemNumberOfBuffers",
     )
     HOT_WATER_TANK_NUMBERS = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfHotWaterTanks",
+        f"{_PAYLOAD_PREFIX}.sParam.options.systemNumberOfHotWaterTanks",
     )
     HEAT_PUMP_NUMBERS = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfHeatPumps",
+        f"{_PAYLOAD_PREFIX}.sParam.options.systemNumberOfHeatPumps",
     )
     HEAT_CIRCUIT_NUMBERS = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfHeatingCircuits",
+        f"{_PAYLOAD_PREFIX}.sParam.options.systemNumberOfHeatingCircuits",
     )
     SOLAR_CIRCUIT_NUMBERS = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfSolarCircuits",
+        f"{_PAYLOAD_PREFIX}.sParam.options.systemNumberOfSolarCircuits",
     )
     EXTERNAL_HEAT_SOURCE_NUMBERS = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfExtHeatSources",
+        f"{_PAYLOAD_PREFIX}.sParam.options.systemNumberOfExtHeatSources",
     )
     SWITCH_VALVE_NUMBERS = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.systemNumberOfSwitchValves",
+        f"{_PAYLOAD_PREFIX}.sParam.options.systemNumberOfSwitchValves",
     )
     HAS_PHOTOVOLTAICS = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.hasPhotovoltaics",
+        f"{_PAYLOAD_PREFIX}.sParam.options.hasPhotovoltaics",
         human_readable=BoolEnum,
     )
     HAS_OUTDOOR_TEMPERATURE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.hasOutdoorTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.options.hasOutdoorTemp",
         human_readable=BoolEnum,
     )
     OPERATING_MODE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.param.operatingMode",
+        f"{_PAYLOAD_PREFIX}.sParam.param.operatingMode",
         human_readable=SystemOperatingMode,
     )
     OUTDOOR_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.outdoorTemp.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.outdoorTemp{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     CPU_USAGE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sProcData.globalCpuTimePercent",
+        f"{_PAYLOAD_PREFIX}.sProcData.globalCpuTimePercent",
     )
     WEBVIEW_CPU_USAGE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sProcData.processStatus[0].cpuTimePercent",
+        f"{_PAYLOAD_PREFIX}.sProcData.processStatus[0].cpuTimePercent",
     )
     WEBSERVER_CPU_USAGE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sProcData.processStatus[1].cpuTimePercent",
+        f"{_PAYLOAD_PREFIX}.sProcData.processStatus[1].cpuTimePercent",
     )
     CONTROL_CPU_USAGE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sProcData.processStatus[2].cpuTimePercent",
+        f"{_PAYLOAD_PREFIX}.sProcData.processStatus[2].cpuTimePercent",
     )
     RAM_USAGE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sProcData.RAMstatus.tmpfs",
+        f"{_PAYLOAD_PREFIX}.sProcData.RAMstatus.tmpfs",
     )
     FREE_RAM = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sProcData.totFreeRAM",
+        f"{_PAYLOAD_PREFIX}.sProcData.totFreeRAM",
     )
 
 
@@ -358,47 +409,49 @@ class BufferTank(Enum):
     """The buffer tank endpoint settings."""
 
     NAME = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.name",
+        f"{_PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.name",
     )
     CURRENT_TOP_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].topTemp.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.bufferTank[%s].topTemp{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     CURRENT_BOTTOM_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].midTemp.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.bufferTank[%s].midTemp{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     OPERATING_MODE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.operatingMode",
+        f"{_PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.operatingMode",
         human_readable=BufferTankOperatingMode,
     )
     STANDBY_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.backupTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.backupTemp",
     )
     TARGET_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.setTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.setTemp",
     )
     EXCESS_ENERGY_TARGET_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.excessEnergyTemp.value",
+        f"{_PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.excessEnergyTemp.value",
     )
     EXCESS_ENERGY_TARGET_TEMPERATURE_HYSTERESIS = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.excessEnergyTemp.hyst",
+        f"{_PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.excessEnergyTemp.hyst",
     )
     OUTDOOR_TEMPERATURE_EXCESS_ENERGY_LIMIT = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.thresholdOutTempExcessEnergy.value",
+        f"{_PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.thresholdOutTempExcessEnergy.value",
     )
     USE_EXCESS_ENERGY = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.useExcessEnergy",
+        f"{_PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.useExcessEnergy",
         human_readable=BoolEnum,
     )
     EXCESS_ENERGY_MODE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.useExcessEnergy",
+        f"{_PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.useExcessEnergy",
         human_readable=BufferTankExcessEnergyMode,
     )
     HEAT_REQUEST = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.heatRequestTop",
+        f"{_PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.heatRequestTop",
         human_readable=BoolEnum,
     )
     COOL_REQUEST = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.coolRequestBot",
+        f"{_PAYLOAD_PREFIX}.sParam.bufferTank[%s].values.coolRequestBot",
         human_readable=BoolEnum,
     )
 
@@ -407,59 +460,63 @@ class HotWaterTank(Enum):
     """The hot water tank endpoint settings."""
 
     NAME = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.name",
+        f"{_PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.name",
     )
     CURRENT_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].topTemp.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].topTemp{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     OPERATING_MODE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.operatingMode",
+        f"{_PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.operatingMode",
         human_readable=HotWaterTankOperatingMode,
     )
     STANDBY_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.reducedSetTempMax.value",
+        f"{_PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.reducedSetTempMax.value",
     )
     TARGET_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.normalSetTempMax.value",
+        f"{_PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.normalSetTempMax.value",
     )
     EXCESS_ENERGY_TARGET_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.excessEnergyTemp.value",
+        f"{_PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.excessEnergyTemp.value",
     )
     EXCESS_ENERGY_TARGET_TEMPERATURE_HYSTERESIS = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.excessEnergyTemp.hyst",
+        f"{_PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.excessEnergyTemp.hyst",
     )
     USE_EXCESS_ENERGY = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.useExcessEnergy",
+        f"{_PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.useExcessEnergy",
         human_readable=BoolEnum,
     )
     EXCESS_ENERGY_MODE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].values.useExcessEnergy",
+        f"{_PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].values.useExcessEnergy",
         human_readable=HotWaterTankExcessEnergyMode,
     )
     HEAT_REQUEST = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].values.heatRequestTop",
+        f"{_PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].values.heatRequestTop",
         human_readable=BoolEnum,
     )
     HAS_FRESH_WATER_MODULE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.hotWaterTank[%s].hasFreshWaterModule",
+        f"{_PAYLOAD_PREFIX}.sParam.options.hotWaterTank[%s].hasFreshWaterModule",
         human_readable=BoolEnum,
     )
     FRESH_WATER_FLOW = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterFlow.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterFlow{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
         human_readable=BoolEnum,
     )
     FRESH_WATER_MODULE_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterTemp.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterTemp{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     FRESH_WATER_MODULE_PUMP_SPEED = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterPump.values.setValueScaled",
+        f"{_PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterPump.values.setValueScaled",
         decimals=4,
     )
     CIRCULATION_RETURN_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].circTemp.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].circTemp{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     CIRCULATION_PUMP_STATE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].circPump.pump.values.setValueB",
+        f"{_PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].circPump.pump.values.setValueB",
         human_readable=BoolEnum,
     )
 
@@ -468,243 +525,257 @@ class HeatPump(Enum):
     """The heat pump endpoint settings."""
 
     NAME = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].param.name",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].param.name",
     )
     STATE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].values.heatpumpState",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].values.heatpumpState",
         human_readable=HeatPumpState,
     )
     SUBSTATE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].values.heatpumpSubState",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].values.heatpumpSubState",
         human_readable=HeatPumpSubState,
     )
     OPERATING_MODE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].param.operatingMode",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].param.operatingMode",
         human_readable=HeatPumpOperatingMode,
     )
     COMPRESSOR_USE_NIGHT_SPEED = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatPumpPowerCtrl.param.useDayNightSpeed",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatPumpPowerCtrl.param.useDayNightSpeed",
         human_readable=BoolEnum,
     )
     COMPRESSOR_NIGHT_SPEED = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatPumpPowerCtrl.param.maxPowerScaledNight",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatPumpPowerCtrl.param.maxPowerScaledNight",
     )
     CIRCULATION_PUMP_SPEED = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CircPump.values.setValueScaled",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].CircPump.values.setValueScaled",
         decimals=4,
     )
     SOURCE_PUMP_SPEED = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].Source.values.setValueScaled",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].Source.values.setValueScaled",
         decimals=4,
     )
     FLOW_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempHeatFlow.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].TempHeatFlow{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     RETURN_FLOW_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempHeatReflux.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].TempHeatReflux{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     SOURCE_INPUT_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempSourceIn.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].TempSourceIn{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     SOURCE_OUTPUT_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempSourceOut.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].TempSourceOut{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     COMPRESSOR_INPUT_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempCompressorIn.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].TempCompressorIn{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     COMPRESSOR_OUTPUT_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempCompressorOut.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].TempCompressorOut{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     COMPRESSOR = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].Compressor.values.setValueScaled",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].Compressor.values.setValueScaled",
         decimals=4,
     )
     CONDENSER_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.tempCond",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.tempCond",
     )
     VAPORIZER_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.tempVap",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.tempVap",
     )
     TARGET_OVERHEATING = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.setOH",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.setOH",
     )
     CURRENT_OVERHEATING = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.actOH",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.actOH",
     )
     EXPANSION_VALVE_POSITION = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.stepperPos",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.stepperPos",
     )
     HIGH_PRESSURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HighPressure.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].HighPressure{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     LOW_PRESSURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].LowPressure.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].LowPressure{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     HEAT_REQUEST = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].values.request",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].values.request",
         human_readable=BoolEnum,
     )
     CONSUMING_EXCESS_ENERGY = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].values.consumingExcessEnergy",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].values.consumingExcessEnergy",
         human_readable=BoolEnum,
     )
     EXCESS_ENERGY_OPERATING_TIME = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalDataExcessEnergy.operationalTimeS",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalDataExcessEnergy.operationalTimeS",
     )
     EXCESS_ENERGY_MAX_RUNTIME = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalDataExcessEnergy.maxRunTimeS",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalDataExcessEnergy.maxRunTimeS",
     )
     EXCESS_ENERGY_ACTIVATION_COUNTER = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalDataExcessEnergy.activationCounter",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalDataExcessEnergy.activationCounter",
     )
     # TOTAL_HEATING_ENERGY = FloatEndpoint(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.accumulatedHeat",
+    #     f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.accumulatedHeat",
     # )
     # DAILY_HEATING_ENERGY = FloatEndpoint(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.heatDay",
+    #     f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.heatDay",
     # )
     HEATING_POWER = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.power",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.power",
     )
     HEATING_MASS_FLOW_RATE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.massFlow",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.massFlow",
     )
     # TOTAL_COOLING_ENERGY = FloatEndpoint(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.accumulatedHeat",
+    #     f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.accumulatedHeat",
     # )
     # DAILY_COOLING_ENERGY = FloatEndpoint(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.heatDay",
+    #     f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.heatDay",
     # )
     # COOLING_POWER = FloatEndpoint(
     #     value_type=float,
     # )
     COOLING_MASS_FLOW_RATE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.massFlow",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.massFlow",
     )
     # TOTAL_HOT_WATER_ENERGY = FloatEndpoint(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.accumulatedHeat",
+    #     f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.accumulatedHeat",
     # )
     # DAILY_HOT_WATER_ENERGY = FloatEndpoint(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.heatDay",
+    #     f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.heatDay",
     # )
     HOT_WATER_POWER = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.power",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.power",
     )
     HOT_WATER_MASS_FLOW_RATE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.massFlow",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.massFlow",
     )
     # TOTAL_COMPRESSOR_ENERGY = FloatEndpoint(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.accumulatedHeat",
+    #     f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.accumulatedHeat",
     # )
     # DAILY_COMPRESSOR_ENERGY = FloatEndpoint(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.heatDay",
+    #     f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.heatDay",
     # )
     COMPRESSOR_POWER = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.power",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.power",
     )
     COP = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].values.COP",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].values.COP",
     )
     HEATING_ENERGY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.heating.energy",
+        f"{_PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.heating.energy",
     )
     HEATING_ENERGY_CONSUMPTION = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.heating.electricalenergy",
+        f"{_PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.heating.electricalenergy",
     )
     HEATING_SPF = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatioHeat",
+        f"{_PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatioHeat",
     )
     COOLING_ENERGY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.cooling.energy",
+        f"{_PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.cooling.energy",
     )
     COOLING_ENERGY_CONSUMPTION = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.cooling.electricalenergy",
+        f"{_PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.cooling.electricalenergy",
     )
     COOLING_SPF = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatioCool",
+        f"{_PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatioCool",
     )
     HOT_WATER_ENERGY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.domHotWater.energy",
+        f"{_PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.domHotWater.energy",
     )
     HOT_WATER_ENERGY_CONSUMPTION = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.domHotWater.electricalenergy",
+        f"{_PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.domHotWater.electricalenergy",
     )
     HOT_WATER_SPF = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatioDomHotWater",
+        f"{_PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatioDomHotWater",
     )
     TOTAL_THERMAL_ENERGY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.energy",
+        f"{_PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.energy",
     )
     TOTAL_ENERGY_CONSUMPTION = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.electricalenergy",
+        f"{_PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.electricalenergy",
     )
     EXCESS_ENERGY_CONSUMPTION = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.consumedExcessEnergy",
+        f"{_PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.consumedExcessEnergy",
     )
     HEATING_EXCESS_ENERGY_CONSUMPTION = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.heating.consumedExcessEnergy",
+        f"{_PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.heating.consumedExcessEnergy",
     )
     COOLING_EXCESS_ENERGY_CONSUMPTION = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.cooling.consumedExcessEnergy",
+        f"{_PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.cooling.consumedExcessEnergy",
     )
     HOT_WATER_EXCESS_ENERGY_CONSUMPTION = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.domHotWater.consumedExcessEnergy",
+        f"{_PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].consumption.domHotWater.consumedExcessEnergy",
     )
     TOTAL_SPF = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatio",
+        f"{_PAYLOAD_PREFIX}.sStatisticalData.heatpump[%s].EnergyEfficiencyRatio",
     )
     HAS_ACTIVE_COOLING = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.heatpump[%s].hasActiveCooling",
+        f"{_PAYLOAD_PREFIX}.sParam.options.heatpump[%s].hasActiveCooling",
         human_readable=BoolEnum,
     )
     HAS_PASSIVE_COOLING = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.heatpump[%s].hasPassiveCooling",
+        f"{_PAYLOAD_PREFIX}.sParam.options.heatpump[%s].hasPassiveCooling",
         human_readable=BoolEnum,
     )
     OPERATING_TIME = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalData.operationalTimeS",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalData.operationalTimeS",
     )
     MAX_RUNTIME = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalData.maxRunTimeS",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalData.maxRunTimeS",
     )
     ACTIVATION_COUNTER = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalData.activationCounter",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalData.activationCounter",
     )
     HAS_COMPRESSOR_FAILURE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureCompressor.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureCompressor{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
         human_readable=BoolEnum,
     )
     HAS_SOURCE_FAILURE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureSource.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureSource{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
         human_readable=BoolEnum,
     )
     HAS_SOURCE_ACTUATOR_FAILURE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureActuatorSource.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureActuatorSource{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
         human_readable=BoolEnum,
     )
     HAS_THREE_PHASE_FAILURE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureThreePhase.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureThreePhase{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
         human_readable=BoolEnum,
     )
     HAS_SOURCE_PRESSURE_FAILURE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureSrcPressure.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureSrcPressure{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
         human_readable=BoolEnum,
     )
     HAS_VFD_FAILURE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureVFD.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureVFD{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
         human_readable=BoolEnum,
     )
     ELECTRIC_ENERGY_METER_TYPE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.heatpump[%s].ElectricEnergyMeter.type",
+        f"{_PAYLOAD_PREFIX}.sParam.options.heatpump[%s].ElectricEnergyMeter.type",
     )
     HEAT_METER_TYPE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.heatpump[%s].HeatMeter.type",
+        f"{_PAYLOAD_PREFIX}.sParam.options.heatpump[%s].HeatMeter.type",
     )
     COOL_METER_TYPE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.heatpump[%s].CoolMeter.type",
+        f"{_PAYLOAD_PREFIX}.sParam.options.heatpump[%s].CoolMeter.type",
     )
     HOT_WATER_METER_TYPE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.heatpump[%s].HotWaterMeter.type",
+        f"{_PAYLOAD_PREFIX}.sParam.options.heatpump[%s].HotWaterMeter.type",
     )
 
 
@@ -712,177 +783,183 @@ class HeatCircuit(Enum):
     """The heat circuit endpoint settings."""
 
     NAME = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.name",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.name",
     )
     MODE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].type",
+        f"{_PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].type",
         human_readable=HeatCircuitMode,
     )
     HAS_ROOM_TEMPERATURE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasRoomTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasRoomTemp",
         human_readable=BoolEnum,
     )
     ROOM_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].tempRoom.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].tempRoom{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     HAS_ROOM_HUMIDITY = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasRoomHumidity",
+        f"{_PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasRoomHumidity",
         human_readable=BoolEnum,
     )
     ROOM_HUMIDITY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].humidityRoom.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].humidityRoom{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     DEW_POINT = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].dewPoint.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].dewPoint{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     FLOW_TEMPERATURE_SETPOINT = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.flowSetTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.flowSetTemp",
     )
     HAS_MIXER = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasMixer",
+        f"{_PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasMixer",
         human_readable=BoolEnum,
     )
     MIXER_FLOW_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.flowTemp.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.flowTemp{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     MIXER_RETURN_FLOW_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.refluxTemp.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.refluxTemp{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     MIXER_POSITION = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.mixer.values.setValueScaled",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.mixer.values.setValueScaled",
         human_readable=MixerSwitchValvePosition,
         normalize=lambda v: (v >= 1) - (v <= -1),
     )
 
     PUMP_STATE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].pump.values.setValueB",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].pump.values.setValueB",
         human_readable=BoolEnum,
     )
     HAS_RETURN_FLOW_TEMPERATURE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasRefluxTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasRefluxTemp",
         human_readable=BoolEnum,
     )
     RETURN_FLOW_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].tempReflux.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].tempReflux{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     TARGET_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.setValue",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.setValue",
     )
     USE_EXCESS_ENERGY = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergy.useExcessEnergy",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergy.useExcessEnergy",
         human_readable=BoolEnum,
     )
     EXCESS_ENERGY_MODE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.useExcessEnergy",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.useExcessEnergy",
         human_readable=HeatCircuitExcessEnergyMode,
     )
     EXCESS_ENERGY_TARGET_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergyTemp.value",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergyTemp.value",
     )
     EXCESS_ENERGY_TARGET_TEMPERATURE_HYSTERESIS = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergyTemp.hyst",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergyTemp.hyst",
     )
     EXCESS_ENERGY_TARGET_COOLING_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergyTempCool.value",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergyTempCool.value",
     )
     EXCESS_ENERGY_TARGET_COOLING_TEMPERATURE_HYSTERESIS = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergyTempCool.hyst",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergyTempCool.hyst",
     )
     SELECTED_TARGET_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.selectedSetTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.selectedSetTemp",
     )
     TARGET_TEMPERATURE_DAY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.normalSetTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.normalSetTemp",
     )
     TARGET_COOLING_TEMPERATURE_DAY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.normalCoolSetTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.normalCoolSetTemp",
     )
     HEATING_LIMIT_DAY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdDayTemp.value",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdDayTemp.value",
     )
     COOLING_LIMIT_DAY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdDayCoolTemp.value",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdDayCoolTemp.value",
     )
     EXCESS_ENERGY_HEATING_LIMIT_DAY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergy.thresholdDayTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergy.thresholdDayTemp",
     )
     EXCESS_ENERGY_COOLING_LIMIT_DAY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergy.thresholdDayCoolTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergy.thresholdDayCoolTemp",
     )
     TARGET_TEMPERATURE_NIGHT = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.reducedSetTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.reducedSetTemp",
     )
     TARGET_COOLING_TEMPERATURE_NIGHT = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.reducedCoolSetTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.reducedCoolSetTemp",
     )
     HEATING_LIMIT_NIGHT = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdNightTemp.value",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdNightTemp.value",
     )
     COOLING_LIMIT_NIGHT = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdNightCoolTemp.value",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.thresholdNightCoolTemp.value",
     )
     EXCESS_ENERGY_HEATING_LIMIT_NIGHT = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergy.thresholdNightTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergy.thresholdNightTemp",
     )
     EXCESS_ENERGY_COOLING_LIMIT_NIGHT = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergy.thresholdNightCoolTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.excessEnergy.thresholdNightCoolTemp",
     )
     TARGET_TEMPERATURE_AWAY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.holidaySetTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.holidaySetTemp",
     )
     TARGET_TEMPERATURE_OFFSET = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.offsetRoomTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.offsetRoomTemp",
     )
     OPERATING_MODE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.operatingMode",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.operatingMode",
         human_readable=HeatCircuitOperatingMode,
     )
     HEAT_REQUEST = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.heatRequest",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.heatRequest",
         human_readable=HeatCircuitHeatRequest,
     )
     COOL_REQUEST = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.coolRequest",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].values.coolRequest",
         human_readable=HeatCircuitCoolRequest,
     )
     AWAY_START_DATE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.holiday.start",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.holiday.start",
     )
     AWAY_END_DATE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.holiday.stop",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.holiday.stop",
     )
     HEATING_CURVE_OFFSET = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.heatCurveOffset",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.heatCurveOffset",
     )
     COOLING_CURVE_OFFSET = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.coolCurveOffset",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.coolCurveOffset",
     )
     HEATING_CURVE_SLOPE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.heatCurveGradient",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.heatCurveGradient",
     )
     COOLING_CURVE_SLOPE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.coolCurveGradient",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.coolCurveGradient",
     )
     USE_HEATING_CURVE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.enableHeatCurveLinTab",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.enableHeatCurveLinTab",
         human_readable=BoolEnum,
     )
     HEATING_CURVE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.linTab.fileName",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.linTab.fileName",
     )
     COOLING_CURVE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.coollinTab.fileName",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.coollinTab.fileName",
     )
     HAS_PUMP = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasPump",
+        f"{_PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasPump",
         human_readable=BoolEnum,
     )
     HAS_VAR_SPEED_PUMP = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasVarSpeedPump",
+        f"{_PAYLOAD_PREFIX}.sParam.options.heatCircuit[%s].hasVarSpeedPump",
         human_readable=BoolEnum,
     )
     PUMP_SPEED = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].pumpAO.values.setValueScaled",
+        f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].pumpAO.values.setValueScaled",
         decimals=4,
     )
 
@@ -890,28 +967,28 @@ class HeatCircuit(Enum):
 class LineTablePool(Enum):
     """Pool of heating curve points.
 
-    This is not a real section and read and write are only allowed with `client.heat_circuit.get_heating_curves()`
-    and `client.heat_circuit.set_heating_curves()`.
+    This is not a real section. Read and write only with ``client.heat_circuit.get_heating_curve_points()``
+    and ``client.heat_circuit.set_heating_curve_points()``.
 
     """
 
     HEATING_CURVE_NAME = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].name",
+        f"{_PAYLOAD_PREFIX}.sParam.linTabPool[%s].name",
     )
     HEATING_CURVE_POINTS = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].noOfPoints",
+        f"{_PAYLOAD_PREFIX}.sParam.linTabPool[%s].noOfPoints",
         read_only=False,
     )
     HEATING_CURVE_POINT_X = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].points[%s].x",
+        f"{_PAYLOAD_PREFIX}.sParam.linTabPool[%s].points[%s].x",
         read_only=False,
     )
     HEATING_CURVE_POINT_Y = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].points[%s].y",
+        f"{_PAYLOAD_PREFIX}.sParam.linTabPool[%s].points[%s].y",
         read_only=False,
     )
     SAVE_HEATING_CURVE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.linTabPool[%s].verCnt",
+        f"{_PAYLOAD_PREFIX}.sParam.linTabPool[%s].verCnt",
         read_only=False,
     )
 
@@ -920,50 +997,52 @@ class SolarCircuit(Enum):
     """The solar circuit endpoint settings."""
 
     NAME = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].param.name",
+        f"{_PAYLOAD_PREFIX}.sParam.solarCircuit[%s].param.name",
     )
     OPERATING_MODE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].param.operatingMode",
+        f"{_PAYLOAD_PREFIX}.sParam.solarCircuit[%s].param.operatingMode",
         human_readable=BoolEnum,
     )
     SOURCE_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].collectorTemp.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.solarCircuit[%s].collectorTemp{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     PUMP_1 = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].values.pump1",
+        f"{_PAYLOAD_PREFIX}.sParam.solarCircuit[%s].values.pump1",
     )
     PUMP_2 = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].values.pump2",
+        f"{_PAYLOAD_PREFIX}.sParam.solarCircuit[%s].values.pump2",
     )
     CURRENT_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.genericHeat[%s].referenceTemp.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.genericHeat[%s].referenceTemp{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
         quantity=2,
     )
     TARGET_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.genericHeat[%s].param.setTempMax.value",
+        f"{_PAYLOAD_PREFIX}.sParam.genericHeat[%s].param.setTempMax.value",
         quantity=2,
     )
     HEAT_REQUEST = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.genericHeat[%s].values.heatRequest",
+        f"{_PAYLOAD_PREFIX}.sParam.genericHeat[%s].values.heatRequest",
         human_readable=BoolEnum,
         quantity=2,
     )
     HEATING_ENERGY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].heatMeter.values.accumulatedHeat",
+        f"{_PAYLOAD_PREFIX}.sParam.solarCircuit[%s].heatMeter.values.accumulatedHeat",
     )
     DAILY_ENERGY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].heatMeter.values.heatDay",
+        f"{_PAYLOAD_PREFIX}.sParam.solarCircuit[%s].heatMeter.values.heatDay",
     )
     ACTUAL_POWER = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].heatMeter.values.power",
+        f"{_PAYLOAD_PREFIX}.sParam.solarCircuit[%s].heatMeter.values.power",
     )
     PRIORITY_1_BEFORE_2 = SolarCircuitPriority1Before2StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hmiRetainData.consumer1PrioritySolar[%s]",
+        f"{_PAYLOAD_PREFIX}.sParam.hmiRetainData.consumer1PrioritySolar[%s]",
         human_readable=BoolEnum,
         read_only=False,
     )
     _PRIORITY = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.genericHeat[%s].param.priority",
+        f"{_PAYLOAD_PREFIX}.sParam.genericHeat[%s].param.priority",
         quantity=2,
     )
 
@@ -972,45 +1051,44 @@ class ExternalHeatSource(Enum):
     """External heat source API endpoints."""
 
     OPERATING_MODE = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.operatingMode",
+        f"{_PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.operatingMode",
         human_readable=BoolEnum,
     )
     TARGET_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].values.setTemp",
+        f"{_PAYLOAD_PREFIX}.sParam.extHeatSource[%s].values.setTemp",
     )
     HEAT_REQUEST = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].DO.values.setValueB",
+        f"{_PAYLOAD_PREFIX}.sParam.extHeatSource[%s].DO.values.setValueB",
         human_readable=BoolEnum,
     )
     OPERATING_TIME = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].DO.operationalData.operationalTimeS",
+        f"{_PAYLOAD_PREFIX}.sParam.extHeatSource[%s].DO.operationalData.operationalTimeS",
     )
     MAX_RUNTIME = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].DO.operationalData.maxRunTimeS",
+        f"{_PAYLOAD_PREFIX}.sParam.extHeatSource[%s].DO.operationalData.maxRunTimeS",
     )
     ACTIVATION_COUNTER = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].DO.operationalData.activationCounter",
+        f"{_PAYLOAD_PREFIX}.sParam.extHeatSource[%s].DO.operationalData.activationCounter",
     )
     CONSUMING_EXCESS_ENERGY = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].values.consumingExcessEnergy",
+        f"{_PAYLOAD_PREFIX}.sParam.extHeatSource[%s].values.consumingExcessEnergy",
         human_readable=BoolEnum,
     )
     EXCESS_ENERGY_OPERATING_TIME = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].operationalDataExcessEnergy.operationalTimeS",
+        f"{_PAYLOAD_PREFIX}.sParam.extHeatSource[%s].operationalDataExcessEnergy.operationalTimeS",
     )
     EXCESS_ENERGY_MAX_RUNTIME = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].operationalDataExcessEnergy.maxRunTimeS",
+        f"{_PAYLOAD_PREFIX}.sParam.extHeatSource[%s].operationalDataExcessEnergy.maxRunTimeS",
     )
     EXCESS_ENERGY_ACTIVATION_COUNTER = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].operationalDataExcessEnergy.activationCounter",
+        f"{_PAYLOAD_PREFIX}.sParam.extHeatSource[%s].operationalDataExcessEnergy.activationCounter",
     )
     USE_EXCESS_ENERGY = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.supportExcessEnergy",
+        f"{_PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.supportExcessEnergy",
         human_readable=BoolEnum,
     )
     MIN_RUNTIME_EXCESS_ENERGY = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.minRunTimeExcessEnergy",
-        value_type=int,
+        f"{_PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.minRunTimeExcessEnergy",
     )
 
 
@@ -1018,7 +1096,7 @@ class SwitchValve(Enum):
     """Switch valve API endpoints."""
 
     POSITION = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.switchvalve[%s].values.actPosition",
+        f"{_PAYLOAD_PREFIX}.sParam.switchvalve[%s].values.actPosition",
         human_readable=SwitchValvePosition,
     )
 
@@ -1027,24 +1105,26 @@ class PassiveCooling(Enum):
     """Passive cooling API endpoints."""
 
     TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].TempCoolPassive.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.passivecooling[%s].TempCoolPassive{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     SWITCH_VALVE_POSITION = IntegerEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].SwitchValvePassiveCool.values.actPosition",
+        f"{_PAYLOAD_PREFIX}.sParam.passivecooling[%s].SwitchValvePassiveCool.values.actPosition",
         human_readable=SwitchValvePosition,
     )
     CIRCULATION_PUMP_SPEED = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Pump.values.setValueScaled",
+        f"{_PAYLOAD_PREFIX}.sParam.passivecooling[%s].Pump.values.setValueScaled",
         decimals=4,
     )
     MIXER_TARGET_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.values.setValue",
+        f"{_PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.values.setValue",
     )
     MIXER_FLOW_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.flowTemp.values.actValue",
+        f"{_PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.flowTemp{_ACT_VALUE_SUFFIX}",
+        has_message_id=True,
     )
     MIXER_POSITION = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.mixer.values.setValueScaled",
+        f"{_PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.mixer.values.setValueScaled",
         human_readable=MixerSwitchValvePosition,
         normalize=lambda v: (v >= 1) - (v <= -1),
     )
@@ -1054,22 +1134,22 @@ class Photovoltaics(Enum):
     """Photovoltaics API endpoints."""
 
     EXCESS_ENERGY_ACTIVE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.photovoltaics.values.excessEnergyActive",
+        f"{_PAYLOAD_PREFIX}.sParam.photovoltaics.values.excessEnergyActive",
         human_readable=BoolEnum,
     )
     EXCESS_POWER = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.photovoltaics.ElectricEnergyMeter.values.power",
+        f"{_PAYLOAD_PREFIX}.sParam.photovoltaics.ElectricEnergyMeter.values.power",
     )
     DAILY_ENERGY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.photovoltaics.ElectricEnergyMeter.values.heatDay",
+        f"{_PAYLOAD_PREFIX}.sParam.photovoltaics.ElectricEnergyMeter.values.heatDay",
     )
     TOTAL_ENERGY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.photovoltaics.ElectricEnergyMeter.values.accumulatedHeat",
+        f"{_PAYLOAD_PREFIX}.sParam.photovoltaics.ElectricEnergyMeter.values.accumulatedHeat",
     )
 
 
 class SectionPrefix(str, Enum):
-    """Section prefixes."""
+    """Prefixes of the grouped ``read_data`` response."""
 
     SYSTEM = "system"
     BUFFER_TANK = "buffer_tank"
@@ -1095,3 +1175,9 @@ Section: TypeAlias = (
     | PassiveCooling
     | Photovoltaics
 )
+
+# Former public names, kept for backwards compatibility
+API_DEFAULT_TIMEOUT: Final[int] = _API_DEFAULT_TIMEOUT
+PAYLOAD_PREFIX: Final[str] = _PAYLOAD_PREFIX
+MIN_HEATING_CURVE_POINTS: Final[int] = _MIN_HEATING_CURVE_POINTS
+MAX_HEATING_CURVE_POINTS: Final[int] = _MAX_HEATING_CURVE_POINTS
