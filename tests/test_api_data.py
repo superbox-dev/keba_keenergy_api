@@ -900,3 +900,25 @@ read_data_expected_response_4: dict[str, Any] = {
     "passive_cooling": {},
     "photovoltaics": {},
 }
+
+read_message_ids_payload: list[dict[str, Any]] = [
+    {"name": "APPL.CtrlAppl.sParam.heatpump[0].FailureVFD.state.msgId", "value": "10"},
+    {"name": "APPL.CtrlAppl.sParam.heatpump[1].FailureVFD.state.msgId", "value": "0"},
+    {"name": "APPL.CtrlAppl.sParam.heatCircuit[0].tempRoom.state.msgId", "value": "0"},
+    {"name": "APPL.CtrlAppl.sParam.genericHeat[0].referenceTemp.state.msgId", "value": "0"},
+    {"name": "APPL.CtrlAppl.sParam.genericHeat[1].referenceTemp.state.msgId", "value": "10"},
+    {"name": "APPL.CtrlAppl.sParam.genericHeat[2].referenceTemp.state.msgId", "value": "10"},
+    {"name": "APPL.CtrlAppl.sParam.genericHeat[3].referenceTemp.state.msgId", "value": "0"},
+    {"name": "APPL.CtrlAppl.sParam.outdoorTemp.state.msgId", "value": "0"},
+]
+
+read_message_ids_expected_data: str = (
+    '[{"name": "APPL.CtrlAppl.sParam.heatpump[0].FailureVFD.state.msgId", "attr": "0"}, '
+    '{"name": "APPL.CtrlAppl.sParam.heatpump[1].FailureVFD.state.msgId", "attr": "0"}, '
+    '{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].tempRoom.state.msgId", "attr": "0"}, '
+    '{"name": "APPL.CtrlAppl.sParam.genericHeat[0].referenceTemp.state.msgId", "attr": "0"}, '
+    '{"name": "APPL.CtrlAppl.sParam.genericHeat[1].referenceTemp.state.msgId", "attr": "0"}, '
+    '{"name": "APPL.CtrlAppl.sParam.genericHeat[2].referenceTemp.state.msgId", "attr": "0"}, '
+    '{"name": "APPL.CtrlAppl.sParam.genericHeat[3].referenceTemp.state.msgId", "attr": "0"}, '
+    '{"name": "APPL.CtrlAppl.sParam.outdoorTemp.state.msgId", "attr": "0"}]'
+)

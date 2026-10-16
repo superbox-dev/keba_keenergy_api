@@ -1,0 +1,65 @@
+from enum import Enum
+
+import pytest
+
+from keba_keenergy_api.constants import BufferTank
+from keba_keenergy_api.constants import ExternalHeatSource
+from keba_keenergy_api.constants import FloatEndpoint
+from keba_keenergy_api.constants import HeatCircuit
+from keba_keenergy_api.constants import HeatPump
+from keba_keenergy_api.constants import HotWaterTank
+from keba_keenergy_api.constants import PassiveCooling
+from keba_keenergy_api.constants import Photovoltaics
+from keba_keenergy_api.constants import SolarCircuit
+from keba_keenergy_api.constants import SwitchValve
+from keba_keenergy_api.constants import System
+
+SECTIONS: tuple[type[Enum], ...] = (
+    System,
+    BufferTank,
+    HotWaterTank,
+    HeatPump,
+    HeatCircuit,
+    SolarCircuit,
+    ExternalHeatSource,
+    SwitchValve,
+    PassiveCooling,
+    Photovoltaics,
+)
+
+
+class TestConstants:
+    @pytest.mark.parametrize(
+        ("section", "expected"),
+        [
+            (HeatPump.HAS_VFD_FAILURE, "APPL.CtrlAppl.sParam.heatpump[%s].FailureVFD.state.msgId"),
+            (System.OUTDOOR_TEMPERATURE, "APPL.CtrlAppl.sParam.outdoorTemp.state.msgId"),
+            (SolarCircuit.CURRENT_TEMPERATURE, "APPL.CtrlAppl.sParam.genericHeat[%s].referenceTemp.state.msgId"),
+            (HeatPump.STATE, None),
+            (HeatCircuit.HAS_ROOM_TEMPERATURE, None),
+        ],
+    )
+    def test_message_id_path(self, section: Enum, expected: str | None) -> None:
+        assert section.value.message_id_path == expected
+
+    def test_message_id_requires_act_value(self) -> None:
+        with pytest.raises(
+            ValueError,
+            match=r"message id is not supported for 'APPL\.CtrlAppl\.sParam\.heatpump\[%s\]\.values\.COP'",
+        ):
+            FloatEndpoint("APPL.CtrlAppl.sParam.heatpump[%s].values.COP", has_message_id=True)
+
+    @pytest.mark.parametrize("section", [member for enum in SECTIONS for member in enum], ids=str)
+    def test_every_act_value_has_message_id(self, section: Enum) -> None:
+        # Every sensor value (values.actValue) has a confirmed state.msgId on the control unit
+        assert section.value.has_message_id is section.value.value.endswith(".values.actValue")
+
+    @pytest.mark.parametrize(
+        ("path", "expected_read_only"),
+        [
+            ("APPL.CtrlAppl.sParam.heatpump[%s].param.name", False),
+            ("APPL.CtrlAppl.sParam.heatpump[%s].values.COP", True),
+        ],
+    )
+    def test_read_only(self, path: str, expected_read_only: bool) -> None:  # noqa: FBT001
+        assert FloatEndpoint(path).read_only is expected_read_only

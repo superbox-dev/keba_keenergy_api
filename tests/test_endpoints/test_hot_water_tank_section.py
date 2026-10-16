@@ -875,6 +875,63 @@ class TestHappyPathHotWaterTankSection:
                 ssl=False,
             )
 
+    @pytest.mark.asyncio
+    async def test_get_max_target_temperature_with_position(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[1].param.normalSetTempMax.value",
+                        "attributes": {"lowerLimit": "0", "upperLimit": "52"},
+                        "value": "50",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int = await client.hot_water_tank.get_max_target_temperature(position=2)
+
+            assert isinstance(data, int)
+            assert data == 52  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[1].param.normalSetTempMax.value", "attr": "1"}]',
+                method="POST",
+                headers={},
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_has_fresh_water_module_with_position(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.hotWaterTank[1].hasFreshWaterModule",
+                        "attributes": {},
+                        "value": "true",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.hot_water_tank.has_fresh_water_module(position=2)
+
+            assert data == "on"
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.options.hotWaterTank[1].hasFreshWaterModule", "attr": "1"}]',
+                method="POST",
+                headers={},
+                ssl=False,
+            )
+
 
 class TestUnhappyPathHotWaterTankSection:
     @pytest.mark.asyncio

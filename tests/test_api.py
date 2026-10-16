@@ -37,13 +37,15 @@ from tests.test_api_data import read_data_payload_1
 from tests.test_api_data import read_data_payload_2
 from tests.test_api_data import read_data_payload_3
 from tests.test_api_data import read_data_payload_4
+from tests.test_api_data import read_message_ids_expected_data
+from tests.test_api_data import read_message_ids_payload
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_names_payload
 
 if TYPE_CHECKING:
     from keba_keenergy_api.endpoints import ValueResponse
 
 
-class TestKebaKeEnergyAPI:
+class TestApi:
     @pytest.mark.asyncio
     async def test_api(self) -> None:
         with aioresponses() as mock_keenergy_api:
@@ -690,3 +692,101 @@ class TestKebaKeEnergyAPI:
                 APIError, match="500 Internal Server Error: Server got itself in trouble - mocked-error"
             ):
                 await client.system.get_outdoor_temperature()
+
+    @pytest.mark.asyncio
+    async def test_write_data_ignores_invalid_and_read_only_sections(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload=[{}],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            request: dict[Any, Any] = {
+                "invalid": 1,
+                HeatPump.STATE: (1,),
+                System.OPERATING_MODE: 1,
+            }
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.write_data(request=request)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data='[{"name": "APPL.CtrlAppl.sParam.param.operatingMode", "value": "1"}]',
+                method="POST",
+                headers={},
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_read_message_ids(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=read_data_option_payload_4,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=read_message_ids_payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: dict[Section, list[int]] = await client.read_message_ids(
+                request=[
+                    HeatPump.HAS_VFD_FAILURE,
+                    HeatCircuit.ROOM_TEMPERATURE,
+                    SolarCircuit.CURRENT_TEMPERATURE,
+                    System.OUTDOOR_TEMPERATURE,
+                    # Has no message id and is skipped
+                    HeatPump.STATE,
+                ],
+            )
+
+            assert data == {
+                HeatPump.HAS_VFD_FAILURE: [10, 0],
+                HeatCircuit.ROOM_TEMPERATURE: [0],
+                SolarCircuit.CURRENT_TEMPERATURE: [0, 10, 10, 0],
+                System.OUTDOOR_TEMPERATURE: [0],
+            }
+
+            mock_keenergy_api.assert_any_call(
+                url="http://mocked-host/var/readWriteVars",
+                data=read_message_ids_expected_data,
+                method="POST",
+                headers={},
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_read_message_ids_with_position(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[{"name": "APPL.CtrlAppl.sParam.heatpump[1].FailureVFD.state.msgId", "value": "10"}],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: dict[Section, list[int]] = await client.read_message_ids(request=HeatPump.HAS_VFD_FAILURE, position=2)
+
+            assert data == {HeatPump.HAS_VFD_FAILURE: [10]}
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[1].FailureVFD.state.msgId", "attr": "0"}]',
+                method="POST",
+                headers={},
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_read_message_ids_without_message_id(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: dict[Section, list[int]] = await client.read_message_ids(request=[HeatPump.STATE], position=1)
+
+            assert data == {}
+            mock_keenergy_api.assert_not_called()
