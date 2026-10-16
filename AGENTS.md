@@ -30,9 +30,10 @@ Before finishing a change, run:
   - behaviour that worked before
 - Allowed:
   - renames, if the old name stays as an alias (note it in the changelog)
+  - new parameters, if they are optional and the default keeps the old behaviour
   - turning a crash (`KeyError`, ...) into an `APIError`
   - changing `_`-prefixed internals and `Endpoint.extra_writes()`
-- **100% test coverage** is enforced
+- **100% test coverage** (lines and branches) is enforced
 - **Python 3.11 minimum**, so no:
   - `type` statements
   - PEP 695 generics
@@ -45,7 +46,7 @@ Before finishing a change, run:
   ```
 
 - NumPy-style docstrings (not required in tests)
-- Fix lint errors instead of adding `# noqa`; if unavoidable, name the rule code
+- No `# noqa`, no `# type: ignore`, no new `ruff.toml` ignores. Fix the code instead
 - `git add` new files, CI only checks tracked files
 - Never edit:
   - `keba_keenergy_api/version.py` (generated)
