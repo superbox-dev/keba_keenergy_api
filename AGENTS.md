@@ -19,12 +19,12 @@ uv run yamllint .           # YAML lint
 uv run mkdocs build --strict  # build the docs
 ```
 
-Before you finish a change, run `./scripts/lint.sh` and `uv run pytest`. CI runs both on Python 3.10–3.14.
+Before you finish a change, run `./scripts/lint.sh` and `uv run pytest`. CI runs both on Python 3.11–3.14.
 
 ## Hard rules
 
 - **100% test coverage is enforced** (`fail_under = 100`). Every new code path needs a test.
-- **Python 3.10 is the minimum.** Do not use syntax or stdlib features from newer versions
+- **Python 3.11 is the minimum.** Do not use syntax or stdlib features from newer versions
   (e.g. no `type` statements, no PEP 695 generics, no `typing.Self`/`override` without a fallback).
 - **Line length 120**, single-line imports (`force-single-line`), full type annotations.
 - **Docstrings use NumPy style** (rendered by mkdocstrings). Tests are exempt from docstring rules.

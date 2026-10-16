@@ -3,6 +3,7 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
+from enum import StrEnum
 from itertools import chain
 from typing import Any
 from typing import Final
@@ -1155,7 +1156,7 @@ class Photovoltaics(Enum):
     )
 
 
-class SectionPrefix(str, Enum):
+class SectionPrefix(StrEnum):
     """Prefixes of the grouped ``read_data`` response."""
 
     SYSTEM = "system"
