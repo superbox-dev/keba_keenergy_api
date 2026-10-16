@@ -30,3 +30,6 @@ keba_keenergy_api/version.py
 
 # site
 site/
+
+# test reports
+tests/reports/
