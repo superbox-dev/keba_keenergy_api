@@ -4,7 +4,7 @@ from http import HTTPStatus
 
 
 class APIError(Exception):
-    """API error."""
+    """Base error of the KEBA KeEnergy API, e.g. for HTTP and connection errors."""
 
     def __init__(
         self,
@@ -40,8 +40,8 @@ class APIError(Exception):
 
 
 class InvalidJsonError(APIError):
-    """Invalid JSON data error."""
+    """The response of the Web HMI is not valid JSON."""
 
 
 class AuthenticationError(APIError):
-    """Invalid credentials error."""
+    """The credentials were rejected by the Web HMI (HTTP 401)."""

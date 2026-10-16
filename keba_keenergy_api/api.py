@@ -69,12 +69,12 @@ class KebaKeEnergyAPI(BaseEndpoints):
         Examples
         --------
         >>> client = KebaKeEnergyAPI(
-        >>>     host="ap4400.local",
-        >>>     username="test",
-        >>>     password="test",
-        >>>     ssl=True,
-        >>>     skip_ssl_verification=True
-        >>> )
+        ...     host="ap4400.local",
+        ...     username="test",
+        ...     password="test",
+        ...     ssl=True,
+        ...     skip_ssl_verification=True
+        ... )
 
         """
         self.host: str = host
@@ -219,73 +219,43 @@ class KebaKeEnergyAPI(BaseEndpoints):
             session=self.session,
         )
 
-    async def _group_data(  # noqa: C901
+    async def _group_data(
         self,
         response: dict[str, list[list[Value]] | list[Value]],
         /,
         *,
         extra_attributes: bool = True,
     ) -> dict[str, ValueResponse]:
-        """Group raw API values by their KEBA section prefix.
+        """Group raw API values by their section prefix.
 
-        Args:
-            response: Raw values returned by the underlying API request.
-            extra_attributes: Whether to enrich heating-curve values with point data.
+        Parameters
+        ----------
+        response
+            Values returned by :meth:`BaseEndpoints._read_data`, keyed by ``<prefix>_<section name>``.
+        extra_attributes
+            Whether to enrich heating curve values with their points.
 
-        Returns:
-            Values grouped by section, with section prefixes removed from keys.
+        Returns
+        -------
+        dict[str, ValueResponse]
+            Values grouped by section prefix, with the prefix removed from the keys. System and
+            photovoltaics values are single values, all others are lists with one entry per device.
 
         """
-        data: dict[str, ValueResponse] = {
-            SectionPrefix.SYSTEM.value: {},
-            SectionPrefix.BUFFER_TANK.value: {},
-            SectionPrefix.HOT_WATER_TANK.value: {},
-            SectionPrefix.HEAT_PUMP.value: {},
-            SectionPrefix.HEAT_CIRCUIT.value: {},
-            SectionPrefix.SOLAR_CIRCUIT.value: {},
-            SectionPrefix.EXTERNAL_HEAT_SOURCE.value: {},
-            SectionPrefix.SWITCH_VALVE.value: {},
-            SectionPrefix.PASSIVE_COOLING.value: {},
-            SectionPrefix.PHOTOVOLTAICS.value: {},
-        }
+        data: dict[str, ValueResponse] = {prefix.value: {} for prefix in SectionPrefix}
+        single_value_prefixes: tuple[SectionPrefix, ...] = (SectionPrefix.SYSTEM, SectionPrefix.PHOTOVOLTAICS)
 
         for key, value in response.items():
-            _key: str = ""
+            for prefix in SectionPrefix:
+                if not key.startswith(prefix.value):
+                    continue
 
-            if key.startswith(SectionPrefix.SYSTEM):
-                _key = key.lower().replace(f"{SectionPrefix.SYSTEM.value}_", "")
-                data[SectionPrefix.SYSTEM][_key] = value[0]
-            elif key.startswith(SectionPrefix.BUFFER_TANK):
-                _key = key.lower().replace(f"{SectionPrefix.BUFFER_TANK.value}_", "")
-                data[SectionPrefix.BUFFER_TANK][_key] = value
-            elif key.startswith(SectionPrefix.HOT_WATER_TANK):
-                _key = key.lower().replace(f"{SectionPrefix.HOT_WATER_TANK.value}_", "")
-                data[SectionPrefix.HOT_WATER_TANK][_key] = value
-            elif key.startswith(SectionPrefix.HEAT_PUMP):
-                _key = key.lower().replace(f"{SectionPrefix.HEAT_PUMP.value}_", "")
-                data[SectionPrefix.HEAT_PUMP][_key] = value
-            elif key.startswith(SectionPrefix.HEAT_CIRCUIT):
-                _key = key.lower().replace(f"{SectionPrefix.HEAT_CIRCUIT.value}_", "")
-
-                if extra_attributes:
+                if prefix is SectionPrefix.HEAT_CIRCUIT and extra_attributes:
                     await self._extra_attributes_heating_curve(key, value)
 
-                data[SectionPrefix.HEAT_CIRCUIT][_key] = value
-            elif key.startswith(SectionPrefix.SOLAR_CIRCUIT):
-                _key = key.lower().replace(f"{SectionPrefix.SOLAR_CIRCUIT.value}_", "")
-                data[SectionPrefix.SOLAR_CIRCUIT][_key] = value
-            elif key.startswith(SectionPrefix.EXTERNAL_HEAT_SOURCE):
-                _key = key.lower().replace(f"{SectionPrefix.EXTERNAL_HEAT_SOURCE.value}_", "")
-                data[SectionPrefix.EXTERNAL_HEAT_SOURCE][_key] = value
-            elif key.startswith(SectionPrefix.SWITCH_VALVE):
-                _key = key.lower().replace(f"{SectionPrefix.SWITCH_VALVE.value}_", "")
-                data[SectionPrefix.SWITCH_VALVE][_key] = value
-            elif key.startswith(SectionPrefix.PASSIVE_COOLING):
-                _key = key.lower().replace(f"{SectionPrefix.PASSIVE_COOLING.value}_", "")
-                data[SectionPrefix.PASSIVE_COOLING][_key] = value
-            elif key.startswith(SectionPrefix.PHOTOVOLTAICS):
-                _key = key.lower().replace(f"{SectionPrefix.PHOTOVOLTAICS.value}_", "")
-                data[SectionPrefix.PHOTOVOLTAICS][_key] = value[0]
+                _key: str = key.lower().replace(f"{prefix.value}_", "")
+                data[prefix.value][_key] = value[0] if prefix in single_value_prefixes else value
+                break
 
         return data
 
@@ -297,10 +267,10 @@ class KebaKeEnergyAPI(BaseEndpoints):
         human_readable: bool = True,
         extra_attributes: bool = True,
     ) -> dict[str, ValueResponse]:
-        """Read requested values and group them by section.
+        """Read the requested values with one request and group them by section.
 
-        The underlying API request is delegated to :meth:`BaseEndpoints._read_data`.
-        If no device positions are supplied, the installed positions are queried first.
+        If no position is given, the installed devices are read from the control unit first
+        (one additional request).
 
         Parameters
         ----------
@@ -313,19 +283,19 @@ class KebaKeEnergyAPI(BaseEndpoints):
         extra_attributes
             Whether to append additional attributes, including heating-curve points.
 
+        Returns
+        -------
+        dict[str, ValueResponse]
+            A dictionary keyed by section prefix, containing the requested values.
+
         Examples
         --------
         >>> await client.read_data(
-        >>>     request=[
-        >>>         HeatCircuit.TARGET_TEMPERATURE,
-        >>>         HeatCircuit.TARGET_TEMPERATURE_DAY
-        >>>     ]
-        >>> )
-
-        Returns
-        -------
-        dictionary
-            A dictionary keyed by section prefix, containing the requested values.
+        ...     request=[
+        ...         HeatCircuit.TARGET_TEMPERATURE,
+        ...         HeatCircuit.TARGET_TEMPERATURE_DAY
+        ...     ]
+        ... )
 
         """
         if position is None:
@@ -340,25 +310,82 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         return await self._group_data(response, extra_attributes=extra_attributes)
 
-    async def write_data(self, request: dict[Section, Any]) -> None:
-        """Write multiple values to the controller.
+    async def read_message_ids(
+        self,
+        request: Section | list[Section],
+        position: Position | int | list[int] | None = None,
+    ) -> dict[Section, list[int]]:
+        """Read the message ids of sensors, to find out whether a sensor is in use.
 
-        Each mapping key identifies a section. Its value is a tuple of values indexed
-        by device position, where the first tuple item corresponds to position 1.
+        A message id other than 0 means that the control unit has a message for this sensor,
+        e.g. the sensor is not connected. Only sections with a confirmed message id are read,
+        all of them with one request.
 
         Parameters
         ----------
         request
-            A mapping from section to a tuple of values; the first tuple item targets position 1.
+            Section or a list of sections e.g. [HeatPump.HAS_VFD_FAILURE, ...]
+        position
+            Installed device position(s), such as heat-pump positions.
+
+        Returns
+        -------
+        dict[Section, list[int]]
+            A dictionary with the section as key and a list of message ids as value, one per device
+            (position * quantity + sub index). 0 means the sensor is in use.
+
+        Examples
+        --------
+        >>> await client.read_message_ids(
+        ...     request=[HeatPump.HAS_VFD_FAILURE, HeatCircuit.ROOM_TEMPERATURE]
+        ... )
+
+        """
+        if position is None:
+            position = await self.system.get_positions()
+
+        if not isinstance(request, list):
+            request = [request]
+
+        if isinstance(position, int):
+            position = [position]
+
+        requests: list[tuple[Section, str]] = self._generate_message_id_requests(
+            request=request,
+            position=position,
+        )
+
+        values: list[int] = await self._read_message_ids([path for _, path in requests])
+
+        message_ids: dict[Section, list[int]] = {s: [] for s in request if s.value.message_id_path}
+
+        for (section, _), value in zip(requests, values, strict=True):
+            message_ids[section].append(value)
+
+        return message_ids
+
+    async def write_data(self, request: dict[Section, Any]) -> None:
+        """Write multiple values with one request.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Each key is a section, the value is a single value or a tuple with one value per device
+        (the first item is position 1, ``None`` skips a device). Read-only sections are ignored.
+
+        Parameters
+        ----------
+        request
+            A mapping from section to a value or a tuple of values.
 
         Examples
         --------
         >>> await client.write_data(
-        >>>     request={
-        >>>        HeatCircuit.TARGET_TEMPERATURE_DAY: (20, None, 5),
-        >>>        HeatCircuit.TARGET_TEMPERATURE_NIGHT: (16,),
-        >>>     }
-        >>> )
+        ...     request={
+        ...        HeatCircuit.TARGET_TEMPERATURE_DAY: (20, None, 5),
+        ...        HeatCircuit.TARGET_TEMPERATURE_NIGHT: (16,),
+        ...     }
+        ... )
 
         """
         await self._write_values(request=request)
@@ -368,11 +395,11 @@ class KebaKeEnergyAPI(BaseEndpoints):
         request: Section | list[Section],
         position: Position | int | list[int] | None = None,
     ) -> list[Section]:
-        """Return requested sections supported by the controller's Web HMI version.
+        """Return the requested sections that are supported by the Web HMI software version.
 
-        Each requested section is checked using the API's read-children endpoint.
-        The returned list preserves request order and contains each supported section
-        at most once.
+        Each section is checked per installed device with the read-children endpoint (one request
+        per section and device). Sections of devices that are not installed are skipped. The result
+        keeps the request order and contains each supported section once.
 
         Parameters
         ----------
@@ -383,17 +410,17 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         Returns
         -------
-        request
-            A list of sections e.g. [BufferTank.NAME, ...]
+        list[Section]
+            The supported sections e.g. [BufferTank.NAME, ...]
 
         Examples
         --------
-        >>> data = await client.filter_request(
-        >>>     request=[
-        >>>         HeatCircuit.TARGET_TEMPERATURE,
-        >>>         HeatCircuit.TARGET_TEMPERATURE_DAY
-        >>>     ]
-        >>> )
+        >>> sections = await client.filter_request(
+        ...     request=[
+        ...         HeatCircuit.TARGET_TEMPERATURE,
+        ...         HeatCircuit.TARGET_TEMPERATURE_DAY
+        ...     ]
+        ... )
 
         """
         if position is None:
@@ -424,13 +451,15 @@ class KebaKeEnergyAPI(BaseEndpoints):
         return filtered_sections
 
     async def _extra_attributes_heating_curve(self, key: str, value: list[list[Value]] | list[Value], /) -> None:
-        """Add heating-curve points to the attributes of matching response values.
+        """Add the heating curve points to the attributes of heating curve values (in place).
 
-        Args:
-            key: Original key returned by the KEBA API.
-            value: Values associated with the key. Matching dictionary entries are
-                enriched in place with the outdoor-temperature and flow-temperature
-                points.
+        Parameters
+        ----------
+        key
+            Response key, only ``heat_circuit_heating_curve`` is enriched.
+        value
+            Values of the key. Each entry gets an attribute ``points`` with ``outdoor`` and ``flow``
+            temperatures.
 
         """
         if key.lower() == self._get_real_key(HeatCircuit.HEATING_CURVE):
