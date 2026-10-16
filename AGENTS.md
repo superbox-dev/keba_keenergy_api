@@ -8,7 +8,7 @@ Published on PyPI and used by the Home Assistant integration, so the public API 
 The project uses `uv`. Always run tools through `uv run`.
 
 ```bash
-./scripts/setup.sh          # uv sync --locked --all-extras --dev + prek hooks
+./scripts/setup.sh          # uv sync --locked --dev + prek hooks
 uv run pytest               # tests (parallel, coverage, stops at first failure)
 uv run ruff format          # format
 uv run ruff check --fix     # lint (select = ALL)

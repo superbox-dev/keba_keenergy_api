@@ -4,5 +4,5 @@ set -e
 
 cd "$(dirname "$0")/.."
 
-uv sync --locked --all-extras --dev
+uv sync --locked --dev
 uv run prek install --force
