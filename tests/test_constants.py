@@ -13,9 +13,11 @@ from keba_keenergy_api.constants import HeatPump
 from keba_keenergy_api.constants import HotWaterTank
 from keba_keenergy_api.constants import PassiveCooling
 from keba_keenergy_api.constants import Photovoltaics
+from keba_keenergy_api.constants import SectionPrefix
 from keba_keenergy_api.constants import SolarCircuit
 from keba_keenergy_api.constants import SwitchValve
 from keba_keenergy_api.constants import System
+from keba_keenergy_api.endpoints import BaseEndpoints
 
 SECTIONS: tuple[type[Enum], ...] = (
     System,
@@ -51,6 +53,11 @@ class TestConstants:
             match=r"message id is not supported for 'APPL\.CtrlAppl\.sParam\.heatpump\[%s\]\.values\.COP'",
         ):
             FloatEndpoint("APPL.CtrlAppl.sParam.heatpump[%s].values.COP", has_message_id=True)
+
+    @pytest.mark.parametrize("section", SECTIONS, ids=lambda section: section.__name__)
+    def test_every_section_has_prefix(self, section: type[Enum]) -> None:
+        # read_data groups the values by these prefixes
+        assert BaseEndpoints.KEY_PATTERN.sub("_", section.__name__).lower() in set(SectionPrefix)
 
     @pytest.mark.parametrize("section", [member for enum in SECTIONS for member in enum], ids=str)
     def test_every_act_value_has_message_id(self, section: Enum) -> None:

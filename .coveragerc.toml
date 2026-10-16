@@ -1,5 +1,5 @@
 [tool.coverage.run]
-branch = false
+branch = true
 source = ["keba_keenergy_api"]
 
 [tool.coverage.report]

@@ -286,7 +286,7 @@ class BaseEndpoints:
             position_key: str = f"{self.KEY_PATTERN.sub('_', section.__class__.__name__).lower()}"
             _position: int | None = getattr(position, position_key, None)
             idx = list(range(_position)) if _position else [False]
-        elif isinstance(position, list):
+        else:
             idx = [False if p == 0 else (p - 1) for p in position] if position else [True]
 
         return idx
