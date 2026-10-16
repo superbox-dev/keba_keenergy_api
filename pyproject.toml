@@ -47,6 +47,8 @@ classifiers = [
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Framework :: AsyncIO",
+    "Typing :: Typed",
 ]
 requires-python = ">= 3.10"
 dependencies = [
@@ -99,4 +101,4 @@ test = [
 packages = ["keba_keenergy_api"]
 
 [tool.setuptools_scm]
-write_to = "keba_keenergy_api/version.py"
+version_file = "keba_keenergy_api/version.py"

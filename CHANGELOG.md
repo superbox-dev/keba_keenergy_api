@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed `SolarCircuitPriority1Before2StringEndpoint.helper()` to `extra_writes()`
 - Simplified the internal endpoint code (no changes to the public API)
 - Converted all docstrings to the NumPy style
+- Added the `Apache-2.0` license expression and the `Typing :: Typed` / `Framework :: AsyncIO` classifiers
+  to the package metadata
 
 ### Fixed
 

@@ -2,7 +2,6 @@ name: CI
 
 permissions:
   contents: read
-  pull-requests: write
 
 on:
   workflow_dispatch:
@@ -72,7 +71,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Run tests
-        run: uv run pytest -n auto
+        run: uv run pytest
       - name: Upload coverage
         uses: actions/upload-artifact@v7
         with:
@@ -84,7 +83,7 @@ jobs:
   coverage:
     name: Generate coverage badge
     runs-on: ubuntu-latest
-    if: github.ref_type != 'tag'
+    if: github.event_name == 'push' && github.ref_type != 'tag'
     needs:
       - configure
       - tests
@@ -105,7 +104,7 @@ jobs:
       - name: Create coverage badge
         run: uv run genbadge coverage --input-file coverage.xml
       - name: Verify coverage badge changed
-        uses: tj-actions/verify-changed-files@v20
+        uses: tj-actions/verify-changed-files@a1c6acee9df209257a246f2cc6ae8cb6581c1edf  # v20.0.4
         id: changed-files
         with:
           files: coverage-badge.svg
@@ -118,7 +117,7 @@ jobs:
           git commit -m "Updated coverage-badge.svg"
       - name: Push changes
         if: steps.changed-files.outputs.files_changed == 'true'
-        uses: ad-m/github-push-action@master
+        uses: ad-m/github-push-action@881a6320fdb16eb5318c5054f31c218aec2b324c  # v1.3.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
