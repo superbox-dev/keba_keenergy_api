@@ -29,7 +29,12 @@ from keba_keenergy_api.endpoints import ValueResponse
 
 
 class KebaKeEnergyAPI(BaseEndpoints):
-    """An asynchronous client to interact with KEBA KeEnergy API from the Web HMI."""
+    """Asynchronous client for the KEBA KeEnergy Web HMI API.
+
+    The client exposes endpoint groups and convenience methods for reading and writing
+    controller values. A caller may provide an existing :class:`aiohttp.ClientSession`
+    to manage its own session lifecycle.
+    """
 
     def __init__(
         self,
@@ -41,22 +46,25 @@ class KebaKeEnergyAPI(BaseEndpoints):
         skip_ssl_verification: bool = False,
         session: ClientSession | None = None,
     ) -> None:
-        """Initialize API with host and optionally authentication credentials.
+        """Initialize the API client.
+
+        Configure the device URL, optional HTTP Basic authentication, TLS settings,
+        and the optional shared :class:`aiohttp.ClientSession`.
 
         Parameters
         ----------
         host
-            The hostname or IP adress e.g. ap4400.local
+            The hostname or IP address, e.g. ``ap4400.local``.
         username
-            Required for basic auth
+            Username for HTTP Basic authentication.
         password
-            Required for basic auth
+            Password for HTTP Basic authentication.
         ssl
-            Enable https schema for API URLs
+            Use HTTPS for API URLs.
         skip_ssl_verification
-            Disable SSL verification (required for self-signed certificates)
+            Disable TLS certificate verification, for example for self-signed certificates.
         session
-            Add an aiohttp client session
+            Optional session shared with the endpoint clients.
 
         Examples
         --------
@@ -91,7 +99,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
     @property
     def device_url(self) -> str:
-        """Get the device URL.
+        """Return the base URL of the KEBA controller.
 
         Returns
         -------
@@ -103,7 +111,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
     @property
     def system(self) -> SystemEndpoints:
-        """Get the system endpoints."""
+        """Return an endpoint client for system-level values."""
         return SystemEndpoints(
             base_url=self.device_url,
             auth=self.auth,
@@ -114,7 +122,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
     @property
     def buffer_tank(self) -> BufferTankEndpoints:
-        """Get buffer tank endpoints."""
+        """Return an endpoint client for buffer-tank values."""
         return BufferTankEndpoints(
             base_url=self.device_url,
             auth=self.auth,
@@ -125,7 +133,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
     @property
     def hot_water_tank(self) -> HotWaterTankEndpoints:
-        """Get hot water tank endpoints."""
+        """Return an endpoint client for hot-water-tank values."""
         return HotWaterTankEndpoints(
             base_url=self.device_url,
             auth=self.auth,
@@ -136,7 +144,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
     @property
     def heat_pump(self) -> HeatPumpEndpoints:
-        """Get heat pump endpoints."""
+        """Return an endpoint client for heat-pump values."""
         return HeatPumpEndpoints(
             base_url=self.device_url,
             auth=self.auth,
@@ -147,7 +155,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
     @property
     def heat_circuit(self) -> HeatCircuitEndpoints:
-        """Get heat circuit endpoints."""
+        """Return an endpoint client for heating-circuit values."""
         return HeatCircuitEndpoints(
             base_url=self.device_url,
             auth=self.auth,
@@ -158,7 +166,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
     @property
     def solar_circuit(self) -> SolarCircuitEndpoints:
-        """Get solar circuit endpoints."""
+        """Return an endpoint client for solar-circuit values."""
         return SolarCircuitEndpoints(
             base_url=self.device_url,
             auth=self.auth,
@@ -169,7 +177,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
     @property
     def external_heat_source(self) -> ExternalHeatSourceEndpoints:
-        """Get external heat source endpoints."""
+        """Return an endpoint client for external-heat-source values."""
         return ExternalHeatSourceEndpoints(
             base_url=self.device_url,
             auth=self.auth,
@@ -180,7 +188,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
     @property
     def switch_valve(self) -> SwitchValveEndpoints:
-        """Get switch valve endpoints."""
+        """Return an endpoint client for switch-valve values."""
         return SwitchValveEndpoints(
             base_url=self.device_url,
             auth=self.auth,
@@ -191,7 +199,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
     @property
     def passive_cooling(self) -> PassiveCoolingEndpoints:
-        """Get passive cooling endpoints."""
+        """Return an endpoint client for passive-cooling values."""
         return PassiveCoolingEndpoints(
             base_url=self.device_url,
             auth=self.auth,
@@ -202,7 +210,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
     @property
     def photovoltaics(self) -> PhotovoltaicsEndpoints:
-        """Get photovoltaics endpoints."""
+        """Return an endpoint client for photovoltaic values."""
         return PhotovoltaicsEndpoints(
             base_url=self.device_url,
             auth=self.auth,
@@ -218,6 +226,16 @@ class KebaKeEnergyAPI(BaseEndpoints):
         *,
         extra_attributes: bool = True,
     ) -> dict[str, ValueResponse]:
+        """Group raw API values by their KEBA section prefix.
+
+        Args:
+            response: Raw values returned by the underlying API request.
+            extra_attributes: Whether to enrich heating-curve values with point data.
+
+        Returns:
+            Values grouped by section, with section prefixes removed from keys.
+
+        """
         data: dict[str, ValueResponse] = {
             SectionPrefix.SYSTEM.value: {},
             SectionPrefix.BUFFER_TANK.value: {},
@@ -279,18 +297,21 @@ class KebaKeEnergyAPI(BaseEndpoints):
         human_readable: bool = True,
         extra_attributes: bool = True,
     ) -> dict[str, ValueResponse]:
-        """Read multiple data from API with one request.
+        """Read requested values and group them by section.
+
+        The underlying API request is delegated to :meth:`BaseEndpoints._read_data`.
+        If no device positions are supplied, the installed positions are queried first.
 
         Parameters
         ----------
         request
             Section or a list of sections e.g. [BufferTank.NAME, ...]
         position
-            The number of the installed devices e.g. number of buffer tanks
+            Installed device position(s), such as buffer-tank positions.
         human_readable
-            Return a human-readable string
+            Whether values should be returned as human-readable strings.
         extra_attributes
-            Append the extra attributes to the response
+            Whether to append additional attributes, including heating-curve points.
 
         Examples
         --------
@@ -304,7 +325,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
         Returns
         -------
         dictionary
-            A dictionary with section as key and reponse data as value
+            A dictionary keyed by section prefix, containing the requested values.
 
         """
         if position is None:
@@ -320,12 +341,15 @@ class KebaKeEnergyAPI(BaseEndpoints):
         return await self._group_data(response, extra_attributes=extra_attributes)
 
     async def write_data(self, request: dict[Section, Any]) -> None:
-        """Write multiple data to API with one request.
+        """Write multiple values to the controller.
+
+        Each mapping key identifies a section. Its value is a tuple of values indexed
+        by device position, where the first tuple item corresponds to position 1.
 
         Parameters
         ----------
         request
-            A dictionary with section as key and value to set as a tuple (first index is position 1)
+            A mapping from section to a tuple of values; the first tuple item targets position 1.
 
         Examples
         --------
@@ -344,14 +368,18 @@ class KebaKeEnergyAPI(BaseEndpoints):
         request: Section | list[Section],
         position: Position | int | list[int] | None = None,
     ) -> list[Section]:
-        """Return only available section that are supported by the Web HMI software version.
+        """Return requested sections supported by the controller's Web HMI version.
+
+        Each requested section is checked using the API's read-children endpoint.
+        The returned list preserves request order and contains each supported section
+        at most once.
 
         Parameters
         ----------
         request
             Section or a list of sections e.g. [BufferTank.NAME, ...]
         position
-            The number of the installed devices e.g. number of buffer tanks
+            Installed device position(s), such as buffer-tank positions.
 
         Returns
         -------
@@ -396,6 +424,15 @@ class KebaKeEnergyAPI(BaseEndpoints):
         return filtered_sections
 
     async def _extra_attributes_heating_curve(self, key: str, value: list[list[Value]] | list[Value], /) -> None:
+        """Add heating-curve points to the attributes of matching response values.
+
+        Args:
+            key: Original key returned by the KEBA API.
+            value: Values associated with the key. Matching dictionary entries are
+                enriched in place with the outdoor-temperature and flow-temperature
+                points.
+
+        """
         if key.lower() == self._get_real_key(HeatCircuit.HEATING_CURVE):
             heating_curve_points: HeatingCurves = await self.heat_circuit.get_heating_curve_points()
 
