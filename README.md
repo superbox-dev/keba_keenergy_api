@@ -11,7 +11,7 @@ A Python wrapper for the KEBA KeEnergy API used by the Web HMI.
 
 [workflow-ci]: https://github.com/superbox-dev/keba_keenergy_api/actions/workflows/ci.yml
 [typing-strict]: https://img.shields.io/badge/typing-strict-green.svg
-[code-ruff]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json
+[code-ruff]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v1.json
 
 <!--end-home-->
 
@@ -41,7 +41,6 @@ pip install keba-keenergy-api
 
 ```python
 import asyncio
-from typing import Any
 
 from keba_keenergy_api import KebaKeEnergyAPI
 from keba_keenergy_api.constants import HeatCircuit
@@ -70,8 +69,8 @@ async def main():
     # Write multiple values
     await client.write_data(
         request={
-            # Write heat circuit on position 1 and 3
-            HeatCircuit.TARGET_TEMPERATURE_DAY: (20, None, 5),
+            # Write the day temperature of heat circuit 1 and 3
+            HeatCircuit.TARGET_TEMPERATURE_DAY: (20, None, 21),
             # Write night temperature on position 1
             HeatCircuit.TARGET_TEMPERATURE_NIGHT: (16,),
         },
@@ -113,7 +112,7 @@ as these may contain minimum and maximum values.
 
 **Example:**
 
-The upper limit from the hot water tank temperature is 52 °C. Do not write larger values under any circumstances,
+The upper limit of the hot water tank temperature is 52 °C. Do not write larger values under any circumstances,
 even if it would be possible.
 
 ```json
@@ -135,7 +134,7 @@ even if it would be possible.
 
 > **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
 > Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
-> **Be carefully!**
+> **Be careful!**
 
 <!--end-home-->
 
@@ -146,7 +145,7 @@ Read the full API documentation on [api.superbox.one](https://api.superbox.one).
 ## Changelog
 
 The changelog lives in the [CHANGELOG.md](CHANGELOG.md) document.
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 <!--start-contributing-->
 
@@ -154,10 +153,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 The **KEBA KeEnergy API** is an open-source project and contributions are welcome. You can:
 
-* Report [issues](https://github.com/superbox-dev/keba_keenergy_api/issues/new/choose) or request new features
-* Improve documentation
-* Contribute code
-* Support the project by starring it on GitHub ⭐
+- Report [issues](https://github.com/superbox-dev/keba_keenergy_api/issues/new/choose) or request new features
+- Improve documentation
+- Contribute code
+- Support the project by starring it on GitHub ⭐
 
 <!--end-contributing-->
 

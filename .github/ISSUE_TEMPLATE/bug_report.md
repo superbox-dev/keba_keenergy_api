@@ -29,7 +29,8 @@ If applicable, add screenshots to help explain your problem.
 
 ### Software and hardware
 
-- Web HMI Software version (`Service -> Systeminformationen -> Software`)
+- `keba_keenergy_api` version
+- Web HMI Software version (`Service -> Systeminformationen-> Software`)
 - Device hardware name [e.g. AP440/H-A] (`Service -> Systeminformationen -> Gerät`)
 
 ### Additional context
