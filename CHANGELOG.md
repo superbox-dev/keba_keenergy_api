@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Dropped support for Python 3.10 (end of life). Python 3.11 is now the minimum
+- Changed `SectionPrefix` to a `StrEnum`
 - Read the heating curve points without attributes (`attr="0"`) for a smaller response
 - Renamed `SolarCircuitPriority1Before2StringEndpoint.helper()` to `extra_writes()`
 - Simplified the internal endpoint code (no changes to the public API)
