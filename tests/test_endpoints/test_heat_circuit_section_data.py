@@ -1,3 +1,6 @@
+# Copyright 2023 Michael Hacker
+# SPDX-License-Identifier: Apache-2.0
+
 from keba_keenergy_api.endpoints import HeatingCurvePoint
 from keba_keenergy_api.endpoints import HeatingCurves
 from keba_keenergy_api.endpoints import Response

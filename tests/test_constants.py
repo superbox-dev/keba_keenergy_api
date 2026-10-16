@@ -1,3 +1,6 @@
+# Copyright 2023 Michael Hacker
+# SPDX-License-Identifier: Apache-2.0
+
 from enum import Enum
 
 import pytest
@@ -61,11 +64,11 @@ class TestConstants:
             ("APPL.CtrlAppl.sParam.heatpump[%s].values.COP", True),
         ],
     )
-    def test_read_only(self, path: str, expected_read_only: bool) -> None:  # noqa: FBT001
+    def test_read_only(self, path: str, *, expected_read_only: bool) -> None:
         assert FloatEndpoint(path).read_only is expected_read_only
 
     def test_extra_writes(self) -> None:
-        assert HeatPump.STATE.value.extra_writes((1,)) == {}
+        assert HeatPump.STATE.value.extra_writes([1]) == {}
         assert SolarCircuit.PRIORITY_1_BEFORE_2.value.extra_writes([1, 0, None, 2]) == {
-            SolarCircuit._PRIORITY: [14, None, 15, None, None, None, None, None],  # noqa: SLF001
+            SolarCircuit["_PRIORITY"]: [14, None, 15, None, None, None, None, None],
         }

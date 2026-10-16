@@ -1,3 +1,6 @@
+# Copyright 2023 Michael Hacker
+# SPDX-License-Identifier: Apache-2.0
+
 from copy import deepcopy
 from typing import Any
 
@@ -71,7 +74,8 @@ class TestHappyPathHeatCircuitSection:
     )
     async def test_get_mode(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -120,7 +124,8 @@ class TestHappyPathHeatCircuitSection:
     )
     async def test_has_room_temperature(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -176,7 +181,7 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_room_temperature()
 
             assert isinstance(data, float)
-            assert data == 22.43  # noqa: PLR2004
+            assert data == pytest.approx(22.43)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -198,7 +203,8 @@ class TestHappyPathHeatCircuitSection:
     )
     async def test_has_room_humidity(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -254,7 +260,8 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_room_humidity()
 
             assert isinstance(data, float)
-            assert data == 53  # noqa: PLR2004
+            expected: int = 53
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -289,7 +296,7 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_dew_point()
 
             assert isinstance(data, float)
-            assert data == 13.10  # noqa: PLR2004
+            assert data == pytest.approx(13.10)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -324,7 +331,7 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_flow_temperature_setpoint()
 
             assert isinstance(data, float)
-            assert data == 26.25  # noqa: PLR2004
+            assert data == pytest.approx(26.25)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -346,7 +353,8 @@ class TestHappyPathHeatCircuitSection:
     )
     async def test_has_mixer(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -404,11 +412,14 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_mixer_flow_temperature()
 
             assert isinstance(data, float)
-            assert data == 26.25  # noqa: PLR2004
+            assert data == pytest.approx(26.25)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].heatCircuitMixer.flowTemp.values.actValue", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].heatCircuitMixer.flowTemp.values.'
+                    'actValue", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -439,11 +450,14 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_mixer_return_flow_temperature()
 
             assert isinstance(data, float)
-            assert data == 31.25  # noqa: PLR2004
+            assert data == pytest.approx(31.25)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].heatCircuitMixer.refluxTemp.values.actValue", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].heatCircuitMixer.refluxTemp.values.'
+                    'actValue", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -462,7 +476,8 @@ class TestHappyPathHeatCircuitSection:
     )
     async def test_get_mixer_position(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: str,
     ) -> None:
@@ -515,7 +530,8 @@ class TestHappyPathHeatCircuitSection:
     )
     async def test_get_pump_state(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -560,7 +576,8 @@ class TestHappyPathHeatCircuitSection:
     )
     async def test_has_return_flow_temperature(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -616,7 +633,7 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_return_flow_temperature()
 
             assert isinstance(data, float)
-            assert data == 19.0  # noqa: PLR2004
+            assert data == pytest.approx(19.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -651,7 +668,7 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_target_temperature()
 
             assert isinstance(data, float)
-            assert data == 22.0  # noqa: PLR2004
+            assert data == pytest.approx(22.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -673,7 +690,8 @@ class TestHappyPathHeatCircuitSection:
     )
     async def test_get_use_excess_energy(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: str,
     ) -> None:
@@ -719,7 +737,8 @@ class TestHappyPathHeatCircuitSection:
     )
     async def test_get_excess_energy_mode(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -784,8 +803,8 @@ class TestHappyPathHeatCircuitSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data=(
-                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergy.useExcessEnergy", '  # noqa: UP031
-                    '"value": "%s"}]' % expected_value
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.excessEnergy.useExcessEnergy", '
+                    f'"value": "{expected_value}"}}]'
                 ),
                 method="POST",
                 headers={},
@@ -837,7 +856,7 @@ class TestHappyPathHeatCircuitSection:
             data: float | None = await client.heat_circuit.get_excess_energy_target_temperature()
 
             assert isinstance(data, float)
-            assert data == 23.0  # noqa: PLR2004
+            assert data == pytest.approx(23.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -892,7 +911,7 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_excess_energy_target_temperature_hysteresis()
 
             assert isinstance(data, float)
-            assert data == 0.2  # noqa: PLR2004
+            assert data == pytest.approx(0.2)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -947,7 +966,7 @@ class TestHappyPathHeatCircuitSection:
             data: float | None = await client.heat_circuit.get_excess_energy_target_cooling_temperature()
 
             assert isinstance(data, float)
-            assert data == 23.0  # noqa: PLR2004
+            assert data == pytest.approx(23.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1004,7 +1023,7 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_excess_energy_target_cooling_temperature_hysteresis()
 
             assert isinstance(data, float)
-            assert data == 0.2  # noqa: PLR2004
+            assert data == pytest.approx(0.2)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1053,7 +1072,7 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_selected_target_temperature()
 
             assert isinstance(data, float)
-            assert data == 21.5  # noqa: PLR2004
+            assert data == pytest.approx(21.5)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1088,7 +1107,7 @@ class TestHappyPathHeatCircuitSection:
             data: float | None = await client.heat_circuit.get_target_temperature_day()
 
             assert isinstance(data, float)
-            assert data == 23.0  # noqa: PLR2004
+            assert data == pytest.approx(23.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1143,7 +1162,7 @@ class TestHappyPathHeatCircuitSection:
             data: float | None = await client.heat_circuit.get_target_cooling_temperature_day()
 
             assert isinstance(data, float)
-            assert data == 22.0  # noqa: PLR2004
+            assert data == pytest.approx(22.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1198,7 +1217,7 @@ class TestHappyPathHeatCircuitSection:
             data: float | None = await client.heat_circuit.get_heating_limit_day()
 
             assert isinstance(data, float)
-            assert data == 16.0  # noqa: PLR2004
+            assert data == pytest.approx(16.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1253,7 +1272,7 @@ class TestHappyPathHeatCircuitSection:
             data: float | None = await client.heat_circuit.get_cooling_limit_day()
 
             assert isinstance(data, float)
-            assert data == 24.0  # noqa: PLR2004
+            assert data == pytest.approx(24.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1310,7 +1329,7 @@ class TestHappyPathHeatCircuitSection:
             data: float | None = await client.heat_circuit.get_excess_energy_heating_limit_day()
 
             assert isinstance(data, float)
-            assert data == 25.0  # noqa: PLR2004
+            assert data == pytest.approx(25.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1370,7 +1389,7 @@ class TestHappyPathHeatCircuitSection:
             data: float | None = await client.heat_circuit.get_excess_energy_cooling_limit_day()
 
             assert isinstance(data, float)
-            assert data == 10.0  # noqa: PLR2004
+            assert data == pytest.approx(10.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1431,7 +1450,7 @@ class TestHappyPathHeatCircuitSection:
             data: float | None = await client.heat_circuit.get_target_temperature_night()
 
             assert isinstance(data, float)
-            assert data == 23.0  # noqa: PLR2004
+            assert data == pytest.approx(23.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1487,7 +1506,7 @@ class TestHappyPathHeatCircuitSection:
             data: float | None = await client.heat_circuit.get_target_cooling_temperature_night()
 
             assert isinstance(data, float)
-            assert data == 22.0  # noqa: PLR2004
+            assert data == pytest.approx(22.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1542,7 +1561,7 @@ class TestHappyPathHeatCircuitSection:
             data: float | None = await client.heat_circuit.get_heating_limit_night()
 
             assert isinstance(data, float)
-            assert data == 16.0  # noqa: PLR2004
+            assert data == pytest.approx(16.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1597,7 +1616,7 @@ class TestHappyPathHeatCircuitSection:
             data: float | None = await client.heat_circuit.get_cooling_limit_night()
 
             assert isinstance(data, float)
-            assert data == 24.0  # noqa: PLR2004
+            assert data == pytest.approx(24.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1657,7 +1676,7 @@ class TestHappyPathHeatCircuitSection:
             data: float | None = await client.heat_circuit.get_excess_energy_heating_limit_night()
 
             assert isinstance(data, float)
-            assert data == 25.0  # noqa: PLR2004
+            assert data == pytest.approx(25.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1718,7 +1737,7 @@ class TestHappyPathHeatCircuitSection:
             data: float | None = await client.heat_circuit.get_excess_energy_cooling_limit_night()
 
             assert isinstance(data, float)
-            assert data == 25.0  # noqa: PLR2004
+            assert data == pytest.approx(25.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1779,7 +1798,7 @@ class TestHappyPathHeatCircuitSection:
             data: float | None = await client.heat_circuit.get_target_temperature_away()
 
             assert isinstance(data, float)
-            assert data == 14.0  # noqa: PLR2004
+            assert data == pytest.approx(14.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1834,7 +1853,7 @@ class TestHappyPathHeatCircuitSection:
             data: float | None = await client.heat_circuit.get_target_temperature_offset()
 
             assert isinstance(data, float)
-            assert data == 2.0  # noqa: PLR2004
+            assert data == pytest.approx(2.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1871,7 +1890,8 @@ class TestHappyPathHeatCircuitSection:
     )
     async def test_get_operating_mode(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: str,
     ) -> None:
@@ -1935,8 +1955,10 @@ class TestHappyPathHeatCircuitSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.operatingMode", "value": "%s"}]'  # noqa: UP031
-                % expected_value,
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.operatingMode", '
+                    f'"value": "{expected_value}"}}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -1964,7 +1986,8 @@ class TestHappyPathHeatCircuitSection:
     )
     async def test_get_heat_request(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -2021,7 +2044,8 @@ class TestHappyPathHeatCircuitSection:
     )
     async def test_get_cool_request(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -2082,7 +2106,8 @@ class TestHappyPathHeatCircuitSection:
             data: int = await client.heat_circuit.get_away_start_date()
 
             assert isinstance(data, int)
-            assert data == 1768690800  # noqa: PLR2004
+            expected: int = 1768690800
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -2136,7 +2161,8 @@ class TestHappyPathHeatCircuitSection:
             data: int = await client.heat_circuit.get_away_end_date()
 
             assert isinstance(data, int)
-            assert data == 1769036400  # noqa: PLR2004
+            expected: int = 1769036400
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -2191,7 +2217,7 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_heating_curve_offset()
 
             assert isinstance(data, float)
-            assert data == 3.5  # noqa: PLR2004
+            assert data == pytest.approx(3.5)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -2246,7 +2272,7 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_cooling_curve_offset()
 
             assert isinstance(data, float)
-            assert data == 3.5  # noqa: PLR2004
+            assert data == pytest.approx(3.5)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -2300,7 +2326,7 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_heating_curve_slope()
 
             assert isinstance(data, float)
-            assert data == 0.25  # noqa: PLR2004
+            assert data == pytest.approx(0.25)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -2354,7 +2380,7 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_cooling_curve_slope()
 
             assert isinstance(data, float)
-            assert data == 0.5  # noqa: PLR2004
+            assert data == pytest.approx(0.5)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -2396,7 +2422,8 @@ class TestHappyPathHeatCircuitSection:
     )
     async def test_get_use_heating_curve(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: str,
     ) -> None:
@@ -2455,8 +2482,8 @@ class TestHappyPathHeatCircuitSection:
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
                 data=(
-                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.enableHeatCurveLinTab", '  # noqa: UP031
-                    '"value": "%s"}]' % expected_value
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.enableHeatCurveLinTab", '
+                    f'"value": "{expected_value}"}}]'
                 ),
                 method="POST",
                 headers={},
@@ -2536,8 +2563,8 @@ class TestHappyPathHeatCircuitSection:
                         args=(),
                         kwargs={
                             "data": (
-                                '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.linTab.fileName", '  # noqa: UP031
-                                '"value": "%s"}]' % expected_value
+                                '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.linTab.fileName", '
+                                f'"value": "{expected_value}"}}]'
                             ),
                             "headers": {},
                             "ssl": False,
@@ -2618,8 +2645,8 @@ class TestHappyPathHeatCircuitSection:
                         args=(),
                         kwargs={
                             "data": (
-                                '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.coollinTab.fileName", '  # noqa: UP031
-                                '"value": "%s"}]' % expected_value
+                                '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.coollinTab.fileName", '
+                                f'"value": "{expected_value}"}}]'
                             ),
                             "headers": {},
                             "ssl": False,
@@ -2861,7 +2888,8 @@ class TestHappyPathHeatCircuitSection:
     )
     async def test_has_pump(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -2904,7 +2932,8 @@ class TestHappyPathHeatCircuitSection:
     )
     async def test_has_var_speed_pump(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -2962,7 +2991,7 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_pump_speed()
 
             assert isinstance(data, float)
-            assert data == 0.4  # noqa: PLR2004
+            assert data == pytest.approx(0.4)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -2988,7 +3017,7 @@ class TestHappyPathHeatCircuitSection:
             data: float = await client.heat_circuit.get_room_temperature(position=position)
 
             assert isinstance(data, float)
-            assert data == 21.46  # noqa: PLR2004
+            assert data == pytest.approx(21.46)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -3064,7 +3093,8 @@ class TestUnhappyPathHeatCircuitSection:
     )
     async def test_get_invalid_heat_request(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
     ) -> None:
         with aioresponses() as mock_keenergy_api:
@@ -3425,4 +3455,5 @@ class TestUnhappyPathHeatCircuitSection:
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
             response: HeatingCurves = await client.heat_circuit.get_heating_curve_points("HC1")
 
-            assert len(response["HC1"]) == 16  # noqa: PLR2004
+            expected: int = 16
+            assert len(response["HC1"]) == expected

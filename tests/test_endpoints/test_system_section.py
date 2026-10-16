@@ -1,3 +1,6 @@
+# Copyright 2023 Michael Hacker
+# SPDX-License-Identifier: Apache-2.0
+
 from typing import Any
 
 import pytest
@@ -107,7 +110,8 @@ class TestHappyPathSystemSection:
             response: Position = await client.system.get_positions()
 
             assert isinstance(response, Position)
-            assert response.heat_pump == 2  # noqa: PLR2004
+            expected: int = 2
+            assert response.heat_pump == expected
             assert response.heat_circuit == 1
             assert response.solar_circuit == 1
             assert response.buffer_tank == 1
@@ -254,7 +258,8 @@ class TestHappyPathSystemSection:
             data: int = await client.system.get_number_of_buffer_tanks()
 
             assert isinstance(data, int)
-            assert data == 2  # noqa: PLR2004
+            expected: int = 2
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -290,7 +295,8 @@ class TestHappyPathSystemSection:
             data: int = await client.system.get_number_of_hot_water_tanks()
 
             assert isinstance(data, int)
-            assert data == 2  # noqa: PLR2004
+            expected: int = 2
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -362,7 +368,8 @@ class TestHappyPathSystemSection:
             data: int = await client.system.get_number_of_heating_circuits()
 
             assert isinstance(data, int)
-            assert data == 3  # noqa: PLR2004
+            expected: int = 3
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -441,7 +448,8 @@ class TestHappyPathSystemSection:
     )
     async def test_has_photovoltaics(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -486,7 +494,8 @@ class TestHappyPathSystemSection:
     )
     async def test_has_outdoor_temperature(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -526,7 +535,8 @@ class TestHappyPathSystemSection:
     )
     async def test_get_operating_mode(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: str,
     ) -> None:
@@ -585,8 +595,7 @@ class TestHappyPathSystemSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.param.operatingMode", "value": "%s"}]'  # noqa: UP031
-                % expected_value,
+                data=f'[{{"name": "APPL.CtrlAppl.sParam.param.operatingMode", "value": "{expected_value}"}}]',
                 method="POST",
                 headers={},
                 ssl=False,
@@ -615,7 +624,7 @@ class TestHappyPathSystemSection:
             data: float = await client.system.get_cpu_usage()
 
             assert isinstance(data, float)
-            assert data == 2.7  # noqa: PLR2004
+            assert data == pytest.approx(2.7)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -648,7 +657,7 @@ class TestHappyPathSystemSection:
             data: float = await client.system.get_webview_cpu_usage()
 
             assert isinstance(data, float)
-            assert data == 3.4  # noqa: PLR2004
+            assert data == pytest.approx(3.4)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -681,7 +690,7 @@ class TestHappyPathSystemSection:
             data: float = await client.system.get_webserver_cpu_usage()
 
             assert isinstance(data, float)
-            assert data == 6.7  # noqa: PLR2004
+            assert data == pytest.approx(6.7)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -714,7 +723,7 @@ class TestHappyPathSystemSection:
             data: float = await client.system.get_control_cpu_usage()
 
             assert isinstance(data, float)
-            assert data == 0.7  # noqa: PLR2004
+            assert data == pytest.approx(0.7)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -747,7 +756,8 @@ class TestHappyPathSystemSection:
             data: int = await client.system.get_ram_usage()
 
             assert isinstance(data, int)
-            assert data == 6432  # noqa: PLR2004
+            expected: int = 6432
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -780,7 +790,8 @@ class TestHappyPathSystemSection:
             data: int = await client.system.get_free_ram()
 
             assert isinstance(data, int)
-            assert data == 100060  # noqa: PLR2004
+            expected: int = 100060
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",

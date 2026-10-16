@@ -1,3 +1,6 @@
+# Copyright 2023 Michael Hacker
+# SPDX-License-Identifier: Apache-2.0
+
 from typing import TYPE_CHECKING
 from typing import Any
 from unittest.mock import AsyncMock
@@ -22,7 +25,6 @@ from keba_keenergy_api.constants import SolarCircuit
 from keba_keenergy_api.constants import SwitchValve
 from keba_keenergy_api.constants import System
 from keba_keenergy_api.endpoints import HeatCircuitEndpoints
-from keba_keenergy_api.endpoints import Value
 from keba_keenergy_api.error import APIError
 from keba_keenergy_api.error import APITimeoutError
 from keba_keenergy_api.error import AuthenticationError
@@ -46,6 +48,9 @@ from tests.test_api_data import read_data_payload_4
 from tests.test_api_data import read_message_ids_expected_data
 from tests.test_api_data import read_message_ids_payload
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_names_payload
+
+LOGIN: str = "test"
+INVALID_LOGIN: str = "invalid"
 
 if TYPE_CHECKING:
     from keba_keenergy_api.endpoints import ValueResponse
@@ -77,7 +82,7 @@ class TestApi:
             response: float = await client.system.get_outdoor_temperature()
 
             assert isinstance(response, float)
-            assert response == 10.81  # noqa: PLR2004
+            assert response == pytest.approx(10.81)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -117,7 +122,7 @@ class TestApi:
             assert session.closed
 
             assert isinstance(data, float)
-            assert data == 10.81  # noqa: PLR2004
+            assert data == pytest.approx(10.81)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -150,20 +155,20 @@ class TestApi:
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(
                 host="mocked-host",
-                username="test",
-                password="test",  # noqa: S106
+                username=LOGIN,
+                password=LOGIN,
             )
             response: float = await client.system.get_outdoor_temperature()
 
             assert isinstance(response, float)
-            assert response == 10.81  # noqa: PLR2004
+            assert response == pytest.approx(10.81)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
                 data='[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "attr": "1"}]',
                 method="POST",
                 headers={
-                    "Authorization": encode_basic_auth("test", "test"),
+                    "Authorization": encode_basic_auth(LOGIN, LOGIN),
                 },
                 ssl=False,
             )
@@ -173,11 +178,8 @@ class TestApi:
         (
             "section",
             "position",
-            "option_payload",
-            "payload",
-            "extra_attributes_payload",
-            "expected_data",
-            "expected_extra_attributes",
+            "payloads",
+            "expected_requests",
             "expected_response",
         ),
         [
@@ -190,21 +192,15 @@ class TestApi:
                     Photovoltaics.TOTAL_ENERGY,
                 ],
                 1,
-                None,
-                read_data_payload_1,
-                None,
-                read_data_expected_data_1,
-                None,
+                (None, read_data_payload_1, None),
+                (read_data_expected_data_1, None),
                 read_data_expected_response_1,
             ),
             (
                 [HeatCircuit.TARGET_TEMPERATURE, HeatPump.FLOW_TEMPERATURE],
                 [0, 1, 3],
-                None,
-                read_data_payload_2,
-                None,
-                read_data_expected_data_2,
-                None,
+                (None, read_data_payload_2, None),
+                (read_data_expected_data_2, None),
                 read_data_expected_response_2,
             ),
             (
@@ -218,11 +214,8 @@ class TestApi:
                     SwitchValve.POSITION,
                 ],
                 None,
-                read_data_option_payload_3,
-                read_data_payload_3,
-                read_data_extra_attributes_payload_3,
-                read_data_expected_data_3,
-                read_data_expected_extra_attributes_3,
+                (read_data_option_payload_3, read_data_payload_3, read_data_extra_attributes_payload_3),
+                (read_data_expected_data_3, read_data_expected_extra_attributes_3),
                 read_data_expected_response_3,
             ),
             (
@@ -235,11 +228,8 @@ class TestApi:
                     HeatPump.SUBSTATE,
                 ],
                 None,
-                read_data_option_payload_4,
-                read_data_payload_4,
-                None,
-                read_data_expected_data_4,
-                None,
+                (read_data_option_payload_4, read_data_payload_4, None),
+                (read_data_expected_data_4, None),
                 read_data_expected_response_4,
             ),
         ],
@@ -248,13 +238,13 @@ class TestApi:
         self,
         section: Section,
         position: int | list[int] | None,
-        option_payload: list[dict[str, Any]] | None,
-        payload: list[dict[str, Any]],
-        extra_attributes_payload: list[dict[str, Any]] | None,
-        expected_data: str,
-        expected_extra_attributes: str,
+        payloads: tuple[list[dict[str, Any]] | None, list[dict[str, Any]], list[dict[str, Any]] | None],
+        expected_requests: tuple[str, str | None],
         expected_response: dict[str, Any],
     ) -> None:
+        option_payload, payload, extra_attributes_payload = payloads
+        expected_data, expected_extra_attributes = expected_requests
+
         with aioresponses() as mock_keenergy_api:
             if option_payload is not None:
                 mock_keenergy_api.post(
@@ -674,8 +664,8 @@ class TestApi:
             )
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(
                 host="mocked-host",
-                username="test",
-                password="invalid",  # noqa: S106
+                username=LOGIN,
+                password=INVALID_LOGIN,
             )
 
             with pytest.raises(
@@ -694,8 +684,8 @@ class TestApi:
             )
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(
                 host="mocked-host",
-                username="test",
-                password="test",  # noqa: S106
+                username=LOGIN,
+                password=LOGIN,
             )
 
             with pytest.raises(
@@ -934,10 +924,26 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_extra_attributes_with_unknown_heating_curve(self) -> None:
-        value: list[Value] = [{"value": "HC9", "attributes": {}}]
-        client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+        with (
+            aioresponses() as mock_keenergy_api,
+            patch.object(HeatCircuitEndpoints, "get_heating_curve_points", AsyncMock(return_value={})),
+        ):
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.linTab.fileName",
+                        "attributes": {},
+                        "value": "HC9",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
 
-        with patch.object(HeatCircuitEndpoints, "get_heating_curve_points", AsyncMock(return_value={})):
-            await client._extra_attributes_heating_curve("heat_circuit_heating_curve", value)  # noqa: SLF001
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            response: dict[str, ValueResponse] = await client.read_data(
+                request=HeatCircuit.HEATING_CURVE,
+                position=1,
+            )
 
-        assert value == [{"value": "HC9", "attributes": {"points": []}}]
+        assert response["heat_circuit"] == {"heating_curve": [{"value": "HC9", "attributes": {"points": []}}]}

@@ -1,3 +1,6 @@
+# Copyright 2023 Michael Hacker
+# SPDX-License-Identifier: Apache-2.0
+
 """KEBA KeEnergy API error classes."""
 
 from http import HTTPStatus

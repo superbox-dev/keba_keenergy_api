@@ -1,3 +1,6 @@
+# Copyright 2023 Michael Hacker
+# SPDX-License-Identifier: Apache-2.0
+
 import pytest
 from aioresponses.core import aioresponses
 
@@ -18,7 +21,8 @@ class TestHappyPathPhotovoltaicsSection:
     )
     async def test_get_excess_energy_active(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -75,7 +79,7 @@ class TestHappyPathPhotovoltaicsSection:
             data: float = await client.photovoltaics.get_excess_power()
 
             assert isinstance(data, float)
-            assert data == 23.23  # noqa: PLR2004
+            assert data == pytest.approx(23.23)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -109,7 +113,7 @@ class TestHappyPathPhotovoltaicsSection:
             data: float = await client.photovoltaics.get_daily_energy()
 
             assert isinstance(data, float)
-            assert data == 49.39  # noqa: PLR2004
+            assert data == pytest.approx(49.39)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -143,11 +147,14 @@ class TestHappyPathPhotovoltaicsSection:
             data: float = await client.photovoltaics.get_total_energy()
 
             assert isinstance(data, float)
-            assert data == 349442.23  # noqa: PLR2004
+            assert data == pytest.approx(349442.23)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.accumulatedHeat", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.'
+                    'accumulatedHeat", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,

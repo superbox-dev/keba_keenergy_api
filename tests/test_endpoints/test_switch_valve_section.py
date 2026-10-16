@@ -1,3 +1,6 @@
+# Copyright 2023 Michael Hacker
+# SPDX-License-Identifier: Apache-2.0
+
 import pytest
 from aioresponses.core import aioresponses
 
@@ -12,7 +15,8 @@ class TestHappyPathSwitchValveSection:
     )
     async def test_get_position(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: str,
     ) -> None:

@@ -1,3 +1,6 @@
+# Copyright 2023 Michael Hacker
+# SPDX-License-Identifier: Apache-2.0
+
 import pytest
 from aioresponses.core import aioresponses
 
@@ -46,7 +49,8 @@ class TestHappyPathHeatPumpSection:
     )
     async def test_get_state(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: int | str,
     ) -> None:
@@ -94,7 +98,8 @@ class TestHappyPathHeatPumpSection:
     )
     async def test_get_substate(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: int | str,
     ) -> None:
@@ -138,7 +143,8 @@ class TestHappyPathHeatPumpSection:
     )
     async def test_get_operating_mode(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: str,
     ) -> None:
@@ -197,8 +203,9 @@ class TestHappyPathHeatPumpSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].param.operatingMode", "value": "%s"}]'  # noqa: UP031
-                % expected_value,
+                data=(
+                    f'[{{"name": "APPL.CtrlAppl.sParam.heatpump[0].param.operatingMode", "value": "{expected_value}"}}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -216,7 +223,8 @@ class TestHappyPathHeatPumpSection:
     )
     async def test_get_compressor_use_night_speed(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: str,
     ) -> None:
@@ -243,7 +251,10 @@ class TestHappyPathHeatPumpSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.useDayNightSpeed", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.'
+                    'useDayNightSpeed", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -276,8 +287,10 @@ class TestHappyPathHeatPumpSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.useDayNightSpeed", "value": "%s"}]'  # noqa: E501, UP031
-                % expected_value,
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.useDayNightSpeed", '
+                    f'"value": "{expected_value}"}}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -308,11 +321,14 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_compressor_night_speed()
 
             assert isinstance(data, float)
-            assert data == 0.5  # noqa: PLR2004
+            assert data == pytest.approx(0.5)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.'
+                    'maxPowerScaledNight", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -332,7 +348,10 @@ class TestHappyPathHeatPumpSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.maxPowerScaledNight", "value": "0.6"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatpump[0].HeatPumpPowerCtrl.param.'
+                    'maxPowerScaledNight", "value": "0.6"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -363,7 +382,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_min_compressor_night_speed()
 
             assert isinstance(data, float)
-            assert data == 0.5  # noqa: PLR2004
+            assert data == pytest.approx(0.5)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -439,7 +458,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_circulation_pump_speed()
 
             assert isinstance(data, float)
-            assert data == 0.5  # noqa: PLR2004
+            assert data == pytest.approx(0.5)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -474,7 +493,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_source_pump_speed()
 
             assert isinstance(data, float)
-            assert data == 0.4488  # noqa: PLR2004
+            assert data == pytest.approx(0.4488)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -507,7 +526,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_flow_temperature()
 
             assert isinstance(data, float)
-            assert data == 24.2  # noqa: PLR2004
+            assert data == pytest.approx(24.2)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -540,7 +559,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_return_flow_temperature()
 
             assert isinstance(data, float)
-            assert data == 23.2  # noqa: PLR2004
+            assert data == pytest.approx(23.2)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -573,7 +592,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_source_input_temperature()
 
             assert isinstance(data, float)
-            assert data == 22.7  # noqa: PLR2004
+            assert data == pytest.approx(22.7)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -606,7 +625,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_source_output_temperature()
 
             assert isinstance(data, float)
-            assert data == 24.6  # noqa: PLR2004
+            assert data == pytest.approx(24.6)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -639,7 +658,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_compressor_input_temperature()
 
             assert isinstance(data, float)
-            assert data == 26.4  # noqa: PLR2004
+            assert data == pytest.approx(26.4)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -672,7 +691,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_compressor_output_temperature()
 
             assert isinstance(data, float)
-            assert data == 26.5  # noqa: PLR2004
+            assert data == pytest.approx(26.5)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -707,7 +726,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_compressor_speed()
 
             assert isinstance(data, float)
-            assert data == 0.3  # noqa: PLR2004
+            assert data == pytest.approx(0.3)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -742,7 +761,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_condenser_temperature()
 
             assert isinstance(data, float)
-            assert data == 31.51  # noqa: PLR2004
+            assert data == pytest.approx(31.51)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -775,7 +794,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_vaporizer_temperature()
 
             assert isinstance(data, float)
-            assert data == -4.56  # noqa: PLR2004
+            assert data == pytest.approx(-4.56)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -808,7 +827,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_target_overheating()
 
             assert isinstance(data, float)
-            assert data == 5.50  # noqa: PLR2004
+            assert data == pytest.approx(5.50)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -841,7 +860,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_current_overheating()
 
             assert isinstance(data, float)
-            assert data == 18.68  # noqa: PLR2004
+            assert data == pytest.approx(18.68)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -873,7 +892,8 @@ class TestHappyPathHeatPumpSection:
             data: int = await client.heat_pump.get_expansion_valve_position()
 
             assert isinstance(data, int)
-            assert data == 20  # noqa: PLR2004
+            expected: int = 20
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -906,7 +926,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_high_pressure()
 
             assert isinstance(data, float)
-            assert data == 15.02  # noqa: PLR2004
+            assert data == pytest.approx(15.02)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -939,7 +959,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_low_pressure()
 
             assert isinstance(data, float)
-            assert data == 14.81  # noqa: PLR2004
+            assert data == pytest.approx(14.81)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -961,7 +981,8 @@ class TestHappyPathHeatPumpSection:
     )
     async def test_get_heat_request(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -1004,7 +1025,8 @@ class TestHappyPathHeatPumpSection:
     )
     async def test_get_consuming_excess_energy(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -1060,7 +1082,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_compressor_power()
 
             assert isinstance(data, float)
-            assert data == 5.52  # noqa: PLR2004
+            assert data == pytest.approx(5.52)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1093,11 +1115,15 @@ class TestHappyPathHeatPumpSection:
             data: int = await client.heat_pump.get_excess_energy_operating_time()
 
             assert isinstance(data, int)
-            assert data == 602403  # noqa: PLR2004
+            expected: int = 602403
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.heatpump[0].operationalDataExcessEnergy.operationalTimeS", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.heatpump[0].operationalDataExcessEnergy.'
+                    'operationalTimeS", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -1126,7 +1152,8 @@ class TestHappyPathHeatPumpSection:
             data: int = await client.heat_pump.get_excess_energy_max_runtime()
 
             assert isinstance(data, int)
-            assert data == 602403  # noqa: PLR2004
+            expected: int = 602403
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1161,7 +1188,8 @@ class TestHappyPathHeatPumpSection:
             data: int = await client.heat_pump.get_excess_energy_activation_counter()
 
             assert isinstance(data, int)
-            assert data == 477  # noqa: PLR2004
+            expected: int = 477
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1197,7 +1225,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_heating_power()
 
             assert isinstance(data, float)
-            assert data == 3.22  # noqa: PLR2004
+            assert data == pytest.approx(3.22)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1230,7 +1258,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_hot_water_power()
 
             assert isinstance(data, float)
-            assert data == 2.77  # noqa: PLR2004
+            assert data == pytest.approx(2.77)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1262,7 +1290,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_cop()
 
             assert isinstance(data, float)
-            assert data == 2.55  # noqa: PLR2004
+            assert data == pytest.approx(2.55)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1295,7 +1323,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_heating_energy()
 
             assert isinstance(data, float)
-            assert data == 8.43  # noqa: PLR2004
+            assert data == pytest.approx(8.43)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1328,11 +1356,14 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_heating_energy_consumption()
 
             assert isinstance(data, float)
-            assert data == 7.33  # noqa: PLR2004
+            assert data == pytest.approx(7.33)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.heating.electricalenergy", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.heating.'
+                    'electricalenergy", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -1359,7 +1390,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_heating_spf()
 
             assert isinstance(data, float)
-            assert data == 3.32  # noqa: PLR2004
+            assert data == pytest.approx(3.32)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1392,7 +1423,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_cooling_energy()
 
             assert isinstance(data, float)
-            assert data == 7.21  # noqa: PLR2004
+            assert data == pytest.approx(7.21)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1425,11 +1456,14 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_cooling_energy_consumption()
 
             assert isinstance(data, float)
-            assert data == 8.72  # noqa: PLR2004
+            assert data == pytest.approx(8.72)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.cooling.electricalenergy", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.cooling.'
+                    'electricalenergy", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -1457,7 +1491,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_cooling_spf()
 
             assert isinstance(data, float)
-            assert data == 4.22  # noqa: PLR2004
+            assert data == pytest.approx(4.22)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1490,11 +1524,14 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_hot_water_energy()
 
             assert isinstance(data, float)
-            assert data == 7.86  # noqa: PLR2004
+            assert data == pytest.approx(7.86)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.domHotWater.energy", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.domHotWater.'
+                    'energy", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -1523,11 +1560,14 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_hot_water_energy_consumption()
 
             assert isinstance(data, float)
-            assert data == 2.77  # noqa: PLR2004
+            assert data == pytest.approx(2.77)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.domHotWater.electricalenergy", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.domHotWater.'
+                    'electricalenergy", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -1554,11 +1594,14 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_hot_water_spf()
 
             assert isinstance(data, float)
-            assert data == 2.50  # noqa: PLR2004
+            assert data == pytest.approx(2.50)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].EnergyEfficiencyRatioDomHotWater", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].'
+                    'EnergyEfficiencyRatioDomHotWater", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -1587,7 +1630,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_total_thermal_energy()
 
             assert isinstance(data, float)
-            assert data == 8.22  # noqa: PLR2004
+            assert data == pytest.approx(8.22)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1620,11 +1663,13 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_total_energy_consumption()
 
             assert isinstance(data, float)
-            assert data == 5.21  # noqa: PLR2004
+            assert data == pytest.approx(5.21)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.electricalenergy", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.electricalenergy", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -1653,7 +1698,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_excess_energy_consumption()
 
             assert isinstance(data, float)
-            assert data == 10.00  # noqa: PLR2004
+            assert data == pytest.approx(10.00)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1689,7 +1734,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_heating_excess_energy_consumption()
 
             assert isinstance(data, float)
-            assert data == 10.00  # noqa: PLR2004
+            assert data == pytest.approx(10.00)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1725,7 +1770,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_cooling_excess_energy_consumption()
 
             assert isinstance(data, float)
-            assert data == 10.00  # noqa: PLR2004
+            assert data == pytest.approx(10.00)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1745,7 +1790,9 @@ class TestHappyPathHeatPumpSection:
                 "http://mocked-host/var/readWriteVars",
                 payload=[
                     {
-                        "name": "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.domHotWater.consumedExcessEnergy",  # noqa: E501
+                        "name": (
+                            "APPL.CtrlAppl.sStatisticalData.heatpump[0].consumption.domHotWater.consumedExcessEnergy"
+                        ),
                         "attributes": {
                             "formatId": "fmt4p0",
                             "longText": "Dom. HW excess en.",
@@ -1761,7 +1808,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_hot_water_excess_energy_consumption()
 
             assert isinstance(data, float)
-            assert data == 10.00  # noqa: PLR2004
+            assert data == pytest.approx(10.00)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1796,7 +1843,7 @@ class TestHappyPathHeatPumpSection:
             data: float = await client.heat_pump.get_total_spf()
 
             assert isinstance(data, float)
-            assert data == 2.43  # noqa: PLR2004
+            assert data == pytest.approx(2.43)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1818,7 +1865,8 @@ class TestHappyPathHeatPumpSection:
     )
     async def test_has_active_cooling(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -1863,7 +1911,8 @@ class TestHappyPathHeatPumpSection:
     )
     async def test_has_passive_cooling(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -1917,7 +1966,8 @@ class TestHappyPathHeatPumpSection:
             data: int = await client.heat_pump.get_operating_time()
 
             assert isinstance(data, int)
-            assert data == 65037217  # noqa: PLR2004
+            expected: int = 65037217
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1950,7 +2000,8 @@ class TestHappyPathHeatPumpSection:
             data: int = await client.heat_pump.get_max_runtime()
 
             assert isinstance(data, int)
-            assert data == 8836597  # noqa: PLR2004
+            expected: int = 8836597
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -1982,7 +2033,8 @@ class TestHappyPathHeatPumpSection:
             data: int = await client.heat_pump.get_activation_counter()
 
             assert isinstance(data, int)
-            assert data == 1197  # noqa: PLR2004
+            expected: int = 1197
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -2004,7 +2056,8 @@ class TestHappyPathHeatPumpSection:
     )
     async def test_has_compressor_failure(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -2049,7 +2102,8 @@ class TestHappyPathHeatPumpSection:
     )
     async def test_has_source_failure(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -2094,7 +2148,8 @@ class TestHappyPathHeatPumpSection:
     )
     async def test_has_source_actuator_failure(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -2141,7 +2196,8 @@ class TestHappyPathHeatPumpSection:
     )
     async def test_has_three_phase_failure(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -2186,7 +2242,8 @@ class TestHappyPathHeatPumpSection:
     )
     async def test_has_source_pressure_failure(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -2231,7 +2288,8 @@ class TestHappyPathHeatPumpSection:
     )
     async def test_has_vfd_failure(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:

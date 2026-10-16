@@ -1,3 +1,6 @@
+# Copyright 2023 Michael Hacker
+# SPDX-License-Identifier: Apache-2.0
+
 """KEBA KeEnergy API endpoint definitions."""
 
 import json
@@ -505,7 +508,7 @@ class BaseEndpoints:
 
         return payload
 
-    def _generate_endpoint_write_payload(self, endpoint: Endpoint, values: Any) -> Payload:
+    def _generate_endpoint_write_payload(self, endpoint: Endpoint, values: object) -> Payload:
         """Build the write payload of one endpoint.
 
         A single value is written for position 1, a list or tuple writes one value per device index
@@ -520,7 +523,7 @@ class BaseEndpoints:
         if endpoint.read_only:
             return []
 
-        _values: list[Any] = list(values) if isinstance(values, list | tuple) else [values]
+        _values: list[object] = list(values) if isinstance(values, list | tuple) else [values]
 
         has_device_index: bool = "%s" in endpoint.value
 

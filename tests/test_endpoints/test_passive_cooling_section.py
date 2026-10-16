@@ -1,3 +1,6 @@
+# Copyright 2023 Michael Hacker
+# SPDX-License-Identifier: Apache-2.0
+
 import pytest
 from aioresponses.core import aioresponses
 
@@ -30,11 +33,13 @@ class TestHappyPathPassiveCoolingSection:
             data: float = await client.passive_cooling.get_temperature()
 
             assert isinstance(data, float)
-            assert data == 20.60  # noqa: PLR2004
+            assert data == pytest.approx(20.60)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.passivecooling[0].TempCoolPassive.values.actValue", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.passivecooling[0].TempCoolPassive.values.actValue", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -47,7 +52,8 @@ class TestHappyPathPassiveCoolingSection:
     )
     async def test_get_switch_valve_position(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: str,
     ) -> None:
@@ -79,7 +85,10 @@ class TestHappyPathPassiveCoolingSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.passivecooling[0].SwitchValvePassiveCool.values.actPosition", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.passivecooling[0].SwitchValvePassiveCool.values.'
+                    'actPosition", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -110,7 +119,7 @@ class TestHappyPathPassiveCoolingSection:
             data: float = await client.passive_cooling.get_circulation_pump_speed()
 
             assert isinstance(data, float)
-            assert data == 0.2  # noqa: PLR2004
+            assert data == pytest.approx(0.2)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -141,7 +150,7 @@ class TestHappyPathPassiveCoolingSection:
             data: float = await client.passive_cooling.get_mixer_target_temperature()
 
             assert isinstance(data, float)
-            assert data == 22.0  # noqa: PLR2004
+            assert data == pytest.approx(22.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -176,7 +185,7 @@ class TestHappyPathPassiveCoolingSection:
             data: float = await client.passive_cooling.get_mixer_flow_temperature()
 
             assert isinstance(data, float)
-            assert data == 22.10  # noqa: PLR2004
+            assert data == pytest.approx(22.10)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -193,7 +202,8 @@ class TestHappyPathPassiveCoolingSection:
     )
     async def test_get_mixer_position(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: str,
     ) -> None:

@@ -1,3 +1,6 @@
+# Copyright 2023 Michael Hacker
+# SPDX-License-Identifier: Apache-2.0
+
 import pytest
 from aioresponses.core import aioresponses
 
@@ -65,7 +68,7 @@ class TestHappyPathHotWaterTankSection:
             data: float = await client.hot_water_tank.get_current_temperature()
 
             assert isinstance(data, float)
-            assert data == 58.9  # noqa: PLR2004
+            assert data == pytest.approx(58.9)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -82,7 +85,8 @@ class TestHappyPathHotWaterTankSection:
     )
     async def test_get_operating_mode(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: str,
     ) -> None:
@@ -141,8 +145,10 @@ class TestHappyPathHotWaterTankSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode", "value": "%s"}]'  # noqa: UP031
-                % expected_value,
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode", '
+                    f'"value": "{expected_value}"}}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -210,7 +216,8 @@ class TestHappyPathHotWaterTankSection:
             data: int = await client.hot_water_tank.get_max_target_temperature()
 
             assert isinstance(data, int)
-            assert data == 52  # noqa: PLR2004
+            expected: int = 52
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -246,7 +253,7 @@ class TestHappyPathHotWaterTankSection:
             data: float = await client.hot_water_tank.get_target_temperature()
 
             assert isinstance(data, float)
-            assert data == 47.0  # noqa: PLR2004
+            assert data == pytest.approx(47.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -357,7 +364,7 @@ class TestHappyPathHotWaterTankSection:
             data: float = await client.hot_water_tank.get_excess_energy_target_temperature()
 
             assert isinstance(data, float)
-            assert data == 55.0  # noqa: PLR2004
+            assert data == pytest.approx(55.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -412,7 +419,8 @@ class TestHappyPathHotWaterTankSection:
             data: float = await client.hot_water_tank.get_excess_energy_target_temperature_hysteresis()
 
             assert isinstance(data, float)
-            assert data == 5  # noqa: PLR2004
+            expected: int = 5
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -454,7 +462,8 @@ class TestHappyPathHotWaterTankSection:
     )
     async def test_get_use_excess_energy(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: str,
     ) -> None:
@@ -514,8 +523,10 @@ class TestHappyPathHotWaterTankSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.useExcessEnergy", "value": "%s"}]'  # noqa: UP031
-                % expected_value,
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.useExcessEnergy", '
+                    f'"value": "{expected_value}"}}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -552,7 +563,8 @@ class TestHappyPathHotWaterTankSection:
     )
     async def test_get_excess_energy_mode(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -601,7 +613,8 @@ class TestHappyPathHotWaterTankSection:
     )
     async def test_get_heat_request(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -644,7 +657,8 @@ class TestHappyPathHotWaterTankSection:
     )
     async def test_has_fresh_water_module(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -689,7 +703,8 @@ class TestHappyPathHotWaterTankSection:
     )
     async def test_get_fresh_water_flow(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -716,7 +731,10 @@ class TestHappyPathHotWaterTankSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterFlow.values.actValue", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterFlow.values.'
+                    'actValue", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -747,11 +765,14 @@ class TestHappyPathHotWaterTankSection:
             data: float = await client.hot_water_tank.get_fresh_water_module_temperature()
 
             assert isinstance(data, float)
-            assert data == 30.0  # noqa: PLR2004
+            assert data == pytest.approx(30.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterTemp.values.actValue", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterTemp.values.'
+                    'actValue", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -782,7 +803,7 @@ class TestHappyPathHotWaterTankSection:
             data: float = await client.hot_water_tank.get_fresh_water_module_pump_speed()
 
             assert isinstance(data, float)
-            assert data == 0.4002  # noqa: PLR2004
+            assert data == pytest.approx(0.4002)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -820,7 +841,7 @@ class TestHappyPathHotWaterTankSection:
             data: float = await client.hot_water_tank.get_circulation_return_temperature()
 
             assert isinstance(data, float)
-            assert data == 47.44  # noqa: PLR2004
+            assert data == pytest.approx(47.44)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -842,7 +863,8 @@ class TestHappyPathHotWaterTankSection:
     )
     async def test_get_circulation_pump_state(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -894,7 +916,8 @@ class TestHappyPathHotWaterTankSection:
             data: int = await client.hot_water_tank.get_max_target_temperature(position=2)
 
             assert isinstance(data, int)
-            assert data == 52  # noqa: PLR2004
+            expected: int = 52
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -941,7 +964,8 @@ class TestUnhappyPathHotWaterTankSection:
     )
     async def test_get_invalid_human_readable_operating_mode(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
     ) -> None:
         with aioresponses() as mock_keenergy_api:
