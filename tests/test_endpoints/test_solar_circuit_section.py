@@ -745,6 +745,33 @@ class TestHappyPathSolarCircuitSection:
                 ssl=False,
             )
 
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("method", "expected_index"),
+        [("set_target_temperature_1", 2), ("set_target_temperature_2", 3)],
+    )
+    async def test_set_target_temperature_with_position(self, method: str, expected_index: int) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars?action=set",
+                payload={},
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await getattr(client.solar_circuit, method)(47, position=2)
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars?action=set",
+                data=(
+                    f'[{{"name": "APPL.CtrlAppl.sParam.genericHeat[{expected_index}].param.setTempMax.value", '
+                    '"value": "47"}]'
+                ),
+                method="POST",
+                headers={},
+                ssl=False,
+            )
+
 
 class TestUnhappyPathSolarCircuitSection:
     @pytest.mark.asyncio

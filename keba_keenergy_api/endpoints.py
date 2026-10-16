@@ -288,7 +288,6 @@ class BaseEndpoints:
         self,
         request: list[Section],
         position: Position | list[int],
-        allowed_type: list[type[Enum]] | None,
         *,
         extra_attributes: bool = False,
     ) -> Payload:
@@ -298,7 +297,6 @@ class BaseEndpoints:
         return [
             ReadPayload(name=name, attr=attr)
             for section in request
-            if allowed_type is None or type(section) in allowed_type
             for name in self._iter_variable_names(section, position)
         ]
 
@@ -371,12 +369,6 @@ class BaseEndpoints:
             raise APIError(message) from error
 
     @classmethod
-    def _convert_value(cls, section: Section, response: Response, *, human_readable: bool) -> float | int | str:
-        """Convert the first response item to the endpoint type."""
-        value: float | int | str = cls._convert_raw_value(section, response[0])
-        return cls._to_human_readable(section, value, response[0]) if human_readable else value
-
-    @classmethod
     def _clean_attributes(cls, response: Response) -> dict[str, Any]:
         """Return the attributes of the first response item with snake_case keys, without ignored keys."""
         attributes: dict[str, Any] = response[0].get("attributes", {})
@@ -393,7 +385,6 @@ class BaseEndpoints:
         /,
         request: list[Section],
         position: Position | list[int],
-        allowed_type: type[Enum] | list[type[Enum]] | None = None,
         *,
         key_prefix: bool = True,
         human_readable: bool = True,
@@ -403,17 +394,11 @@ class BaseEndpoints:
         The response items are consumed in the same order as the read payload was built.
         Sections with a quantity > 1 return a nested list per device.
         """
-        if isinstance(allowed_type, type):
-            allowed_type = [allowed_type]
-
         items: Iterator[dict[str, Any]] = iter(response)
         _response_without_quantity: dict[str, list[Value]] = {}
         _response_with_quantity: dict[str, list[list[Value]]] = {}
 
         for section in request:
-            if allowed_type and type(section) not in allowed_type:
-                continue
-
             for idx in self._get_position_index(section=section, position=position):
                 if idx is False:
                     continue
@@ -445,7 +430,6 @@ class BaseEndpoints:
         self,
         request: Section | list[Section],
         position: Position | int | list[int] = 1,
-        allowed_type: type[Enum] | list[type[Enum]] | None = None,
         *,
         key_prefix: bool = True,
         human_readable: bool = True,
@@ -458,13 +442,9 @@ class BaseEndpoints:
         if isinstance(position, int):
             position = [position]
 
-        if isinstance(allowed_type, type):
-            allowed_type = [allowed_type]
-
         payload: Payload = self._generate_read_payload(
             request=request,
             position=position,
-            allowed_type=allowed_type,
             extra_attributes=extra_attributes,
         )
 
@@ -477,7 +457,6 @@ class BaseEndpoints:
             response,
             request=request,
             position=position,
-            allowed_type=allowed_type,
             key_prefix=key_prefix,
             human_readable=human_readable,
         )
@@ -655,7 +634,6 @@ class SystemEndpoints(BaseEndpoints):
                     System.SWITCH_VALVE_NUMBERS,
                 ],
                 key_prefix=False,
-                allowed_type=System,
                 extra_attributes=True,
             ),
         )

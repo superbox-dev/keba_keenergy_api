@@ -2969,6 +2969,60 @@ class TestHappyPathHeatCircuitSection:
                 ssl=False,
             )
 
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("position", [1, 2, 3])
+    async def test_get_room_temperature_with_position(self, position: int) -> None:
+        name: str = f"APPL.CtrlAppl.sParam.heatCircuit[{position - 1}].tempRoom.values.actValue"
+
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[{"name": name, "attributes": {}, "value": "21.456"}],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: float = await client.heat_circuit.get_room_temperature(position=position)
+
+            assert isinstance(data, float)
+            assert data == 21.46  # noqa: PLR2004
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data=f'[{{"name": "{name}", "attr": "1"}}]',
+                method="POST",
+                headers={},
+                ssl=False,
+            )
+
+    @pytest.mark.asyncio
+    async def test_has_mixer_with_position(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[
+                    {
+                        "name": "APPL.CtrlAppl.sParam.options.heatCircuit[1].hasMixer",
+                        "attributes": {},
+                        "value": "true",
+                    },
+                ],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: int | str = await client.heat_circuit.has_mixer(position=2)
+
+            assert data == "on"
+
+            mock_keenergy_api.assert_called_once_with(
+                url="http://mocked-host/var/readWriteVars",
+                data='[{"name": "APPL.CtrlAppl.sParam.options.heatCircuit[1].hasMixer", "attr": "1"}]',
+                method="POST",
+                headers={},
+                ssl=False,
+            )
+
 
 class TestUnhappyPathHeatCircuitSection:
     @pytest.mark.asyncio
