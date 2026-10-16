@@ -769,7 +769,6 @@ dev = [
     { name = "rumdl" },
     { name = "setuptools" },
     { name = "ty" },
-    { name = "types-pyyaml" },
     { name = "yamllint" },
 ]
 docs = [
@@ -783,7 +782,6 @@ lint = [
     { name = "ruff" },
     { name = "rumdl" },
     { name = "ty" },
-    { name = "types-pyyaml" },
     { name = "yamllint" },
 ]
 test = [
@@ -822,7 +820,6 @@ dev = [
     { name = "rumdl", specifier = ">=0.2.54" },
     { name = "setuptools", specifier = ">=84.0.0" },
     { name = "ty", specifier = ">=0.0.70" },
-    { name = "types-pyyaml", specifier = ">=6.0.12.20260724" },
     { name = "yamllint", specifier = ">=1.38.0" },
 ]
 docs = [
@@ -836,7 +833,6 @@ lint = [
     { name = "ruff", specifier = ">=0.16.2" },
     { name = "rumdl", specifier = ">=0.2.54" },
     { name = "ty", specifier = ">=0.0.70" },
-    { name = "types-pyyaml", specifier = ">=6.0.12.20260724" },
     { name = "yamllint", specifier = ">=1.38.0" },
 ]
 test = [
@@ -1927,15 +1923,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/b1/d5/dfd7ed5e4af472b20a11ef651da4bca55f9dc8be485cd152337f94caddde/ty-0.0.89-py3-none-win32.whl", hash = "sha256:0146637ed2321717280bfe4e4b20a18813b741da280e8039d7df2bf22b0251f1", size = 13224078, upload-time = "2026-10-16T10:34:57.735Z" },
     { url = "https://files.pythonhosted.org/packages/b4/14/1ee663c422e3a2d910c5cc27e7d84bd7709a3df0aca28a713843c6c3fa5d/ty-0.0.89-py3-none-win_amd64.whl", hash = "sha256:9fc56322a1aff29a19088d2025f3c42a6d25a7035668048bb908c9f8b66f480d", size = 13727433, upload-time = "2026-10-16T10:35:00.15Z" },
     { url = "https://files.pythonhosted.org/packages/09/93/af8f7250920823ca6d582bcf0abf803fb92c8b99415ba7f40f2304102c6f/ty-0.0.89-py3-none-win_arm64.whl", hash = "sha256:1d4967c8f7bfd67c9708115b41d7049197c5d20c76fb2e136fe78b0437ada05b", size = 13287101, upload-time = "2026-10-16T10:35:02.918Z" },
-]
-
-[[package]]
-name = "types-pyyaml"
-version = "6.0.12.20260906"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/90/6e/abec85b9013db5b934b0280a6dd104904d84f7bcbaab2e2f3def87ac7463/types_pyyaml-6.0.12.20260906.tar.gz", hash = "sha256:f59c1cc05010b833d2d72287bbaa72610106b28d42d89a907313117faba85212", size = 18649, upload-time = "2026-09-06T06:35:35.362Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/15/c0/fc0644b7ddcfb969e95845837143cb5173ddd6e06ee4ba5fc493cd9329b7/types_pyyaml-6.0.12.20260906-py3-none-any.whl", hash = "sha256:bca893ff0d51df5c9053137d5d0e6ccd36e939a196356f1d5c16372422f5137b", size = 21282, upload-time = "2026-09-06T06:35:34.372Z" },
 ]
 
 [[package]]

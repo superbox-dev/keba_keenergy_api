@@ -46,6 +46,7 @@ Before finishing a change, run:
 
 - NumPy-style docstrings (not required in tests)
 - Fix lint errors instead of adding `# noqa`; if unavoidable, name the rule code
+- `git add` new files, CI only checks tracked files
 - Never edit:
   - `keba_keenergy_api/version.py` (generated)
   - `coverage-badge.svg` (updated by CI)

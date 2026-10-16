@@ -6,6 +6,7 @@
 import json
 from typing import Any
 from typing import TypeVar
+from typing import cast
 
 from aiohttp import ClientSession
 from aiohttp import encode_basic_auth
@@ -202,16 +203,14 @@ class KebaKeEnergyAPI(BaseEndpoints):
         single_value_prefixes: tuple[SectionPrefix, ...] = (SectionPrefix.SYSTEM, SectionPrefix.PHOTOVOLTAICS)
 
         for key, value in response.items():
-            for prefix in SectionPrefix:
-                if not key.startswith(prefix.value):
-                    continue
+            # Keys are built from the section class names, so every key has a known prefix
+            prefix: SectionPrefix = next(p for p in SectionPrefix if key.startswith(p.value))
 
-                if prefix is SectionPrefix.HEAT_CIRCUIT and extra_attributes:
-                    await self._extra_attributes_heating_curve(key, value)
+            if prefix is SectionPrefix.HEAT_CIRCUIT and extra_attributes:
+                await self._extra_attributes_heating_curve(key, value)
 
-                _key: str = key.lower().removeprefix(f"{prefix.value}_")
-                data[prefix.value][_key] = value[0] if prefix in single_value_prefixes else value
-                break
+            _key: str = key.lower().removeprefix(f"{prefix.value}_")
+            data[prefix.value][_key] = value[0] if prefix in single_value_prefixes else value
 
         return data
 
@@ -419,8 +418,8 @@ class KebaKeEnergyAPI(BaseEndpoints):
         if key.lower() == self._get_real_key(HeatCircuit.HEATING_CURVE):
             heating_curve_points: HeatingCurves = await self.heat_circuit.get_heating_curve_points()
 
-            for item in value:
-                if isinstance(item, dict):
-                    item["attributes"]["points"] = [
-                        {"outdoor": d[0], "flow": round(d[1], 2)} for d in heating_curve_points.get(item["value"], ())
-                    ]
+            # HEATING_CURVE has a quantity of 1, so the values are never nested
+            for item in cast("list[Value]", value):
+                item["attributes"]["points"] = [
+                    {"outdoor": d[0], "flow": round(d[1], 2)} for d in heating_curve_points.get(item["value"], ())
+                ]

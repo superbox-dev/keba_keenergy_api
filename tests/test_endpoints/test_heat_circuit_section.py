@@ -3457,3 +3457,28 @@ class TestUnhappyPathHeatCircuitSection:
 
             expected: int = 16
             assert len(response["HC1"]) == expected
+
+    @pytest.mark.asyncio
+    async def test_get_heating_curve_points_skips_unknown_curve_name(self) -> None:
+        payload: list[dict[str, Any]] = deepcopy(heating_curve_points_payload)
+        payload[0]["value"] = "UNKNOWN"
+
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=heating_curve_names_payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            response: HeatingCurves = await client.heat_circuit.get_heating_curve_points()
+
+            assert "UNKNOWN" not in response
+            assert "HC1" not in response
+            assert "HC2" in response
