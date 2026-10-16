@@ -2,6 +2,7 @@
 
 import json
 from typing import Any
+from typing import TypeVar
 
 from aiohttp import ClientSession
 from aiohttp import encode_basic_auth
@@ -26,6 +27,8 @@ from keba_keenergy_api.endpoints import SwitchValveEndpoints
 from keba_keenergy_api.endpoints import SystemEndpoints
 from keba_keenergy_api.endpoints import Value
 from keba_keenergy_api.endpoints import ValueResponse
+
+_E = TypeVar("_E", bound=BaseEndpoints)
 
 
 class KebaKeEnergyAPI(BaseEndpoints):
@@ -109,115 +112,65 @@ class KebaKeEnergyAPI(BaseEndpoints):
         """
         return f"{self.schema}://{self.host}"
 
-    @property
-    def system(self) -> SystemEndpoints:
-        """Return an endpoint client for system-level values."""
-        return SystemEndpoints(
+    def _create_endpoints(self, endpoints: type[_E], /) -> _E:
+        """Return an endpoint client with the connection settings of this client."""
+        return endpoints(
             base_url=self.device_url,
             auth=self.auth,
             ssl=self.ssl,
             skip_ssl_verification=self.skip_ssl_verification,
             session=self.session,
         )
+
+    @property
+    def system(self) -> SystemEndpoints:
+        """Return an endpoint client for system-level values."""
+        return self._create_endpoints(SystemEndpoints)
 
     @property
     def buffer_tank(self) -> BufferTankEndpoints:
         """Return an endpoint client for buffer-tank values."""
-        return BufferTankEndpoints(
-            base_url=self.device_url,
-            auth=self.auth,
-            ssl=self.ssl,
-            skip_ssl_verification=self.skip_ssl_verification,
-            session=self.session,
-        )
+        return self._create_endpoints(BufferTankEndpoints)
 
     @property
     def hot_water_tank(self) -> HotWaterTankEndpoints:
         """Return an endpoint client for hot-water-tank values."""
-        return HotWaterTankEndpoints(
-            base_url=self.device_url,
-            auth=self.auth,
-            ssl=self.ssl,
-            skip_ssl_verification=self.skip_ssl_verification,
-            session=self.session,
-        )
+        return self._create_endpoints(HotWaterTankEndpoints)
 
     @property
     def heat_pump(self) -> HeatPumpEndpoints:
         """Return an endpoint client for heat-pump values."""
-        return HeatPumpEndpoints(
-            base_url=self.device_url,
-            auth=self.auth,
-            ssl=self.ssl,
-            skip_ssl_verification=self.skip_ssl_verification,
-            session=self.session,
-        )
+        return self._create_endpoints(HeatPumpEndpoints)
 
     @property
     def heat_circuit(self) -> HeatCircuitEndpoints:
         """Return an endpoint client for heating-circuit values."""
-        return HeatCircuitEndpoints(
-            base_url=self.device_url,
-            auth=self.auth,
-            ssl=self.ssl,
-            skip_ssl_verification=self.skip_ssl_verification,
-            session=self.session,
-        )
+        return self._create_endpoints(HeatCircuitEndpoints)
 
     @property
     def solar_circuit(self) -> SolarCircuitEndpoints:
         """Return an endpoint client for solar-circuit values."""
-        return SolarCircuitEndpoints(
-            base_url=self.device_url,
-            auth=self.auth,
-            ssl=self.ssl,
-            skip_ssl_verification=self.skip_ssl_verification,
-            session=self.session,
-        )
+        return self._create_endpoints(SolarCircuitEndpoints)
 
     @property
     def external_heat_source(self) -> ExternalHeatSourceEndpoints:
         """Return an endpoint client for external-heat-source values."""
-        return ExternalHeatSourceEndpoints(
-            base_url=self.device_url,
-            auth=self.auth,
-            ssl=self.ssl,
-            skip_ssl_verification=self.skip_ssl_verification,
-            session=self.session,
-        )
+        return self._create_endpoints(ExternalHeatSourceEndpoints)
 
     @property
     def switch_valve(self) -> SwitchValveEndpoints:
         """Return an endpoint client for switch-valve values."""
-        return SwitchValveEndpoints(
-            base_url=self.device_url,
-            auth=self.auth,
-            ssl=self.ssl,
-            skip_ssl_verification=self.skip_ssl_verification,
-            session=self.session,
-        )
+        return self._create_endpoints(SwitchValveEndpoints)
 
     @property
     def passive_cooling(self) -> PassiveCoolingEndpoints:
         """Return an endpoint client for passive-cooling values."""
-        return PassiveCoolingEndpoints(
-            base_url=self.device_url,
-            auth=self.auth,
-            ssl=self.ssl,
-            skip_ssl_verification=self.skip_ssl_verification,
-            session=self.session,
-        )
+        return self._create_endpoints(PassiveCoolingEndpoints)
 
     @property
     def photovoltaics(self) -> PhotovoltaicsEndpoints:
         """Return an endpoint client for photovoltaic values."""
-        return PhotovoltaicsEndpoints(
-            base_url=self.device_url,
-            auth=self.auth,
-            ssl=self.ssl,
-            skip_ssl_verification=self.skip_ssl_verification,
-            session=self.session,
-        )
+        return self._create_endpoints(PhotovoltaicsEndpoints)
 
     async def _group_data(
         self,
@@ -253,7 +206,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
                 if prefix is SectionPrefix.HEAT_CIRCUIT and extra_attributes:
                     await self._extra_attributes_heating_curve(key, value)
 
-                _key: str = key.lower().replace(f"{prefix.value}_", "")
+                _key: str = key.lower().removeprefix(f"{prefix.value}_")
                 data[prefix.value][_key] = value[0] if prefix in single_value_prefixes else value
                 break
 
@@ -344,11 +297,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
         if position is None:
             position = await self.system.get_positions()
 
-        if not isinstance(request, list):
-            request = [request]
-
-        if isinstance(position, int):
-            position = [position]
+        request, position = self._normalize_request(request, position)
 
         requests: list[tuple[Section, str]] = self._generate_message_id_requests(
             request=request,
@@ -426,11 +375,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
         if position is None:
             position = await self.system.get_positions()
 
-        if not isinstance(request, list):
-            request = [request]
-
-        if isinstance(position, int):
-            position = [position]
+        request, position = self._normalize_request(request, position)
 
         filtered_sections: list[Section] = []
 

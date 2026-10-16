@@ -63,3 +63,9 @@ class TestConstants:
     )
     def test_read_only(self, path: str, expected_read_only: bool) -> None:  # noqa: FBT001
         assert FloatEndpoint(path).read_only is expected_read_only
+
+    def test_extra_writes(self) -> None:
+        assert HeatPump.STATE.value.extra_writes((1,)) == {}
+        assert SolarCircuit.PRIORITY_1_BEFORE_2.value.extra_writes([1, 0, None, 2]) == {
+            SolarCircuit._PRIORITY: [14, None, 15, None, None, None, None, None],  # noqa: SLF001
+        }
