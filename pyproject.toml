@@ -15,6 +15,7 @@ authors = [
 maintainers = [
     { name = "Michael Hacker", email = "mh@superbox.one" },
 ]
+license = "Apache-2.0"
 license-files = [
     "LICENSE"
 ]
