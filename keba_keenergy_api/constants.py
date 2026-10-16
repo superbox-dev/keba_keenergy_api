@@ -27,13 +27,9 @@ class BaseEnum(Enum):
     @classmethod
     def _missing_(cls, value: object) -> "BaseEnum":
         """Return the enum member matching the given value."""
+        # Scalar values are already matched by Enum itself, only tuple members are left
         for member in cls:
-            member_value = member._value_
-
-            if isinstance(member_value, tuple):
-                if value in member_value:
-                    return member
-            elif value == member_value:  # pragma: no cover
+            if isinstance(member._value_, tuple) and value in member._value_:
                 return member
 
         msg: str = f"{value!r} is not a valid {cls.__name__}"
@@ -287,6 +283,23 @@ class Endpoint:
 
         return self.value.removesuffix(_ACT_VALUE_SUFFIX) + _MESSAGE_ID_SUFFIX
 
+    @staticmethod
+    def extra_writes(values: Any, /) -> dict["Section", Any]:  # noqa: ARG004
+        """Return additional writes that belong to a write of this endpoint.
+
+        Parameters
+        ----------
+        values
+            The written value or values, one per device.
+
+        Returns
+        -------
+        dict[Section, Any]
+            Additional write request, empty for most endpoints.
+
+        """
+        return {}
+
 
 @dataclass
 class FloatEndpoint(Endpoint):
@@ -315,7 +328,7 @@ class SolarCircuitPriority1Before2StringEndpoint(StringEndpoint):
     """String endpoint for solar circuit priority configuration."""
 
     @staticmethod
-    def helper(modes: list[int | None]) -> dict["Section", Any]:
+    def extra_writes(modes: list[int | None]) -> dict["Section", Any]:
         """Return the additional writes for the consumer priorities.
 
         The switch in the Web HMI also writes the priority of the first consumer of each solar circuit:
@@ -332,17 +345,14 @@ class SolarCircuitPriority1Before2StringEndpoint(StringEndpoint):
             Additional write request for the consumer priorities.
 
         """
-        priorities: list[int | None] = list(
-            chain.from_iterable(
-                (
-                    (SolarCircuitPriority.LOW.value if m == 1 else SolarCircuitPriority.HIGH.value if m == 0 else None),
-                    None,
-                )
-                for m in modes
-            ),
-        )
+        priority: dict[int | None, int] = {1: SolarCircuitPriority.LOW.value, 0: SolarCircuitPriority.HIGH.value}
+        # Only the first consumer of each solar circuit (sub index 0, 2, ...) is written
+        priorities: list[int | None] = list(chain.from_iterable((priority.get(m), None) for m in modes))
 
         return {SolarCircuit._PRIORITY: priorities}  # noqa: SLF001
+
+    # Former name, kept for backwards compatibility
+    helper = extra_writes
 
 
 class System(Enum):
@@ -1175,9 +1185,3 @@ Section: TypeAlias = (
     | PassiveCooling
     | Photovoltaics
 )
-
-# Former public names, kept for backwards compatibility
-API_DEFAULT_TIMEOUT: Final[int] = _API_DEFAULT_TIMEOUT
-PAYLOAD_PREFIX: Final[str] = _PAYLOAD_PREFIX
-MIN_HEATING_CURVE_POINTS: Final[int] = _MIN_HEATING_CURVE_POINTS
-MAX_HEATING_CURVE_POINTS: Final[int] = _MAX_HEATING_CURVE_POINTS
