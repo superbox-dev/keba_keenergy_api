@@ -33,7 +33,6 @@ Before finishing a change, run:
   - new parameters, if they are optional and the default keeps the old behaviour
   - turning a crash (`KeyError`, ...) into an `APIError`
   - changing `_`-prefixed internals and `Endpoint.extra_writes()`
-- **100% test coverage** (lines and branches) is enforced
 - **Python 3.11 minimum**, so no:
   - `type` statements
   - PEP 695 generics
@@ -73,15 +72,23 @@ Before finishing a change, run:
 
 1. `constants.py`: add it to the section enum (plus a `BaseEnum` subclass for named values)
 2. `endpoints.py`: add `get_*` / `set_*` to the `*Endpoints` class
-3. `tests/test_endpoints/test_<section>_section.py`:
-   - mock HTTP with `aioresponses`
-   - assert the payload via `assert_called_once_with`
-   - cover invalid input for setters
-   - put large payloads in a `*_data.py` module (e.g. `test_heat_circuit_section_data.py`)
+3. `tests/test_endpoints/test_<section>_section.py`: add tests (see [Tests](#tests))
 4. New section only:
    - page in `docs/keba-keenergy/api/endpoints/`
    - `mkdocs.yml` nav entry
    - mkdocstrings `filters` entry
+
+## Tests
+
+- **100% test coverage** (lines and branches) is enforced
+- Endpoint tests live in `tests/test_endpoints/test_<section>_section.py`:
+  - mock HTTP with `aioresponses`
+  - assert the payload via `assert_called_once_with`
+  - cover invalid input for setters
+  - put large payloads in a `*_data.py` module (e.g. `test_heat_circuit_section_data.py`)
+- Never test or patch internal methods or attributes (e.g. `BaseEndpoints._read_float()`, `_post()`):
+  - call the public API (`KebaKeEnergyAPI`, `*Endpoints` methods)
+  - assert return values, raised exceptions or the sent payload
 
 ## Changelog and git
 
