@@ -32,6 +32,7 @@ nav:
           - keba-keenergy/api/endpoints/solar-circuit.md
           - keba-keenergy/api/endpoints/external-heat-source.md
           - keba-keenergy/api/endpoints/switch-valve.md
+          - keba-keenergy/api/endpoints/passive-cooling.md
           - keba-keenergy/api/endpoints/photovoltaic.md
   - Changelog: keba-keenergy/api/changelog.md
   - Contributing: keba-keenergy/api/contributing.md
@@ -72,6 +73,7 @@ plugins:
               - '!solar_circuit'
               - '!external_heat_source'
               - '!switch_valve'
+              - '!passive_cooling'
               - '!photovoltaics'
 extra:
   social:

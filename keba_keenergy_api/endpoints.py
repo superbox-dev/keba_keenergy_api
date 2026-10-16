@@ -18,9 +18,9 @@ from aiohttp import ClientError
 from aiohttp import ClientSession
 from aiohttp import ClientTimeout
 
-from keba_keenergy_api.constants import _API_DEFAULT_TIMEOUT
-from keba_keenergy_api.constants import _MAX_HEATING_CURVE_POINTS
-from keba_keenergy_api.constants import _MIN_HEATING_CURVE_POINTS
+from keba_keenergy_api.constants import API_DEFAULT_TIMEOUT
+from keba_keenergy_api.constants import MAX_HEATING_CURVE_POINTS
+from keba_keenergy_api.constants import MIN_HEATING_CURVE_POINTS
 from keba_keenergy_api.constants import BoolEnum
 from keba_keenergy_api.constants import BufferTank
 from keba_keenergy_api.constants import BufferTankOperatingMode
@@ -179,7 +179,7 @@ class BaseEndpoints:
         session: ClientSession = (
             self._session
             if self._session and not self._session.closed
-            else ClientSession(timeout=ClientTimeout(total=_API_DEFAULT_TIMEOUT))
+            else ClientSession(timeout=ClientTimeout(total=API_DEFAULT_TIMEOUT))
         )
 
         try:
@@ -4181,7 +4181,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
                 LineTablePool.HEATING_CURVE_POINTS.value.value % idx,
                 *(
                     point.value.value % (idx, point_idx)
-                    for point_idx in range(_MAX_HEATING_CURVE_POINTS)
+                    for point_idx in range(MAX_HEATING_CURVE_POINTS)
                     for point in (LineTablePool.HEATING_CURVE_POINT_X, LineTablePool.HEATING_CURVE_POINT_Y)
                 ),
             )
@@ -4195,7 +4195,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         data: HeatingCurves = {}
 
         data_idx: int = 0
-        points_per_table: int = _MAX_HEATING_CURVE_POINTS
+        points_per_table: int = MAX_HEATING_CURVE_POINTS
         values_per_point: int = 2
 
         valid_curves: set[str] = {name for _, name in heating_curves}
@@ -4270,11 +4270,11 @@ class HeatCircuitEndpoints(BaseEndpoints):
             write_payload: Payload = [
                 WritePayload(
                     name=LineTablePool.HEATING_CURVE_POINTS.value.value % idx,
-                    value=str(len(points) or _MIN_HEATING_CURVE_POINTS),
+                    value=str(len(points) or MIN_HEATING_CURVE_POINTS),
                 ),
             ]
 
-            for point_idx in range(_MAX_HEATING_CURVE_POINTS):
+            for point_idx in range(MAX_HEATING_CURVE_POINTS):
                 point: HeatingCurvePoint | None = None
 
                 if point_idx < len(points):

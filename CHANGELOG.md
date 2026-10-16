@@ -12,13 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `read_message_ids()` to read the message ids (`state.msgId`) of sensors with one request.
   A message id other than `0` means that the sensor is not in use, e.g. not connected ([Issue #67][issue-67])
 - Added `has_message_id` and `message_id_path` to `Endpoint` for all 31 confirmed `values.actValue` sensors
+- Added the optional `position` argument to `has_mixer()` of the heating circuit and `has_fresh_water_module()`
+  of the hot water tank
 
 ### Changed
 
 - Read the heating curve points without attributes (`attr="0"`) for a smaller response
 - Renamed `SolarCircuitPriority1Before2StringEndpoint.helper()` to `extra_writes()`
-- Renamed `API_DEFAULT_TIMEOUT`, `PAYLOAD_PREFIX`, `MIN_HEATING_CURVE_POINTS` and `MAX_HEATING_CURVE_POINTS`
-  to private constants
 - Simplified the internal endpoint code (no changes to the public API)
 - Converted all docstrings to the NumPy style
 
