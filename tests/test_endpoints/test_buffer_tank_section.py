@@ -1,3 +1,6 @@
+# Copyright 2023 Michael Hacker
+# SPDX-License-Identifier: Apache-2.0
+
 import pytest
 from aioresponses.core import aioresponses
 
@@ -65,7 +68,7 @@ class TestHappyPathBufferTankSection:
             data: float = await client.buffer_tank.get_current_top_temperature()
 
             assert isinstance(data, float)
-            assert data == 45.03  # noqa: PLR2004
+            assert data == pytest.approx(45.03)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -100,7 +103,7 @@ class TestHappyPathBufferTankSection:
             data: float = await client.buffer_tank.get_current_bottom_temperature()
 
             assert isinstance(data, float)
-            assert data == 33.09  # noqa: PLR2004
+            assert data == pytest.approx(33.09)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -117,7 +120,8 @@ class TestHappyPathBufferTankSection:
     )
     async def test_get_operating_mode(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: str,
     ) -> None:
@@ -176,8 +180,10 @@ class TestHappyPathBufferTankSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.operatingMode", "value": "%s"}]'  # noqa: UP031
-                % expected_value,
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.operatingMode", '
+                    f'"value": "{expected_value}"}}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -208,7 +214,7 @@ class TestHappyPathBufferTankSection:
             data: float = await client.buffer_tank.get_standby_temperature()
 
             assert isinstance(data, float)
-            assert data == 10.0  # noqa: PLR2004
+            assert data == pytest.approx(10.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -263,7 +269,7 @@ class TestHappyPathBufferTankSection:
             data: float = await client.buffer_tank.get_target_temperature()
 
             assert isinstance(data, float)
-            assert data == 37.75  # noqa: PLR2004
+            assert data == pytest.approx(37.75)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -298,7 +304,7 @@ class TestHappyPathBufferTankSection:
             data: float = await client.buffer_tank.get_excess_energy_target_temperature()
 
             assert isinstance(data, float)
-            assert data == 55.0  # noqa: PLR2004
+            assert data == pytest.approx(55.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -353,7 +359,7 @@ class TestHappyPathBufferTankSection:
             data: float = await client.buffer_tank.get_excess_energy_target_temperature_hysteresis()
 
             assert isinstance(data, float)
-            assert data == 2.0  # noqa: PLR2004
+            assert data == pytest.approx(2.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -408,7 +414,7 @@ class TestHappyPathBufferTankSection:
             data: float = await client.buffer_tank.get_outdoor_temperature_excess_energy_limit()
 
             assert isinstance(data, float)
-            assert data == 25.0  # noqa: PLR2004
+            assert data == pytest.approx(25.0)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -456,7 +462,8 @@ class TestHappyPathBufferTankSection:
     )
     async def test_get_use_excess_energy(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: str,
     ) -> None:
@@ -516,8 +523,10 @@ class TestHappyPathBufferTankSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.useExcessEnergy", "value": "%s"}]'  # noqa: UP031
-                % expected_value,
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.bufferTank[0].param.useExcessEnergy", '
+                    f'"value": "{expected_value}"}}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -554,7 +563,8 @@ class TestHappyPathBufferTankSection:
     )
     async def test_get_excess_energy_mode(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -603,7 +613,8 @@ class TestHappyPathBufferTankSection:
     )
     async def test_get_heat_request(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -646,7 +657,8 @@ class TestHappyPathBufferTankSection:
     )
     async def test_get_cool_request(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -728,7 +740,8 @@ class TestUnhappyPathBufferTankSection:
     )
     async def test_get_invalid_human_readable_operating_mode(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
     ) -> None:
         with aioresponses() as mock_keenergy_api:

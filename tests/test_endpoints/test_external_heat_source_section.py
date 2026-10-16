@@ -1,3 +1,6 @@
+# Copyright 2023 Michael Hacker
+# SPDX-License-Identifier: Apache-2.0
+
 import pytest
 from aioresponses.core import aioresponses
 
@@ -14,7 +17,8 @@ class TestHappyPathExternalHeatSourceSection:
     )
     async def test_get_operating_mode(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: str,
     ) -> None:
@@ -73,8 +77,10 @@ class TestHappyPathExternalHeatSourceSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].param.operatingMode", "value": "%s"}]'  # noqa: UP031
-                % expected_value,
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].param.operatingMode", '
+                    f'"value": "{expected_value}"}}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -105,7 +111,7 @@ class TestHappyPathExternalHeatSourceSection:
             data: float = await client.external_heat_source.get_target_temperature()
 
             assert isinstance(data, float)
-            assert data == 22.56  # noqa: PLR2004
+            assert data == pytest.approx(22.56)
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -127,7 +133,8 @@ class TestHappyPathExternalHeatSourceSection:
     )
     async def test_get_heat_request(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -183,11 +190,15 @@ class TestHappyPathExternalHeatSourceSection:
             data: int = await client.external_heat_source.get_operating_time()
 
             assert isinstance(data, int)
-            assert data == 3809028  # noqa: PLR2004
+            expected: int = 3809028
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.operationalData.operationalTimeS", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.operationalData.'
+                    'operationalTimeS", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -216,7 +227,8 @@ class TestHappyPathExternalHeatSourceSection:
             data: int = await client.external_heat_source.get_max_runtime()
 
             assert isinstance(data, int)
-            assert data == 602403  # noqa: PLR2004
+            expected: int = 602403
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -248,11 +260,15 @@ class TestHappyPathExternalHeatSourceSection:
             data: int = await client.external_heat_source.get_activation_counter()
 
             assert isinstance(data, int)
-            assert data == 477  # noqa: PLR2004
+            expected: int = 477
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.operationalData.activationCounter", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].DO.operationalData.'
+                    'activationCounter", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -270,7 +286,8 @@ class TestHappyPathExternalHeatSourceSection:
     )
     async def test_get_consuming_excess_energy(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: str,
         expected_value: str,
     ) -> None:
@@ -328,11 +345,15 @@ class TestHappyPathExternalHeatSourceSection:
             data: int = await client.external_heat_source.get_excess_energy_operating_time()
 
             assert isinstance(data, int)
-            assert data == 3809028  # noqa: PLR2004
+            expected: int = 3809028
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].operationalDataExcessEnergy.operationalTimeS", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].operationalDataExcessEnergy.'
+                    'operationalTimeS", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -361,7 +382,8 @@ class TestHappyPathExternalHeatSourceSection:
             data: int = await client.external_heat_source.get_excess_energy_max_runtime()
 
             assert isinstance(data, int)
-            assert data == 602403  # noqa: PLR2004
+            expected: int = 602403
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
@@ -396,11 +418,15 @@ class TestHappyPathExternalHeatSourceSection:
             data: int = await client.external_heat_source.get_excess_energy_activation_counter()
 
             assert isinstance(data, int)
-            assert data == 477  # noqa: PLR2004
+            expected: int = 477
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].operationalDataExcessEnergy.activationCounter", "attr": "1"}]',  # noqa: E501
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].operationalDataExcessEnergy.'
+                    'activationCounter", "attr": "1"}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -418,7 +444,8 @@ class TestHappyPathExternalHeatSourceSection:
     )
     async def test_get_use_excess_energy(
         self,
-        human_readable: bool,  # noqa: FBT001
+        *,
+        human_readable: bool,
         payload_value: int,
         expected_value: str,
     ) -> None:
@@ -478,8 +505,10 @@ class TestHappyPathExternalHeatSourceSection:
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].param.supportExcessEnergy", "value": "%s"}]'  # noqa: UP031
-                % expected_value,
+                data=(
+                    '[{"name": "APPL.CtrlAppl.sParam.extHeatSource[0].param.supportExcessEnergy", '
+                    f'"value": "{expected_value}"}}]'
+                ),
                 method="POST",
                 headers={},
                 ssl=False,
@@ -530,7 +559,8 @@ class TestHappyPathExternalHeatSourceSection:
             data: int | None = await client.external_heat_source.get_min_runtime_excess_energy()
 
             assert isinstance(data, int)
-            assert data == 2  # noqa: PLR2004
+            expected: int = 2
+            assert data == expected
 
             mock_keenergy_api.assert_called_once_with(
                 url="http://mocked-host/var/readWriteVars",

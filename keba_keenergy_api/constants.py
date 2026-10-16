@@ -1,3 +1,6 @@
+# Copyright 2023 Michael Hacker
+# SPDX-License-Identifier: Apache-2.0
+
 """Constants and endpoint definitions of the KEBA KeEnergy API."""
 
 from collections.abc import Callable
@@ -285,7 +288,7 @@ class Endpoint:
         return self.value.removesuffix(_ACT_VALUE_SUFFIX) + _MESSAGE_ID_SUFFIX
 
     @staticmethod
-    def extra_writes(values: Any, /) -> dict["Section", Any]:  # noqa: ARG004
+    def extra_writes(values: list[Any], /) -> dict["Section", Any]:
         """Return additional writes that belong to a write of this endpoint.
 
         Parameters
@@ -299,6 +302,7 @@ class Endpoint:
             Additional write request, empty for most endpoints.
 
         """
+        del values
         return {}
 
 
@@ -350,7 +354,7 @@ class SolarCircuitPriority1Before2StringEndpoint(StringEndpoint):
         # Only the first consumer of each solar circuit (sub index 0, 2, ...) is written
         priorities: list[int | None] = list(chain.from_iterable((priority.get(m), None) for m in modes))
 
-        return {SolarCircuit._PRIORITY: priorities}  # noqa: SLF001
+        return {SolarCircuit["_PRIORITY"]: priorities}
 
 
 class System(Enum):
@@ -630,48 +634,21 @@ class HeatPump(Enum):
     EXCESS_ENERGY_ACTIVATION_COUNTER = IntegerEndpoint(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalDataExcessEnergy.activationCounter",
     )
-    # TOTAL_HEATING_ENERGY = FloatEndpoint(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.accumulatedHeat",
-    # )
-    # DAILY_HEATING_ENERGY = FloatEndpoint(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.heatDay",
-    # )
     HEATING_POWER = FloatEndpoint(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.power",
     )
     HEATING_MASS_FLOW_RATE = FloatEndpoint(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HeatMeter.values.massFlow",
     )
-    # TOTAL_COOLING_ENERGY = FloatEndpoint(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.accumulatedHeat",
-    # )
-    # DAILY_COOLING_ENERGY = FloatEndpoint(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.heatDay",
-    # )
-    # COOLING_POWER = FloatEndpoint(
-    #     value_type=float,
-    # )
     COOLING_MASS_FLOW_RATE = FloatEndpoint(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].CoolMeter.values.massFlow",
     )
-    # TOTAL_HOT_WATER_ENERGY = FloatEndpoint(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.accumulatedHeat",
-    # )
-    # DAILY_HOT_WATER_ENERGY = FloatEndpoint(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.heatDay",
-    # )
     HOT_WATER_POWER = FloatEndpoint(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.power",
     )
     HOT_WATER_MASS_FLOW_RATE = FloatEndpoint(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HotWaterMeter.values.massFlow",
     )
-    # TOTAL_COMPRESSOR_ENERGY = FloatEndpoint(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.accumulatedHeat",
-    # )
-    # DAILY_COMPRESSOR_ENERGY = FloatEndpoint(
-    #     f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.heatDay",
-    # )
     COMPRESSOR_POWER = FloatEndpoint(
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].ElectricEnergyMeter.values.power",
     )
