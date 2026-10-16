@@ -97,6 +97,10 @@ Before finishing a change, run:
   - Keep a Changelog format, past tense
   - identifiers in backticks
   - issues as `([Issue #67][issue-67])`
+  - releases are linked at the bottom, before `<!--end-->`:
+    - `[Unreleased]` compares the latest tag with `HEAD`
+    - each release compares its tag with the previous one
+    - the first release links to its release tag
 - Branches:
   - work on `develop`
   - `main` is the release branch
