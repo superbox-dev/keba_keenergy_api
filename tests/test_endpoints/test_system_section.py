@@ -812,6 +812,20 @@ class TestHappyPathSystemSection:
                 ssl=False,
             )
 
+    @pytest.mark.asyncio
+    async def test_get_info_without_ret(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/swupdate?action=getSystemInstalled",
+                payload=[{"name": "KeEnergy.MTec"}],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: dict[str, Any] = await client.system.get_info()
+
+            assert data == {"name": "KeEnergy.MTec"}
+
 
 class TestUnhappyPathSystemSection:
     @pytest.mark.asyncio

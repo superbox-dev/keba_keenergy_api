@@ -17,6 +17,7 @@ from typing import cast
 from aiohttp import ClientError
 from aiohttp import ClientSession
 from aiohttp import ClientTimeout
+from aiohttp import ContentTypeError
 
 from keba_keenergy_api.constants import API_DEFAULT_TIMEOUT
 from keba_keenergy_api.constants import MAX_HEATING_CURVE_POINTS
@@ -24,6 +25,7 @@ from keba_keenergy_api.constants import MIN_HEATING_CURVE_POINTS
 from keba_keenergy_api.constants import BoolEnum
 from keba_keenergy_api.constants import BufferTank
 from keba_keenergy_api.constants import BufferTankOperatingMode
+from keba_keenergy_api.constants import Endpoint
 from keba_keenergy_api.constants import EndpointPath
 from keba_keenergy_api.constants import ExternalHeatSource
 from keba_keenergy_api.constants import FloatEndpoint
@@ -42,7 +44,9 @@ from keba_keenergy_api.constants import SwitchValve
 from keba_keenergy_api.constants import System
 from keba_keenergy_api.constants import SystemOperatingMode
 from keba_keenergy_api.error import APIError
+from keba_keenergy_api.error import APITimeoutError
 from keba_keenergy_api.error import AuthenticationError
+from keba_keenergy_api.error import InvalidJsonError
 
 _T = TypeVar("_T")
 
@@ -172,8 +176,13 @@ class BaseEndpoints:
         ------
         AuthenticationError
             The credentials were rejected (HTTP 401).
+        InvalidJsonError
+            The response is not valid JSON.
+        APITimeoutError
+            The request timed out (also a ``TimeoutError``).
         APIError
-            The Web HMI returned an error (HTTP 500) or the connection failed.
+            The Web HMI (or a reverse proxy) returned a status other than 2xx, the connection failed
+            or the request timed out.
 
         """
         session: ClientSession = (
@@ -195,31 +204,48 @@ class BaseEndpoints:
                 ssl=False if self._skip_ssl_verification else self._ssl,
                 data=payload,
             ) as resp:
-                if resp.status <= HTTPStatus.MULTIPLE_CHOICES or resp.status == HTTPStatus.INTERNAL_SERVER_ERROR:
-                    response: list[dict[str, Any]] = await resp.json()
-
-                    if (
-                        resp.status == HTTPStatus.INTERNAL_SERVER_ERROR
-                        and isinstance(response, dict)
-                        and "developerMessage" in response
-                    ):
-                        developer_message: str = response["developerMessage"]
-                        raise APIError(developer_message, status=HTTPStatus(resp.status))
                 if resp.status == HTTPStatus.UNAUTHORIZED:
                     raise AuthenticationError(status=HTTPStatus.UNAUTHORIZED)
-                if resp.status >= HTTPStatus.BAD_REQUEST:
-                    default_message: str = await resp.text()
-                    raise APIError(default_message, status=HTTPStatus(resp.status))
+
+                # Everything else than 2xx is an error, e.g. also a redirect or a 502 of a reverse proxy
+                if not HTTPStatus.OK <= resp.status < HTTPStatus.MULTIPLE_CHOICES:
+                    error_message: str = await resp.text()
+
+                    if resp.status == HTTPStatus.INTERNAL_SERVER_ERROR:
+                        error_message = self._get_developer_message(error_message)
+
+                    raise APIError(error_message, status=HTTPStatus(resp.status))
+
+                response: list[dict[str, Any]] = await resp.json()
 
                 if isinstance(response, dict):
                     response = [response]
 
                 return response
+        except (json.JSONDecodeError, ContentTypeError) as error:
+            message: str = f"Invalid JSON response! {error}"
+            raise InvalidJsonError(message) from error
         except ClientError as error:
             raise APIError(str(error)) from error
+        except TimeoutError as error:
+            message = "Request timed out!"
+            raise APITimeoutError(message) from error
         finally:
             if not self._session:
                 await session.close()
+
+    @staticmethod
+    def _get_developer_message(text: str, /) -> str:
+        """Return the developer message of a Web HMI error response (HTTP 500), otherwise the response text."""
+        try:
+            error_response: Any = json.loads(text)
+        except ValueError:
+            return text
+
+        if isinstance(error_response, dict) and "developerMessage" in error_response:
+            return str(error_response["developerMessage"])
+
+        return text
 
     def _get_real_key(self, key: Section, /, *, key_prefix: bool = True) -> str:
         """Return the response key of a section, e.g. ``heat_pump_state`` or ``state``."""
@@ -470,32 +496,56 @@ class BaseEndpoints:
         )
 
     def _generate_write_payload(self, request: dict[Section, Any]) -> Payload:
-        """Build the write payload. A list or tuple value writes one value per device index (``None`` skips)."""
+        """Build the write payload. Invalid and read-only sections are skipped."""
         payload: Payload = []
 
-        for endpoint_properties, values in request.items():
-            if not isinstance(endpoint_properties, Section):
-                continue
+        for section, values in request.items():
+            if isinstance(section, Section):
+                payload += self._generate_endpoint_write_payload(section.value, values)
 
-            if not endpoint_properties.value.read_only:
-                if isinstance(values, list | tuple):
-                    payload += [
-                        WritePayload(name=endpoint_properties.value.value % idx, value=str(value))
-                        for idx, value in enumerate(values)
-                        if value is not None
-                    ]
-                else:
-                    payload += [WritePayload(name=endpoint_properties.value.value, value=str(values))]
+        return payload
 
-            # Some endpoints need additional writes (e.g. the solar circuit priority)
-            if extra_writes := endpoint_properties.value.extra_writes(values):
-                payload += self._generate_write_payload(extra_writes)
+    def _generate_endpoint_write_payload(self, endpoint: Endpoint, values: Any) -> Payload:
+        """Build the write payload of one endpoint.
+
+        A single value is written for position 1, a list or tuple writes one value per device index
+        (``None`` skips a device).
+
+        Raises
+        ------
+        APIError
+            More than one value is given for a system-wide endpoint.
+
+        """
+        if endpoint.read_only:
+            return []
+
+        _values: list[Any] = list(values) if isinstance(values, list | tuple) else [values]
+
+        has_device_index: bool = "%s" in endpoint.value
+
+        if not has_device_index and len(_values) > 1:
+            message: str = f'"{endpoint.value}" is system wide, only one value can be written!'
+            raise APIError(message)
+
+        payload: Payload = [
+            WritePayload(name=endpoint.value % idx if has_device_index else endpoint.value, value=str(value))
+            for idx, value in enumerate(_values)
+            if value is not None
+        ]
+
+        # Some endpoints need additional writes (e.g. the solar circuit priority)
+        for extra_section, extra_values in endpoint.extra_writes(_values).items():
+            payload += self._generate_endpoint_write_payload(extra_section.value, extra_values)
 
         return payload
 
     async def _write_values(self, request: dict[Section, Any]) -> None:
         """Write the requested values with one request."""
         payload: Payload = self._generate_write_payload(request)
+
+        if not payload:
+            return
 
         await self._post(
             payload=json.dumps(payload),
@@ -610,6 +660,10 @@ class BaseEndpoints:
         human_readable: bool,
     ) -> dict[str, list[list[Value]] | list[Value]]:
         """Read one section of one device, including the extra attributes (e.g. limits)."""
+        if position < 1:
+            message: str = f"Invalid position {position}! Positions start at 1"
+            raise APIError(message)
+
         return await self._read_data(
             request=section,
             position=position,
@@ -736,7 +790,7 @@ class SystemEndpoints(BaseEndpoints):
         response: Response = await self._post(
             endpoint=f"{EndpointPath.SW_UPDATE}?action=getSystemInstalled",
         )
-        response[0].pop("ret")
+        response[0].pop("ret", None)
         return response[0]
 
     async def get_hmi_info(self) -> dict[str, Any]:
@@ -751,7 +805,7 @@ class SystemEndpoints(BaseEndpoints):
         response: Response = await self._post(
             endpoint=f"{EndpointPath.SW_UPDATE}?action=getHmiInstalled",
         )
-        response[0].pop("ret")
+        response[0].pop("ret", None)
         return response[0]
 
     async def get_device_info(self) -> dict[str, Any]:
@@ -766,7 +820,7 @@ class SystemEndpoints(BaseEndpoints):
         response: Response = await self._post(
             endpoint=f"{EndpointPath.DEVICE_CONTROL}?action=getDeviceInfo",
         )
-        response[0].pop("ret")
+        response[0].pop("ret", None)
         return response[0]
 
     async def get_number_of_buffer_tanks(self) -> int:
@@ -4204,7 +4258,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
             name: str = response[data_idx]["value"]
 
             if name in valid_curves:
-                no_of_points = int(response[data_idx + 1]["value"])
+                no_of_points: int = min(int(response[data_idx + 1]["value"]), points_per_table)
                 raw = response[data_idx + 2 : data_idx + 2 + points_per_table * values_per_point]
 
                 points = tuple(
@@ -4231,12 +4285,20 @@ class HeatCircuitEndpoints(BaseEndpoints):
     async def set_heating_curve_points(self, heating_curve: str, points: HeatingCurvePoints) -> None:
         """Set the heating curve points.
 
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
         Parameters
         ----------
         heating_curve
             The heating curve name
         points
             Heating curve points
+
+        Raises
+        ------
+        APIError
+            The heating curve is invalid.
 
         """
         message: str

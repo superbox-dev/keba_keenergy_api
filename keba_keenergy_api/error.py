@@ -45,3 +45,10 @@ class InvalidJsonError(APIError):
 
 class AuthenticationError(APIError):
     """The credentials were rejected by the Web HMI (HTTP 401)."""
+
+
+class APITimeoutError(APIError, TimeoutError):
+    """The request to the Web HMI timed out.
+
+    Inherits from ``TimeoutError`` as well, so existing ``except TimeoutError`` handlers keep working.
+    """

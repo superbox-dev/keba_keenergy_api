@@ -319,13 +319,19 @@ class KebaKeEnergyAPI(BaseEndpoints):
         **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
         Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
 
-        Each key is a section, the value is a single value or a tuple with one value per device
-        (the first item is position 1, ``None`` skips a device). Read-only sections are ignored.
+        Each key is a section, the value is a single value (position 1) or a tuple with one value per device
+        (the first item is position 1, ``None`` skips a device). System-wide sections accept only one value.
+        Read-only sections are ignored.
 
         Parameters
         ----------
         request
             A mapping from section to a value or a tuple of values.
+
+        Raises
+        ------
+        APIError
+            More than one value is given for a system-wide section.
 
         Examples
         --------
@@ -413,5 +419,5 @@ class KebaKeEnergyAPI(BaseEndpoints):
             for item in value:
                 if isinstance(item, dict):
                     item["attributes"]["points"] = [
-                        {"outdoor": d[0], "flow": round(d[1], 2)} for d in heating_curve_points[item["value"]]
+                        {"outdoor": d[0], "flow": round(d[1], 2)} for d in heating_curve_points.get(item["value"], ())
                     ]

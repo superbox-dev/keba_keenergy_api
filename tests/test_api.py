@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 from typing import Any
+from unittest.mock import AsyncMock
+from unittest.mock import patch
 
 import pytest
 from aiohttp import ClientSession
@@ -19,8 +21,12 @@ from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import SolarCircuit
 from keba_keenergy_api.constants import SwitchValve
 from keba_keenergy_api.constants import System
+from keba_keenergy_api.endpoints import HeatCircuitEndpoints
+from keba_keenergy_api.endpoints import Value
 from keba_keenergy_api.error import APIError
+from keba_keenergy_api.error import APITimeoutError
 from keba_keenergy_api.error import AuthenticationError
+from keba_keenergy_api.error import InvalidJsonError
 from tests.test_api_data import read_data_expected_data_1
 from tests.test_api_data import read_data_expected_data_2
 from tests.test_api_data import read_data_expected_data_3
@@ -354,6 +360,38 @@ class TestApi:
                     '{"name": "APPL.CtrlAppl.sParam.hmiRetainData.consumer1PrioritySolar[1]", "value": "1"}, '
                     '{"name": "APPL.CtrlAppl.sParam.genericHeat[0].param.priority", "value": "15"}, '
                     '{"name": "APPL.CtrlAppl.sParam.genericHeat[2].param.priority", "value": "14"}]'
+                ),
+            ),
+            (
+                {
+                    HeatCircuit.TARGET_TEMPERATURE_DAY: 20,
+                },
+                '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.normalSetTemp", "value": "20"}]',
+            ),
+            (
+                {
+                    System.OPERATING_MODE: (2,),
+                },
+                '[{"name": "APPL.CtrlAppl.sParam.param.operatingMode", "value": "2"}]',
+            ),
+            (
+                {
+                    System.OPERATING_MODE: (None,),
+                    HeatCircuit.OPERATING_MODE: (2, 3, None, 1),
+                },
+                (
+                    '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.operatingMode", "value": "2"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.heatCircuit[1].param.operatingMode", "value": "3"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.heatCircuit[3].param.operatingMode", "value": "1"}]'
+                ),
+            ),
+            (
+                {
+                    SolarCircuit.PRIORITY_1_BEFORE_2: 1,
+                },
+                (
+                    '[{"name": "APPL.CtrlAppl.sParam.hmiRetainData.consumer1PrioritySolar[0]", "value": "1"}, '
+                    '{"name": "APPL.CtrlAppl.sParam.genericHeat[0].param.priority", "value": "14"}]'
                 ),
             ),
         ],
@@ -790,3 +828,116 @@ class TestApi:
 
             assert data == {}
             mock_keenergy_api.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_write_data_with_multiple_values_for_system_section(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(
+                APIError,
+                match=r'"APPL\.CtrlAppl\.sParam\.param\.operatingMode" is system wide, only one value can be written!',
+            ):
+                await client.write_data(request={System.OPERATING_MODE: (1, 2)})
+
+            mock_keenergy_api.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_write_data_without_writable_sections(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.write_data(request={HeatPump.STATE: (1,), HeatCircuit.TARGET_TEMPERATURE_DAY: (None,)})
+
+            mock_keenergy_api.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_get_value_with_invalid_position(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(APIError, match="Invalid position 0! Positions start at 1"):
+                await client.heat_circuit.get_target_temperature_day(position=0)
+
+            mock_keenergy_api.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_set_value_with_position_0_writes_nothing(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            await client.heat_circuit.set_target_temperature_day(20, position=0)
+
+            mock_keenergy_api.assert_not_called()
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("status", "body", "expected_error"),
+        [
+            (500, '{"developerMessage": "mocked-error"}', "500 Internal Server Error: .* - mocked-error"),
+            (500, "[]", r"500 Internal Server Error: .* - \[]"),
+            (500, "<html>Error</html>", "500 Internal Server Error: .* - <html>Error</html>"),
+            (
+                400,
+                '{"developerMessage": "mocked-error"}',
+                r'400 Bad Request: .* - \{"developerMessage": "mocked-error"}',
+            ),
+            (502, "<html>Bad Gateway</html>", "502 Bad Gateway: .* - <html>Bad Gateway</html>"),
+            (301, "", "301 Moved Permanently: .*"),
+        ],
+    )
+    async def test_api_error_status(self, status: int, body: str, expected_error: str) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                body=body,
+                headers={"Content-Type": "text/html"},
+                status=status,
+            )
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(APIError, match=expected_error):
+                await client.system.get_outdoor_temperature()
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("body", "content_type"),
+        [
+            ("not json", "application/json"),
+            ("<html></html>", "text/html"),
+        ],
+    )
+    async def test_api_invalid_json(self, body: str, content_type: str) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                body=body,
+                headers={"Content-Type": content_type},
+            )
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(InvalidJsonError, match="Invalid JSON response!"):
+                await client.system.get_outdoor_temperature()
+
+    @pytest.mark.asyncio
+    async def test_api_timeout(self) -> None:
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                exception=TimeoutError(),
+            )
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(APITimeoutError, match="Request timed out!") as error:
+                await client.system.get_outdoor_temperature()
+
+            assert isinstance(error.value, APIError)
+            assert isinstance(error.value, TimeoutError)
+
+    @pytest.mark.asyncio
+    async def test_extra_attributes_with_unknown_heating_curve(self) -> None:
+        value: list[Value] = [{"value": "HC9", "attributes": {}}]
+        client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+        with patch.object(HeatCircuitEndpoints, "get_heating_curve_points", AsyncMock(return_value={})):
+            await client._extra_attributes_heating_curve("heat_circuit_heating_curve", value)  # noqa: SLF001
+
+        assert value == [{"value": "HC9", "attributes": {"points": []}}]
