@@ -522,10 +522,18 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         """
         if key.lower() == self._get_real_key(HeatCircuit.HEATING_CURVE):
-            heating_curve_points: HeatingCurves = await self.heat_circuit.get_heating_curve_points()
-
             # HEATING_CURVE has a quantity of 1, so the values are never nested
-            for item in cast("list[Value]", value):
+            items: list[Value] = cast("list[Value]", value)
+            used_curves: set[str] = {item["value"] for item in items}
+
+            # Only the points of the heating curves in use are read
+            heating_curve_points: HeatingCurves = await self._read_heating_curve_points(
+                tuple(
+                    curve for curve in await self.heat_circuit.get_available_heating_curves() if curve[1] in used_curves
+                ),
+            )
+
+            for item in items:
                 item["attributes"]["points"] = [
                     {"outdoor": d[0], "flow": round(d[1], 2)} for d in heating_curve_points.get(item["value"], ())
                 ]

@@ -34,6 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `filter_request()` checks all variables with one request (plus one per unknown variable) instead of one
   request per section and device, e.g. 2 instead of 226 requests (0.8 s instead of 28 s). It raises an
   `APIError` if the Web HMI rejects the request without naming a requested variable
+- `read_data()` with extra attributes and `get_heating_curve_points()` with a heating curve name only read the
+  points of the heating curves in use or requested, instead of all heating curves
+- `get_available_heating_curves()` reads the heating curve names without attributes (`attr="0"`), as only the
+  names are used
 
 ### Fixed
 

@@ -650,6 +650,60 @@ class BaseEndpoints:
             section, position, self._to_int_or_str, human_readable=human_readable, index=index
         )
 
+    async def _read_heating_curve_points(self, heating_curves: tuple[tuple[int, str], ...], /) -> HeatingCurves:
+        """Read the points of the given (index, name) heating curves with one request."""
+        if not heating_curves:
+            return {}
+
+        # Only the values are needed, so no attributes are requested (attr="0")
+        payload: Payload = [
+            ReadPayload(name=name, attr="0")
+            for idx, _ in heating_curves
+            for name in (
+                LineTablePool.HEATING_CURVE_NAME.value.value % idx,
+                LineTablePool.HEATING_CURVE_POINTS.value.value % idx,
+                *(
+                    point.value.value % (idx, point_idx)
+                    for point_idx in range(MAX_HEATING_CURVE_POINTS)
+                    for point in (LineTablePool.HEATING_CURVE_POINT_X, LineTablePool.HEATING_CURVE_POINT_Y)
+                ),
+            )
+        ]
+
+        response: Response = await self._post(
+            payload=json.dumps(payload),
+            endpoint=EndpointPath.READ_WRITE_VARS,
+        )
+
+        data: HeatingCurves = {}
+
+        data_idx: int = 0
+        points_per_table: int = MAX_HEATING_CURVE_POINTS
+        values_per_point: int = 2
+
+        valid_curves: set[str] = {name for _, name in heating_curves}
+
+        for _ in heating_curves:
+            name: str = response[data_idx]["value"]
+
+            if name in valid_curves:
+                no_of_points: int = min(int(response[data_idx + 1]["value"]), points_per_table)
+                raw = response[data_idx + 2 : data_idx + 2 + points_per_table * values_per_point]
+
+                points = tuple(
+                    HeatingCurvePoint(
+                        outdoor=float(raw[i]["value"]),
+                        flow=float(raw[i + 1]["value"]),
+                    )
+                    for i in range(0, no_of_points * values_per_point, values_per_point)
+                )
+
+                data[name] = points
+
+            data_idx += 2 + points_per_table * values_per_point
+
+        return data
+
     async def _write_for_position(self, section: Section, value: float | str, position: int = 1, /) -> None:
         """Write a value for one (1-based) position, all other positions are left unchanged."""
         await self._write_values(request={section: self._values_for_position(value, position)})
@@ -4151,61 +4205,19 @@ class HeatCircuitEndpoints(BaseEndpoints):
         """
         heating_curves: tuple[tuple[int, str], ...] = await self.get_available_heating_curves()
 
-        # Only the values are needed, so no attributes are requested (attr="0")
-        payload: Payload = [
-            ReadPayload(name=name, attr="0")
-            for idx, _ in heating_curves
-            for name in (
-                LineTablePool.HEATING_CURVE_NAME.value.value % idx,
-                LineTablePool.HEATING_CURVE_POINTS.value.value % idx,
-                *(
-                    point.value.value % (idx, point_idx)
-                    for point_idx in range(MAX_HEATING_CURVE_POINTS)
-                    for point in (LineTablePool.HEATING_CURVE_POINT_X, LineTablePool.HEATING_CURVE_POINT_Y)
-                ),
-            )
-        ]
+        if heating_curve is None:
+            return await self._read_heating_curve_points(heating_curves)
 
-        response: Response = await self._post(
-            payload=json.dumps(payload),
-            endpoint=EndpointPath.READ_WRITE_VARS,
+        # Only the requested heating curve is read
+        data: HeatingCurves = await self._read_heating_curve_points(
+            tuple(curve for curve in heating_curves if curve[1] == heating_curve),
         )
 
-        data: HeatingCurves = {}
-
-        data_idx: int = 0
-        points_per_table: int = MAX_HEATING_CURVE_POINTS
-        values_per_point: int = 2
-
-        valid_curves: set[str] = {name for _, name in heating_curves}
-
-        for _ in heating_curves:
-            name: str = response[data_idx]["value"]
-
-            if name in valid_curves:
-                no_of_points: int = min(int(response[data_idx + 1]["value"]), points_per_table)
-                raw = response[data_idx + 2 : data_idx + 2 + points_per_table * values_per_point]
-
-                points = tuple(
-                    HeatingCurvePoint(
-                        outdoor=float(raw[i]["value"]),
-                        flow=float(raw[i + 1]["value"]),
-                    )
-                    for i in range(0, no_of_points * values_per_point, values_per_point)
-                )
-
-                data[name] = points
-
-            data_idx += 2 + points_per_table * values_per_point
-
-        if heating_curve is not None:
-            try:
-                return {heating_curve: data[heating_curve]}
-            except KeyError as error:
-                message: str = f'Heating curve "{heating_curve}" not found'
-                raise APIError(message) from error
-
-        return data
+        try:
+            return {heating_curve: data[heating_curve]}
+        except KeyError as error:
+            message: str = f'Heating curve "{heating_curve}" not found'
+            raise APIError(message) from error
 
     async def set_heating_curve_points(self, heating_curve: str, points: HeatingCurvePoints) -> None:
         """Set the heating curve points.
@@ -4241,7 +4253,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
             read_payload: Payload = [
                 ReadPayload(
                     name=LineTablePool.HEATING_CURVE_NAME.value.value % idx,
-                    attr="1",
+                    attr="0",
                 ),
             ]
 
@@ -4300,7 +4312,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
 
         """
         payload: Payload = [
-            ReadPayload(name=LineTablePool.HEATING_CURVE_NAME.value.value % idx, attr="1")
+            ReadPayload(name=LineTablePool.HEATING_CURVE_NAME.value.value % idx, attr="0")
             for idx in range(_HEATING_CURVE_POOL_SIZE)
         ]
 
