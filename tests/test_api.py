@@ -6,7 +6,6 @@
 import json
 from typing import TYPE_CHECKING
 from typing import Any
-from unittest.mock import AsyncMock
 from unittest.mock import patch
 
 import pytest
@@ -28,7 +27,6 @@ from keba_keenergy_api.constants import Section
 from keba_keenergy_api.constants import SolarCircuit
 from keba_keenergy_api.constants import SwitchValve
 from keba_keenergy_api.constants import System
-from keba_keenergy_api.endpoints import HeatCircuitEndpoints
 from keba_keenergy_api.error import APIError
 from keba_keenergy_api.error import APITimeoutError
 from keba_keenergy_api.error import AuthenticationError
@@ -863,12 +861,9 @@ class TestApi:
             assert isinstance(error.value, TimeoutError)
 
     @pytest.mark.asyncio
-    async def test_extra_attributes_with_unknown_heating_curve(self) -> None:
-        """Test that `read_data()` adds no points for an unknown heating curve."""
-        with (
-            aioresponses() as mock_keenergy_api,
-            patch.object(HeatCircuitEndpoints, "get_heating_curve_points", AsyncMock(return_value={})),
-        ):
+    async def test_extra_attributes_with_unknown_heating_curve(self, sent_requests: SentRequests) -> None:
+        """Test that `read_data()` adds no points and reads none for an unknown heating curve."""
+        with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
                 payload=[
@@ -881,10 +876,22 @@ class TestApi:
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
 
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=heating_curve_names_payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
             response: dict[str, ValueResponse] = await client.read_data(
                 request=HeatCircuit.HEATING_CURVE,
                 position=1,
             )
+
+            # One request for the values and one for the heating curve names, none for the points
+            assert [request["data"][0]["name"] for request in sent_requests(mock_keenergy_api)] == [
+                "APPL.CtrlAppl.sParam.heatCircuit[0].param.linTab.fileName",
+                "APPL.CtrlAppl.sParam.linTabPool[0].name",
+            ]
 
         assert response["heat_circuit"] == {"heating_curve": [{"value": "HC9", "attributes": {"points": []}}]}

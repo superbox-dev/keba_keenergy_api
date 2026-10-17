@@ -275,7 +275,8 @@ read_data_payload_3: list[dict[str, Any]] = [
     },
 ]
 
-read_data_extra_attributes_payload_3: list[dict[str, Any]] = heating_curve_points_payload
+# Only HC1 (the first table of the line table pool) is in use, so only its name, number of points and 16 points are read
+read_data_extra_attributes_payload_3: list[dict[str, Any]] = heating_curve_points_payload[:34]
 
 read_data_option_payload_4: list[dict[str, Any]] = [
     {

@@ -37,7 +37,8 @@ Before finishing a change, run:
 - **Python 3.11 minimum**, so no:
   - `type` statements
   - PEP 695 generics
-  - `typing.Self` / `override` without a fallback
+  - `typing.override` (Python 3.12) without a fallback
+  - `typing.Self` is fine (Python 3.11)
 - Every `.py` file starts with:
 
   ```python

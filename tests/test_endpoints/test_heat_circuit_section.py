@@ -2677,14 +2677,20 @@ class TestHappyPathHeatCircuitSection:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        "heating_curve",
-        [None, "HC1"],
+        ("heating_curve", "points_payload"),
+        [
+            (None, heating_curve_points_payload),
+            # Only the requested heating curve is read (name, number of points and 16 points)
+            ("HC1", heating_curve_points_payload[:34]),
+        ],
+        ids=["all", "HC1"],
     )
     async def test_get_heating_curve_points(
         self,
         snapshot: SnapshotAssertion,
         sent_requests: SentRequests,
         heating_curve: str | None,
+        points_payload: list[dict[str, Any]],
     ) -> None:
         """Test that `get_heating_curve_points()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
@@ -2696,7 +2702,7 @@ class TestHappyPathHeatCircuitSection:
 
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
-                payload=heating_curve_points_payload,
+                payload=points_payload,
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
 
@@ -3147,17 +3153,11 @@ class TestUnhappyPathHeatCircuitSection:
         sent_requests: SentRequests,
         heating_curve: str | None,
     ) -> None:
-        """Test that `get_heating_curve_points()` raises `APIError` for an unknown heating curve."""
+        """Test that `get_heating_curve_points()` raises `APIError` for an unknown curve without reading points."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
                 payload=heating_curve_names_payload,
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=heating_curve_points_payload,
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
 
@@ -3280,7 +3280,7 @@ class TestUnhappyPathHeatCircuitSection:
     @pytest.mark.asyncio
     async def test_too_many_points_in_get_heating_curve_points(self) -> None:
         """Test that `get_heating_curve_points()` returns at most 16 points."""
-        payload: list[dict[str, Any]] = deepcopy(heating_curve_points_payload)
+        payload: list[dict[str, Any]] = deepcopy(heating_curve_points_payload[:34])
         payload[1]["value"] = "99"
 
         with aioresponses() as mock_keenergy_api:
