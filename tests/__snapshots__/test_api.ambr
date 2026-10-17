@@ -45,10 +45,6 @@
           'attr': '0',
           'name': 'APPL.CtrlAppl.sParam.heatpump[0].values.heatpumpState',
         }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].topTemp.values.actValue',
-        }),
       ]),
       'method': 'POST',
       'url': 'http://mocked-host/var/readWriteVars',

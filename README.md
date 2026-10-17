@@ -81,7 +81,25 @@ asyncio.run(main())
 ```
 
 By default, the library creates a new connection to `KEBA KeEnergy API` with each coroutine. If you are calling a large
-number of coroutines, an `aiohttp ClientSession()` can be used for connection pooling:
+number of coroutines, use the client with `async with`, so that all requests share one connection:
+
+```python
+import asyncio
+
+from keba_keenergy_api import KebaKeEnergyAPI
+
+
+async def main():
+    async with KebaKeEnergyAPI(
+        host="ap4400.local", username="test", password="test", ssl=True, skip_ssl_verification=True
+    ) as client:
+        ...
+
+
+asyncio.run(main())
+```
+
+You can also pass your own `aiohttp ClientSession()`, e.g. to share it with other code. The client leaves it open:
 
 ```python
 import asyncio

@@ -133,6 +133,47 @@ class TestApi:
             )
 
     @pytest.mark.asyncio
+    async def test_api_as_context_manager(self) -> None:
+        """Test that `async with` shares one session between all requests and closes it afterwards."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "value": "10.808357"}],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+                repeat=2,
+            )
+
+            # The endpoint clients would create a session per request without the shared session
+            with patch("keba_keenergy_api.endpoints.ClientSession", side_effect=AssertionError):
+                async with KebaKeEnergyAPI(host="mocked-host") as client:
+                    session: ClientSession | None = client.session
+
+                    assert isinstance(session, ClientSession)
+                    assert await client.system.get_outdoor_temperature() == pytest.approx(10.81)
+                    assert await client.system.get_outdoor_temperature() == pytest.approx(10.81)
+
+            assert session.closed
+            assert client.session is None
+
+    @pytest.mark.asyncio
+    async def test_api_as_context_manager_with_session(self) -> None:
+        """Test that `async with` keeps a passed session open."""
+        async with ClientSession() as session:
+            async with KebaKeEnergyAPI(host="mocked-host", session=session) as client:
+                assert client.session is session
+
+            assert not session.closed
+            assert client.session is session
+
+    @pytest.mark.asyncio
+    async def test_close_without_context_manager(self) -> None:
+        """Test that `close()` does nothing if no session was opened by the client."""
+        client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+        await client.close()
+
+        assert client.session is None
+
+    @pytest.mark.asyncio
     async def test_api_with_basic_auth(self) -> None:
         """Test that the credentials are sent as basic auth header."""
         with aioresponses() as mock_keenergy_api:

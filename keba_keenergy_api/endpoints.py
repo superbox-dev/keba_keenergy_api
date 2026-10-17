@@ -5,6 +5,7 @@
 
 import json
 import re
+from collections.abc import Callable
 from collections.abc import Iterator
 from dataclasses import dataclass
 from enum import Enum
@@ -272,24 +273,19 @@ class BaseEndpoints:
             [position] if isinstance(position, int) else position,
         )
 
-    def _get_position_index(self, section: Section, position: Position | list[int]) -> list[bool | int]:
+    def _get_device_indexes(self, section: Section, position: Position | list[int]) -> list[int | None]:
         """Return the zero-based device indexes to request for a section.
 
-        ``True`` means the section has no device index (system wide), ``False`` means the device is not
-        installed and must be skipped.
+        ``None`` means the section has no device index (system wide). Devices that are not installed are left out.
         """
-        idx: list[bool | int] = []
-
         if isinstance(section, System | Photovoltaics):
-            idx = [True]
-        elif isinstance(position, Position):
-            position_key: str = f"{self.KEY_PATTERN.sub('_', section.__class__.__name__).lower()}"
-            _position: int | None = getattr(position, position_key, None)
-            idx = list(range(_position)) if _position else [False]
-        else:
-            idx = [False if p == 0 else (p - 1) for p in position] if position else [True]
+            return [None]
 
-        return idx
+        if isinstance(position, Position):
+            position_key: str = f"{self.KEY_PATTERN.sub('_', section.__class__.__name__).lower()}"
+            return list(range(getattr(position, position_key, None) or 0))
+
+        return [p - 1 for p in position if p != 0] if position else [None]
 
     def _iter_variable_names(
         self,
@@ -312,11 +308,8 @@ class BaseEndpoints:
         template = template or section.value.value
         quantity: int = section.value.quantity
 
-        for idx in self._get_position_index(section=section, position=position):
-            if idx is False:
-                continue
-
-            if idx is True:
+        for idx in self._get_device_indexes(section=section, position=position):
+            if idx is None:
                 yield template
             elif quantity == 1:
                 yield template % idx
@@ -429,10 +422,7 @@ class BaseEndpoints:
         for section in request:
             response_key: str = self._get_real_key(section, key_prefix=key_prefix)
 
-            for idx in self._get_position_index(section=section, position=position):
-                if idx is False:
-                    continue
-
+            for _ in self._get_device_indexes(section=section, position=position):
                 response_group: list[Value] = []
 
                 for _ in range(section.value.quantity):
@@ -565,102 +555,44 @@ class BaseEndpoints:
         """Return a write list that only sets the value for the given (1-based) position."""
         return [value if position == p else None for p in range(1, position + 1)]
 
-    def _get_value(
-        self,
-        response: dict[str, list[list[Value]] | list[Value]],
-        /,
-        *,
-        section: Section,
-        position: int | None = None,
-        index: int = 0,
-        attribute: str | None = None,
-    ) -> float | str:
-        """Return a single value (or attribute) from a ``_read_data`` response.
-
-        The getters read exactly one device, so the response holds one entry, even for ``position > 1``.
-        """
-        values: list[list[Value]] | list[Value] = response[self._get_real_key(section)]
-        _idx: int = position - 1 if position and position <= len(values) else 0
-
-        value: Value | list[Value] = values[_idx]
-        item: Value = value[index] if isinstance(value, list) else value
-
-        return cast("float | str", item["attributes"][attribute] if attribute else item["value"])
-
-    def _get_int_or_str_value(
-        self,
-        response: dict[str, list[list[Value]] | list[Value]],
-        /,
-        *,
-        section: Section,
-        position: int | None = None,
-        index: int = 0,
-    ) -> int | str:
+    @staticmethod
+    def _to_int_or_str(value: float | str, /) -> int | str:
         """Return a value as integer if possible, otherwise as string."""
-        _value: float | str = self._get_value(response, section=section, position=position, index=index)
-
         try:
-            return int(_value)
+            return int(value)
         except ValueError:
-            return str(_value)
+            return str(value)
 
-    def _get_float_value(
-        self,
-        response: dict[str, list[list[Value]] | list[Value]],
-        /,
-        *,
-        section: Section,
-        position: int | None = None,
-        index: int = 0,
-        attribute: str | None = None,
-    ) -> float:
-        """Return a value (or attribute) as float."""
-        return float(self._get_value(response, section=section, position=position, index=index, attribute=attribute))
-
-    def _get_int_value(
-        self,
-        response: dict[str, list[list[Value]] | list[Value]],
-        /,
-        *,
-        section: Section,
-        position: int | None = None,
-        index: int = 0,
-        attribute: str | None = None,
-    ) -> int:
-        """Return a value (or attribute) as integer."""
-        return int(self._get_value(response, section=section, position=position, index=index, attribute=attribute))
-
-    def _get_str_value(
-        self,
-        response: dict[str, list[list[Value]] | list[Value]],
-        /,
-        *,
-        section: Section,
-        position: int | None = None,
-        index: int = 0,
-    ) -> str:
-        """Return a value as string."""
-        return str(self._get_value(response, section=section, position=position, index=index))
-
-    async def _read_single(
+    async def _read_value(
         self,
         section: Section,
         position: int,
+        convert: Callable[[float | str], _T],
         /,
         *,
         human_readable: bool,
-    ) -> dict[str, list[list[Value]] | list[Value]]:
-        """Read one section of one device, including the extra attributes (e.g. limits)."""
+        index: int = 0,
+        attribute: str | None = None,
+    ) -> _T:
+        """Read one value (or attribute) of one device, including the extra attributes (e.g. limits).
+
+        The getters read exactly one device, so the response holds one entry, even for ``position > 1``.
+        """
         if position < 1:
             message: str = f"Invalid position {position}! Positions start at 1"
             raise APIError(message)
 
-        return await self._read_data(
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=section,
             position=position,
             human_readable=human_readable,
             extra_attributes=True,
         )
+
+        value: Value | list[Value] = response[self._get_real_key(section)][0]
+        item: Value = value[index] if isinstance(value, list) else value
+
+        return convert(item["attributes"][attribute] if attribute else item["value"])
 
     async def _read_float(
         self,
@@ -673,8 +605,9 @@ class BaseEndpoints:
         attribute: str | None = None,
     ) -> float:
         """Read one value (or attribute) of one device as float."""
-        response = await self._read_single(section, position, human_readable=human_readable)
-        return self._get_float_value(response, section=section, position=position, index=index, attribute=attribute)
+        return await self._read_value(
+            section, position, float, human_readable=human_readable, index=index, attribute=attribute
+        )
 
     async def _read_int(
         self,
@@ -687,8 +620,9 @@ class BaseEndpoints:
         attribute: str | None = None,
     ) -> int:
         """Read one value (or attribute) of one device as integer."""
-        response = await self._read_single(section, position, human_readable=human_readable)
-        return self._get_int_value(response, section=section, position=position, index=index, attribute=attribute)
+        return await self._read_value(
+            section, position, int, human_readable=human_readable, index=index, attribute=attribute
+        )
 
     async def _read_str(
         self,
@@ -700,8 +634,7 @@ class BaseEndpoints:
         index: int = 0,
     ) -> str:
         """Read one value of one device as string."""
-        response = await self._read_single(section, position, human_readable=human_readable)
-        return self._get_str_value(response, section=section, position=position, index=index)
+        return await self._read_value(section, position, str, human_readable=human_readable, index=index)
 
     async def _read_int_or_str(
         self,
@@ -713,8 +646,9 @@ class BaseEndpoints:
         index: int = 0,
     ) -> int | str:
         """Read one value of one device as integer, or as string if it is human-readable."""
-        response = await self._read_single(section, position, human_readable=human_readable)
-        return self._get_int_or_str_value(response, section=section, position=position, index=index)
+        return await self._read_value(
+            section, position, self._to_int_or_str, human_readable=human_readable, index=index
+        )
 
     async def _write_for_position(self, section: Section, value: float | str, position: int = 1, /) -> None:
         """Write a value for one (1-based) position, all other positions are left unchanged."""
