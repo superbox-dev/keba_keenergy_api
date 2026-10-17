@@ -43,7 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `IndexError` in `get_heating_curve_points()` if the control unit reports more than 16 points
 - Fixed `KeyError` in `get_info()`, `get_hmi_info()` and `get_device_info()` if the response has no `ret`
 - Fixed the documented unit of the photovoltaics `get_daily_energy()` and `get_total_energy()` and of the heat pump
-  energy statistics, e.g. `get_heating_energy()` and `get_total_thermal_energy()` (J instead of kWh)
+  `get_heating_energy()`, `get_cooling_energy()`, `get_hot_water_energy()` and `get_total_thermal_energy()`
+  (J instead of kWh)
 - Fixed the documented unit of the pump and compressor speeds (a fraction from 0 to 1 instead of percent),
   including `set_compressor_night_speed()` and the solar circuit `get_pump_1_speed()` and `get_pump_2_speed()`
 - Fixed the docstrings of `get_away_end_date()` and `set_away_end_date()` of the heating circuit, which described
