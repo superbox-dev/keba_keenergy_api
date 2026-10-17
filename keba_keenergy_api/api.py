@@ -4,6 +4,9 @@
 """Asynchronous client for the KEBA KeEnergy Web HMI API."""
 
 import json
+import re
+from http import HTTPStatus
+from re import Pattern
 from typing import Any
 from typing import TypeVar
 from typing import cast
@@ -25,12 +28,13 @@ from keba_keenergy_api.endpoints import HotWaterTankEndpoints
 from keba_keenergy_api.endpoints import PassiveCoolingEndpoints
 from keba_keenergy_api.endpoints import PhotovoltaicsEndpoints
 from keba_keenergy_api.endpoints import Position
-from keba_keenergy_api.endpoints import Response
+from keba_keenergy_api.endpoints import ReadPayload
 from keba_keenergy_api.endpoints import SolarCircuitEndpoints
 from keba_keenergy_api.endpoints import SwitchValveEndpoints
 from keba_keenergy_api.endpoints import SystemEndpoints
 from keba_keenergy_api.endpoints import Value
 from keba_keenergy_api.endpoints import ValueResponse
+from keba_keenergy_api.error import APIError
 
 _E = TypeVar("_E", bound=BaseEndpoints)
 
@@ -41,7 +45,12 @@ class KebaKeEnergyAPI(BaseEndpoints):
     The client exposes endpoint groups and convenience methods for reading and writing
     controller values. A caller may provide an existing :class:`aiohttp.ClientSession`
     to manage its own session lifecycle.
+
+    The installed devices are read once and reused, as they do not change while the control unit is running.
     """
+
+    # The Web HMI rejects a read request with an unknown variable as a whole and names the first one
+    _READ_ERROR_PATTERN: Pattern[str] = re.compile(r"Reading variable: (\S+) failed")
 
     def __init__(
         self,
@@ -95,6 +104,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
         self.ssl: bool = ssl
         self.skip_ssl_verification: bool = skip_ssl_verification
         self.session: ClientSession | None = session
+        self._positions: Position | None = None
 
         super().__init__(
             base_url=self.device_url,
@@ -115,6 +125,13 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         """
         return f"{self.schema}://{self.host}"
+
+    async def _get_positions(self) -> Position:
+        """Return the installed devices, read from the control unit on the first call only."""
+        if self._positions is None:
+            self._positions = await self.system.get_positions()
+
+        return self._positions
 
     def _create_endpoints(self, endpoints: type[_E], /) -> _E:
         """Return an endpoint client with the connection settings of this client."""
@@ -225,7 +242,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
         """Read the requested values with one request and group them by section.
 
         If no position is given, the installed devices are read from the control unit first
-        (one additional request).
+        (one additional request on the first call only).
 
         Parameters
         ----------
@@ -254,7 +271,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         """
         if position is None:
-            position = await self.system.get_positions()
+            position = await self._get_positions()
 
         response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
             request=request,
@@ -297,7 +314,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         """
         if position is None:
-            position = await self.system.get_positions()
+            position = await self._get_positions()
 
         request, position = self._normalize_request(request, position)
 
@@ -354,9 +371,10 @@ class KebaKeEnergyAPI(BaseEndpoints):
     ) -> list[Section]:
         """Return the requested sections that are supported by the Web HMI software version.
 
-        Each section is checked per installed device with the read-children endpoint (one request
-        per section and device). Sections of devices that are not installed are skipped. The result
-        keeps the request order and contains each supported section once.
+        All variables are read with one request. The Web HMI rejects a request with an unknown
+        variable as a whole, so each unknown variable costs one more request. Sections of devices
+        that are not installed are skipped. The result keeps the request order and contains each
+        supported section once.
 
         Parameters
         ----------
@@ -370,6 +388,11 @@ class KebaKeEnergyAPI(BaseEndpoints):
         list[Section]
             The supported sections e.g. [BufferTank.NAME, ...]
 
+        Raises
+        ------
+        APIError
+            The request failed for another reason than an unknown variable.
+
         Examples
         --------
         >>> sections = await client.filter_request(
@@ -381,27 +404,51 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         """
         if position is None:
-            position = await self.system.get_positions()
+            position = await self._get_positions()
 
         request, position = self._normalize_request(request, position)
 
-        filtered_sections: list[Section] = []
+        variables: list[tuple[Section, str]] = [
+            (section, name) for section in request for name in self._iter_variable_names(section, position)
+        ]
 
-        payloads = self._generate_read_children_payloads(
-            request=request,
-            position=position,
-        )
+        supported: list[tuple[Section, str]] = await self._filter_readable(variables)
 
-        for section, payload in payloads:
-            response: Response = await self._post(
-                payload=json.dumps(payload),
-                endpoint=EndpointPath.READ_VAR_CHILDREN,
-            )
+        # Variables are built in request order, so the sections keep the request order
+        return list(dict.fromkeys(section for section, _ in supported))
 
-            if response[0]["ret"] == "OK" and section not in filtered_sections:
-                filtered_sections.append(section)
+    async def _filter_readable(self, variables: list[tuple[Section, str]], /) -> list[tuple[Section, str]]:
+        """Return the variables that can be read, by dropping the unknown variable of each rejected request.
 
-        return filtered_sections
+        Raises
+        ------
+        APIError
+            The request failed for another reason than an unknown variable.
+
+        """
+        remaining: list[tuple[Section, str]] = variables
+
+        while remaining:
+            try:
+                await self._post(
+                    payload=json.dumps([ReadPayload(name=name, attr="0") for _, name in remaining]),
+                    endpoint=EndpointPath.READ_WRITE_VARS,
+                )
+            except APIError as error:
+                match: re.Match[str] | None = self._READ_ERROR_PATTERN.search(error.message)
+
+                if (
+                    error.status is not HTTPStatus.INTERNAL_SERVER_ERROR
+                    or match is None
+                    or all(name != match.group(1) for _, name in remaining)
+                ):
+                    raise
+
+                remaining = [(section, name) for section, name in remaining if name != match.group(1)]
+            else:
+                return remaining
+
+        return remaining
 
     async def _extra_attributes_heating_curve(self, key: str, value: list[list[Value]] | list[Value], /) -> None:
         """Add the heating curve points to the attributes of heating curve values (in place).

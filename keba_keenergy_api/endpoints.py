@@ -340,18 +340,6 @@ class BaseEndpoints:
             for name in self._iter_variable_names(section, position)
         ]
 
-    def _generate_read_children_payloads(
-        self,
-        request: list[Section],
-        position: Position | list[int],
-    ) -> list[tuple[Section, ReadChildrenPayload]]:
-        """Build one read-children payload per section and device, to check whether a variable exists."""
-        return [
-            (section, ReadChildrenPayload(parent=name, filter="none"))
-            for section in request
-            for name in self._iter_variable_names(section, position)
-        ]
-
     def _generate_message_id_requests(
         self,
         request: list[Section],

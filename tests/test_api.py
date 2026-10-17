@@ -3,6 +3,7 @@
 
 """Tests for the `KebaKeEnergyAPI` client."""
 
+import json
 from typing import TYPE_CHECKING
 from typing import Any
 from unittest.mock import AsyncMock
@@ -33,6 +34,7 @@ from keba_keenergy_api.error import APITimeoutError
 from keba_keenergy_api.error import AuthenticationError
 from keba_keenergy_api.error import InvalidJsonError
 from tests.conftest import SentRequests
+from tests.test_api_data import positions_payload
 from tests.test_api_data import read_data_extra_attributes_payload_3
 from tests.test_api_data import read_data_option_payload_3
 from tests.test_api_data import read_data_option_payload_4
@@ -382,253 +384,164 @@ class TestApi:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        ("section", "position", "repeat", "expected"),
+        ("section", "position", "expected"),
         [
-            (BufferTank.NAME, 1, 1, [BufferTank.NAME]),
-            (SolarCircuit.PRIORITY_1_BEFORE_2, None, 1, [SolarCircuit.PRIORITY_1_BEFORE_2]),
-            (SolarCircuit.HEAT_REQUEST, None, 2, [SolarCircuit.HEAT_REQUEST]),
+            (BufferTank.NAME, 1, [BufferTank.NAME]),
+            (SolarCircuit.PRIORITY_1_BEFORE_2, None, [SolarCircuit.PRIORITY_1_BEFORE_2]),
+            (SolarCircuit.HEAT_REQUEST, None, [SolarCircuit.HEAT_REQUEST]),
             (
-                [HotWaterTank.CURRENT_TEMPERATURE, HeatPump.STATE],
+                [HotWaterTank.CURRENT_TEMPERATURE, HeatPump.STATE, HotWaterTank.CURRENT_TEMPERATURE],
                 None,
-                2,
                 [HotWaterTank.CURRENT_TEMPERATURE, HeatPump.STATE],
             ),
         ],
+        ids=["position", "system-wide", "quantity", "duplicate-sections"],
     )
     async def test_filter_request(
         self,
         section: Section | list[Section],
-        position: int | list[int] | None,
-        repeat: int,
+        position: int | None,
         expected: list[Section],
+        snapshot: SnapshotAssertion,
+        sent_requests: SentRequests,
     ) -> None:
-        """Test that `filter_request()` keeps the sections supported by the control unit."""
+        """Test that `filter_request()` checks all variables with one read request."""
         with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatPumps",
-                        "attributes": {
-                            "dynLowerLimit": 1,
-                            "dynUpperLimit": 1,
-                            "formatId": "fmt2p0",
-                            "longText": "Qty heat pumps",
-                            "lowerLimit": "0",
-                            "upperLimit": "4",
-                        },
-                        "value": "1",
-                    },
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatingCircuits",
-                        "attributes": {
-                            "dynLowerLimit": 1,
-                            "dynUpperLimit": 1,
-                            "formatId": "fmt2p0",
-                            "longText": "Qty HC",
-                            "lowerLimit": "0",
-                            "upperLimit": "8",
-                        },
-                        "value": "1",
-                    },
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfSolarCircuits",
-                        "attributes": {
-                            "dynLowerLimit": 1,
-                            "dynUpperLimit": 1,
-                            "formatId": "fmt2p0",
-                            "longText": "Qty solar",
-                            "upperLimit": "4",
-                            "lowerLimit": "0",
-                        },
-                        "value": "1",
-                    },
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfBuffers",
-                        "attributes": {
-                            "formatId": "fmt2p0",
-                            "longText": "Qty buffers",
-                            "upperLimit": "0",
-                            "lowerLimit": "0",
-                            "dynLowerLimit": 1,
-                            "dynUpperLimit": 1,
-                        },
-                        "value": "1",
-                    },
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks",
-                        "attributes": {
-                            "dynLowerLimit": 1,
-                            "dynUpperLimit": 1,
-                            "formatId": "fmt2p0",
-                            "longText": "Qty HW tank",
-                            "lowerLimit": "0",
-                            "upperLimit": "4",
-                        },
-                        "value": "1",
-                    },
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfExtHeatSources",
-                        "attributes": {
-                            "formatId": "fmt2p0",
-                            "longText": "Qty ext. heat sources",
-                            "upperLimit": "1",
-                            "lowerLimit": "0",
-                        },
-                        "value": "1",
-                    },
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfSwitchValves",
-                        "attributes": {
-                            "formatId": "fmt2p0",
-                            "longText": "Qty switch valves",
-                            "upperLimit": "0",
-                            "lowerLimit": "0",
-                            "dynLowerLimit": 1,
-                            "dynUpperLimit": 1,
-                        },
-                        "value": "1",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readVarChildren",
-                payload={"ret": "OK", "children": []},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-                repeat=repeat,
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: list[Section] = await client.filter_request(
-                request=section,
-                position=position,
-            )
-            assert data == expected
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("section", "expected"),
-        [
-            (BufferTank.NAME, []),
-            (
-                [HotWaterTank.CURRENT_TEMPERATURE, HeatPump.STATE],
-                [HotWaterTank.CURRENT_TEMPERATURE],
-            ),
-        ],
-    )
-    async def test_filter_request_with_error(self, section: Section | list[Section], expected: list[Section]) -> None:
-        """Test that `filter_request()` drops the sections rejected by the control unit."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatPumps",
-                        "attributes": {
-                            "dynLowerLimit": 1,
-                            "dynUpperLimit": 1,
-                            "formatId": "fmt2p0",
-                            "longText": "Qty heat pumps",
-                            "lowerLimit": "0",
-                            "upperLimit": "4",
-                        },
-                        "value": "1",
-                    },
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatingCircuits",
-                        "attributes": {
-                            "dynLowerLimit": 1,
-                            "dynUpperLimit": 1,
-                            "formatId": "fmt2p0",
-                            "longText": "Qty HC",
-                            "lowerLimit": "0",
-                            "upperLimit": "8",
-                        },
-                        "value": "1",
-                    },
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfSolarCircuits",
-                        "attributes": {
-                            "dynLowerLimit": 1,
-                            "dynUpperLimit": 1,
-                            "formatId": "fmt2p0",
-                            "longText": "Qty solar",
-                            "upperLimit": "4",
-                            "lowerLimit": "0",
-                        },
-                        "value": "1",
-                    },
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfBuffers",
-                        "attributes": {
-                            "formatId": "fmt2p0",
-                            "longText": "Qty buffers",
-                            "upperLimit": "0",
-                            "lowerLimit": "0",
-                            "dynLowerLimit": 1,
-                            "dynUpperLimit": 1,
-                        },
-                        "value": "1",
-                    },
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks",
-                        "attributes": {
-                            "dynLowerLimit": 1,
-                            "dynUpperLimit": 1,
-                            "formatId": "fmt2p0",
-                            "longText": "Qty HW tank",
-                            "lowerLimit": "0",
-                            "upperLimit": "4",
-                        },
-                        "value": "1",
-                    },
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfExtHeatSources",
-                        "attributes": {
-                            "formatId": "fmt2p0",
-                            "longText": "Qty ext. heat sources",
-                            "upperLimit": "1",
-                            "lowerLimit": "0",
-                        },
-                        "value": "1",
-                    },
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfSwitchValves",
-                        "attributes": {
-                            "formatId": "fmt2p0",
-                            "longText": "Qty switch valves",
-                            "upperLimit": "0",
-                            "lowerLimit": "0",
-                            "dynLowerLimit": 1,
-                            "dynUpperLimit": 1,
-                        },
-                        "value": "1",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            repeat: int = (len(section) if isinstance(section, list) else 1) - 1
-
-            if repeat:
+            if position is None:
                 mock_keenergy_api.post(
-                    "http://mocked-host/var/readVarChildren",
-                    payload={"ret": "OK", "children": []},
+                    "http://mocked-host/var/readWriteVars",
+                    payload=positions_payload,
                     headers={"Content-Type": "application/json;charset=utf-8"},
-                    repeat=(len(section) if isinstance(section, list) else 1) - 1,
                 )
 
             mock_keenergy_api.post(
-                "http://mocked-host/var/readVarChildren",
-                payload={"ret": "ERROR"},
+                "http://mocked-host/var/readWriteVars",
+                payload=[],
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
 
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: list[Section] = await client.filter_request(request=section)
+            data: list[Section] = await client.filter_request(request=section, position=position)
+
             assert data == expected
+            assert sent_requests(mock_keenergy_api) == snapshot(name="requests")
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("section", "unknown", "expected"),
+        [
+            (BufferTank.NAME, ["APPL.CtrlAppl.sParam.bufferTank[0].param.name"], []),
+            (
+                [HotWaterTank.CURRENT_TEMPERATURE, HeatPump.STATE, BufferTank.NAME],
+                [
+                    "APPL.CtrlAppl.sParam.heatpump[0].values.heatpumpState",
+                    "APPL.CtrlAppl.sParam.bufferTank[0].param.name",
+                ],
+                [HotWaterTank.CURRENT_TEMPERATURE],
+            ),
+        ],
+        ids=["all-unknown", "some-unknown"],
+    )
+    async def test_filter_request_with_unknown_variables(
+        self,
+        section: Section | list[Section],
+        unknown: list[str],
+        expected: list[Section],
+        snapshot: SnapshotAssertion,
+        sent_requests: SentRequests,
+    ) -> None:
+        """Test that `filter_request()` drops each variable the control unit rejects and reads the rest again."""
+        with aioresponses() as mock_keenergy_api:
+            for name in unknown:
+                mock_keenergy_api.post(
+                    "http://mocked-host/var/readWriteVars",
+                    status=500,
+                    body=json.dumps({"developerMessage": f"Reading variable: {name} failed (-1)", "status": 500}),
+                )
+
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+            data: list[Section] = await client.filter_request(request=section, position=1)
+
+            assert data == expected
+            assert sent_requests(mock_keenergy_api) == snapshot(name="requests")
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("status", "body", "expected_error"),
+        [
+            (503, "Service Unavailable", "503 Service Unavailable"),
+            (500, json.dumps({"developerMessage": "Unexpected error", "status": 500}), "Unexpected error"),
+            (
+                500,
+                json.dumps({"developerMessage": "Reading variable: APPL.CtrlAppl.sParam.notRequested failed (-1)"}),
+                "notRequested",
+            ),
+        ],
+        ids=["other-status", "unknown-message", "variable-not-requested"],
+    )
+    async def test_filter_request_with_api_error(self, status: int, body: str, expected_error: str) -> None:
+        """Test that `filter_request()` raises errors that do not name a requested variable."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post("http://mocked-host/var/readWriteVars", status=status, body=body)
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            with pytest.raises(APIError, match=expected_error):
+                await client.filter_request(request=[HotWaterTank.CURRENT_TEMPERATURE, HeatPump.STATE], position=1)
+
+    @pytest.mark.asyncio
+    async def test_filter_request_without_sections(self) -> None:
+        """Test that `filter_request()` sends no request for an empty request."""
+        with aioresponses() as mock_keenergy_api:
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            assert await client.filter_request(request=[], position=1) == []
+            mock_keenergy_api.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_positions_are_read_once(self, sent_requests: SentRequests) -> None:
+        """Test that the installed devices are read on the first call only and reused afterwards."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=positions_payload,
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "value": "13.5"}],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+                repeat=2,
+            )
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.state.msgId", "value": "0"}],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+
+            for _ in range(2):
+                response: dict[str, ValueResponse] = await client.read_data(request=System.OUTDOOR_TEMPERATURE)
+                assert response["system"] == {"outdoor_temperature": {"value": 13.5, "attributes": {}}}
+
+            assert await client.read_message_ids(request=System.OUTDOOR_TEMPERATURE) == {
+                System.OUTDOOR_TEMPERATURE: [0],
+            }
+
+            # One request for the positions, two for the values and one for the message ids
+            assert [request["data"][0]["name"] for request in sent_requests(mock_keenergy_api)] == [
+                "APPL.CtrlAppl.sParam.options.systemNumberOfHeatPumps",
+                "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue",
+                "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue",
+                "APPL.CtrlAppl.sParam.outdoorTemp.state.msgId",
+            ]
 
     @pytest.mark.asyncio
     async def test_invalid_credentials(self) -> None:
