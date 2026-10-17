@@ -2464,7 +2464,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Energy consumption for heating in J
+            Energy consumption for heating in kWh
 
         """
         return await self._read_float(HeatPump.HEATING_ENERGY_CONSUMPTION, position)
@@ -2512,7 +2512,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Cooling energy consumption in J
+            Cooling energy consumption in kWh
 
         """
         return await self._read_float(HeatPump.COOLING_ENERGY_CONSUMPTION, position)
@@ -2560,7 +2560,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Hot water energy consumption in J
+            Hot water energy consumption in kWh
 
         """
         return await self._read_float(HeatPump.HOT_WATER_ENERGY_CONSUMPTION, position)
@@ -2640,7 +2640,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Heating excess energy consumption in J
+            Heating excess energy consumption in kWh
 
         """
         return await self._read_float(HeatPump.HEATING_EXCESS_ENERGY_CONSUMPTION, position)
@@ -2656,7 +2656,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Cooling excess energy consumption in J
+            Cooling excess energy consumption in kWh
 
         """
         return await self._read_float(HeatPump.COOLING_EXCESS_ENERGY_CONSUMPTION, position)
@@ -2672,7 +2672,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Hot water excess energy consumption in J
+            Hot water excess energy consumption in kWh
 
         """
         return await self._read_float(HeatPump.HOT_WATER_EXCESS_ENERGY_CONSUMPTION, position)
