@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `has_message_id` and `message_id_path` to `Endpoint` for all 31 confirmed `values.actValue` sensors
 - Added the optional `position` argument to `has_mixer()` of the heating circuit and `has_fresh_water_module()`
   of the hot water tank
+- Added `async with` support and `close()` to `KebaKeEnergyAPI`. Without a passed session, all requests share
+  one session instead of opening a new connection per request. A passed session is left open
 - Added `APITimeoutError`, raised when a request times out. It inherits from `APIError` and `TimeoutError`
 
 ### Changed

@@ -7,13 +7,17 @@ import json
 import re
 from http import HTTPStatus
 from re import Pattern
+from types import TracebackType
 from typing import Any
+from typing import Self
 from typing import TypeVar
 from typing import cast
 
 from aiohttp import ClientSession
+from aiohttp import ClientTimeout
 from aiohttp import encode_basic_auth
 
+from keba_keenergy_api.constants import API_DEFAULT_TIMEOUT
 from keba_keenergy_api.constants import EndpointPath
 from keba_keenergy_api.constants import HeatCircuit
 from keba_keenergy_api.constants import Section
@@ -44,7 +48,8 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
     The client exposes endpoint groups and convenience methods for reading and writing
     controller values. A caller may provide an existing :class:`aiohttp.ClientSession`
-    to manage its own session lifecycle.
+    to manage its own session lifecycle. Without a session, each request opens a new connection,
+    unless the client is used with ``async with``, which shares one session between all requests.
 
     The installed devices are read once and reused, as they do not change while the control unit is running.
     """
@@ -105,6 +110,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
         self.skip_ssl_verification: bool = skip_ssl_verification
         self.session: ClientSession | None = session
         self._positions: Position | None = None
+        self._own_session: ClientSession | None = None
 
         super().__init__(
             base_url=self.device_url,
@@ -125,6 +131,56 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         """
         return f"{self.schema}://{self.host}"
+
+    async def __aenter__(self) -> Self:
+        """Open a session that is shared by all requests, if no session was given.
+
+        Returns
+        -------
+        KebaKeEnergyAPI
+            The client itself.
+
+        Examples
+        --------
+        >>> async with KebaKeEnergyAPI(host="ap4400.local") as client:
+        ...     await client.system.get_outdoor_temperature()
+
+        """
+        if self.session is None:
+            self._own_session = ClientSession(timeout=ClientTimeout(total=API_DEFAULT_TIMEOUT))
+            self.session = self._session = self._own_session
+
+        return self
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
+        """Close the session opened by ``async with``.
+
+        Parameters
+        ----------
+        exc_type
+            Type of the raised exception, if any.
+        exc_value
+            The raised exception, if any.
+        traceback
+            Traceback of the raised exception, if any.
+
+        """
+        await self.close()
+
+    async def close(self) -> None:
+        """Close the session opened by ``async with``.
+
+        A session passed to the client is left open, as its owner closes it.
+        """
+        if self._own_session is not None:
+            await self._own_session.close()
+            self._own_session = None
+            self.session = self._session = None
 
     async def _get_positions(self) -> Position:
         """Return the installed devices, read from the control unit on the first call only."""
@@ -408,9 +464,12 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         request, position = self._normalize_request(request, position)
 
-        variables: list[tuple[Section, str]] = [
-            (section, name) for section in request for name in self._iter_variable_names(section, position)
-        ]
+        # A section that is requested more than once is checked once
+        variables: list[tuple[Section, str]] = list(
+            dict.fromkeys(
+                (section, name) for section in request for name in self._iter_variable_names(section, position)
+            )
+        )
 
         supported: list[tuple[Section, str]] = await self._filter_readable(variables)
 
