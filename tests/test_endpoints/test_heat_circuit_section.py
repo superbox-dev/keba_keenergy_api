@@ -7,9 +7,8 @@ from copy import deepcopy
 from typing import Any
 
 import pytest
-from aioresponses.core import RequestCall
 from aioresponses.core import aioresponses
-from yarl import URL
+from syrupy.assertion import SnapshotAssertion
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.constants import BoolEnum
@@ -20,11 +19,8 @@ from keba_keenergy_api.constants import HeatCircuitOperatingMode
 from keba_keenergy_api.endpoints import HeatingCurvePoint
 from keba_keenergy_api.endpoints import HeatingCurves
 from keba_keenergy_api.error import APIError
-from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_names_expected_data
+from tests.conftest import SentRequests
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_names_payload
-from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_points_expected_data
-from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_points_expected_response_1
-from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_points_expected_response_2
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_points_payload
 
 
@@ -2601,13 +2597,10 @@ class TestHappyPathHeatCircuitSection:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        ("name", "expected_value"),
-        [
-            ("HC1", "HC1"),
-            ("HC FBH", "HC FBH"),
-        ],
+        "name",
+        ["HC1", "HC FBH"],
     )
-    async def test_set_heating_curve(self, name: str, expected_value: str) -> None:
+    async def test_set_heating_curve(self, snapshot: SnapshotAssertion, sent_requests: SentRequests, name: str) -> None:
         """Test that `set_heating_curve()` checks the curve name and writes it."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
@@ -2625,33 +2618,7 @@ class TestHappyPathHeatCircuitSection:
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
             await client.heat_circuit.set_heating_curve(name)
 
-            assert mock_keenergy_api.requests == {
-                ("POST", URL("http://mocked-host/var/readWriteVars")): [
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": heating_curve_names_expected_data,
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    )
-                ],
-                ("POST", URL("http://mocked-host/var/readWriteVars?action=set")): [
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": (
-                                '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.linTab.fileName", '
-                                f'"value": "{expected_value}"}}]'
-                            ),
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    )
-                ],
-            }
+            assert sent_requests(mock_keenergy_api) == snapshot
 
     @pytest.mark.asyncio
     async def test_get_cooling_curve(self) -> None:
@@ -2685,13 +2652,10 @@ class TestHappyPathHeatCircuitSection:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        ("name", "expected_value"),
-        [
-            ("HC1", "HC1"),
-            ("HC FBH", "HC FBH"),
-        ],
+        "name",
+        ["HC1", "HC FBH"],
     )
-    async def test_set_cooling_curve(self, name: str, expected_value: str) -> None:
+    async def test_set_cooling_curve(self, snapshot: SnapshotAssertion, sent_requests: SentRequests, name: str) -> None:
         """Test that `set_cooling_curve()` checks the curve name and writes it."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
@@ -2709,59 +2673,18 @@ class TestHappyPathHeatCircuitSection:
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
             await client.heat_circuit.set_cooling_curve(name)
 
-            assert mock_keenergy_api.requests == {
-                ("POST", URL("http://mocked-host/var/readWriteVars")): [
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": heating_curve_names_expected_data,
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    )
-                ],
-                ("POST", URL("http://mocked-host/var/readWriteVars?action=set")): [
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": (
-                                '[{"name": "APPL.CtrlAppl.sParam.heatCircuit[0].param.coollinTab.fileName", '
-                                f'"value": "{expected_value}"}}]'
-                            ),
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    )
-                ],
-            }
+            assert sent_requests(mock_keenergy_api) == snapshot
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        (
-            "heating_curve",
-            "payload",
-            "expected_response",
-        ),
-        [
-            (
-                None,
-                heating_curve_points_payload,
-                heating_curve_points_expected_response_1,
-            ),
-            (
-                "HC1",
-                heating_curve_points_payload,
-                heating_curve_points_expected_response_2,
-            ),
-        ],
+        "heating_curve",
+        [None, "HC1"],
     )
     async def test_get_heating_curve_points(
         self,
+        snapshot: SnapshotAssertion,
+        sent_requests: SentRequests,
         heating_curve: str | None,
-        payload: list[dict[str, str]],
-        expected_response: HeatingCurves,
     ) -> None:
         """Test that `get_heating_curve_points()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
@@ -2773,7 +2696,7 @@ class TestHappyPathHeatCircuitSection:
 
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
-                payload=payload,
+                payload=heating_curve_points_payload,
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
 
@@ -2781,34 +2704,14 @@ class TestHappyPathHeatCircuitSection:
             response: HeatingCurves = await client.heat_circuit.get_heating_curve_points(heating_curve)
 
             assert isinstance(response, dict)
-            assert response == expected_response
-
-            assert mock_keenergy_api.requests == {
-                ("POST", URL("http://mocked-host/var/readWriteVars")): [
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": heating_curve_names_expected_data,
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    ),
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": heating_curve_points_expected_data,
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    ),
-                ]
-            }
+            assert response == snapshot(name="response")
+            assert sent_requests(mock_keenergy_api) == snapshot(name="requests")
 
     @pytest.mark.asyncio
     async def test_set_heating_curve_points(
         self,
+        snapshot: SnapshotAssertion,
+        sent_requests: SentRequests,
     ) -> None:
         """Test that `set_heating_curve_points()` reads the curve names and writes the points."""
         with aioresponses() as mock_keenergy_api:
@@ -2850,77 +2753,10 @@ class TestHappyPathHeatCircuitSection:
                 ),
             )
 
-            assert mock_keenergy_api.requests == {
-                ("POST", URL("http://mocked-host/var/readWriteVars")): [
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": heating_curve_names_expected_data,
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    ),
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": '[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].name", "attr": "1"}]',
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    ),
-                ],
-                ("POST", URL("http://mocked-host/var/readWriteVars?action=set")): [
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": (
-                                '[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].noOfPoints", "value": "7"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[0].x", "value": "-20"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[0].y", "value": "35"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[1].x", "value": "-10"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[1].y", "value": "33"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[2].x", "value": "-5"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[2].y", "value": "32"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[3].x", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[3].y", "value": "30"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[4].x", "value": "5"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[4].y", "value": "28"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[5].x", "value": "10"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[5].y", "value": "27"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[6].x", "value": "20"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[6].y", "value": "25"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[7].x", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[7].y", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[8].x", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[8].y", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[9].x", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[9].y", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[10].x", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[10].y", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[11].x", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[11].y", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[12].x", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[12].y", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[13].x", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[13].y", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[14].x", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[14].y", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[15].x", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].points[15].y", "value": "0"}, '
-                                '{"name": "APPL.CtrlAppl.sParam.linTabPool[0].verCnt", "value": "192"}]'
-                            ),
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    )
-                ],
-            }
+            assert sent_requests(mock_keenergy_api) == snapshot
 
     @pytest.mark.asyncio
-    async def test_get_available_heating_curves(self) -> None:
+    async def test_get_available_heating_curves(self, snapshot: SnapshotAssertion, sent_requests: SentRequests) -> None:
         """Test that `get_available_heating_curves()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
@@ -2946,19 +2782,7 @@ class TestHappyPathHeatCircuitSection:
                 (13, "HC HK"),
             )
 
-            assert mock_keenergy_api.requests == {
-                ("POST", URL("http://mocked-host/var/readWriteVars")): [
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": heating_curve_names_expected_data,
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    )
-                ]
-            }
+            assert sent_requests(mock_keenergy_api) == snapshot
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -3255,6 +3079,8 @@ class TestUnhappyPathHeatCircuitSection:
     )
     async def test_set_invalid_heating_curve(
         self,
+        snapshot: SnapshotAssertion,
+        sent_requests: SentRequests,
         name: str,
     ) -> None:
         """Test that `set_heating_curve()` raises `APIError` for an unknown heating curve."""
@@ -3276,19 +3102,7 @@ class TestUnhappyPathHeatCircuitSection:
             ):
                 await client.heat_circuit.set_heating_curve(name)
 
-            assert mock_keenergy_api.requests == {
-                ("POST", URL("http://mocked-host/var/readWriteVars")): [
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": heating_curve_names_expected_data,
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    )
-                ]
-            }
+            assert sent_requests(mock_keenergy_api) == snapshot
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -3297,6 +3111,8 @@ class TestUnhappyPathHeatCircuitSection:
     )
     async def test_set_invalid_cooling_curve(
         self,
+        snapshot: SnapshotAssertion,
+        sent_requests: SentRequests,
         name: str,
     ) -> None:
         """Test that `set_cooling_curve()` raises `APIError` for an unknown cooling curve."""
@@ -3318,40 +3134,18 @@ class TestUnhappyPathHeatCircuitSection:
             ):
                 await client.heat_circuit.set_cooling_curve(name)
 
-            assert mock_keenergy_api.requests == {
-                ("POST", URL("http://mocked-host/var/readWriteVars")): [
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": heating_curve_names_expected_data,
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    )
-                ]
-            }
+            assert sent_requests(mock_keenergy_api) == snapshot
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        (
-            "heating_curve",
-            "payload",
-            "expected_data",
-        ),
-        [
-            (
-                "HC10",
-                heating_curve_points_payload,
-                heating_curve_points_expected_data,
-            ),
-        ],
+        "heating_curve",
+        ["HC10"],
     )
     async def test_get_invalid_heating_curve_points(
         self,
+        snapshot: SnapshotAssertion,
+        sent_requests: SentRequests,
         heating_curve: str | None,
-        payload: list[dict[str, str]],
-        expected_data: str,
     ) -> None:
         """Test that `get_heating_curve_points()` raises `APIError` for an unknown heating curve."""
         with aioresponses() as mock_keenergy_api:
@@ -3363,7 +3157,7 @@ class TestUnhappyPathHeatCircuitSection:
 
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
-                payload=payload,
+                payload=heating_curve_points_payload,
                 headers={"Content-Type": "application/json;charset=utf-8"},
             )
 
@@ -3372,32 +3166,13 @@ class TestUnhappyPathHeatCircuitSection:
             with pytest.raises(APIError, match='Heating curve "HC10" not found'):
                 await client.heat_circuit.get_heating_curve_points(heating_curve)
 
-            assert mock_keenergy_api.requests == {
-                ("POST", URL("http://mocked-host/var/readWriteVars")): [
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": heating_curve_names_expected_data,
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    ),
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": expected_data,
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    ),
-                ]
-            }
+            assert sent_requests(mock_keenergy_api) == snapshot
 
     @pytest.mark.asyncio
     async def test_heating_curve_name_is_invalid_in_set_heating_curve_points(
         self,
+        snapshot: SnapshotAssertion,
+        sent_requests: SentRequests,
     ) -> None:
         """Test that `set_heating_curve_points()` raises `APIError` for an unknown heating curve."""
         with aioresponses() as mock_keenergy_api:
@@ -3447,23 +3222,13 @@ class TestUnhappyPathHeatCircuitSection:
                     ),
                 )
 
-            assert mock_keenergy_api.requests == {
-                ("POST", URL("http://mocked-host/var/readWriteVars")): [
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": heating_curve_names_expected_data,
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    ),
-                ]
-            }
+            assert sent_requests(mock_keenergy_api) == snapshot
 
     @pytest.mark.asyncio
     async def test_heating_curve_name_not_match_in_set_heating_curve_points(
         self,
+        snapshot: SnapshotAssertion,
+        sent_requests: SentRequests,
     ) -> None:
         """Test that `set_heating_curve_points()` raises `APIError` if the curve name does not match its index."""
         with aioresponses() as mock_keenergy_api:
@@ -3510,28 +3275,7 @@ class TestUnhappyPathHeatCircuitSection:
                     ),
                 )
 
-            assert mock_keenergy_api.requests == {
-                ("POST", URL("http://mocked-host/var/readWriteVars")): [
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": heating_curve_names_expected_data,
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    ),
-                    RequestCall(
-                        args=(),
-                        kwargs={
-                            "data": '[{"name": "APPL.CtrlAppl.sParam.linTabPool[0].name", "attr": "1"}]',
-                            "headers": {},
-                            "ssl": False,
-                            "allow_redirects": True,
-                        },
-                    ),
-                ]
-            }
+            assert sent_requests(mock_keenergy_api) == snapshot
 
     @pytest.mark.asyncio
     async def test_too_many_points_in_get_heating_curve_points(self) -> None:

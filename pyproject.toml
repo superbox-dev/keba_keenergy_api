@@ -94,6 +94,7 @@ test = [
     "pytest-asyncio>=1.4.0",
     "pytest-cov>=7.1.0",
     "pytest-xdist[psutil]>=3.8.0",
+    "syrupy>=6.1.1",
 ]
 
 [tool.setuptools]

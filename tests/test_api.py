@@ -13,6 +13,7 @@ from aiohttp import ClientSession
 from aiohttp import ServerTimeoutError
 from aiohttp import encode_basic_auth
 from aioresponses import aioresponses
+from syrupy.assertion import SnapshotAssertion
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.constants import BufferTank
@@ -31,15 +32,7 @@ from keba_keenergy_api.error import APIError
 from keba_keenergy_api.error import APITimeoutError
 from keba_keenergy_api.error import AuthenticationError
 from keba_keenergy_api.error import InvalidJsonError
-from tests.test_api_data import read_data_expected_data_1
-from tests.test_api_data import read_data_expected_data_2
-from tests.test_api_data import read_data_expected_data_3
-from tests.test_api_data import read_data_expected_data_4
-from tests.test_api_data import read_data_expected_extra_attributes_3
-from tests.test_api_data import read_data_expected_response_1
-from tests.test_api_data import read_data_expected_response_2
-from tests.test_api_data import read_data_expected_response_3
-from tests.test_api_data import read_data_expected_response_4
+from tests.conftest import SentRequests
 from tests.test_api_data import read_data_extra_attributes_payload_3
 from tests.test_api_data import read_data_option_payload_3
 from tests.test_api_data import read_data_option_payload_4
@@ -47,7 +40,6 @@ from tests.test_api_data import read_data_payload_1
 from tests.test_api_data import read_data_payload_2
 from tests.test_api_data import read_data_payload_3
 from tests.test_api_data import read_data_payload_4
-from tests.test_api_data import read_message_ids_expected_data
 from tests.test_api_data import read_message_ids_payload
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_names_payload
 
@@ -186,8 +178,6 @@ class TestApi:
             "section",
             "position",
             "payloads",
-            "expected_requests",
-            "expected_response",
         ),
         [
             (
@@ -200,15 +190,11 @@ class TestApi:
                 ],
                 1,
                 (None, read_data_payload_1, None),
-                (read_data_expected_data_1, None),
-                read_data_expected_response_1,
             ),
             (
                 [HeatCircuit.TARGET_TEMPERATURE, HeatPump.FLOW_TEMPERATURE],
                 [0, 1, 3],
                 (None, read_data_payload_2, None),
-                (read_data_expected_data_2, None),
-                read_data_expected_response_2,
             ),
             (
                 [
@@ -222,8 +208,6 @@ class TestApi:
                 ],
                 None,
                 (read_data_option_payload_3, read_data_payload_3, read_data_extra_attributes_payload_3),
-                (read_data_expected_data_3, read_data_expected_extra_attributes_3),
-                read_data_expected_response_3,
             ),
             (
                 [
@@ -236,22 +220,20 @@ class TestApi:
                 ],
                 None,
                 (read_data_option_payload_4, read_data_payload_4, None),
-                (read_data_expected_data_4, None),
-                read_data_expected_response_4,
             ),
         ],
+        ids=["position", "positions", "options-and-extra-attributes", "options"],
     )
     async def test_read_data(
         self,
         section: Section,
         position: int | list[int] | None,
         payloads: tuple[list[dict[str, Any]] | None, list[dict[str, Any]], list[dict[str, Any]] | None],
-        expected_requests: tuple[str, str | None],
-        expected_response: dict[str, Any],
+        snapshot: SnapshotAssertion,
+        sent_requests: SentRequests,
     ) -> None:
         """Test that `read_data()` returns the values grouped by section."""
         option_payload, payload, extra_attributes_payload = payloads
-        expected_data, expected_extra_attributes = expected_requests
 
         with aioresponses() as mock_keenergy_api:
             if option_payload is not None:
@@ -287,24 +269,8 @@ class TestApi:
             )
 
             assert isinstance(response, dict)
-            assert response == expected_response
-
-            mock_keenergy_api.assert_any_call(
-                url="http://mocked-host/var/readWriteVars",
-                data=expected_data,
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-            if expected_extra_attributes:
-                mock_keenergy_api.assert_any_call(
-                    url="http://mocked-host/var/readWriteVars",
-                    data=expected_extra_attributes,
-                    method="POST",
-                    headers={},
-                    ssl=False,
-                )
+            assert response == snapshot(name="response")
+            assert sent_requests(mock_keenergy_api) == snapshot(name="requests")
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -764,7 +730,7 @@ class TestApi:
             )
 
     @pytest.mark.asyncio
-    async def test_read_message_ids(self) -> None:
+    async def test_read_message_ids(self, snapshot: SnapshotAssertion, sent_requests: SentRequests) -> None:
         """Test that `read_message_ids()` returns the message ids of all positions."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
@@ -797,13 +763,7 @@ class TestApi:
                 System.OUTDOOR_TEMPERATURE: [0],
             }
 
-            mock_keenergy_api.assert_any_call(
-                url="http://mocked-host/var/readWriteVars",
-                data=read_message_ids_expected_data,
-                method="POST",
-                headers={},
-                ssl=False,
-            )
+            assert sent_requests(mock_keenergy_api) == snapshot
 
     @pytest.mark.asyncio
     async def test_read_message_ids_with_position(self) -> None:

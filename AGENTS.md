@@ -9,10 +9,11 @@ Published on PyPI and used by the Home Assistant integration.
 - Setup: `./scripts/setup.sh`
 
 ```bash
-uv run ruff format              # format (lint.sh only checks)
-./scripts/lint.sh               # ruff, ty, yamllint, rumdl
-uv run pytest                   # tests + coverage
-uv run mkdocs build --strict    # docs
+uv run ruff format                   # format (lint.sh only checks)
+./scripts/lint.sh                    # ruff, ty, yamllint, rumdl
+uv run pytest                        # tests + coverage
+uv run pytest -n0 --snapshot-update  # regenerate snapshots (without xdist), then review the diff
+uv run mkdocs build --strict         # docs
 ```
 
 Before finishing a change, run:
@@ -86,7 +87,14 @@ Before finishing a change, run:
   - mock HTTP with `aioresponses`
   - assert the payload via `assert_called_once_with`
   - cover invalid input for setters
-  - put large payloads in a `*_data.py` module (e.g. `test_heat_circuit_section_data.py`)
+  - put large mock payloads in a `*_data.py` module (e.g. `test_heat_circuit_section_data.py`)
+- Large expected values (e.g. `read_data()` results, multi-request payloads) are
+  [syrupy](https://github.com/syrupy-project/syrupy) snapshots:
+  - `assert response == snapshot(name="response")`
+  - `assert sent_requests(mock_keenergy_api) == snapshot(name="requests")` (fixture in `tests/conftest.py`)
+  - small values stay inline (`assert_called_once_with`, `pytest.approx`)
+  - create or update them with `uv run pytest -n0 --snapshot-update`
+  - review the `__snapshots__/*.ambr` diff and `git add` them
 - Never call, patch or inspect `_`-prefixed methods or attributes (e.g. `BaseEndpoints._read_float()`, `_post()`):
   - call the public API (`KebaKeEnergyAPI`, `*Endpoints` methods)
   - assert return values, raised exceptions or the sent payload
