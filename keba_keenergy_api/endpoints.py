@@ -2608,7 +2608,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Total energy consumption in J
+            Total energy consumption in kWh
 
         """
         return await self._read_float(HeatPump.TOTAL_ENERGY_CONSUMPTION, position)
@@ -2624,7 +2624,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Excess energy consumption in J
+            Excess energy consumption in kWh
 
         """
         return await self._read_float(HeatPump.EXCESS_ENERGY_CONSUMPTION, position)
