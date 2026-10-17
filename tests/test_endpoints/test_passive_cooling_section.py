@@ -1,6 +1,8 @@
 # Copyright 2023 Michael Hacker
 # SPDX-License-Identifier: Apache-2.0
 
+"""Tests for the passive cooling endpoints."""
+
 import pytest
 from aioresponses.core import aioresponses
 
@@ -8,8 +10,11 @@ from keba_keenergy_api.api import KebaKeEnergyAPI
 
 
 class TestHappyPathPassiveCoolingSection:
+    """Tests for the passive cooling endpoints with valid responses and input."""
+
     @pytest.mark.asyncio
     async def test_get_temperature(self) -> None:
+        """Test that `get_temperature()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -57,7 +62,7 @@ class TestHappyPathPassiveCoolingSection:
         payload_value: int,
         expected_value: str,
     ) -> None:
-
+        """Test that `get_switch_valve_position()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -96,6 +101,7 @@ class TestHappyPathPassiveCoolingSection:
 
     @pytest.mark.asyncio
     async def test_get_circulation_pump_speed(self) -> None:
+        """Test that `get_circulation_pump_speed()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -131,6 +137,7 @@ class TestHappyPathPassiveCoolingSection:
 
     @pytest.mark.asyncio
     async def test_mixer_target_temperature(self) -> None:
+        """Test that `get_mixer_target_temperature()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -162,6 +169,7 @@ class TestHappyPathPassiveCoolingSection:
 
     @pytest.mark.asyncio
     async def test_get_mixer_flow_temperature(self) -> None:
+        """Test that `get_mixer_flow_temperature()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -207,7 +215,7 @@ class TestHappyPathPassiveCoolingSection:
         payload_value: int,
         expected_value: str,
     ) -> None:
-
+        """Test that `get_mixer_position()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",

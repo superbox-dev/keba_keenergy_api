@@ -1,6 +1,8 @@
 # Copyright 2023 Michael Hacker
 # SPDX-License-Identifier: Apache-2.0
 
+"""Tests for the external heat source endpoints."""
+
 import pytest
 from aioresponses.core import aioresponses
 
@@ -10,6 +12,8 @@ from keba_keenergy_api.error import APIError
 
 
 class TestHappyPathExternalHeatSourceSection:
+    """Tests for the external heat source endpoints with valid responses and input."""
+
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
@@ -22,6 +26,7 @@ class TestHappyPathExternalHeatSourceSection:
         payload_value: int,
         expected_value: str,
     ) -> None:
+        """Test that `get_operating_mode()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -65,6 +70,7 @@ class TestHappyPathExternalHeatSourceSection:
         operating_mode: int | str,
         expected_value: int,
     ) -> None:
+        """Test that `set_operating_mode()` sends the expected payload."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -88,6 +94,7 @@ class TestHappyPathExternalHeatSourceSection:
 
     @pytest.mark.asyncio
     async def test_get_target_temperature(self) -> None:
+        """Test that `get_target_temperature()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -138,6 +145,7 @@ class TestHappyPathExternalHeatSourceSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
+        """Test that `get_heat_request()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -169,6 +177,7 @@ class TestHappyPathExternalHeatSourceSection:
 
     @pytest.mark.asyncio
     async def test_get_operating_time(self) -> None:
+        """Test that `get_operating_time()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -206,6 +215,7 @@ class TestHappyPathExternalHeatSourceSection:
 
     @pytest.mark.asyncio
     async def test_get_max_runtime(self) -> None:
+        """Test that `get_max_runtime()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -240,6 +250,7 @@ class TestHappyPathExternalHeatSourceSection:
 
     @pytest.mark.asyncio
     async def test_get_activation_counter(self) -> None:
+        """Test that `get_activation_counter()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -291,6 +302,7 @@ class TestHappyPathExternalHeatSourceSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
+        """Test that `get_consuming_excess_energy()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -324,6 +336,7 @@ class TestHappyPathExternalHeatSourceSection:
 
     @pytest.mark.asyncio
     async def test_get_excess_energy_operating_time(self) -> None:
+        """Test that `get_excess_energy_operating_time()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -361,6 +374,7 @@ class TestHappyPathExternalHeatSourceSection:
 
     @pytest.mark.asyncio
     async def test_get_excess_energy_max_runtime(self) -> None:
+        """Test that `get_excess_energy_max_runtime()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -398,6 +412,7 @@ class TestHappyPathExternalHeatSourceSection:
 
     @pytest.mark.asyncio
     async def test_get_excess_energy_activation_counter(self) -> None:
+        """Test that `get_excess_energy_activation_counter()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -449,6 +464,7 @@ class TestHappyPathExternalHeatSourceSection:
         payload_value: int,
         expected_value: str,
     ) -> None:
+        """Test that `get_use_excess_energy()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -493,6 +509,7 @@ class TestHappyPathExternalHeatSourceSection:
         mode: int | str,
         expected_value: str,
     ) -> None:
+        """Test that `set_use_excess_energy()` sends the expected payload."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -520,6 +537,7 @@ class TestHappyPathExternalHeatSourceSection:
         ["INVALID"],
     )
     async def test_set_invalid_use_excess_energy(self, mode: int | str) -> None:
+        """Test that `set_use_excess_energy()` raises `APIError` for invalid values and sends no request."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -536,6 +554,7 @@ class TestHappyPathExternalHeatSourceSection:
 
     @pytest.mark.asyncio
     async def test_get_min_runtime_excess_energy(self) -> None:
+        """Test that `get_min_runtime_excess_energy()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -572,6 +591,7 @@ class TestHappyPathExternalHeatSourceSection:
 
     @pytest.mark.asyncio
     async def test_set_min_runtime_excess_energy(self) -> None:
+        """Test that `set_min_runtime_excess_energy()` sends the expected payload."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -592,6 +612,8 @@ class TestHappyPathExternalHeatSourceSection:
 
 
 class TestUnhappyPathExternalHeatSourceSection:
+    """Tests for the external heat source endpoints with invalid responses and input."""
+
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "operating_mode",
@@ -601,6 +623,7 @@ class TestUnhappyPathExternalHeatSourceSection:
         self,
         operating_mode: int | str,
     ) -> None:
+        """Test that `set_operating_mode()` raises `APIError` for invalid values and sends no request."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",

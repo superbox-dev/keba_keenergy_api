@@ -1,6 +1,8 @@
 # Copyright 2023 Michael Hacker
 # SPDX-License-Identifier: Apache-2.0
 
+"""Tests for the switch valve endpoints."""
+
 import pytest
 from aioresponses.core import aioresponses
 
@@ -8,6 +10,8 @@ from keba_keenergy_api.api import KebaKeEnergyAPI
 
 
 class TestHappyPathSwitchValveSection:
+    """Tests for the switch valve endpoints with valid responses and input."""
+
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
@@ -20,7 +24,7 @@ class TestHappyPathSwitchValveSection:
         payload_value: int,
         expected_value: str,
     ) -> None:
-
+        """Test that `get_position()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",

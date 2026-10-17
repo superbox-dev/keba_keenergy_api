@@ -187,9 +187,31 @@ jobs:
             echo "🟢 Regular release"
             echo "prerelease=false" >> "$GITHUB_OUTPUT"
           fi
+      - name: Create release notes
+        env:
+          PRERELEASE: ${{ steps.check_prerelease.outputs.prerelease }}
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          VERSION="${TAG_NAME#v}"
+          HEADING="$(grep -m 1 -F "## [${VERSION}]" CHANGELOG.md | sed 's/^## //' || true)"
+
+          if [[ -n "$HEADING" ]]; then
+            # Same anchor as GitHub: lowercase, without punctuation, spaces as hyphens.
+            ANCHOR="$(echo "$HEADING" | tr '[:upper:]' '[:lower:]' | tr -d -c 'a-z0-9 _-' | tr ' ' '-')"
+          elif [[ "$PRERELEASE" == "true" ]]; then
+            ANCHOR="unreleased"
+          else
+            echo "::error::No section for ${VERSION} in CHANGELOG.md"
+            exit 1
+          fi
+
+          URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/blob/${TAG_NAME}/CHANGELOG.md#${ANCHOR}"
+          echo "See the [changelog](${URL}) for all changes." > release-notes.md
+          cat release-notes.md
       - name: Release on GitHub
         uses: softprops/action-gh-release@v3
         with:
+          body_path: release-notes.md
           files: |
             dist/*.tar.gz
             dist/*.whl

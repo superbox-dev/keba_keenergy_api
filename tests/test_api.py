@@ -1,6 +1,8 @@
 # Copyright 2023 Michael Hacker
 # SPDX-License-Identifier: Apache-2.0
 
+"""Tests for the `KebaKeEnergyAPI` client."""
+
 from typing import TYPE_CHECKING
 from typing import Any
 from unittest.mock import AsyncMock
@@ -57,8 +59,11 @@ if TYPE_CHECKING:
 
 
 class TestApi:
+    """Tests for `KebaKeEnergyAPI`, its requests and the error handling."""
+
     @pytest.mark.asyncio
     async def test_api(self) -> None:
+        """Test a request with a client that creates its own session."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -94,6 +99,7 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_api_with_session(self) -> None:
+        """Test that a passed session is used and not closed."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -134,6 +140,7 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_api_with_basic_auth(self) -> None:
+        """Test that the credentials are sent as basic auth header."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -242,6 +249,7 @@ class TestApi:
         expected_requests: tuple[str, str | None],
         expected_response: dict[str, Any],
     ) -> None:
+        """Test that `read_data()` returns the values grouped by section."""
         option_payload, payload, extra_attributes_payload = payloads
         expected_data, expected_extra_attributes = expected_requests
 
@@ -387,6 +395,7 @@ class TestApi:
         ],
     )
     async def test_write_data(self, section: dict[Section, Any], expected_data: str) -> None:
+        """Test that `write_data()` sends the values, skips `None` and adds the extra writes."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -427,6 +436,7 @@ class TestApi:
         repeat: int,
         expected: list[Section],
     ) -> None:
+        """Test that `filter_request()` keeps the sections supported by the control unit."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -543,6 +553,7 @@ class TestApi:
         ],
     )
     async def test_filter_request_with_error(self, section: Section | list[Section], expected: list[Section]) -> None:
+        """Test that `filter_request()` drops the sections rejected by the control unit."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -655,6 +666,7 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_invalid_credentials(self) -> None:
+        """Test that a `401` response raises `AuthenticationError`."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -675,6 +687,7 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_api_status_4xx(self) -> None:
+        """Test that a `405` response raises `APIError`."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -695,6 +708,7 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_api_client_error(self) -> None:
+        """Test that an `aiohttp` client error raises `APIError`."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -707,6 +721,7 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_api_error(self) -> None:
+        """Test that a `500` response raises `APIError` with the developer message."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -723,6 +738,7 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_write_data_ignores_invalid_and_read_only_sections(self) -> None:
+        """Test that `write_data()` skips unknown keys and read-only sections."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -749,6 +765,7 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_read_message_ids(self) -> None:
+        """Test that `read_message_ids()` returns the message ids of all positions."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -790,6 +807,7 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_read_message_ids_with_position(self) -> None:
+        """Test `read_message_ids()` for a single position."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -812,6 +830,7 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_read_message_ids_without_message_id(self) -> None:
+        """Test that `read_message_ids()` sends no request for sections without a message id."""
         with aioresponses() as mock_keenergy_api:
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
             data: dict[Section, list[int]] = await client.read_message_ids(request=[HeatPump.STATE], position=1)
@@ -821,6 +840,7 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_write_data_with_multiple_values_for_system_section(self) -> None:
+        """Test that `write_data()` raises `APIError` for more than one value of a system-wide section."""
         with aioresponses() as mock_keenergy_api:
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
@@ -834,6 +854,7 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_write_data_without_writable_sections(self) -> None:
+        """Test that `write_data()` sends no request if there is nothing to write."""
         with aioresponses() as mock_keenergy_api:
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
             await client.write_data(request={HeatPump.STATE: (1,), HeatCircuit.TARGET_TEMPERATURE_DAY: (None,)})
@@ -842,6 +863,7 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_get_value_with_invalid_position(self) -> None:
+        """Test that a getter raises `APIError` for position `0` and sends no request."""
         with aioresponses() as mock_keenergy_api:
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
@@ -852,6 +874,7 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_set_value_with_position_0_writes_nothing(self) -> None:
+        """Test that a setter with position `0` sends no request."""
         with aioresponses() as mock_keenergy_api:
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
             await client.heat_circuit.set_target_temperature_day(20, position=0)
@@ -875,6 +898,7 @@ class TestApi:
         ],
     )
     async def test_api_error_status(self, status: int, body: str, expected_error: str) -> None:
+        """Test that every non-2xx status raises `APIError` with the response body."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -896,6 +920,7 @@ class TestApi:
         ],
     )
     async def test_api_invalid_json(self, body: str, content_type: str) -> None:
+        """Test that an invalid JSON response raises `InvalidJsonError`."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -909,6 +934,7 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_api_timeout(self) -> None:
+        """Test that a timeout raises `APITimeoutError`, which is also an `APIError` and a `TimeoutError`."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -924,6 +950,7 @@ class TestApi:
 
     @pytest.mark.asyncio
     async def test_extra_attributes_with_unknown_heating_curve(self) -> None:
+        """Test that `read_data()` adds no points for an unknown heating curve."""
         with (
             aioresponses() as mock_keenergy_api,
             patch.object(HeatCircuitEndpoints, "get_heating_curve_points", AsyncMock(return_value={})),

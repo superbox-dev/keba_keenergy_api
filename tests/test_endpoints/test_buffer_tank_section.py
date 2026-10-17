@@ -1,6 +1,8 @@
 # Copyright 2023 Michael Hacker
 # SPDX-License-Identifier: Apache-2.0
 
+"""Tests for the buffer tank endpoints."""
+
 import pytest
 from aioresponses.core import aioresponses
 
@@ -12,8 +14,11 @@ from keba_keenergy_api.error import APIError
 
 
 class TestHappyPathBufferTankSection:
+    """Tests for the buffer tank endpoints with valid responses and input."""
+
     @pytest.mark.asyncio
     async def test_get_name(self) -> None:
+        """Test that `get_name()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -45,6 +50,7 @@ class TestHappyPathBufferTankSection:
 
     @pytest.mark.asyncio
     async def test_get_current_top_temperature(self) -> None:
+        """Test that `get_current_top_temperature()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -80,6 +86,7 @@ class TestHappyPathBufferTankSection:
 
     @pytest.mark.asyncio
     async def test_get_current_bottom_temperature(self) -> None:
+        """Test that `get_current_bottom_temperature()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -125,6 +132,7 @@ class TestHappyPathBufferTankSection:
         payload_value: int,
         expected_value: str,
     ) -> None:
+        """Test that `get_operating_mode()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -168,6 +176,7 @@ class TestHappyPathBufferTankSection:
         operating_mode: int | str,
         expected_value: int,
     ) -> None:
+        """Test that `set_operating_mode()` sends the expected payload."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -191,6 +200,7 @@ class TestHappyPathBufferTankSection:
 
     @pytest.mark.asyncio
     async def test_get_standby_temperature(self) -> None:
+        """Test that `get_standby_temperature()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -226,6 +236,7 @@ class TestHappyPathBufferTankSection:
 
     @pytest.mark.asyncio
     async def test_set_standby_temperature(self) -> None:
+        """Test that `set_standby_temperature()` sends the expected payload."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -246,6 +257,7 @@ class TestHappyPathBufferTankSection:
 
     @pytest.mark.asyncio
     async def test_get_target_temperature(self) -> None:
+        """Test that `get_target_temperature()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -281,6 +293,7 @@ class TestHappyPathBufferTankSection:
 
     @pytest.mark.asyncio
     async def test_get_excess_energy_target_temperature(self) -> None:
+        """Test that `get_excess_energy_target_temperature()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -316,6 +329,7 @@ class TestHappyPathBufferTankSection:
 
     @pytest.mark.asyncio
     async def test_set_excess_energy_target_temperature(self) -> None:
+        """Test that `set_excess_energy_target_temperature()` sends the expected payload."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -336,6 +350,7 @@ class TestHappyPathBufferTankSection:
 
     @pytest.mark.asyncio
     async def test_get_excess_energy_target_temperature_hysteresis(self) -> None:
+        """Test that `get_excess_energy_target_temperature_hysteresis()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -371,6 +386,7 @@ class TestHappyPathBufferTankSection:
 
     @pytest.mark.asyncio
     async def test_set_excess_energy_target_temperature_hysteresis(self) -> None:
+        """Test that `set_excess_energy_target_temperature_hysteresis()` sends the expected payload."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -391,6 +407,7 @@ class TestHappyPathBufferTankSection:
 
     @pytest.mark.asyncio
     async def test_get_outdoor_temperature_excess_energy_limit(self) -> None:
+        """Test that `get_outdoor_temperature_excess_energy_limit()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -429,6 +446,7 @@ class TestHappyPathBufferTankSection:
 
     @pytest.mark.asyncio
     async def test_set_outdoor_temperature_excess_energy_limit(self) -> None:
+        """Test that `set_outdoor_temperature_excess_energy_limit()` sends the expected payload."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -467,6 +485,7 @@ class TestHappyPathBufferTankSection:
         payload_value: int,
         expected_value: str,
     ) -> None:
+        """Test that `get_use_excess_energy()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -511,6 +530,7 @@ class TestHappyPathBufferTankSection:
         mode: int | str,
         expected_value: str,
     ) -> None:
+        """Test that `set_use_excess_energy()` sends the expected payload."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -538,6 +558,7 @@ class TestHappyPathBufferTankSection:
         ["INVALID"],
     )
     async def test_set_invalid_use_excess_energy(self, mode: int | str) -> None:
+        """Test that `set_use_excess_energy()` raises `APIError` for invalid values and sends no request."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -568,6 +589,7 @@ class TestHappyPathBufferTankSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
+        """Test that `get_excess_energy_mode()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -618,6 +640,7 @@ class TestHappyPathBufferTankSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
+        """Test that `get_heat_request()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -662,6 +685,7 @@ class TestHappyPathBufferTankSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
+        """Test that `get_cool_request()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -691,8 +715,11 @@ class TestHappyPathBufferTankSection:
 
 
 class TestUnhappyPathBufferTankSection:
+    """Tests for the buffer tank endpoints with invalid responses and input."""
+
     @pytest.mark.asyncio
     async def test_get_invalid_type_operating_mode(self) -> None:
+        """Test that `get_operating_mode()` raises `APIError` for a value that is not an integer."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -744,6 +771,7 @@ class TestUnhappyPathBufferTankSection:
         human_readable: bool,
         payload_value: int,
     ) -> None:
+        """Test that `get_operating_mode()` raises `APIError` for an unknown value."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -793,6 +821,7 @@ class TestUnhappyPathBufferTankSection:
         self,
         operating_mode: int | str,
     ) -> None:
+        """Test that `set_operating_mode()` raises `APIError` for invalid values and sends no request."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
