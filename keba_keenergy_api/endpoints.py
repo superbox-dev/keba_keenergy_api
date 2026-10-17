@@ -1028,7 +1028,7 @@ class SystemEndpoints(BaseEndpoints):
         Returns
         -------
         int
-            Free RAM in kilobyte.
+            Free RAM in kilobyte
 
         """
         return await self._read_int(System.FREE_RAM)
@@ -1774,7 +1774,7 @@ class HotWaterTankEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Pump speed in percent
+            Pump speed as a fraction from 0 to 1 (1 = 100 %)
 
         """
         return await self._read_float(HotWaterTank.FRESH_WATER_MODULE_PUMP_SPEED, position)
@@ -1980,7 +1980,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Compressor night speed in percent
+            Compressor night speed as a fraction from 0 to 1 (1 = 100 %)
 
         """
         return await self._read_float(HeatPump.COMPRESSOR_NIGHT_SPEED, position, human_readable=human_readable)
@@ -1994,7 +1994,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Parameters
         ----------
         speed
-            Set the speed in percent
+            Speed as a fraction from 0 to 1 (1 = 100 %), e.g. ``0.95``
         position
             Position of the heat pump, starting at 1
 
@@ -2012,7 +2012,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Minimum compressor night speed in percent
+            Minimum compressor night speed as a fraction from 0 to 1 (1 = 100 %)
 
         """
         return await self._read_float(HeatPump.COMPRESSOR_NIGHT_SPEED, position, attribute="lower_limit")
@@ -2028,7 +2028,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Maximum compressor night speed in percent
+            Maximum compressor night speed as a fraction from 0 to 1 (1 = 100 %)
 
         """
         return await self._read_float(HeatPump.COMPRESSOR_NIGHT_SPEED, position, attribute="upper_limit")
@@ -2044,7 +2044,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Circulation pump speed in percent
+            Circulation pump speed as a fraction from 0 to 1 (1 = 100 %)
 
         """
         return await self._read_float(HeatPump.CIRCULATION_PUMP_SPEED, position)
@@ -2060,7 +2060,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Source pump speed in percent
+            Source pump speed as a fraction from 0 to 1 (1 = 100 %)
 
         """
         return await self._read_float(HeatPump.SOURCE_PUMP_SPEED, position)
@@ -2172,7 +2172,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-             Compressor speed in percent
+            Compressor speed as a fraction from 0 to 1 (1 = 100 %)
 
         """
         return await self._read_float(HeatPump.COMPRESSOR, position)
@@ -2416,7 +2416,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            hot water power in W
+            Hot water power in W
 
         """
         return await self._read_float(HeatPump.HOT_WATER_POWER, position)
@@ -2448,7 +2448,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Heating energy in kWh
+            Heating energy in J
 
         """
         return await self._read_float(HeatPump.HEATING_ENERGY, position)
@@ -2464,7 +2464,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Energy consumption for heating in kWh
+            Energy consumption for heating in J
 
         """
         return await self._read_float(HeatPump.HEATING_ENERGY_CONSUMPTION, position)
@@ -2496,7 +2496,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Cooling energy in kWh
+            Cooling energy in J
 
         """
         return await self._read_float(HeatPump.COOLING_ENERGY, position)
@@ -2512,7 +2512,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Cooling energy consumption in kWh
+            Cooling energy consumption in J
 
         """
         return await self._read_float(HeatPump.COOLING_ENERGY_CONSUMPTION, position)
@@ -2544,7 +2544,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Hot water energy in kWh
+            Hot water energy in J
 
         """
         return await self._read_float(HeatPump.HOT_WATER_ENERGY, position)
@@ -2560,7 +2560,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Hot water energy consumption in kWh.
+            Hot water energy consumption in J
 
         """
         return await self._read_float(HeatPump.HOT_WATER_ENERGY_CONSUMPTION, position)
@@ -2592,7 +2592,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Total thermal energy in kWh
+            Total thermal energy in J
 
         """
         return await self._read_float(HeatPump.TOTAL_THERMAL_ENERGY, position)
@@ -2608,7 +2608,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Total energy consumption in kWh
+            Total energy consumption in J
 
         """
         return await self._read_float(HeatPump.TOTAL_ENERGY_CONSUMPTION, position)
@@ -2624,7 +2624,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Excess energy consumption in kWh
+            Excess energy consumption in J
 
         """
         return await self._read_float(HeatPump.EXCESS_ENERGY_CONSUMPTION, position)
@@ -2640,7 +2640,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Heating excess energy consumption in kWh
+            Heating excess energy consumption in J
 
         """
         return await self._read_float(HeatPump.HEATING_EXCESS_ENERGY_CONSUMPTION, position)
@@ -2656,7 +2656,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Cooling excess energy consumption in kWh
+            Cooling excess energy consumption in J
 
         """
         return await self._read_float(HeatPump.COOLING_EXCESS_ENERGY_CONSUMPTION, position)
@@ -2672,7 +2672,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Hot water excess energy consumption in kWh
+            Hot water excess energy consumption in J
 
         """
         return await self._read_float(HeatPump.HOT_WATER_EXCESS_ENERGY_CONSUMPTION, position)
@@ -2772,7 +2772,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         Returns
         -------
         int
-            Number of external heat pump activation
+            Number of heat pump activations
 
         """
         return await self._read_int(HeatPump.ACTIVATION_COUNTER, position)
@@ -3949,7 +3949,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Returns
         -------
         int
-            Start date as unix timestamp
+            End date as unix timestamp
 
         """
         return await self._read_int(HeatCircuit.AWAY_END_DATE, position)
@@ -3963,7 +3963,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Parameters
         ----------
         timestamp
-            Start date as unix timestamp
+            End date as unix timestamp
         position
             Position of the heating circuit, starting at 1
 
@@ -4436,7 +4436,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Pump speed in percent
+            Pump speed as a fraction from 0 to 1 (1 = 100 %)
 
         """
         return await self._read_float(HeatCircuit.PUMP_SPEED, position)
@@ -4569,7 +4569,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Pump 1 speed in percent
+            Pump 1 speed as a fraction from 0 to 1 (1 = 100 %)
 
         """
         return await self._read_float(SolarCircuit.PUMP_1, position)
@@ -4585,7 +4585,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Pump 2 speed in percent
+            Pump 2 speed as a fraction from 0 to 1 (1 = 100 %)
 
         """
         return await self._read_float(SolarCircuit.PUMP_2, position)
@@ -5147,7 +5147,7 @@ class PassiveCoolingEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Circulation pump speed in percent
+            Circulation pump speed as a fraction from 0 to 1 (1 = 100 %)
 
         """
         return await self._read_float(PassiveCooling.CIRCULATION_PUMP_SPEED, position)
@@ -5256,7 +5256,7 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Daily energy in kWh
+            Daily energy in J
 
         """
         return await self._read_float(Photovoltaics.DAILY_ENERGY)
@@ -5267,7 +5267,7 @@ class PhotovoltaicsEndpoints(BaseEndpoints):
         Returns
         -------
         float
-            Total energy in kWh
+            Total energy in J
 
         """
         return await self._read_float(Photovoltaics.TOTAL_ENERGY)
