@@ -67,6 +67,13 @@ uv run pytest
 
 The test coverage must stay at 100%, so every new code path needs a test.
 
+Large expected values are stored as [syrupy](https://github.com/syrupy-project/syrupy) snapshots in `__snapshots__` folders.
+After an intended change, update them and review the diff:
+
+```bash
+uv run pytest -n0 --snapshot-update
+```
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under its [Apache License][license].
