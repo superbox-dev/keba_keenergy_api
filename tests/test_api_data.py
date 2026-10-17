@@ -1,6 +1,8 @@
 # Copyright 2023 Michael Hacker
 # SPDX-License-Identifier: Apache-2.0
 
+"""Payloads and expected results for the `read_data()` tests."""
+
 from typing import Any
 
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_points_expected_data

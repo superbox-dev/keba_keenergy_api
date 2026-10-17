@@ -4,15 +4,14 @@ target-version = "py311"
 [lint]
 select = ["ALL"]
 # Rules that the numpy convention would turn off, but that the code already follows
-extend-select = ["D107", "D212", "D402", "D413", "D415", "D416", "D417"]
+extend-select = ["D107", "D212", "D402", "D413", "D417"]
 ignore = [
     "COM812",  # missing-trailing-comma, conflicts with the formatter
 ]
 
 [lint.per-file-ignores]
 "tests/*" = [
-    "D",
-    "S101",    # assert
+    "S101",    # assert, pytest checks results with assert
 ]
 
 [lint.isort]

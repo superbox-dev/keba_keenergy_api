@@ -23,15 +23,15 @@ Before finishing a change, run:
 
 ## Rules
 
-- **No breaking changes** to anything usable externally:
-  - public methods, signatures, return values
+- **No breaking changes** to anything usable externally, i.e. everything without a `_` prefix:
+  - classes, methods, signatures, return values
   - constants, exceptions
   - enum members (including `_`-prefixed ones)
   - behaviour that worked before
 - Allowed:
   - renames, if the old name stays as an alias (note it in the changelog)
   - new parameters, if they are optional and the default keeps the old behaviour
-  - turning a crash (`KeyError`, ...) into an `APIError`
+  - turning a crash (uncaught built-in or `aiohttp` exception) into an `APIError`
   - changing `_`-prefixed internals and `Endpoint.extra_writes()`
 - **Python 3.11 minimum**, so no:
   - `type` statements
@@ -44,12 +44,11 @@ Before finishing a change, run:
   # SPDX-License-Identifier: Apache-2.0
   ```
 
-- NumPy-style docstrings (not required in tests)
-- No `# noqa`, no `# type: ignore`, no new `ruff.toml` ignores. Fix the code instead
+- NumPy-style docstrings everywhere, also in tests
+- No lint or type suppressions (inline or in config), except the existing ignores in `ruff.toml`. Fix the code instead
+- No real hosts, serial numbers or customer data, use placeholders like `"mocked-host"`
 - `git add` new files, CI only checks tracked files
-- Never edit:
-  - `keba_keenergy_api/version.py` (generated)
-  - `coverage-badge.svg` (updated by CI)
+- Never edit generated or CI-managed files (`version.py`, `coverage-badge.svg`)
 
 ## Architecture
 
@@ -67,6 +66,8 @@ Before finishing a change, run:
   - setters use `_parse_enum_value` and copy the flash-memory warning into their docstring
 - `api.py`: `KebaKeEnergyAPI` with the section clients and `read_data`, `read_message_ids`, `write_data`
 - `error.py`: exceptions
+- Helpers are `_`-prefixed methods of the class that uses them (`@staticmethod` if they need no `self`),
+  not module-level functions
 
 ## Adding an endpoint
 
@@ -86,7 +87,7 @@ Before finishing a change, run:
   - assert the payload via `assert_called_once_with`
   - cover invalid input for setters
   - put large payloads in a `*_data.py` module (e.g. `test_heat_circuit_section_data.py`)
-- Never test or patch internal methods or attributes (e.g. `BaseEndpoints._read_float()`, `_post()`):
+- Never call, patch or inspect `_`-prefixed methods or attributes (e.g. `BaseEndpoints._read_float()`, `_post()`):
   - call the public API (`KebaKeEnergyAPI`, `*Endpoints` methods)
   - assert return values, raised exceptions or the sent payload
 
@@ -96,9 +97,10 @@ Before finishing a change, run:
   - every user-visible change gets an entry under `## [Unreleased]`
   - Keep a Changelog format, past tense
   - identifiers in backticks
-  - issues as `([Issue #67][issue-67])`
+  - issues as `([Issue #67][issue-67])`, pull requests as `([PR #19][pr-19])`
+  - issue and PR links are defined at the end of their release section, not at the bottom
   - releases are linked at the bottom, before `<!--end-->`:
-    - `[Unreleased]` compares the latest tag with `HEAD`
+    - `[Unreleased]` compares the latest release tag (no pre-release) with `HEAD`
     - each release compares its tag with the previous one
     - the first release links to its release tag
 - Branches:

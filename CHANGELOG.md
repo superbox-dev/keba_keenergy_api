@@ -43,6 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `IndexError` in `get_heating_curve_points()` if the control unit reports more than 16 points
 - Fixed `KeyError` in `get_info()`, `get_hmi_info()` and `get_device_info()` if the response has no `ret`
 
+[issue-67]: https://github.com/superbox-dev/keba_keenergy/issues/67
+
 <!--start-->
 
 ## [2.12.2] - 2026-07-18
@@ -157,6 +159,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bumped aiohttp from `3.13.3` to `3.13.4` ([CVE-2026-34513][cve-2026-34513])
 
+[cve-2026-34513]: https://github.com/advisories/GHSA-hcc4-c3v8-rx92
+
 ## [2.10.1] - 2026-02-26
 
 ### Fixed
@@ -199,6 +203,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `get_heating_curve_points()` to the heating circuit ([Issue #97][issue-97])
 - Added endpoint `set_heating_curve_points()` to the heating circuit ([Issue #97][issue-97])
 - Added the heating curve points as extra attributes to the heating curve ([Issue #97][issue-97])
+
+[issue-97]: https://github.com/superbox-dev/keba_keenergy_api/issues/97
+[issue-100]: https://github.com/superbox-dev/keba_keenergy_api/issues/100
 
 ## [2.8.1] - 2026-01-28
 
@@ -597,7 +604,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[unreleased]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.12.2...HEAD
+[Unreleased]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.12.2...HEAD
 [2.12.2]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.12.1...v2.12.2
 [2.12.1]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.12.0...v2.12.1
 [2.12.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.11.0...v2.12.0
@@ -655,9 +662,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.2.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/superbox-dev/keba_keenergy_api/releases/tag/v1.0.0
-[issue-67]: https://github.com/superbox-dev/keba_keenergy/issues/67
-[issue-97]: https://github.com/superbox-dev/keba_keenergy_api/issues/97
-[issue-100]: https://github.com/superbox-dev/keba_keenergy_api/issues/100
-[cve-2026-34513]: https://github.com/advisories/GHSA-hcc4-c3v8-rx92
 
 <!--end-->

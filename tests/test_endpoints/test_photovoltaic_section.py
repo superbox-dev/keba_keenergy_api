@@ -1,6 +1,8 @@
 # Copyright 2023 Michael Hacker
 # SPDX-License-Identifier: Apache-2.0
 
+"""Tests for the photovoltaics endpoints."""
+
 import pytest
 from aioresponses.core import aioresponses
 
@@ -9,6 +11,8 @@ from keba_keenergy_api.constants import BoolEnum
 
 
 class TestHappyPathPhotovoltaicsSection:
+    """Tests for the photovoltaics endpoints with valid responses and input."""
+
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("human_readable", "payload_value", "expected_value"),
@@ -26,6 +30,7 @@ class TestHappyPathPhotovoltaicsSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
+        """Test that `get_excess_energy_active()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -57,7 +62,7 @@ class TestHappyPathPhotovoltaicsSection:
 
     @pytest.mark.asyncio
     async def test_get_excess_power(self) -> None:
-
+        """Test that `get_excess_power()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -91,7 +96,7 @@ class TestHappyPathPhotovoltaicsSection:
 
     @pytest.mark.asyncio
     async def test_get_daily_energy(self) -> None:
-
+        """Test that `get_daily_energy()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -125,7 +130,7 @@ class TestHappyPathPhotovoltaicsSection:
 
     @pytest.mark.asyncio
     async def test_get_total_energy(self) -> None:
-
+        """Test that `get_total_energy()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",

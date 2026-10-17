@@ -1,6 +1,8 @@
 # Copyright 2023 Michael Hacker
 # SPDX-License-Identifier: Apache-2.0
 
+"""Tests for the solar circuit endpoints."""
+
 import pytest
 from aioresponses.core import aioresponses
 
@@ -10,9 +12,11 @@ from keba_keenergy_api.error import APIError
 
 
 class TestHappyPathSolarCircuitSection:
+    """Tests for the solar circuit endpoints with valid responses and input."""
+
     @pytest.mark.asyncio
     async def test_get_name(self) -> None:
-
+        """Test that `get_name()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -54,7 +58,7 @@ class TestHappyPathSolarCircuitSection:
         payload_value: int,
         expected_value: str,
     ) -> None:
-
+        """Test that `get_operating_mode()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -98,7 +102,7 @@ class TestHappyPathSolarCircuitSection:
         operating_mode: int | str,
         expected_value: int,
     ) -> None:
-
+        """Test that `set_operating_mode()` sends the expected payload."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -132,7 +136,7 @@ class TestHappyPathSolarCircuitSection:
         payload_value: int,
         expected_value: str,
     ) -> None:
-
+        """Test that `get_priority_1_before_2()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -172,7 +176,7 @@ class TestHappyPathSolarCircuitSection:
         operating_mode: int | str,
         expected_value: tuple[int, ...],
     ) -> None:
-
+        """Test that `set_priority_1_before_2()` sends the expected payload."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -197,7 +201,7 @@ class TestHappyPathSolarCircuitSection:
 
     @pytest.mark.asyncio
     async def test_source_temperature(self) -> None:
-
+        """Test that `get_source_temperature()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -233,7 +237,7 @@ class TestHappyPathSolarCircuitSection:
 
     @pytest.mark.asyncio
     async def test_get_pump_1_speed(self) -> None:
-
+        """Test that `get_pump_1_speed()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -269,7 +273,7 @@ class TestHappyPathSolarCircuitSection:
 
     @pytest.mark.asyncio
     async def test_get_pump_2_speed(self) -> None:
-
+        """Test that `get_pump_2_speed()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -305,7 +309,7 @@ class TestHappyPathSolarCircuitSection:
 
     @pytest.mark.asyncio
     async def test_get_current_temperature_1(self) -> None:
-
+        """Test that `get_current_temperature_1()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -351,7 +355,7 @@ class TestHappyPathSolarCircuitSection:
 
     @pytest.mark.asyncio
     async def test_get_current_temperature_2(self) -> None:
-
+        """Test that `get_current_temperature_2()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -397,7 +401,7 @@ class TestHappyPathSolarCircuitSection:
 
     @pytest.mark.asyncio
     async def test_get_target_temperature_1(self) -> None:
-
+        """Test that `get_target_temperature_1()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -448,7 +452,7 @@ class TestHappyPathSolarCircuitSection:
 
     @pytest.mark.asyncio
     async def test_set_target_temperature_1(self) -> None:
-
+        """Test that `set_target_temperature_1()` sends the expected payload."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -469,7 +473,7 @@ class TestHappyPathSolarCircuitSection:
 
     @pytest.mark.asyncio
     async def test_get_target_temperature_2(self) -> None:
-
+        """Test that `get_target_temperature_2()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -520,7 +524,7 @@ class TestHappyPathSolarCircuitSection:
 
     @pytest.mark.asyncio
     async def test_set_target_temperature_2(self) -> None:
-
+        """Test that `set_target_temperature_2()` sends the expected payload."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -556,7 +560,7 @@ class TestHappyPathSolarCircuitSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
-
+        """Test that `get_heat_request_1()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -613,7 +617,7 @@ class TestHappyPathSolarCircuitSection:
         payload_value: str,
         expected_value: str,
     ) -> None:
-
+        """Test that `get_heat_request_2()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -655,7 +659,7 @@ class TestHappyPathSolarCircuitSection:
 
     @pytest.mark.asyncio
     async def test_get_heating_energy(self) -> None:
-
+        """Test that `get_heating_energy()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -691,7 +695,7 @@ class TestHappyPathSolarCircuitSection:
 
     @pytest.mark.asyncio
     async def test_get_daily_energy(self) -> None:
-
+        """Test that `get_daily_energy()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -725,7 +729,7 @@ class TestHappyPathSolarCircuitSection:
 
     @pytest.mark.asyncio
     async def test_get_actual_power(self) -> None:
-
+        """Test that `get_actual_power()` returns the value from the response."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
@@ -763,6 +767,7 @@ class TestHappyPathSolarCircuitSection:
         [("set_target_temperature_1", 2), ("set_target_temperature_2", 3)],
     )
     async def test_set_target_temperature_with_position(self, method: str, expected_index: int) -> None:
+        """Test that `set_target_temperature_1()` and `set_target_temperature_2()` write the given position."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -786,6 +791,8 @@ class TestHappyPathSolarCircuitSection:
 
 
 class TestUnhappyPathSolarCircuitSection:
+    """Tests for the solar circuit endpoints with invalid responses and input."""
+
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "operating_mode",
@@ -795,7 +802,7 @@ class TestUnhappyPathSolarCircuitSection:
         self,
         operating_mode: int,
     ) -> None:
-
+        """Test that `set_operating_mode()` raises `APIError` for invalid values and sends no request."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
@@ -819,7 +826,7 @@ class TestUnhappyPathSolarCircuitSection:
         self,
         operating_mode: int,
     ) -> None:
-
+        """Test that `set_priority_1_before_2()` raises `APIError` for invalid values and sends no request."""
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars?action=set",
