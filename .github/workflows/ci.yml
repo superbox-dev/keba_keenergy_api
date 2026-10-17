@@ -216,6 +216,26 @@ jobs:
             dist/*.tar.gz
             dist/*.whl
           prerelease: ${{ steps.check_prerelease.outputs.prerelease }}
+      - name: Delete old pre-releases and their tags
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+
+          git ls-remote --tags --refs origin 'v*' | sed 's|.*refs/tags/||' |
+            while read -r TAG; do
+              if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+b[0-9]+$ || "$TAG" == "$TAG_NAME" ]]; then
+                continue
+              fi
+
+              if gh release view "$TAG" > /dev/null 2>&1; then
+                echo "Deleting pre-release and tag $TAG"
+                gh release delete "$TAG" --yes --cleanup-tag
+              else
+                echo "Deleting tag $TAG"
+                gh api --method DELETE "repos/${GITHUB_REPOSITORY}/git/refs/tags/${TAG}"
+              fi
+            done
 
   publish-on-pypi:
     name: Publish
