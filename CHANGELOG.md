@@ -51,15 +51,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed deprecation warning: "BasicAuth is deprecated and will be removed in aiohttp 4.0"
+- Fixed the aiohttp deprecation warning "BasicAuth is deprecated and will be removed in aiohttp 4.0"
+  by sending the `Authorization` header with `aiohttp.encode_basic_auth()`
 
 ## [2.12.1] - 2026-06-24
 
 ### Security
 
-- Bumped aiohttp from `3.13.5` to `3.14.0`
+- Bumped aiohttp in `uv.lock` from `3.13.5` to `3.14.1` ([PR #118][pr-118], [PR #119][pr-119])
 
-## [2.12.0] - 2026-05-08
+[pr-118]: https://github.com/superbox-dev/keba_keenergy_api/pull/118
+[pr-119]: https://github.com/superbox-dev/keba_keenergy_api/pull/119
+
+## [2.12.0] - 2026-05-19
 
 ### Added
 
@@ -119,11 +123,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `set_min_runtime_excess_energy()` to the external heat source
 - Added endpoint `get_excess_energy_active()` to the photovoltaics
 - Added endpoint `get_mixer_position()` to the passive cooling
+- Added the meter type constants `HeatPump.ELECTRIC_ENERGY_METER_TYPE`, `HeatPump.HEAT_METER_TYPE`,
+  `HeatPump.COOL_METER_TYPE` and `HeatPump.HOT_WATER_METER_TYPE`
+
+### Changed
+
+- **Breaking:** Renamed `Photovoltaic` to `Photovoltaics` and `SectionPrefix.PHOTOVOLTAIC` to
+  `SectionPrefix.PHOTOVOLTAICS`, so `read_data()` returns the photovoltaics values under `photovoltaics`
+- **Breaking:** Replaced `EndpointProperties` with `FloatEndpoint`, `IntegerEndpoint` and `StringEndpoint`, and
+  renamed `SolarCircuitPriority1Before2EndpointProperties` to `SolarCircuitPriority1Before2StringEndpoint`
+
+### Fixed
+
+- Fixed `has_pump()` of the heating circuit reading `hasVarSpeedPump` instead of `hasPump`
+- Fixed `ValueError` instead of `APIError` if a value can't be converted to the type of the endpoint
 
 ## [2.11.0] - 2026-04-13
 
 ### Added
 
+- Added the passive cooling section (`passive_cooling`)
 - Added endpoint `get_mode()` to the heating circuit
 - Added endpoint `get_cooling_curve()` to the heating circuit
 - Added endpoint `set_cooling_curve()` to the heating circuit
@@ -153,13 +172,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `get_mixer_target_temperature()` to the passive cooling
 - Added endpoint `get_mixer_flow_temperature()` to the passive cooling
 
+### Changed
+
+- **Breaking:** Renamed the hot water tank endpoint `get_hot_water_flow()` to `get_fresh_water_flow()`
+- **Breaking:** Renamed the constants `HeatCircuit.FLOW_TEMPERATURE` to `HeatCircuit.MIXER_FLOW_TEMPERATURE`,
+  `HeatPump.CIRCULATION_PUMP` to `HeatPump.CIRCULATION_PUMP_SPEED` and `HotWaterTank.HOT_WATER_FLOW`
+  to `HotWaterTank.FRESH_WATER_FLOW`
+
 ## [2.10.2] - 2026-04-03
 
 ### Security
 
-- Bumped aiohttp from `3.13.3` to `3.13.4` ([CVE-2026-34513][cve-2026-34513])
+- Bumped aiohttp in `uv.lock` from `3.13.3` to `3.13.4` ([CVE-2026-34513][cve-2026-34513], [PR #107][pr-107])
 
 [cve-2026-34513]: https://github.com/advisories/GHSA-hcc4-c3v8-rx92
+[pr-107]: https://github.com/superbox-dev/keba_keenergy_api/pull/107
 
 ## [2.10.1] - 2026-02-26
 
@@ -179,9 +206,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added endpoint `get_available_heating_curves()` to the heating circuit
 
+### Changed
+
+- **Breaking:** Removed the `HeatCircuitHeatingCurve` enum. The heating curve names are now read from the control unit
+
 ### Fixed
 
-- Fixed all endpoints that used a static heating curve name mapping
+- Fixed all endpoints that used the static heating curve name mapping
 
 ## [2.9.0] - 2026-02-17
 
@@ -190,7 +221,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `get_target_overheating()` to the heat pump ([Issue #100][issue-100])
 - Added endpoint `get_current_overheating()` to the heat pump ([Issue #100][issue-100])
 - Added endpoint `get_expansion_valve_position()` to the heat pump ([Issue #100][issue-100])
-- Added endpoint `get_circulation_return_temperature()` to the hot water tank ([Issue #100][issue-100])
+- Added endpoint `get_circulation_return_temperature()` to the hot water tank ([Issue #97][issue-97])
 - Added endpoint `get_circulation_pump_state()` to the hot water tank ([Issue #97][issue-97])
 - Added endpoint `get_heating_curve_offset()` to the heating circuit ([Issue #97][issue-97])
 - Added endpoint `set_heating_curve_offset()` to the heating circuit ([Issue #97][issue-97])
@@ -204,6 +235,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `set_heating_curve_points()` to the heating circuit ([Issue #97][issue-97])
 - Added the heating curve points as extra attributes to the heating curve ([Issue #97][issue-97])
 
+### Changed
+
+- Removed `BaseEnum.from_value()`
+
 [issue-97]: https://github.com/superbox-dev/keba_keenergy_api/issues/97
 [issue-100]: https://github.com/superbox-dev/keba_keenergy_api/issues/100
 
@@ -211,7 +246,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Added important information to the endpoint documentation: writing values should remain within normal limits,
+- Added a note to the endpoint documentation: writing values should remain within normal limits,
   as is the case with typical use of the Web HMI. **Permanent and very frequent writing of values reduces the lifetime
   of the built-in flash memory.**
 
@@ -219,8 +254,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added endpoints `get_away_start_date()`, `set_away_start_date()`, `get_away_end_date()` and `set_away_end_date()`
-  to the heating circuit
+- Added endpoint `get_away_start_date()` to the heating circuit
+- Added endpoint `set_away_start_date()` to the heating circuit
+- Added endpoint `get_away_end_date()` to the heating circuit
+- Added endpoint `set_away_end_date()` to the heating circuit
 - Added endpoint `get_timezone()` to the system
 
 ## [2.7.2] - 2026-01-23
@@ -231,20 +268,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Reverted `get_target_temperature()` of the heating circuit to the original behavior
+- Reverted `get_target_temperature()` of the heating circuit to the behaviour before 2.7.1.
+  The selected target temperature is now available with `get_selected_target_temperature()`
 
 ## [2.7.1] - 2026-01-23
 
 ### Fixed
 
-- Fixed the target temperature value: the endpoint returns the raw target temperature without the offset
+- Changed `get_target_temperature()` of the heating circuit to return the selected target temperature
+  without the offset (`values.selectedSetTemp`)
 
 ## [2.7.0] - 2026-01-17
 
 ### Added
 
 - Added support for Python 3.14
-- Added endpoints for switch valves
+- Added the switch valve section (`switch_valve`) with endpoint `get_position()`
+- Added endpoint `get_number_of_switch_valves()` to the system
 - Added endpoint `has_compressor_failure()` to the heat pump
 - Added endpoint `has_source_failure()` to the heat pump
 - Added endpoint `has_source_actuator_failure()` to the heat pump
@@ -254,16 +294,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `get_fresh_water_module_pump_speed()` to the hot water tank
 - Added endpoint `get_mixer_return_flow_temperature()` to the heating circuit
 - Added `filter_request()` to get only the endpoints that are supported by the Web HMI
+- Added the documentation at <https://api.superbox.one>
 
 ### Changed
 
 - **Breaking:** Renamed the heating circuit endpoint `get_flow_temperature()` to `get_mixer_flow_temperature()`
+- **Breaking:** Removed the deprecated heat pump endpoints `get_circulation_pump()` and `get_compressor()`,
+  use `get_circulation_pump_speed()` and `get_compressor_speed()` instead
+- **Breaking:** Replaced the on/off enums (e.g. `HeatPumpHeatRequest`, `HotWaterTankHotWaterFlow`,
+  `SystemHasPhotovoltaics`) with `BoolEnum`
+- **Breaking:** Removed the unused heat pump meter constants, e.g. `HeatPump.DAILY_HEATING_ENERGY`
 
 ## [2.6.0] - 2026-01-11
 
 ### Added
 
-- Added endpoints `get_priority_1_before_2()` and `set_priority_1_before_2()` to the solar circuit
+- Added endpoint `get_priority_1_before_2()` to the solar circuit
+- Added endpoint `set_priority_1_before_2()` to the solar circuit
 
 ## [2.5.2] - 2026-01-09
 
@@ -276,25 +323,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Changed the basic auth encoding from "latin-1" to "utf-8"
+- Changed the basic auth encoding from `latin-1` to `utf-8`
 
 ## [2.5.1] - 2026-01-06
 
 ### Fixed
 
-- Fixed invalid buffer tank operating mode
+- Fixed the buffer tank operating mode: renamed `BufferTankOperatingMode.AUTO` to `BufferTankOperatingMode.ON`
 
 ## [2.5.0] - 2026-01-05
 
 ### Added
 
-- Added endpoints for buffer tanks
+- Added the buffer tank section (`buffer_tank`)
+- Added endpoint `get_name()` to the buffer tank
+- Added endpoint `get_current_top_temperature()` to the buffer tank
+- Added endpoint `get_current_bottom_temperature()` to the buffer tank
+- Added endpoint `get_operating_mode()` to the buffer tank
+- Added endpoint `set_operating_mode()` to the buffer tank
+- Added endpoint `get_standby_temperature()` to the buffer tank
+- Added endpoint `set_standby_temperature()` to the buffer tank
+- Added endpoint `get_target_temperature()` to the buffer tank
+- Added endpoint `get_heat_request()` to the buffer tank
+- Added endpoint `get_cool_request()` to the buffer tank
+- Added endpoint `get_number_of_buffer_tanks()` to the system
+- Added endpoint `get_name()` to the hot water tank
+
+### Changed
+
+- **Breaking:** Removed the unused heating circuit endpoints `get_external_cool_request()` and
+  `get_external_heat_request()`
 
 ## [2.4.0] - 2026-01-03
 
 ### Added
 
-- Added endpoints for solar circuits
+- Added the solar circuit section (`solar_circuit`)
+- Added endpoint `get_name()` to the solar circuit
+- Added endpoint `get_operating_mode()` to the solar circuit
+- Added endpoint `set_operating_mode()` to the solar circuit
+- Added endpoint `get_source_temperature()` to the solar circuit
+- Added endpoint `get_pump_1_speed()` to the solar circuit
+- Added endpoint `get_pump_2_speed()` to the solar circuit
+- Added endpoint `get_current_temperature_1()` to the solar circuit
+- Added endpoint `get_current_temperature_2()` to the solar circuit
+- Added endpoint `get_target_temperature_1()` to the solar circuit
+- Added endpoint `set_target_temperature_1()` to the solar circuit
+- Added endpoint `get_target_temperature_2()` to the solar circuit
+- Added endpoint `set_target_temperature_2()` to the solar circuit
+- Added endpoint `get_heat_request_1()` to the solar circuit
+- Added endpoint `get_heat_request_2()` to the solar circuit
+- Added endpoint `get_heating_energy()` to the solar circuit
+- Added endpoint `get_daily_energy()` to the solar circuit
+- Added endpoint `get_actual_power()` to the solar circuit
+- Added endpoint `get_circulation_pump_speed()` to the heat pump
+- Added endpoint `get_compressor_speed()` to the heat pump
+
+### Deprecated
+
+- Deprecated the heat pump endpoint `get_circulation_pump()`, use `get_circulation_pump_speed()` instead
+- Deprecated the heat pump endpoint `get_compressor()`, use `get_compressor_speed()` instead
 
 ## [2.3.1] - 2025-10-18
 
@@ -331,6 +419,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added the external heat source section (`external_heat_source`) and the photovoltaics section (`photovoltaics`)
 - Added endpoint `get_excess_power()` to the photovoltaics
 - Added endpoint `get_daily_energy()` to the photovoltaics
 - Added endpoint `get_total_energy()` to the photovoltaics
@@ -342,50 +431,105 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added endpoint `get_cool_request()` to the heating circuit
 - Added endpoint `get_flow_temperature()` to the heating circuit
 - Added endpoint `get_return_flow_temperature()` to the heating circuit
-- Added support for authentication (required for newer KeEnergy.WebHmi versions)
+- Added support for basic authentication with `username` and `password` (required for newer KeEnergy.WebHmi versions)
+- Added `AuthenticationError`, raised for HTTP status `401`
 - Added the HTTP status code to the `APIError` exception
 
 ## [2.0.0] - 2025-09-30
 
 ### Added
 
-- Added endpoint `has_passive_cooling()` to detect if the heat pump supports passive cooling
-- Added endpoint `get_compressor_use_night_speed()` to get the compressor night speed state
-- Added endpoint `set_compressor_use_night_speed()` to set the compressor night speed state
-- Added endpoint `get_compressor_night_speed()` to get the compressor night speed
-- Added endpoint `set_compressor_night_speed()` to set the compressor night speed
-- Added endpoint `get_max_compressor_night_speed()` to get the maximum compressor night speed
-- Added endpoint `get_min_compressor_night_speed()` to get the minimum compressor night speed
-- Added endpoint `get_flow_temperature_setpoint()` to get the calculated flow temperature setpoint
-- Added endpoint `get_hot_water_flow()` to see if the fresh water module is activated and hot water flows
-- Added endpoint `get_fresh_water_module_temperature()` to get the temperature of the fresh water module
-- Added missing human-readable values for `HeatCircuitHeatRequest`, `HeatCircuitOperatingMode` and `HeatPumpState`
+- Added endpoint `has_passive_cooling()` to the heat pump
+- Added endpoint `get_compressor_use_night_speed()` to the heat pump
+- Added endpoint `set_compressor_use_night_speed()` to the heat pump
+- Added endpoint `get_compressor_night_speed()` to the heat pump
+- Added endpoint `set_compressor_night_speed()` to the heat pump
+- Added endpoint `get_max_compressor_night_speed()` to the heat pump
+- Added endpoint `get_min_compressor_night_speed()` to the heat pump
+- Added endpoint `get_flow_temperature_setpoint()` to the heating circuit
+- Added endpoint `get_hot_water_flow()` to the hot water tank, to see if the fresh water module is active
+- Added endpoint `get_fresh_water_module_temperature()` to the hot water tank
+- Added the heating circuit heat request states `FLOW_OFF`, `ROOM_OFF`, `INFLOW_OFF`
+- Added the heating circuit operating mode `ROOM_CONTROL`
+- Added the heat pump states `PUMP_DOWN`, `SHUTDOWN` and `ERROR`
 
 ### Changed
 
-- **Breaking:** Renamed many endpoint functions to more technically accurate names
+- **Breaking:** Renamed the hot water tank endpoints:
+  - `get_temperature()` to `get_current_temperature()`
+  - `get_lower_limit_temperature()` to `get_min_target_temperature()`
+  - `get_upper_limit_temperature()` to `get_max_target_temperature()`
+  - `get_min_temperature()` / `set_min_temperature()` to `get_standby_temperature()` / `set_standby_temperature()`
+  - `get_max_temperature()` / `set_max_temperature()` to `get_target_temperature()` / `set_target_temperature()`
+- **Breaking:** Renamed the heat pump endpoints:
+  - `get_inflow_temperature()` to `get_flow_temperature()`
+  - `get_reflux_temperature()` to `get_return_flow_temperature()`
+  - `get_electrical_power()` to `get_compressor_power()`
+  - `get_heating_electrical_energy()` to `get_heating_energy_consumption()`
+  - `get_cooling_electrical_energy()` to `get_cooling_energy_consumption()`
+  - `get_domestic_hot_water_energy()` to `get_hot_water_energy()`
+  - `get_domestic_hot_water_electrical_energy()` to `get_hot_water_energy_consumption()`
+  - `get_domestic_hot_water_spf()` to `get_hot_water_spf()`
+  - `get_total_energy()` to `get_total_thermal_energy()`
+  - `get_total_electrical_energy()` to `get_total_energy_consumption()`
+  - `get_spf()` to `get_total_spf()`
+- **Breaking:** Renamed the heating circuit endpoints:
+  - `get_temperature()` to `get_target_temperature()`
+  - `get_day_temperature()` / `set_day_temperature()` to `get_target_temperature_day()` / `set_target_temperature_day()`
+  - `get_night_temperature()` / `set_night_temperature()` to `get_target_temperature_night()` /
+    `set_target_temperature_night()`
+  - `get_holiday_temperature()` / `set_holiday_temperature()` to `get_target_temperature_away()` /
+    `set_target_temperature_away()`
+  - `get_temperature_offset()` / `set_temperature_offset()` to `get_target_temperature_offset()` /
+    `set_target_temperature_offset()`
+  - `get_day_temperature_threshold()` to `get_heating_limit_day()`
+  - `get_night_temperature_threshold()` to `get_heating_limit_night()`
+- **Breaking:** Renamed the endpoint constants accordingly, e.g. `HotWaterTank.TEMPERATURE` to
+  `HotWaterTank.CURRENT_TEMPERATURE`
+- **Breaking:** Renamed `HeatCircuitOperatingMode.EXTERN` to `HeatCircuitOperatingMode.EXTERNAL` and
+  `HeatCircuitHeatRequest.OUTDOOR_TEMPERATURE_OFF` to `HeatCircuitHeatRequest.OUTDOOR_OFF`
+- **Breaking:** Changed the values of the on/off enums (e.g. `HeatPumpHeatRequest`) from `"true"` / `"false"`
+  to `1` / `0`
 
 ### Fixed
 
-- Added missing human-readable value `room_off` for the heating circuit heat request state `4`
+- Added the missing human-readable value `room_off` for the heating circuit heat request state `4`
 
 ## [1.15.0] - 2025-09-14
 
 ### Added
 
-- Added endpoints to read the energy management data
+- Added endpoint `get_electrical_power()` to the heat pump
+- Added endpoint `get_heating_power()` to the heat pump
+- Added endpoint `get_hot_water_power()` to the heat pump
+- Added endpoint `get_cop()` to the heat pump
+- Added endpoint `get_heating_energy()` to the heat pump
+- Added endpoint `get_heating_electrical_energy()` to the heat pump
+- Added endpoint `get_heating_spf()` to the heat pump
+- Added endpoint `get_cooling_energy()` to the heat pump
+- Added endpoint `get_cooling_electrical_energy()` to the heat pump
+- Added endpoint `get_cooling_spf()` to the heat pump
+- Added endpoint `get_domestic_hot_water_energy()` to the heat pump
+- Added endpoint `get_domestic_hot_water_electrical_energy()` to the heat pump
+- Added endpoint `get_domestic_hot_water_spf()` to the heat pump
+- Added endpoint `get_total_energy()` to the heat pump
+- Added endpoint `get_total_electrical_energy()` to the heat pump
+- Added endpoint `get_spf()` to the heat pump
 
 ## [1.14.0] - 2025-08-27
 
 ### Added
 
-- Added endpoints `has_room_temperature()` and `has_room_humidity()` to the heating circuit
+- Added endpoint `has_room_temperature()` to the heating circuit
+- Added endpoint `has_room_humidity()` to the heating circuit
 
 ## [1.13.0] - 2025-08-26
 
 ### Added
 
-- Added room temperature, room humidity and dew point to the heating circuit
+- Added endpoint `get_room_temperature()` to the heating circuit
+- Added endpoint `get_room_humidity()` to the heating circuit
+- Added endpoint `get_dew_point()` to the heating circuit
 
 ## [1.12.10] - 2025-08-19
 
@@ -409,32 +553,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bumped aiohttp to `3.10.0b1`
+- Bumped aiohttp to `~=3.10.0b1`
 
 ## [1.12.6] - 2024-03-27
-
-### Fixed
-
-- Added missing heat request state `OUTDOOR_TEMPERATURE_OFF`
-
-## 1.12.5 - 2024-02-25
 
 ### Added
 
 - Added support for Python 3.12
 
-## [1.12.4] - 2024-01-30
+### Fixed
+
+- Added the missing heating circuit heat request state `OUTDOOR_TEMPERATURE_OFF`
+
+## [1.12.4] - 2024-01-31
 
 ### Changed
 
-- Bumped aiohttp to `3.9.4`
+- Bumped aiohttp to `~=3.9.3`
 
 ## [1.12.3] - 2023-12-08
 
 ### Changed
 
 - Bumped aiohttp to `3.9.1`
-- Bumped aioresponses to `0.7.6`
 
 ## [1.12.2] - 2023-11-19
 
@@ -446,26 +587,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Breaking:** Renamed endpoint `get_offset_temperture()` to `get_temperture_offset()`
+- **Breaking:** Renamed the heating circuit endpoints `get_offset_temperature()` / `set_offset_temperature()` to
+  `get_temperature_offset()` / `set_temperature_offset()`
 
 ## [1.12.0] - 2023-11-18
 
 ### Added
 
-- Added endpoint `system.get_operation_mode()`
-- Added endpoint `system.set_operation_mode()`
-- Added endpoint `heat_pump.get_operation_mode()`
-- Added endpoint `heat_pump.set_operation_mode()`
-- Added endpoint `heat_circuit.get_external_cool_request()`
-- Added endpoint `heat_circuit.get_external_heat_request()`
+- Added endpoint `get_operating_mode()` to the system
+- Added endpoint `set_operating_mode()` to the system
+- Added endpoint `get_operating_mode()` to the heat pump
+- Added endpoint `set_operating_mode()` to the heat pump
+- Added endpoint `get_external_cool_request()` to the heating circuit
+- Added endpoint `get_external_heat_request()` to the heating circuit
+- Added the heat pump states `AUTO_COOL` and `DEFROST`
 
 ### Changed
 
-- Converted the attribute keys to lower case
-- Merged the options and devices endpoints into the system endpoint
-- **Breaking:** Renamed `read_values()` to `read_data()`
+- **Breaking:** Merged the `device` and `options` sections into the new `system` section:
+  - `device.get_device_info()` to `system.get_device_info()`
+  - `device.get_system_info()` to `system.get_info()`
+  - `options.get_number_of_*()` to `system.get_number_of_*()`
+  - `get_outdoor_temperature()` of the client to `system.get_outdoor_temperature()`
+  - removed `device.get_name()`, `device.get_serial_number()`, `device.get_revision_number()` and
+    `device.get_variant_number()`, use `system.get_device_info()` instead
+- **Breaking:** Replaced `read_values()` and `read_values_grouped_by_section()` with `read_data()`,
+  which returns the values grouped by section
 - **Breaking:** Renamed `write_values()` to `write_data()`
-- **Breaking:** Renamed `heat_pump.get_status()` to `heat_pump.get_state()`
+- **Breaking:** Renamed the heat pump endpoint `get_status()` to `get_state()` and `HeatPumpStatus` to `HeatPumpState`,
+  with `AUTO` renamed to `AUTO_HEAT`
+- **Breaking:** Renamed `SystemPrefix` to `SectionPrefix` and the section enum `Options` / `Outdoor` to `System`
+- Converted the attribute keys to lower case
 
 ## [1.11.1] - 2023-10-25
 
@@ -477,28 +629,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added endpoint `heat_pump.get_heat_request()`
-- Added endpoint `heat_circuit.get_heat_request()`
-- Added endpoint `hot_water_tank.get_heat_request()`
+- Added endpoint `get_heat_request()` to the heat pump
+- Added endpoint `get_heat_request()` to the heating circuit
+- Added endpoint `get_heat_request()` to the hot water tank
 
 ## [1.10.1] - 2023-10-24
 
 ### Changed
 
-- Refactored the `SystemPrefix` enum variables
+- Removed the trailing underscore from the `SystemPrefix` values
 
 ## [1.10.0] - 2023-10-23
 
 ### Added
 
-- Added heat pump state "inflow"
-- Added endpoint `heat_circuit.set_holiday_temperature()`
+- Added the heat pump state `INFLOW`
+- Added endpoint `set_holiday_temperature()` to the heating circuit
 
-## [1.9.0] - 2023-10-23
+## [1.9.0] - 2023-10-22
 
 ### Added
 
-- Added **AWAY** and **PARTY** to the heating circuit operating mode
+- Added the heating circuit operating modes `AWAY` and `PARTY`
 
 ## [1.8.1] - 2023-10-22
 
@@ -514,21 +666,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added endpoint `read_values_grouped_by_section()`
-- Added `attributes` to the `read_values()` response
+- Added `read_values_grouped_by_section()`
+- Added `extra_attributes` to `read_values()` to add the `attributes` to the response
 
 ## [1.7.0] - 2023-10-19
 
 ### Added
 
-- Added endpoint `hot_water_tank.get_lower_limit_temperature()`
-- Added endpoint `hot_water_tank.get_upper_limit_temperature()`
+- Added endpoint `get_lower_limit_temperature()` to the hot water tank
+- Added endpoint `get_upper_limit_temperature()` to the hot water tank
 
 ## [1.6.2] - 2023-10-18
 
 ### Changed
 
-- Refactored the `KebaKeEnergyAPI` class for better mocking with pytest
+- Changed the sections of `KebaKeEnergyAPI` (`device`, `options`, `hot_water_tank`, `heat_pump`, `heat_circuit`)
+  to properties for better mocking with pytest
 
 ## [1.6.1] - 2023-10-17
 
@@ -540,8 +693,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added `heat_pump.get_name()` to read the heat pump name
-- Added `heat_circuit.get_name()` to read the heating circuit name
+- Added endpoint `get_name()` to the heat pump
+- Added endpoint `get_name()` to the heating circuit
 - Added `human_readable` argument to `read_values()` to get a human-readable name instead of a number,
   e.g. for `hot_water_tank.get_operating_mode()`
 
@@ -561,19 +714,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added `client.device_url` to get the device URL
+- Added `device_url` to the client to get the device URL
 
 ## [1.4.1] - 2023-10-11
 
 ### Changed
 
-- Downgraded aiohttp to `3.8.5` for Home Assistant compatibility
+- Downgraded aiohttp from `3.8.6` to `3.8.5` for Home Assistant compatibility
 
 ## [1.4.0] - 2023-10-11
 
 ### Added
 
 - Added `get_device_info()` to read all device information, e.g. the serial number, as `dict`
+
+### Changed
+
+- Bumped aiohttp from `3.8.5` to `3.8.6`
 
 ## [1.3.0] - 2023-10-10
 
@@ -583,6 +740,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `get_number_of_heat_pumps()` to read the number of heat pumps
 - Added `get_number_of_heating_circuits()` to read the number of heating circuits
 - Added automatic position numbers for `read_values()` depending on the hardware
+
+### Changed
+
+- **Breaking:** Removed the `position` argument from `write_values()`, the request now takes a tuple with
+  one value per position
 
 ## [1.2.0] - 2023-10-09
 
@@ -595,7 +757,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added device information endpoint, e.g. for the serial number
+- Added device information endpoints `get_name()`, `get_serial_number()`, `get_revision_number()` and
+  `get_variant_number()`
 - Added SSL support for aiohttp
 
 ## [1.0.0] - 2023-10-07
