@@ -1,4 +1,234 @@
 # serializer version: 1
+# name: TestApi.test_filter_request[duplicate-sections][requests]
+  list([
+    dict({
+      'data': list([
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfHeatPumps',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfHeatingCircuits',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfSolarCircuits',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfBuffers',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfExtHeatSources',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfSwitchValves',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+    dict({
+      'data': list([
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].topTemp.values.actValue',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatpump[0].values.heatpumpState',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].topTemp.values.actValue',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+  ])
+# ---
+# name: TestApi.test_filter_request[position][requests]
+  list([
+    dict({
+      'data': list([
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.bufferTank[0].param.name',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+  ])
+# ---
+# name: TestApi.test_filter_request[quantity][requests]
+  list([
+    dict({
+      'data': list([
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfHeatPumps',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfHeatingCircuits',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfSolarCircuits',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfBuffers',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfExtHeatSources',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfSwitchValves',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+    dict({
+      'data': list([
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.genericHeat[0].values.heatRequest',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.genericHeat[1].values.heatRequest',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+  ])
+# ---
+# name: TestApi.test_filter_request[system-wide][requests]
+  list([
+    dict({
+      'data': list([
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfHeatPumps',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfHeatingCircuits',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfSolarCircuits',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfBuffers',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfExtHeatSources',
+        }),
+        dict({
+          'attr': '1',
+          'name': 'APPL.CtrlAppl.sParam.options.systemNumberOfSwitchValves',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+    dict({
+      'data': list([
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hmiRetainData.consumer1PrioritySolar[0]',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+  ])
+# ---
+# name: TestApi.test_filter_request_with_unknown_variables[all-unknown][requests]
+  list([
+    dict({
+      'data': list([
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.bufferTank[0].param.name',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+  ])
+# ---
+# name: TestApi.test_filter_request_with_unknown_variables[some-unknown][requests]
+  list([
+    dict({
+      'data': list([
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].topTemp.values.actValue',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatpump[0].values.heatpumpState',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.bufferTank[0].param.name',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+    dict({
+      'data': list([
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].topTemp.values.actValue',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.bufferTank[0].param.name',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+    dict({
+      'data': list([
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].topTemp.values.actValue',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+  ])
+# ---
 # name: TestApi.test_read_data[options-and-extra-attributes][requests]
   list([
     dict({

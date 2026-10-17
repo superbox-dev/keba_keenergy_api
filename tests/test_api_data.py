@@ -546,3 +546,88 @@ read_message_ids_payload: list[dict[str, Any]] = [
     {"name": "APPL.CtrlAppl.sParam.genericHeat[3].referenceTemp.state.msgId", "value": "0"},
     {"name": "APPL.CtrlAppl.sParam.outdoorTemp.state.msgId", "value": "0"},
 ]
+
+positions_payload: list[dict[str, Any]] = [
+    {
+        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatPumps",
+        "attributes": {
+            "dynLowerLimit": 1,
+            "dynUpperLimit": 1,
+            "formatId": "fmt2p0",
+            "longText": "Qty heat pumps",
+            "lowerLimit": "0",
+            "upperLimit": "4",
+        },
+        "value": "1",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHeatingCircuits",
+        "attributes": {
+            "dynLowerLimit": 1,
+            "dynUpperLimit": 1,
+            "formatId": "fmt2p0",
+            "longText": "Qty HC",
+            "lowerLimit": "0",
+            "upperLimit": "8",
+        },
+        "value": "1",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfSolarCircuits",
+        "attributes": {
+            "dynLowerLimit": 1,
+            "dynUpperLimit": 1,
+            "formatId": "fmt2p0",
+            "longText": "Qty solar",
+            "upperLimit": "4",
+            "lowerLimit": "0",
+        },
+        "value": "1",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfBuffers",
+        "attributes": {
+            "formatId": "fmt2p0",
+            "longText": "Qty buffers",
+            "upperLimit": "0",
+            "lowerLimit": "0",
+            "dynLowerLimit": 1,
+            "dynUpperLimit": 1,
+        },
+        "value": "1",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks",
+        "attributes": {
+            "dynLowerLimit": 1,
+            "dynUpperLimit": 1,
+            "formatId": "fmt2p0",
+            "longText": "Qty HW tank",
+            "lowerLimit": "0",
+            "upperLimit": "4",
+        },
+        "value": "1",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfExtHeatSources",
+        "attributes": {
+            "formatId": "fmt2p0",
+            "longText": "Qty ext. heat sources",
+            "upperLimit": "1",
+            "lowerLimit": "0",
+        },
+        "value": "1",
+    },
+    {
+        "name": "APPL.CtrlAppl.sParam.options.systemNumberOfSwitchValves",
+        "attributes": {
+            "formatId": "fmt2p0",
+            "longText": "Qty switch valves",
+            "upperLimit": "0",
+            "lowerLimit": "0",
+            "dynLowerLimit": 1,
+            "dynUpperLimit": 1,
+        },
+        "value": "1",
+    },
+]
