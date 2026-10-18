@@ -6,7 +6,8 @@
 
 The API reference is rendered from the NumPy-style docstrings with griffe. The home, donation,
 contributing and changelog pages are copied from the marked sections of the Markdown files in the
-repository root. All pages are written to ``website/docs``, which is not tracked by git.
+repository root, the hand-written pages from ``website/content``. All pages are written to
+``website/docs``, which is not tracked by git.
 """
 
 import re
@@ -18,6 +19,7 @@ import griffe
 
 ROOT: Path = Path(__file__).resolve().parent.parent
 OUTPUT: Path = ROOT / "website" / "docs"
+CONTENT: Path = ROOT / "website" / "content"
 PACKAGE: str = "keba_keenergy_api"
 CLIENT: str = "client"
 SIGNATURE_WIDTH: int = 100
@@ -30,10 +32,11 @@ class DocsGenerator:
     _LITERAL_PATTERN: re.Pattern[str] = re.compile(r"``([^`]+)``")
     _WARNING_PREFIX: str = "**Attention!** "
 
-    # Relative links in the copied Markdown files, mapped to the generated pages
+    # Links in the copied Markdown files, mapped to the generated pages, so Docusaurus checks them
     _LINKS: ClassVar[dict[str, str]] = {
         "(CHANGELOG.md)": "(changelog.md)",
         "(CONTRIBUTING.md)": "(contributing.md)",
+        "(https://superbox-dev.github.io/keba_keenergy_api/usage": "(usage.md",
     }
 
     def __init__(self, output: Path) -> None:
@@ -63,6 +66,9 @@ class DocsGenerator:
             for name, member in client.attributes.items()
             if "property" in member.labels and str(member.annotation).endswith("Endpoints")
         ]
+
+        for page in sorted(CONTENT.glob("*.md")):
+            shutil.copyfile(page, self.output / page.name)
 
         self._write_home()
         self._write_page("donation.md", self._front_matter("Donation", 90), self._extract("README.md", "donation"))

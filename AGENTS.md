@@ -86,6 +86,9 @@ Before finishing a change, run:
   - API reference from the docstrings (griffe)
   - home, donation, contributing and changelog from the `<!--start-…-->` / `<!--end-…-->` markers
     in `README.md`, `CONTRIBUTING.md` and `CHANGELOG.md`, so keep the markers
+  - hand-written pages from `website/content/` (e.g. `usage.md`, with `sidebar_position` but no `title`
+    in the front matter, the title comes from the `#` heading)
+- Keep `README.md` short (install, a minimal example, the write warning), details go to `website/content/`
 - Design after home-assistant.io: `website/src/css/custom.css`, the project card in
   `website/src/components/ProjectInfo/` and the wrapped `website/src/theme/TOC/`
 
