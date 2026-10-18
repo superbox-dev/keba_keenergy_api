@@ -40,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   names are used
 - Moved the documentation from MkDocs on `api.superbox.one` to Docusaurus on GitHub Pages
   (<https://superbox-dev.github.io/keba_keenergy_api/>)
+- Shortened the `README.md` to a quick start and moved the detailed examples and write warnings to the
+  [Usage](https://superbox-dev.github.io/keba_keenergy_api/usage) page
 
 ### Fixed
 
