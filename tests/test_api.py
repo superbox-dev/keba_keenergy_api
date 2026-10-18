@@ -9,8 +9,12 @@ from typing import Any
 from unittest.mock import patch
 
 import pytest
+from aiohttp import ClientConnectionError
 from aiohttp import ClientSession
+from aiohttp import ClientTimeout
+from aiohttp import ConnectionTimeoutError
 from aiohttp import ServerTimeoutError
+from aiohttp import SocketTimeoutError
 from aiohttp import encode_basic_auth
 from aioresponses import aioresponses
 from syrupy.assertion import SnapshotAssertion
@@ -152,6 +156,31 @@ class TestApi:
 
             assert session.closed
             assert client.session is None
+
+    @pytest.mark.asyncio
+    async def test_api_after_context_manager(self) -> None:
+        """Test that an endpoint client used after `async with` closes the session it opens per request."""
+        with aioresponses() as mock_keenergy_api:
+            mock_keenergy_api.post(
+                "http://mocked-host/var/readWriteVars",
+                payload=[{"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "value": "10.808357"}],
+                headers={"Content-Type": "application/json;charset=utf-8"},
+            )
+
+            async with KebaKeEnergyAPI(host="mocked-host") as client:
+                system = client.system
+
+            sessions: list[ClientSession] = []
+
+            def create_session(*, timeout: ClientTimeout) -> ClientSession:
+                sessions.append(ClientSession(timeout=timeout))
+                return sessions[-1]
+
+            with patch("keba_keenergy_api.endpoints.ClientSession", side_effect=create_session):
+                assert await system.get_outdoor_temperature() == pytest.approx(10.81)
+
+            assert len(sessions) == 1
+            assert sessions[0].closed
 
     @pytest.mark.asyncio
     async def test_api_as_context_manager_with_session(self) -> None:
@@ -630,12 +659,14 @@ class TestApi:
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
-                exception=ServerTimeoutError("Server took too long to respond"),
+                exception=ClientConnectionError("mocked-error"),
             )
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
-            with pytest.raises(APIError, match="Server took too long to respond"):
+            with pytest.raises(APIError, match="mocked-error") as error:
                 await client.system.get_outdoor_temperature()
+
+            assert not isinstance(error.value, APITimeoutError)
 
     @pytest.mark.asyncio
     async def test_api_error(self) -> None:
@@ -845,16 +876,36 @@ class TestApi:
                 await client.system.get_outdoor_temperature()
 
     @pytest.mark.asyncio
-    async def test_api_timeout(self) -> None:
-        """Test that a timeout raises `APITimeoutError`, which is also an `APIError` and a `TimeoutError`."""
+    @pytest.mark.parametrize(
+        ("exception", "expected_message"),
+        [
+            (TimeoutError(), "^Request timed out!$"),
+            (ServerTimeoutError("mocked-error"), "^Request timed out! mocked-error$"),
+            (ConnectionTimeoutError("mocked-error"), "^Request timed out! mocked-error$"),
+            (SocketTimeoutError("mocked-error"), "^Request timed out! mocked-error$"),
+        ],
+    )
+    async def test_api_timeout(self, exception: TimeoutError, expected_message: str) -> None:
+        """Test that a timeout raises `APITimeoutError`, which is also an `APIError` and a `TimeoutError`.
+
+        The timeouts of `aiohttp` are also a `ClientError` and must not be raised as a plain `APIError`.
+
+        Parameters
+        ----------
+        exception
+            The timeout raised by the request.
+        expected_message
+            The expected error message.
+
+        """
         with aioresponses() as mock_keenergy_api:
             mock_keenergy_api.post(
                 "http://mocked-host/var/readWriteVars",
-                exception=TimeoutError(),
+                exception=exception,
             )
             client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
 
-            with pytest.raises(APITimeoutError, match="Request timed out!") as error:
+            with pytest.raises(APITimeoutError, match=expected_message) as error:
                 await client.system.get_outdoor_temperature()
 
             assert isinstance(error.value, APIError)

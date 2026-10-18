@@ -47,7 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed `IndexError` in single getters with a `position` greater than 1
 - Fixed `InvalidJsonError` not being raised for invalid JSON responses
-- Fixed timeouts not being raised as `APIError` (now `APITimeoutError`)
+- Fixed timeouts not being raised as `APIError` (now `APITimeoutError`, also for the `aiohttp` timeouts
+  `ServerTimeoutError`, `ConnectionTimeoutError` and `SocketTimeoutError`)
 - Fixed `UnboundLocalError` for HTTP status codes between 301 and 399, e.g. a redirect of a reverse proxy.
   Every HTTP status other than 2xx now raises an `APIError`
 - Fixed `KeyError` instead of `APIError` in single getters with a `position` lower than 1
@@ -64,6 +65,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   including `set_compressor_night_speed()` and the solar circuit `get_pump_1_speed()` and `get_pump_2_speed()`
 - Fixed the docstrings of `get_away_end_date()` and `set_away_end_date()` of the heating circuit, which described
   the start date
+- Fixed an unclosed `ClientSession` per request if the shared session was already closed, e.g. an endpoint client
+  used after `async with`
 
 [issue-67]: https://github.com/superbox-dev/keba_keenergy/issues/67
 
