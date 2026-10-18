@@ -10,7 +10,7 @@ Published on PyPI and used by the Home Assistant integration.
 
 ```bash
 uv run ruff format                   # format (lint.sh only checks)
-./scripts/lint.sh                    # ruff, ty, yamllint, rumdl
+./scripts/lint.sh                    # all linters and type checks
 uv run pytest                        # tests + coverage
 uv run pytest -n0 --snapshot-update  # regenerate snapshots (without xdist), then review the diff
 ./scripts/docs.sh                    # docs (Docusaurus, needs Node.js)
@@ -22,24 +22,21 @@ Before finishing a change, run:
 - `uv run ruff format`
 - `./scripts/lint.sh`
 - `uv run pytest`
+- `./scripts/docs.sh`
 
 ## Rules
 
 - **No breaking changes** to anything usable externally, i.e. everything without a `_` prefix:
   - classes, methods, signatures, return values
   - constants, exceptions
-  - enum members (including `_`-prefixed ones)
+  - enum members
   - behaviour that worked before
 - Allowed:
   - renames, if the old name stays as an alias (note it in the changelog)
   - new parameters, if they are optional and the default keeps the old behaviour
-  - turning a crash (uncaught built-in or `aiohttp` exception) into an `APIError`
-  - changing `_`-prefixed internals and `Endpoint.extra_writes()`
-- **Python 3.11 minimum**, so no:
-  - `type` statements
-  - PEP 695 generics
-  - `typing.override` (Python 3.12) without a fallback
-  - `typing.Self` is fine (Python 3.11)
+  - turning a crash (uncaught built-in or `aiohttp` exception) into an `APIError` (or a subclass)
+  - changing `_`-prefixed internals
+- **Python 3.11 minimum**, so no syntax or features of newer versions
 - Every `.py` file starts with (after the shebang of an executable script):
 
   ```python
@@ -107,7 +104,7 @@ Before finishing a change, run:
   - small values stay inline (`assert_called_once_with`, `pytest.approx`)
   - create or update them with `uv run pytest -n0 --snapshot-update`
   - review the `__snapshots__/*.ambr` diff and `git add` them
-- Never call, patch or inspect `_`-prefixed methods or attributes (e.g. `BaseEndpoints._read_float()`, `_post()`):
+- Never call, patch or inspect `_`-prefixed methods or attributes:
   - call the public API (`KebaKeEnergyAPI`, `*Endpoints` methods)
   - assert return values, raised exceptions or the sent payload
 
