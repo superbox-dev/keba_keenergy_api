@@ -229,13 +229,15 @@ class BaseEndpoints:
         except (json.JSONDecodeError, ContentTypeError) as error:
             message: str = f"Invalid JSON response! {error}"
             raise InvalidJsonError(message) from error
+        # Before ClientError, as the aiohttp timeouts (e.g. ConnectionTimeoutError) are also a ClientError
+        except TimeoutError as error:
+            message = f"Request timed out! {error}".rstrip()
+            raise APITimeoutError(message) from error
         except ClientError as error:
             raise APIError(str(error)) from error
-        except TimeoutError as error:
-            message = "Request timed out!"
-            raise APITimeoutError(message) from error
         finally:
-            if not self._session:
+            # Close the session opened for this request, also if the shared session was already closed
+            if session is not self._session:
                 await session.close()
 
     @staticmethod
