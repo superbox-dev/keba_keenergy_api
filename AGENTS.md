@@ -13,7 +13,8 @@ uv run ruff format                   # format (lint.sh only checks)
 ./scripts/lint.sh                    # ruff, ty, yamllint, rumdl
 uv run pytest                        # tests + coverage
 uv run pytest -n0 --snapshot-update  # regenerate snapshots (without xdist), then review the diff
-uv run mkdocs build --strict         # docs
+./scripts/docs.sh                    # docs (Docusaurus, needs Node.js)
+./scripts/docs.sh start              # docs with live reload
 ```
 
 Before finishing a change, run:
@@ -39,7 +40,7 @@ Before finishing a change, run:
   - PEP 695 generics
   - `typing.override` (Python 3.12) without a fallback
   - `typing.Self` is fine (Python 3.11)
-- Every `.py` file starts with:
+- Every `.py` file starts with (after the shebang of an executable script):
 
   ```python
   # Copyright 2023 Michael Hacker
@@ -76,10 +77,17 @@ Before finishing a change, run:
 1. `constants.py`: add it to the section enum (plus a `BaseEnum` subclass for named values)
 2. `endpoints.py`: add `get_*` / `set_*` to the `*Endpoints` class
 3. `tests/test_endpoints/test_<section>_section.py`: add tests (see [Tests](#tests))
-4. New section only:
-   - page in `docs/keba-keenergy/api/endpoints/`
-   - `mkdocs.yml` nav entry
-   - mkdocstrings `filters` entry
+4. New section only: add the property to `KebaKeEnergyAPI`, the docs page is generated from it
+
+## Documentation
+
+- Docusaurus website in `website/`, deployed to GitHub Pages from `main` (`.github/workflows/page.yml`)
+- `scripts/generate-docs.py` writes all pages into `website/docs/` (not tracked, run by `scripts/docs.sh`):
+  - API reference from the docstrings (griffe)
+  - home, donation, contributing and changelog from the `<!--start-…-->` / `<!--end-…-->` markers
+    in `README.md`, `CONTRIBUTING.md` and `CHANGELOG.md`, so keep the markers
+- Design after home-assistant.io: `website/src/css/custom.css`, the project card in
+  `website/src/components/ProjectInfo/` and the wrapped `website/src/theme/TOC/`
 
 ## Tests
 
