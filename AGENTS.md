@@ -83,7 +83,7 @@ Before finishing a change, run:
 
 - Docusaurus website in `website/`, deployed to GitHub Pages from `main` (`.github/workflows/page.yml`)
 - `scripts/generate-docs.py` writes all pages into `website/docs/` (not tracked, run by `scripts/docs.sh`):
-  - API reference from the docstrings (griffe)
+  - API reference from the docstrings (griffe), the constants page from the imported `constants` module
   - home, donation, contributing and changelog from the `<!--start-…-->` / `<!--end-…-->` markers
     in `README.md`, `CONTRIBUTING.md` and `CHANGELOG.md`, so keep the markers
   - hand-written pages from `website/content/` (e.g. `usage.md`, with `sidebar_position` but no `title`

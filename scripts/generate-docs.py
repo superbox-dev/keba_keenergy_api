@@ -10,9 +10,13 @@ repository root, the hand-written pages from ``website/content``. All pages are 
 ``website/docs``, which is not tracked by git.
 """
 
+import importlib
+import inspect
 import re
 import shutil
+from enum import Enum
 from pathlib import Path
+from types import ModuleType
 from typing import ClassVar
 
 import griffe
@@ -73,6 +77,7 @@ class DocsGenerator:
         self._write_home()
         self._write_page("donation.md", self._front_matter("Donation", 90), self._extract("README.md", "donation"))
         self._write_page("api.md", self._front_matter("API client", 10), self._render_client(client, sections))
+        self._write_page("constants.md", self._front_matter("Constants", 30), self._render_constants())
 
         for position, (name, section) in enumerate(sections, start=1):
             self._write_page(
@@ -193,6 +198,115 @@ class DocsGenerator:
             *self._render_functions(section),
         ]
         return "\n\n".join(block for block in blocks if block)
+
+    def _render_constants(self) -> str:
+        """Render the endpoint enums, the value enums and the other public constants."""
+        module: ModuleType = importlib.import_module(f"{PACKAGE}.constants")
+        classes: list[type] = [
+            cls
+            for name, cls in vars(module).items()
+            if inspect.isclass(cls) and cls.__module__ == module.__name__ and not name.startswith("_")
+        ]
+        sections: list[type[Enum]] = [
+            cls
+            for cls in classes
+            if issubclass(cls, Enum) and len(cls) and all(isinstance(member.value, module.Endpoint) for member in cls)
+        ]
+        values: list[type[Enum]] = [
+            cls for cls in classes if issubclass(cls, module.BaseEnum) and cls is not module.BaseEnum
+        ]
+        blocks: list[str] = [
+            "# Constants",
+            (
+                f"The module `{PACKAGE}.constants` defines the endpoints and their values, e.g. for "
+                "[`read_data()`](api.md#read_data) and [`write_data()`](api.md#write_data). "
+                f"Paths are relative to `PAYLOAD_PREFIX` (`{module.PAYLOAD_PREFIX}`), "
+                "`%s` is replaced by the zero-based device index."
+            ),
+            "## Endpoints",
+        ]
+
+        for section in sections:
+            rows: list[str] = [
+                self._row(
+                    f"`{member.name}`",
+                    member.value.value_type.__name__,
+                    "no" if member.value.read_only else "yes",
+                    self._enum_link(member.value.human_readable),
+                    f"`{member.value.value.removeprefix(module.PAYLOAD_PREFIX + '.')}`",
+                )
+                for member in section
+                if not member.name.startswith("_")
+            ]
+            blocks.extend(
+                [
+                    f"### {section.__name__}",
+                    self._render_text(self._get_class("constants", section.__name__).docstring),
+                    self._table(("Member", "Type", "Writable", "Values", "Path"), rows),
+                ],
+            )
+
+        blocks.extend(
+            [
+                "## Values",
+                "Enums of the readable names, returned with `human_readable=True` and accepted by the setters.",
+            ],
+        )
+
+        for cls in values:
+            rows = [self._row(f"`{member.name}`", f"`{member.value}`") for member in cls]
+            blocks.extend(
+                [
+                    f"### {cls.__name__}",
+                    self._render_text(self._get_class("constants", cls.__name__).docstring),
+                    self._table(("Member", "Value"), rows),
+                ],
+            )
+
+        blocks.extend(self._render_other_constants(module, [*sections, *values]))
+        return "\n\n".join(block for block in blocks if block)
+
+    def _render_other_constants(self, module: ModuleType, documented: list[type[Enum]]) -> list[str]:
+        blocks: list[str] = ["## Other constants"]
+        rows: list[str] = [
+            self._row(f"`{name}`", f"`{value!r}`")
+            for name, value in vars(module).items()
+            if name.isupper() and not name.startswith("_") and isinstance(value, int | str)
+        ]
+        blocks.append(self._table(("Name", "Value"), rows))
+
+        for name, cls in vars(module).items():
+            if not inspect.isclass(cls) or cls.__module__ != module.__name__ or name.startswith("_"):
+                continue
+
+            if cls in documented or cls is module.BaseEnum or issubclass(cls, module.Endpoint):
+                continue
+
+            members: dict[str, object] = (
+                {member.name: member.value for member in cls}
+                if issubclass(cls, Enum)
+                else {key: value for key, value in vars(cls).items() if key.isupper()}
+            )
+            blocks.extend(
+                [
+                    f"### {name}",
+                    self._render_text(self._get_class("constants", name).docstring),
+                    self._table(("Member", "Value"), [self._row(f"`{k}`", f"`{v!r}`") for k, v in members.items()]),
+                ],
+            )
+
+        return blocks
+
+    @staticmethod
+    def _enum_link(enum: type[Enum] | None) -> str:
+        return f"[`{enum.__name__}`](#{enum.__name__.lower()})" if enum else ""
+
+    @staticmethod
+    def _row(*cells: str) -> str:
+        return f"| {' | '.join(cells)} |"
+
+    def _table(self, header: tuple[str, ...], rows: list[str]) -> str:
+        return "\n".join([self._row(*header), self._row(*("---" for _ in header)), *rows])
 
     def _render_functions(self, cls: griffe.Class) -> list[str]:
         blocks: list[str] = []
