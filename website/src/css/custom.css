@@ -74,6 +74,14 @@
   backdrop-filter: none;
 }
 
+/* Logo on a white tile like the superbox-dev avatar on GitHub */
+.navbar__logo img {
+  padding: 4px;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--ha-divider);
+}
+
 .navbar__title {
   font-weight: 700;
 }
