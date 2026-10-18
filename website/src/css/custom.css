@@ -182,13 +182,6 @@
 
 /* Right column: project card and "On this page" */
 
-.ha-aside {
-  position: sticky;
-  top: calc(var(--ifm-navbar-height) + 1rem);
-  max-height: calc(100vh - var(--ifm-navbar-height) - 2rem);
-  overflow-y: auto;
-}
-
 .ha-aside__toc {
   padding: 0.25rem 1.25rem 1rem;
   border-radius: var(--ha-radius);
@@ -210,7 +203,7 @@
   fill: currentColor;
 }
 
-/* The wrapper scrolls, so the original table of contents must not be sticky itself */
+/* The right column scrolls with the page, so the table of contents is neither sticky nor scrollable */
 .ha-aside__toc > div {
   position: static;
   max-height: none;
