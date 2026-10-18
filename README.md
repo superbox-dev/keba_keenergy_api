@@ -3,6 +3,9 @@
 <!--start-home-->
 A Python wrapper for the KEBA KeEnergy API used by the Web HMI.
 
+> **Note:** This is an unofficial community project. It is not affiliated with, endorsed by or supported by KEBA.
+> For support, open an [issue](https://github.com/superbox-dev/keba_keenergy_api/issues), do not contact KEBA.
+
 ![coverage-badge](https://raw.githubusercontent.com/superbox-dev/keba_keenergy_api/main/coverage-badge.svg)
 
 [![CI](https://github.com/superbox-dev/keba_keenergy_api/actions/workflows/ci.yml/badge.svg?branch=main)][workflow-ci]
@@ -158,7 +161,7 @@ even if it would be possible.
 
 ## Documentation
 
-Read the full API documentation on [api.superbox.one](https://api.superbox.one).
+Read the full API documentation on [superbox-dev.github.io/keba_keenergy_api](https://superbox-dev.github.io/keba_keenergy_api/).
 
 ## Changelog
 

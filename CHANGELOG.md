@@ -38,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   points of the heating curves in use or requested, instead of all heating curves
 - `get_available_heating_curves()` reads the heating curve names without attributes (`attr="0"`), as only the
   names are used
+- Moved the documentation from MkDocs on `api.superbox.one` to Docusaurus on GitHub Pages
+  (<https://superbox-dev.github.io/keba_keenergy_api/>)
 
 ### Fixed
 
