@@ -11,7 +11,7 @@ type Props = WrapperProps<typeof TOCType>;
 // Right column like the Home Assistant integration pages: project card, then "On this page"
 export default function TOCWrapper(props: Props): ReactNode {
   return (
-    <div className="ha-aside thin-scrollbar">
+    <div className="ha-aside">
       <ProjectInfo />
       <section className="ha-aside__toc">
         <h2 className="ha-aside__title">
