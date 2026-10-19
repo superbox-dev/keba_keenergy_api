@@ -496,7 +496,7 @@ class BaseEndpoints:
         Raises
         ------
         APIError
-            More than one value is given for a system-wide endpoint, or a value is a ``bool``.
+            More than one value is given for a system-wide endpoint.
 
         """
         if endpoint.read_only:
@@ -505,15 +505,9 @@ class BaseEndpoints:
         _values: list[object] = list(values) if isinstance(values, list | tuple) else [values]
 
         has_device_index: bool = "%s" in endpoint.value
-        message: str
 
         if not has_device_index and len(_values) > 1:
-            message = f'"{endpoint.value}" is system wide, only one value can be written!'
-            raise APIError(message)
-
-        # A bool is also an int, but would be written as "True" / "False"
-        if (bool_value := next((value for value in _values if isinstance(value, bool)), None)) is not None:
-            message = f'Invalid value {bool_value} for "{endpoint.value}"! Use an integer instead of a bool'
+            message: str = f'"{endpoint.value}" is system wide, only one value can be written!'
             raise APIError(message)
 
         payload: Payload = [
