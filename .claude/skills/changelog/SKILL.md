@@ -10,7 +10,7 @@ description: Rules for CHANGELOG.md entries, issue/PR links and release links. U
   - releases as `## [x.y.z] - YYYY-MM-DD`, newest first
 - Past tense
 - Identifiers in backticks
-- Renames with an alias: name the old and the new name
+- Renames with an alias: under `Changed`, name the old and the new name and that the old one stays as alias
 - Issues as `([Issue #67][issue-67])`, pull requests as `([PR #19][pr-19])`
 - Issue and PR links are defined at the end of their release section, not at the bottom
   - a link that an older section already defines is reused, not defined again

@@ -36,7 +36,7 @@ Before finishing a change, run all of them except the snapshot update and the li
   ```
 
 - NumPy-style docstrings everywhere, also in tests
-- No new lint/type suppressions or `# pragma: no cover`, fix or test the code
+- No new lint/type suppressions (inline or in config) or `# pragma: no cover`, fix or test the code
 - No real hosts, serial numbers or customer data, use placeholders like `"mocked-host"`
 - `git add` new files, CI only checks tracked files
 - Never edit generated or CI-managed files (`version.py`, `coverage-badge.svg`)
@@ -51,8 +51,8 @@ Before finishing a change, run all of them except the snapshot update and the li
 - `endpoints.py`: `BaseEndpoints` (payloads, POST to `/var/readWriteVars`, value conversion), one `*Endpoints` class
   per section
 - `api.py`: `KebaKeEnergyAPI` with the section clients and `read_data`, `read_message_ids`, `write_data`
-- Helpers are `_`-prefixed methods of the class that uses them (`@staticmethod` if they need no `self`), not
-  module-level functions
+- Helpers in the package are `_`-prefixed methods of the class that uses them (`@staticmethod` if they need no
+  `self`), not module-level functions
 - New section: add the property to `KebaKeEnergyAPI`
 
 ## Documentation
