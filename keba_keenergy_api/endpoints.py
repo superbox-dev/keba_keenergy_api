@@ -112,7 +112,8 @@ class Value(TypedDict, total=False):
     attributes: dict[str, Any]
 
 
-ValueResponse: TypeAlias = dict[str, list[list[Value]] | list[Value] | Value]
+ValueList: TypeAlias = list[Value] | list[list[Value]]
+ValueResponse: TypeAlias = dict[str, Value | ValueList]
 Payload: TypeAlias = list[ReadPayload | WritePayload]
 Response: TypeAlias = list[dict[str, Any]]
 
@@ -265,7 +266,7 @@ class BaseEndpoints:
     @staticmethod
     def _normalize_request(
         request: Section | list[Section],
-        position: Position | int | list[int],
+        position: int | Position | list[int],
         /,
     ) -> tuple[list[Section], Position | list[int]]:
         """Return the request and the position as lists (a ``Position`` is kept as it is)."""
@@ -279,7 +280,7 @@ class BaseEndpoints:
 
         ``None`` means the section has no device index (system wide). Devices that are not installed are left out.
         """
-        if isinstance(section, System | Photovoltaics):
+        if isinstance(section, Photovoltaics | System):
             return [None]
 
         if isinstance(position, Position):
@@ -410,7 +411,7 @@ class BaseEndpoints:
         *,
         key_prefix: bool = True,
         human_readable: bool = True,
-    ) -> dict[str, list[list[Value]] | list[Value]]:
+    ) -> dict[str, ValueList]:
         """Map a read response back to the requested sections.
 
         The response items are consumed in the same order as the read payload was built.
@@ -449,12 +450,12 @@ class BaseEndpoints:
     async def _read_data(
         self,
         request: Section | list[Section],
-        position: Position | int | list[int] = 1,
+        position: int | Position | list[int] = 1,
         *,
         key_prefix: bool = True,
         human_readable: bool = True,
         extra_attributes: bool = False,
-    ) -> dict[str, list[list[Value]] | list[Value]]:
+    ) -> dict[str, ValueList]:
         """Read the requested sections with one request and return the converted values."""
         request, position = self._normalize_request(request, position)
 
@@ -588,7 +589,7 @@ class BaseEndpoints:
             message: str = f"Invalid position {position}! Positions start at 1"
             raise APIError(message)
 
-        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+        response: dict[str, ValueList] = await self._read_data(
             request=section,
             position=position,
             human_readable=human_readable,
@@ -743,7 +744,7 @@ class SystemEndpoints(BaseEndpoints):
             The number of installed devices per device type
 
         """
-        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+        response: dict[str, ValueList] = await self._read_data(
             request=[
                 System.HEAT_PUMP_NUMBERS,
                 System.HEAT_CIRCUIT_NUMBERS,

@@ -36,6 +36,7 @@ from keba_keenergy_api.endpoints import SolarCircuitEndpoints
 from keba_keenergy_api.endpoints import SwitchValveEndpoints
 from keba_keenergy_api.endpoints import SystemEndpoints
 from keba_keenergy_api.endpoints import Value
+from keba_keenergy_api.endpoints import ValueList
 from keba_keenergy_api.endpoints import ValueResponse
 from keba_keenergy_api.error import APIError
 
@@ -250,7 +251,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
     async def _group_data(
         self,
-        response: dict[str, list[list[Value]] | list[Value]],
+        response: dict[str, ValueList],
         /,
         *,
         extra_attributes: bool = True,
@@ -289,7 +290,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
     async def read_data(
         self,
         request: Section | list[Section],
-        position: Position | int | list[int] | None = None,
+        position: int | Position | list[int] | None = None,
         *,
         human_readable: bool = True,
         extra_attributes: bool = True,
@@ -328,7 +329,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
         if position is None:
             position = await self._get_positions()
 
-        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+        response: dict[str, ValueList] = await self._read_data(
             request=request,
             position=position,
             human_readable=human_readable,
@@ -340,7 +341,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
     async def read_message_ids(
         self,
         request: Section | list[Section],
-        position: Position | int | list[int] | None = None,
+        position: int | Position | list[int] | None = None,
     ) -> dict[Section, list[int]]:
         """Read the message ids of sensors, to find out whether a sensor is in use.
 
@@ -422,7 +423,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
     async def filter_request(
         self,
         request: Section | list[Section],
-        position: Position | int | list[int] | None = None,
+        position: int | Position | list[int] | None = None,
     ) -> list[Section]:
         """Return the requested sections that are supported by the Web HMI software version.
 
@@ -508,7 +509,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         return remaining
 
-    async def _extra_attributes_heating_curve(self, key: str, value: list[list[Value]] | list[Value], /) -> None:
+    async def _extra_attributes_heating_curve(self, key: str, value: ValueList, /) -> None:
         """Add the heating curve points to the attributes of heating curve values (in place).
 
         Parameters

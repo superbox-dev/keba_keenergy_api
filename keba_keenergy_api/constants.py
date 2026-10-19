@@ -1149,14 +1149,14 @@ class SectionPrefix(StrEnum):
 
 
 Section: TypeAlias = (
-    System
-    | BufferTank
-    | HotWaterTank
-    | HeatPump
-    | HeatCircuit
-    | SolarCircuit
+    BufferTank
     | ExternalHeatSource
-    | SwitchValve
+    | HeatCircuit
+    | HeatPump
+    | HotWaterTank
     | PassiveCooling
     | Photovoltaics
+    | SolarCircuit
+    | SwitchValve
+    | System
 )
