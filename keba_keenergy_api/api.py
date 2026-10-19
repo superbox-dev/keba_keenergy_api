@@ -522,7 +522,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
         """
         if key.lower() == self._get_real_key(HeatCircuit.HEATING_CURVE):
             # HEATING_CURVE has a quantity of 1, so the values are never nested
-            items: list[Value] = [item for item in value if not isinstance(item, list)]
+            items: list[Value] = [self._get_item(item) for item in value]
             used_curves: set[str] = {item["value"] for item in items}
 
             # Only the points of the heating curves in use are read

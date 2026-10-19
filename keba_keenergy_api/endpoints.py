@@ -557,6 +557,11 @@ class BaseEndpoints:
         return [value if position == p else None for p in range(1, position + 1)]
 
     @staticmethod
+    def _get_item(value: Value | list[Value], index: int = 0, /) -> Value:
+        """Return the item at the index of a nested value (quantity > 1), or the value itself."""
+        return value[index] if isinstance(value, list) else value
+
+    @staticmethod
     def _to_int_or_str(value: float | str, /) -> int | str:
         """Return a value as integer if possible, otherwise as string."""
         try:
@@ -590,8 +595,7 @@ class BaseEndpoints:
             extra_attributes=True,
         )
 
-        value: Value | list[Value] = response[self._get_real_key(section)][0]
-        item: Value = value[index] if isinstance(value, list) else value
+        item: Value = self._get_item(response[self._get_real_key(section)][0], index)
 
         return convert(item["attributes"][attribute] if attribute else item["value"])
 
@@ -756,8 +760,7 @@ class SystemEndpoints(BaseEndpoints):
         positions: dict[str, int] = {}
 
         for key, values in response.items():
-            value: Value | list[Value] = values[0]
-            item: Value = value[0] if isinstance(value, list) else value
+            item: Value = self._get_item(values[0])
             positions[key.replace("_numbers", "")] = int(item["value"])
 
         return Position(**positions)
