@@ -23,10 +23,10 @@ Before finishing a change, run all of them except the snapshot update and the li
 
 - **No breaking changes** to anything without a `_` prefix (classes, methods, signatures, return values, constants,
   exceptions, enum members, behaviour that worked before)
-  - only when asked, then as a major release
-  - allowed: renames with the old name as alias (note it in the changelog), new optional parameters whose default
-    keeps the old behaviour, turning a crash (uncaught built-in or `aiohttp` exception) into an `APIError` (or a
-    subclass)
+  - **only** when the user explicitly allows it, then as a major release, otherwise always find a compatible way
+  - allowed: renames with the old name as alias that raises a `DeprecationWarning` (note it in the changelog), new
+    optional parameters whose default keeps the old behaviour, turning a crash (uncaught built-in or `aiohttp`
+    exception) into an `APIError` (or a subclass)
 - **Python 3.11 minimum**, no syntax or features of newer versions
 - Every `.py` file starts with (after the shebang of an executable script):
 
@@ -53,6 +53,7 @@ Before finishing a change, run all of them except the snapshot update and the li
 - `api.py`: `KebaKeEnergyAPI` with the section clients and `read_data`, `read_message_ids`, `write_data`
 - Helpers in the package are `_`-prefixed methods of the class that uses them (`@staticmethod` if they need no
   `self`), not module-level functions
+  - used by several classes: method of their shared base class
 - New section: add the property to `KebaKeEnergyAPI`
 
 ## Documentation
