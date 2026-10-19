@@ -9,4 +9,3 @@ uv run ruff check
 uv run ty check
 uv run yamllint .
 uv run rumdl check
-

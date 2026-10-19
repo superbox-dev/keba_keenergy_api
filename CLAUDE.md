@@ -12,12 +12,13 @@ used by the Home Assistant integration.
 uv run ruff format                   # format (lint.sh only checks)
 ./scripts/lint.sh                    # all linters and type checks
 uv run pytest                        # tests + coverage
-uv run pytest -n0 --snapshot-update  # regenerate snapshots (serial only), then review the diff
+uv run pytest --snapshot-update -n 0 # regenerate snapshots (serial only), then review the diff
 ./scripts/docs.sh                    # docs (Docusaurus, needs Node.js)
 ./scripts/docs.sh start              # docs with live reload
 ```
 
-Before finishing a change, run all of them except the snapshot update and the live reload.
+Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this order.
+`docs.sh` only when `website/`, docstrings, `constants.py`, `README.md`, `CONTRIBUTING.md` or `CHANGELOG.md` changed.
 
 ## Rules
 
@@ -28,17 +29,19 @@ Before finishing a change, run all of them except the snapshot update and the li
     optional parameters whose default keeps the old behaviour, turning a crash (uncaught built-in or `aiohttp`
     exception) into an `APIError` (or a subclass)
 - **Python 3.11 minimum**, no syntax or features of newer versions
-- Every `.py` file starts with (after the shebang of an executable script):
+- Type annotations also for local variables (not for loop, `with`, `except`, comprehension or unpacking targets)
+- Every `.py` file starts with (after the shebang of an executable script, update the end year when editing a
+  file, a single year while it equals the start year):
 
   ```python
-  # Copyright 2023 Michael Hacker
+  # Copyright 2023-<current year> Michael Hacker
   # SPDX-License-Identifier: Apache-2.0
   ```
 
 - NumPy-style docstrings everywhere, also in tests
-- No new lint/type suppressions (inline or in config) or `# pragma: no cover`, fix or test the code
+- No inline lint/type suppressions, no new ones in the config, no `# pragma: no cover`, fix or test the code
 - No real hosts, serial numbers or customer data, use placeholders like `"mocked-host"`
-- `git add` new files, CI only checks tracked files
+- `git add` new files, the pre-commit hooks only check tracked files
 - Never edit generated or CI-managed files (`version.py`, `coverage-badge.svg`)
 - **Never edit `CLAUDE.md` files or `.claude/skills/` on your own**, only when asked
   - if a change conflicts with them, stop and ask
@@ -64,7 +67,8 @@ Before finishing a change, run all of them except the snapshot update and the li
 
 ## Changelog, versions and git
 
-- Every notable change gets an entry under `## [Unreleased]` in `CHANGELOG.md`, use the `changelog` skill
+- Every change users notice gets an entry under `## [Unreleased]` in `CHANGELOG.md` (not refactorings, tests, CI,
+  `CLAUDE.md` or skills), use the `changelog` skill
 - Version: comes from the git tag (`setuptools-scm`), only release when asked, use the `release` skill
 - Work on `develop`
 - Only commit or push when asked

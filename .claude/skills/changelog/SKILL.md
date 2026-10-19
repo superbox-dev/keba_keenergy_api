@@ -12,7 +12,7 @@ description: Rules for CHANGELOG.md entries, issue/PR links and release links. U
 - Identifiers in backticks
 - Renames with an alias: under `Changed` the rename (old and new name), under `Deprecated` the old name, which
   stays as alias with a `DeprecationWarning`
-- Issues as `([Issue #67][issue-67])`, pull requests as `([PR #19][pr-19])`
+- Issues as `([Issue #25][issue-25])`, pull requests as `([PR #19][pr-19])`
 - Issue and PR links are defined at the end of their release section, not at the bottom
   - a link that an older section already defines is reused, not defined again
 - Releases are linked at the bottom, before `<!--end-->`:

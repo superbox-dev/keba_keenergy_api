@@ -16,7 +16,7 @@ description: Release or pre-release the library on PyPI (changelog, tag). Use wh
    - pre-release `vX.Y.ZbN`: entries stay under `## [Unreleased]`
    - release `vX.Y.Z`: `## [Unreleased]` becomes `## [X.Y.Z] - YYYY-MM-DD`, a release needs its section
      (the release workflow links the release notes to it)
-   - the new release section goes below `<!--start-->`, an empty `## [Unreleased]` stays above it
+   - the new release section goes below `<!--start-->`, an empty `## [Unreleased]` stays above `<!--start-->`
 2. Commit on `develop`, if something changed
 3. Pre-release: tag `develop`, push `develop` and the tag
 4. Release: merge `develop` into `main`, tag `main`, push `main`, `develop` and the tag
