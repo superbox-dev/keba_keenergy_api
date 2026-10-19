@@ -405,7 +405,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
         Raises
         ------
         APIError
-            More than one value is given for a system-wide section.
+            More than one value is given for a system-wide section, or a value is a ``bool``.
 
         Examples
         --------

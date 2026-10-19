@@ -4,6 +4,8 @@
 """Tests for the `KebaKeEnergyAPI` client."""
 
 import json
+from collections.abc import Awaitable
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 from typing import Any
 from unittest.mock import patch
@@ -866,3 +868,38 @@ class TestApi:
         ]
 
         assert response["heat_circuit"] == {"heating_curve": [{"value": "HC9", "attributes": {"points": []}}]}
+
+    @pytest.mark.parametrize(
+        ("request_method", "expected_error"),
+        [
+            (
+                lambda client: client.write_data(request={System.OPERATING_MODE: True}),
+                r'^Invalid value True for "APPL\.CtrlAppl\.sParam\.param\.operatingMode"! Use an integer instead',
+            ),
+            (
+                lambda client: client.write_data(request={HotWaterTank.STANDBY_TEMPERATURE: (None, False)}),
+                r'^Invalid value False for ".*reducedSetTempMax\.value"! Use an integer instead',
+            ),
+            (
+                lambda client: client.system.set_operating_mode(mode=True),
+                r'^Invalid value True for "APPL\.CtrlAppl\.sParam\.param\.operatingMode"! Use an integer instead',
+            ),
+            (
+                lambda client: client.hot_water_tank.set_standby_temperature(temperature=False, position=2),
+                r'^Invalid value False for ".*reducedSetTempMax\.value"! Use an integer instead',
+            ),
+        ],
+        ids=["write-data-true", "write-data-false", "setter-true", "setter-false"],
+    )
+    async def test_write_bool(
+        self,
+        client: KebaKeEnergyAPI,
+        mock_api: aioresponses,
+        request_method: Callable[[KebaKeEnergyAPI], Awaitable[None]],
+        expected_error: str,
+    ) -> None:
+        """Test that a `bool` raises `APIError` and nothing is written, as it would be written as `True` / `False`."""
+        with pytest.raises(APIError, match=expected_error):
+            await request_method(client)
+
+        mock_api.assert_not_called()
