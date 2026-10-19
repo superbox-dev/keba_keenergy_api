@@ -41,6 +41,7 @@ class DocsGenerator:
         "(CHANGELOG.md)": "(changelog.md)",
         "(CONTRIBUTING.md)": "(contributing.md)",
         "(https://superbox-dev.github.io/keba_keenergy_api/usage": "(usage.md",
+        "(CLAUDE.md)": "(https://github.com/superbox-dev/keba_keenergy_api/blob/main/CLAUDE.md)",
     }
 
     def __init__(self, output: Path) -> None:

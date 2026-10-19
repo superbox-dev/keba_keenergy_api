@@ -16,7 +16,6 @@ from typing import NamedTuple
 from typing import TypeAlias
 from typing import TypedDict
 from typing import TypeVar
-from typing import cast
 
 from aiohttp import ClientError
 from aiohttp import ClientSession
@@ -740,24 +739,28 @@ class SystemEndpoints(BaseEndpoints):
             The number of installed devices per device type
 
         """
-        response: dict[str, list[Value]] = cast(
-            "dict[str, list[Value]]",
-            await self._read_data(
-                request=[
-                    System.HEAT_PUMP_NUMBERS,
-                    System.HEAT_CIRCUIT_NUMBERS,
-                    System.SOLAR_CIRCUIT_NUMBERS,
-                    System.BUFFER_TANK_NUMBERS,
-                    System.HOT_WATER_TANK_NUMBERS,
-                    System.EXTERNAL_HEAT_SOURCE_NUMBERS,
-                    System.SWITCH_VALVE_NUMBERS,
-                ],
-                key_prefix=False,
-                extra_attributes=True,
-            ),
+        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+            request=[
+                System.HEAT_PUMP_NUMBERS,
+                System.HEAT_CIRCUIT_NUMBERS,
+                System.SOLAR_CIRCUIT_NUMBERS,
+                System.BUFFER_TANK_NUMBERS,
+                System.HOT_WATER_TANK_NUMBERS,
+                System.EXTERNAL_HEAT_SOURCE_NUMBERS,
+                System.SWITCH_VALVE_NUMBERS,
+            ],
+            key_prefix=False,
+            extra_attributes=True,
         )
 
-        return Position(**{k.replace("_numbers", ""): int(v[0]["value"]) for k, v in response.items()})
+        positions: dict[str, int] = {}
+
+        for key, values in response.items():
+            value: Value | list[Value] = values[0]
+            item: Value = value[0] if isinstance(value, list) else value
+            positions[key.replace("_numbers", "")] = int(item["value"])
+
+        return Position(**positions)
 
     async def get_info(self) -> dict[str, Any]:
         """Get the system information.

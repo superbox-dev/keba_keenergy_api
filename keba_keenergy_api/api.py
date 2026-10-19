@@ -11,7 +11,6 @@ from types import TracebackType
 from typing import Any
 from typing import Self
 from typing import TypeVar
-from typing import cast
 
 from aiohttp import ClientSession
 from aiohttp import ClientTimeout
@@ -523,7 +522,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
         """
         if key.lower() == self._get_real_key(HeatCircuit.HEATING_CURVE):
             # HEATING_CURVE has a quantity of 1, so the values are never nested
-            items: list[Value] = cast("list[Value]", value)
+            items: list[Value] = [item for item in value if not isinstance(item, list)]
             used_curves: set[str] = {item["value"] for item in items}
 
             # Only the points of the heating curves in use are read
