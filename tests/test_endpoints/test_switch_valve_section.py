@@ -3,57 +3,52 @@
 
 """Tests for the switch valve endpoints."""
 
+import json
+from typing import Any
+
 import pytest
-from aioresponses.core import aioresponses
+from aioresponses import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
+from tests.conftest import READ_URL
+
+GETTERS: list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]] = [
+    ("get_position", {"human_readable": True}, {"APPL.CtrlAppl.sParam.switchvalve[0].values.actPosition": "1"}, "open"),
+    ("get_position", {"human_readable": False}, {"APPL.CtrlAppl.sParam.switchvalve[0].values.actPosition": "0"}, 0),
+    (
+        "get_position",
+        {"human_readable": True},
+        {"APPL.CtrlAppl.sParam.switchvalve[0].values.actPosition": "2"},
+        "closed",
+    ),
+]
 
 
 class TestHappyPathSwitchValveSection:
     """Tests for the switch valve endpoints with valid responses and input."""
 
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("human_readable", "payload_value", "expected_value"),
-        [(True, 1, "open"), (False, 0, 0), (True, 2, "closed")],
-    )
-    async def test_get_position(
+    @pytest.mark.parametrize(("method", "kwargs", "response", "expected"), GETTERS)
+    async def test_getter(
         self,
-        *,
-        human_readable: bool,
-        payload_value: int,
-        expected_value: str,
+        client: KebaKeEnergyAPI,
+        mock_api: aioresponses,
+        method: str,
+        kwargs: dict[str, Any],
+        response: dict[str, Any],
+        expected: float | str,
     ) -> None:
-        """Test that `get_position()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.switchvalve[0].values.actPosition",
-                        "attributes": {
-                            "formatId": "fmtSwitchValveStateV1",
-                            "longText": "Valve pos.",
-                            "unitId": "Enum",
-                            "upperLimit": "2",
-                            "lowerLimit": "0",
-                        },
-                        "value": f"{payload_value}",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
+        """Test that a getter reads its variables and returns the converted value."""
+        mock_api.post(READ_URL, payload=[{"name": name, "value": value} for name, value in response.items()])
 
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.switch_valve.get_position(human_readable=human_readable)
+        data: float | str = await getattr(client.switch_valve, method)(**kwargs)
 
-            assert isinstance(data, (int | str))
-            assert data == expected_value
+        assert data == expected
+        assert type(data) is type(expected)
 
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.switchvalve[0].values.actPosition", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
+        mock_api.assert_called_once_with(
+            url=READ_URL,
+            data=json.dumps([{"name": name, "attr": "1"} for name in response]),
+            method="POST",
+            headers={},
+            ssl=False,
+        )
