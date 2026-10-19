@@ -1,4 +1,4 @@
-# Copyright 2023 Michael Hacker
+# Copyright 2023-2026 Michael Hacker
 # SPDX-License-Identifier: Apache-2.0
 
 """Constants and endpoint definitions of the KEBA KeEnergy API."""
