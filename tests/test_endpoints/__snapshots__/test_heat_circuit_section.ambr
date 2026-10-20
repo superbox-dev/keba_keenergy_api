@@ -1,5 +1,5 @@
 # serializer version: 1
-# name: TestHappyPathHeatCircuitSection.test_get_available_heating_curves
+# name: test_get_available_heating_curves
   list([
     dict({
       'data': list([
@@ -129,7 +129,7 @@
     }),
   ])
 # ---
-# name: TestHappyPathHeatCircuitSection.test_get_heating_curve_points[HC1][requests]
+# name: test_get_heating_curve_points[HC1][requests]
   list([
     dict({
       'data': list([
@@ -401,7 +401,7 @@
     }),
   ])
 # ---
-# name: TestHappyPathHeatCircuitSection.test_get_heating_curve_points[HC1][response]
+# name: test_get_heating_curve_points[HC1][response]
   dict({
     'HC1': tuple(
       HeatingCurvePoint(
@@ -435,7 +435,7 @@
     ),
   })
 # ---
-# name: TestHappyPathHeatCircuitSection.test_get_heating_curve_points[all][requests]
+# name: test_get_heating_curve_points[all][requests]
   list([
     dict({
       'data': list([
@@ -1931,7 +1931,7 @@
     }),
   ])
 # ---
-# name: TestHappyPathHeatCircuitSection.test_get_heating_curve_points[all][response]
+# name: test_get_heating_curve_points[all][response]
   dict({
     'HC FBH': tuple(
       HeatingCurvePoint(
@@ -2235,7 +2235,137 @@
     ),
   })
 # ---
-# name: TestHappyPathHeatCircuitSection.test_set_cooling_curve[HC1]
+# name: test_get_heating_curve_points_unknown_curve[HC10]
+  list([
+    dict({
+      'data': list([
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[0].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[1].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[2].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[3].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[4].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[5].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[6].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[7].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[8].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[9].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[10].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[11].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[12].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[13].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[14].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[15].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[16].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[17].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[18].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[19].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[20].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[21].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[22].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[23].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[24].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[25].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[26].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[27].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[28].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[29].name',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+  ])
+# ---
+# name: test_set_cooling_curve[HC1]
   list([
     dict({
       'data': list([
@@ -2375,7 +2505,7 @@
     }),
   ])
 # ---
-# name: TestHappyPathHeatCircuitSection.test_set_cooling_curve[HC_FBH]
+# name: test_set_cooling_curve[HC_FBH]
   list([
     dict({
       'data': list([
@@ -2515,7 +2645,137 @@
     }),
   ])
 # ---
-# name: TestHappyPathHeatCircuitSection.test_set_heating_curve[HC1]
+# name: test_set_cooling_curve_unknown_curve[invalid]
+  list([
+    dict({
+      'data': list([
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[0].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[1].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[2].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[3].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[4].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[5].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[6].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[7].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[8].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[9].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[10].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[11].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[12].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[13].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[14].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[15].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[16].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[17].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[18].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[19].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[20].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[21].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[22].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[23].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[24].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[25].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[26].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[27].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[28].name',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.linTabPool[29].name',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+  ])
+# ---
+# name: test_set_heating_curve[HC1]
   list([
     dict({
       'data': list([
@@ -2655,7 +2915,7 @@
     }),
   ])
 # ---
-# name: TestHappyPathHeatCircuitSection.test_set_heating_curve[HC_FBH]
+# name: test_set_heating_curve[HC_FBH]
   list([
     dict({
       'data': list([
@@ -2795,7 +3055,7 @@
     }),
   ])
 # ---
-# name: TestHappyPathHeatCircuitSection.test_set_heating_curve_points
+# name: test_set_heating_curve_points
   list([
     dict({
       'data': list([
@@ -3077,267 +3337,7 @@
     }),
   ])
 # ---
-# name: TestUnhappyPathHeatCircuitSection.test_get_invalid_heating_curve_points[HC10]
-  list([
-    dict({
-      'data': list([
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[0].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[1].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[2].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[3].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[4].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[5].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[6].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[7].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[8].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[9].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[10].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[11].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[12].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[13].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[14].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[15].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[16].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[17].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[18].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[19].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[20].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[21].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[22].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[23].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[24].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[25].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[26].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[27].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[28].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[29].name',
-        }),
-      ]),
-      'method': 'POST',
-      'url': 'http://mocked-host/var/readWriteVars',
-    }),
-  ])
-# ---
-# name: TestUnhappyPathHeatCircuitSection.test_heating_curve_name_is_invalid_in_set_heating_curve_points
-  list([
-    dict({
-      'data': list([
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[0].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[1].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[2].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[3].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[4].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[5].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[6].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[7].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[8].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[9].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[10].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[11].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[12].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[13].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[14].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[15].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[16].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[17].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[18].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[19].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[20].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[21].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[22].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[23].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[24].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[25].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[26].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[27].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[28].name',
-        }),
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.linTabPool[29].name',
-        }),
-      ]),
-      'method': 'POST',
-      'url': 'http://mocked-host/var/readWriteVars',
-    }),
-  ])
-# ---
-# name: TestUnhappyPathHeatCircuitSection.test_heating_curve_name_not_match_in_set_heating_curve_points
+# name: test_set_heating_curve_points_name_mismatch
   list([
     dict({
       'data': list([
@@ -3477,7 +3477,7 @@
     }),
   ])
 # ---
-# name: TestUnhappyPathHeatCircuitSection.test_set_invalid_cooling_curve[invalid]
+# name: test_set_heating_curve_points_unknown_curve
   list([
     dict({
       'data': list([
@@ -3607,7 +3607,7 @@
     }),
   ])
 # ---
-# name: TestUnhappyPathHeatCircuitSection.test_set_invalid_heating_curve[invalid]
+# name: test_set_heating_curve_unknown_curve[invalid]
   list([
     dict({
       'data': list([
