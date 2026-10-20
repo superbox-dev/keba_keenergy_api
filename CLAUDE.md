@@ -83,3 +83,4 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
 - Version: comes from the git tag (`setuptools-scm`), only release when asked, use the `release` skill
 - Work on `develop`
 - Only commit or push when asked
+- Commit message of a change for an issue starts with its number (`#67 Fix sensors that are not in use`)
