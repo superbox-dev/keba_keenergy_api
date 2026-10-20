@@ -28,6 +28,7 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
   - allowed: renames with the old name as alias that raises a `DeprecationWarning` (note it in the changelog), new
     optional parameters whose default keeps the old behaviour, turning a crash (uncaught built-in or `aiohttp`
     exception) into an `APIError` (or a subclass)
+  - `TypedDict`s: new keys only as `NotRequired`, never remove, rename or retype keys
 - **Python 3.11 minimum**, no syntax or features of newer versions
 - Type annotations also for local variables (not for loop, `with`, `except`, comprehension or unpacking targets)
   - union order, also in `isinstance()`: general before specific types, each alphabetical, containers after
@@ -36,6 +37,13 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
   - type alias for complex annotations (nested or repeated unions)
 - Module-level constants with `Final` (`NAME: Final = ...`)
 - Comments as complete sentences with a trailing period
+- `TypedDict` only for JSON data from or to the Web HMI (optional keys as `NotRequired`), `NamedTuple` only for
+  small values that are unpacked (points, pairs), otherwise `@dataclass(frozen=True, kw_only=True)`, mutable only
+  when needed
+  - existing public types stay as they are, `frozen` or `kw_only` would be a breaking change
+- `Enum` for a fixed set of values (modes, states, types, values of the Web HMI), never loose strings or ints
+  for them
+  - not for open values (names, IDs, numbers) or a one-off choice in a signature (`Literal`)
 - Log messages start with a capital letter, no trailing period, values as `%s` arguments
 - Style rules apply to new and changed code, existing code only adapted when asked
 - Every `.py` file starts with (after the shebang of an executable script, update the end year when editing a
