@@ -36,6 +36,7 @@ from keba_keenergy_api.error import APITimeoutError
 from keba_keenergy_api.error import AuthenticationError
 from keba_keenergy_api.error import InvalidJsonError
 from tests.conftest import READ_URL
+from tests.conftest import TIMEOUT
 from tests.conftest import WRITE_URL
 from tests.conftest import SentRequests
 from tests.test_api_data import INVALID_LOGIN
@@ -86,6 +87,7 @@ async def test_client_creates_own_session(client: KebaKeEnergyAPI, mock_api: aio
         method="POST",
         headers={},
         ssl=False,
+        timeout=TIMEOUT,
     )
 
 
@@ -125,6 +127,7 @@ async def test_client_uses_passed_session(mock_api: aioresponses) -> None:
         method="POST",
         headers={},
         ssl=False,
+        timeout=TIMEOUT,
     )
 
 
@@ -226,6 +229,7 @@ async def test_request_basic_auth(mock_api: aioresponses) -> None:
             "Authorization": encode_basic_auth(LOGIN, LOGIN),
         },
         ssl=False,
+        timeout=TIMEOUT,
     )
 
 
@@ -593,6 +597,7 @@ async def test_read_message_ids_single_position(client: KebaKeEnergyAPI, mock_ap
         method="POST",
         headers={},
         ssl=False,
+        timeout=TIMEOUT,
     )
 
 
@@ -718,6 +723,7 @@ async def test_write_data(
         method="POST",
         headers={},
         ssl=False,
+        timeout=TIMEOUT,
     )
 
 
@@ -742,6 +748,7 @@ async def test_write_data_skips_unknown_and_read_only_sections(client: KebaKeEne
         method="POST",
         headers={},
         ssl=False,
+        timeout=TIMEOUT,
     )
 
 

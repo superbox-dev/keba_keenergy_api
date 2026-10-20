@@ -44,6 +44,10 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
 - `Enum` for a fixed set of values (modes, states, types, values of the Web HMI), never loose strings or ints
   for them
   - not for open values (names, IDs, numbers) or a one-off choice in a signature (`Literal`)
+- Parameters: options keyword-only (after `*`), `/` only for `_`-prefixed helpers, never in public methods
+  - new code only, adding `*` or `/` to an existing public method is a breaking change
+- Credentials, tokens and serial numbers never in log or exception messages
+- Every request has a timeout (`API_DEFAULT_TIMEOUT`), also with a passed session
 - Log messages start with a capital letter, no trailing period, values as `%s` arguments
 - Style rules apply to new and changed code, existing code only adapted when asked
 - Every `.py` file starts with (after the shebang of an executable script, update the end year when editing a
@@ -73,6 +77,9 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
 - Helpers in the package are `_`-prefixed methods of the class that uses them (`@staticmethod` if they need no
   `self`), not module-level functions
   - used by several classes: method of their shared base class
+- All errors are raised as `APIError` or a subclass, never as a raw `aiohttp` or built-in exception
+  - except programming errors in the endpoint definitions (e.g. `has_message_id` without `values.actValue`)
+  - the responses of the Web HMI always have the expected shape, no extra checks of their structure
 - Constants always in `constants.py`
   - except module-private ones (`_` prefix), otherwise they would become public API
 - Class member order: `__init__`, dunder methods, properties, public methods grouped by topic, helpers directly

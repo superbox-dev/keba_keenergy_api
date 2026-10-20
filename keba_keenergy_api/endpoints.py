@@ -210,6 +210,8 @@ class BaseEndpoints:
                 headers=headers,
                 ssl=False if self._skip_ssl_verification else self._ssl,
                 data=payload,
+                # Also for a passed session, which has no timeout of its own.
+                timeout=ClientTimeout(total=API_DEFAULT_TIMEOUT),
             ) as resp:
                 if resp.status == HTTPStatus.UNAUTHORIZED:
                     raise AuthenticationError(status=HTTPStatus.UNAUTHORIZED)

@@ -11,6 +11,7 @@ from aioresponses import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
 from tests.conftest import READ_URL
+from tests.conftest import TIMEOUT
 from tests.conftest import case_id
 from tests.test_endpoints.test_switch_valve_section_data import GETTERS
 
@@ -42,4 +43,5 @@ async def test_getter(
         method="POST",
         headers={},
         ssl=False,
+        timeout=TIMEOUT,
     )

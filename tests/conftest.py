@@ -11,12 +11,15 @@ from typing import Final
 from typing import TypeAlias
 
 import pytest
+from aiohttp import ClientTimeout
 from aioresponses import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
+from keba_keenergy_api.constants import API_DEFAULT_TIMEOUT
 
 READ_URL: Final[str] = "http://mocked-host/var/readWriteVars"
 WRITE_URL: Final[str] = f"{READ_URL}?action=set"
+TIMEOUT: Final[ClientTimeout] = ClientTimeout(total=API_DEFAULT_TIMEOUT)
 
 SentRequests: TypeAlias = Callable[[aioresponses], list[dict[str, Any]]]
 

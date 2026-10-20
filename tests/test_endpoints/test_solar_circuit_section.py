@@ -13,6 +13,7 @@ from aioresponses import aioresponses
 from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.error import APIError
 from tests.conftest import READ_URL
+from tests.conftest import TIMEOUT
 from tests.conftest import WRITE_URL
 from tests.conftest import case_id
 from tests.test_endpoints.test_solar_circuit_section_data import GETTERS
@@ -47,6 +48,7 @@ async def test_getter(
         method="POST",
         headers={},
         ssl=False,
+        timeout=TIMEOUT,
     )
 
 
@@ -74,6 +76,7 @@ async def test_setter(
         method="POST",
         headers={},
         ssl=False,
+        timeout=TIMEOUT,
     )
 
 

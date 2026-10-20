@@ -16,6 +16,7 @@ from syrupy.assertion import SnapshotAssertion
 from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.error import APIError
 from tests.conftest import READ_URL
+from tests.conftest import TIMEOUT
 from tests.conftest import WRITE_URL
 from tests.conftest import SentRequests
 from tests.conftest import case_id
@@ -59,6 +60,7 @@ async def test_getter(
         method="POST",
         headers={},
         ssl=False,
+        timeout=TIMEOUT,
     )
 
 
@@ -87,6 +89,7 @@ async def test_getter_invalid_value(
         method="POST",
         headers={},
         ssl=False,
+        timeout=TIMEOUT,
     )
 
 
@@ -114,6 +117,7 @@ async def test_setter(
         method="POST",
         headers={},
         ssl=False,
+        timeout=TIMEOUT,
     )
 
 
