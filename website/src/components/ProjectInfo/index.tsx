@@ -1,5 +1,7 @@
 import type {ReactNode} from 'react';
 import Link from '@docusaurus/Link';
+import ThemedImage from '@theme/ThemedImage';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import {
   mdiBug,
   mdiGithub,
@@ -29,15 +31,13 @@ export default function ProjectInfo(): ReactNode {
     <div className={styles.projectInfo}>
       <section className={styles.module}>
         <div className={styles.logo}>
-          <div className={styles.brand}>
-            <img
-              src="https://brands.home-assistant.io/keba_keenergy/icon.png"
-              srcSet="https://brands.home-assistant.io/keba_keenergy/icon@2x.png 2x"
-              alt="KEBA"
-              width={128}
-              height={128}
-            />
-          </div>
+          <ThemedImage
+            className={styles.brand}
+            alt="KEBA"
+            sources={{light: useBaseUrl('/logo.png'), dark: useBaseUrl('/dark_logo.png')}}
+            width={995}
+            height={256}
+          />
           <Link href="https://pypi.org/project/keba-keenergy-api/">
             <img
               src="https://img.shields.io/pypi/v/keba-keenergy-api?label=PyPI"

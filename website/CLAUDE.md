@@ -10,6 +10,9 @@
 - `website/content/usage.md` sections: read data, session, project-specific sections, errors
 - Examples only with test data or placeholders, never real credentials, serial numbers or meter point numbers
 - Preview image for shared links: `website/static/img/social-card.png` (1200 × 630, same layout in all projects)
+- The navbar links to the website of the Home Assistant integration (`Integration`)
 - Design after home-assistant.io:
   - `website/src/css/custom.css` and the wrapped `website/src/theme/TOC/`
-  - the project card in `website/src/components/ProjectInfo/`
+  - light mode by default, the right column at least `17.5rem` wide on smaller screens
+  - the project card in `website/src/components/ProjectInfo/` shows the brand logo of the integration
+    (`website/static/logo.png`, `dark_logo.png`), like the integration card

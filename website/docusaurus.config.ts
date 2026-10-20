@@ -71,7 +71,8 @@ const config: Config = {
   themeConfig: {
     image: 'img/social-card.png',
     colorMode: {
-      respectPrefersColorScheme: true,
+      defaultMode: 'light',
+      respectPrefersColorScheme: false,
     },
     docs: {
       sidebar: {
@@ -87,6 +88,7 @@ const config: Config = {
       items: [
         {type: 'doc', docId: 'api', label: 'Documentation', position: 'right'},
         {type: 'doc', docId: 'changelog', label: 'Changelog', position: 'right'},
+        {href: 'https://superbox-dev.github.io/keba_keenergy/', label: 'Integration', position: 'right'},
         {href: repository, label: 'GitHub', position: 'right'},
       ],
     },
