@@ -13,6 +13,8 @@
 - The navbar links to the website of the Home Assistant integration (`Integration`)
 - Design after home-assistant.io:
   - `website/src/css/custom.css` and the wrapped `website/src/theme/TOC/`
-  - light mode by default, the right column at least `17.5rem` wide on smaller screens
+  - only the dark theme, no switch, colors of contributors.home-assistant.io, except the links
+  - `custom.css` is the same in all four projects, it has the light and the dark theme
+  - the right column at least `17.5rem` wide on smaller screens
   - the project card in `website/src/components/ProjectInfo/` shows the brand logo of the integration
     (`website/static/logo.png`, `dark_logo.png`), like the integration card

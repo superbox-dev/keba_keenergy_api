@@ -49,8 +49,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [Usage](https://superbox-dev.github.io/keba_keenergy_api/usage) page
 - Applied the request timeout of `API_DEFAULT_TIMEOUT` (10 seconds) also to the requests with a passed session,
   which used the timeout of the session before (5 minutes by default in `aiohttp`)
-- Showed the documentation in the light mode by default, the brand logo of the integration on the project card,
-  a link to the website of the integration in the menu and a wider right column on smaller screens
+- Showed the documentation only in the dark theme with the colors of contributors.home-assistant.io, the brand logo
+  of the integration on the project card, a link to the website of the integration in the menu and a wider right
+  column on smaller screens
 
 ### Fixed
 
