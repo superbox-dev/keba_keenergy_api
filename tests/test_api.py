@@ -54,6 +54,7 @@ LOGIN: Final[str] = "test"
 INVALID_LOGIN: Final[str] = "invalid"
 
 if TYPE_CHECKING:
+    from keba_keenergy_api.endpoints import SystemEndpoints
     from keba_keenergy_api.endpoints import ValueResponse
 
 
@@ -158,7 +159,7 @@ class TestApi:
         )
 
         async with KebaKeEnergyAPI(host="mocked-host") as client:
-            system = client.system
+            system: SystemEndpoints = client.system
 
         sessions: list[ClientSession] = []
 

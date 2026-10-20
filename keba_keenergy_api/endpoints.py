@@ -697,9 +697,9 @@ class BaseEndpoints:
 
             if name in valid_curves:
                 no_of_points: int = min(int(response[data_idx + 1]["value"]), points_per_table)
-                raw = response[data_idx + 2 : data_idx + 2 + points_per_table * values_per_point]
+                raw: Response = response[data_idx + 2 : data_idx + 2 + points_per_table * values_per_point]
 
-                points = tuple(
+                points: HeatingCurvePoints = tuple(
                     HeatingCurvePoint(
                         outdoor=float(raw[i]["value"]),
                         flow=float(raw[i + 1]["value"]),
@@ -4252,12 +4252,12 @@ class HeatCircuitEndpoints(BaseEndpoints):
         """
         message: str
 
-        heating_curves = await self.get_available_heating_curves()
+        heating_curves: tuple[tuple[int, str], ...] = await self.get_available_heating_curves()
 
         curve_map: dict[str, int] = {name: idx for idx, name in heating_curves}
 
         try:
-            idx = curve_map[heating_curve]
+            idx: int = curve_map[heating_curve]
         except KeyError as error:
             message = f"Invalid value! Allowed values are {[name for _, name in heating_curves]}"
             raise APIError(message) from error

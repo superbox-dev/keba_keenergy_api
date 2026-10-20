@@ -105,19 +105,6 @@ class DocsGenerator:
             self._extract("CONTRIBUTING.md", "contributing"),
         )
 
-    def _write_home(self) -> None:
-        intro: str = self._extract("README.md", "home")
-        self._write_page(
-            "index.md",
-            self._front_matter("Introduction", 0, slug="/"),
-            "# KEBA KeEnergy API",
-            intro,
-        )
-
-    def _write_page(self, path: str, *blocks: str) -> None:
-        content: str = "\n\n".join(block.strip("\n") for block in blocks if block)
-        (self.output / path).write_text(f"{content}\n", encoding="utf-8")
-
     def _get_class(self, module: str, name: str) -> griffe.Class:
         cls: griffe.Alias | griffe.Object = self.package[module][name]
 
@@ -127,26 +114,14 @@ class DocsGenerator:
 
         return cls
 
-    @staticmethod
-    def _slug(name: str) -> str:
-        return name.replace("_", "-")
-
-    @staticmethod
-    def _title(name: str) -> str:
-        return name.replace("_", " ").capitalize()
-
-    @staticmethod
-    def _front_matter(title: str, position: int, *, slug: str = "", hide_toc: bool = False) -> str:
-        lines: list[str] = ["---", f"title: {title}", f"sidebar_position: {position}"]
-
-        if slug:
-            lines.append(f"slug: {slug}")
-
-        if hide_toc:
-            lines.append("hide_table_of_contents: true")
-
-        lines.append("---")
-        return "\n".join(lines)
+    def _write_home(self) -> None:
+        intro: str = self._extract("README.md", "home")
+        self._write_page(
+            "index.md",
+            self._front_matter("Introduction", 0, slug="/"),
+            "# KEBA KeEnergy API",
+            intro,
+        )
 
     def _extract(self, filename: str, marker: str) -> str:
         """Join all sections of a Markdown file between ``<!--start-marker-->`` and ``<!--end-marker-->``."""
@@ -163,6 +138,23 @@ class DocsGenerator:
             content = content.replace(link, target)
 
         return content
+
+    def _write_page(self, path: str, *blocks: str) -> None:
+        content: str = "\n\n".join(block.strip("\n") for block in blocks if block)
+        (self.output / path).write_text(f"{content}\n", encoding="utf-8")
+
+    @staticmethod
+    def _front_matter(title: str, position: int, *, slug: str = "", hide_toc: bool = False) -> str:
+        lines: list[str] = ["---", f"title: {title}", f"sidebar_position: {position}"]
+
+        if slug:
+            lines.append(f"slug: {slug}")
+
+        if hide_toc:
+            lines.append("hide_table_of_contents: true")
+
+        lines.append("---")
+        return "\n".join(lines)
 
     def _render_client(self, client: griffe.Class, sections: list[tuple[str, griffe.Class]]) -> str:
         init: griffe.Function = client.functions["__init__"]
@@ -192,14 +184,165 @@ class DocsGenerator:
         blocks.extend(self._render_functions(client))
         return "\n\n".join(block for block in blocks if block)
 
-    def _render_section(self, name: str, section: griffe.Class) -> str:
-        blocks: list[str] = [
-            f"# {self._title(name)}",
-            f"Endpoint group `{CLIENT}.{name}` ({section.name}).",
-            self._render_docstring(section.docstring),
-            *self._render_functions(section),
-        ]
+    @staticmethod
+    def _code(code: str) -> str:
+        return f"```python\n{code}\n```"
+
+    def _signature(self, name: str, function: griffe.Function, *, prefix: str) -> str:
+        parameters: list[str] = []
+        keyword_only: bool = False
+
+        for parameter in function.parameters:
+            if parameter.name in {"self", "cls"}:
+                continue
+
+            if parameter.kind is griffe.ParameterKind.var_positional:
+                keyword_only = True
+            elif parameter.kind is griffe.ParameterKind.keyword_only and not keyword_only:
+                parameters.append("*")
+                keyword_only = True
+
+            parameters.append(self._parameter(parameter))
+
+        # A class signature is rendered from its __init__ without the return annotation.
+        returns: str = "" if prefix.startswith("class") else f" -> {function.returns}"
+        line: str = f"{prefix}{name}({', '.join(parameters)}){returns}"
+
+        if len(line) <= SIGNATURE_WIDTH or not parameters:
+            return line
+
+        lines: str = "".join(f"    {parameter},\n" for parameter in parameters)
+        return f"{prefix}{name}(\n{lines}){returns}"
+
+    @staticmethod
+    def _parameter(parameter: griffe.Parameter) -> str:
+        stars: str = {
+            griffe.ParameterKind.var_positional: "*",
+            griffe.ParameterKind.var_keyword: "**",
+        }.get(parameter.kind, "")
+        text: str = f"{stars}{parameter.name}"
+
+        if parameter.annotation is not None:
+            text = f"{text}: {parameter.annotation}"
+
+        if parameter.default is not None:
+            text = f"{text} = {parameter.default}"
+
+        return text
+
+    def _render_text(self, docstring: griffe.Docstring | None) -> str:
+        if docstring is None:
+            return ""
+
+        return "\n\n".join(
+            self._convert(section.value)
+            for section in docstring.parsed
+            if section.kind is griffe.DocstringSectionKind.text
+        )
+
+    def _convert(self, text: str) -> str:
+        """Convert reStructuredText markup of a docstring to Markdown."""
+        text = self._ROLE_PATTERN.sub(r"`\1`", text)
+        text = self._LITERAL_PATTERN.sub(r"`\1`", text)
+        paragraphs: list[str] = []
+
+        for paragraph in text.split("\n\n"):
+            if paragraph.startswith(self._WARNING_PREFIX):
+                body: str = paragraph.removeprefix(self._WARNING_PREFIX)
+                paragraphs.append(f":::warning[Attention]\n\n{body}\n\n:::")
+            else:
+                paragraphs.append(paragraph)
+
+        return "\n\n".join(paragraphs)
+
+    def _render_docstring(self, docstring: griffe.Docstring | None, *, skip_summary: bool = False) -> str:
+        if docstring is None:
+            return ""
+
+        blocks: list[str] = []
+
+        for section in docstring.parsed:
+            if isinstance(section, griffe.DocstringSectionText):
+                text: str = section.value
+
+                # The summary of __init__ ("Initialize the ...") repeats the class docstring.
+                if skip_summary:
+                    text = text.split("\n\n", maxsplit=1)[1] if "\n\n" in text else ""
+                    skip_summary = False
+
+                blocks.append(self._convert(text))
+            elif isinstance(section, griffe.DocstringSectionParameters):
+                blocks.append(self._render_items("Parameters", section.value))
+            elif isinstance(section, griffe.DocstringSectionReturns):
+                blocks.append(self._render_items("Returns", section.value))
+            elif isinstance(section, griffe.DocstringSectionRaises):
+                blocks.append(self._render_items("Raises", section.value))
+            elif isinstance(section, griffe.DocstringSectionExamples):
+                blocks.extend(self._render_examples(section))
+
         return "\n\n".join(block for block in blocks if block)
+
+    def _render_items(
+        self,
+        title: str,
+        items: list[griffe.DocstringParameter] | list[griffe.DocstringRaise] | list[griffe.DocstringReturn],
+    ) -> str:
+        lines: list[str] = [f"**{title}**", ""]
+
+        for item in items:
+            parts: list[str] = []
+
+            if isinstance(item, griffe.DocstringParameter):
+                parts.append(f"**{item.name}**")
+
+            if item.annotation is not None:
+                parts.append(f"`{item.annotation}`")
+
+            if isinstance(item, griffe.DocstringParameter) and item.default is not None:
+                parts.append(f"(default: `{item.default}`)")
+
+            description: str = self._convert(item.description).replace("\n", " ")
+            lines.append(f"- {' '.join(parts)}" + (f": {description}" if description else ""))
+
+        return "\n".join(lines)
+
+    def _render_examples(self, section: griffe.DocstringSectionExamples) -> list[str]:
+        blocks: list[str] = ["**Example**"]
+
+        for kind, text in section.value:
+            if kind is griffe.DocstringSectionKind.examples:
+                code: str = "\n".join(re.sub(r"^(>>>|\.\.\.) ?", "", line) for line in text.splitlines())
+                blocks.append(self._code(code))
+            else:
+                blocks.append(self._convert(text))
+
+        return blocks
+
+    @staticmethod
+    def _slug(name: str) -> str:
+        return name.replace("_", "-")
+
+    def _summary(self, docstring: griffe.Docstring | None) -> str:
+        text: str = self._render_text(docstring)
+        return text.split("\n\n", maxsplit=1)[0].replace("\n", " ")
+
+    def _render_functions(self, cls: griffe.Class) -> list[str]:
+        blocks: list[str] = []
+
+        for name, function in cls.functions.items():
+            if name.startswith("_"):
+                continue
+
+            prefix: str = "async def " if "async" in function.labels else "def "
+            blocks.extend(
+                [
+                    f"## {name}",
+                    self._code(self._signature(name, function, prefix=prefix)),
+                    self._render_docstring(function.docstring),
+                ],
+            )
+
+        return blocks
 
     def _render_constants(self) -> str:
         """Render the endpoint enums, the value enums and the other public constants."""
@@ -268,6 +411,17 @@ class DocsGenerator:
         blocks.extend(self._render_other_constants(module, [*sections, *values]))
         return "\n\n".join(block for block in blocks if block)
 
+    @staticmethod
+    def _row(*cells: str) -> str:
+        return f"| {' | '.join(cells)} |"
+
+    @staticmethod
+    def _enum_link(enum: type[Enum] | None) -> str:
+        return f"[`{enum.__name__}`](#{enum.__name__.lower()})" if enum else ""
+
+    def _table(self, header: tuple[str, ...], rows: list[str]) -> str:
+        return "\n".join([self._row(*header), self._row(*("---" for _ in header)), *rows])
+
     def _render_other_constants(self, module: ModuleType, documented: list[type[Enum]]) -> list[str]:
         blocks: list[str] = ["## Other constants"]
         rows: list[str] = [
@@ -300,171 +454,17 @@ class DocsGenerator:
         return blocks
 
     @staticmethod
-    def _enum_link(enum: type[Enum] | None) -> str:
-        return f"[`{enum.__name__}`](#{enum.__name__.lower()})" if enum else ""
+    def _title(name: str) -> str:
+        return name.replace("_", " ").capitalize()
 
-    @staticmethod
-    def _row(*cells: str) -> str:
-        return f"| {' | '.join(cells)} |"
-
-    def _table(self, header: tuple[str, ...], rows: list[str]) -> str:
-        return "\n".join([self._row(*header), self._row(*("---" for _ in header)), *rows])
-
-    def _render_functions(self, cls: griffe.Class) -> list[str]:
-        blocks: list[str] = []
-
-        for name, function in cls.functions.items():
-            if name.startswith("_"):
-                continue
-
-            prefix: str = "async def " if "async" in function.labels else "def "
-            blocks.extend(
-                [
-                    f"## {name}",
-                    self._code(self._signature(name, function, prefix=prefix)),
-                    self._render_docstring(function.docstring),
-                ],
-            )
-
-        return blocks
-
-    def _signature(self, name: str, function: griffe.Function, *, prefix: str) -> str:
-        parameters: list[str] = []
-        keyword_only: bool = False
-
-        for parameter in function.parameters:
-            if parameter.name in {"self", "cls"}:
-                continue
-
-            if parameter.kind is griffe.ParameterKind.var_positional:
-                keyword_only = True
-            elif parameter.kind is griffe.ParameterKind.keyword_only and not keyword_only:
-                parameters.append("*")
-                keyword_only = True
-
-            parameters.append(self._parameter(parameter))
-
-        # A class signature is rendered from its __init__ without the return annotation.
-        returns: str = "" if prefix.startswith("class") else f" -> {function.returns}"
-        line: str = f"{prefix}{name}({', '.join(parameters)}){returns}"
-
-        if len(line) <= SIGNATURE_WIDTH or not parameters:
-            return line
-
-        lines: str = "".join(f"    {parameter},\n" for parameter in parameters)
-        return f"{prefix}{name}(\n{lines}){returns}"
-
-    @staticmethod
-    def _parameter(parameter: griffe.Parameter) -> str:
-        stars: str = {
-            griffe.ParameterKind.var_positional: "*",
-            griffe.ParameterKind.var_keyword: "**",
-        }.get(parameter.kind, "")
-        text: str = f"{stars}{parameter.name}"
-
-        if parameter.annotation is not None:
-            text = f"{text}: {parameter.annotation}"
-
-        if parameter.default is not None:
-            text = f"{text} = {parameter.default}"
-
-        return text
-
-    def _summary(self, docstring: griffe.Docstring | None) -> str:
-        text: str = self._render_text(docstring)
-        return text.split("\n\n", maxsplit=1)[0].replace("\n", " ")
-
-    def _render_text(self, docstring: griffe.Docstring | None) -> str:
-        if docstring is None:
-            return ""
-
-        return "\n\n".join(
-            self._convert(section.value)
-            for section in docstring.parsed
-            if section.kind is griffe.DocstringSectionKind.text
-        )
-
-    def _render_docstring(self, docstring: griffe.Docstring | None, *, skip_summary: bool = False) -> str:
-        if docstring is None:
-            return ""
-
-        blocks: list[str] = []
-
-        for section in docstring.parsed:
-            if isinstance(section, griffe.DocstringSectionText):
-                text: str = section.value
-
-                # The summary of __init__ ("Initialize the ...") repeats the class docstring.
-                if skip_summary:
-                    text = text.split("\n\n", maxsplit=1)[1] if "\n\n" in text else ""
-                    skip_summary = False
-
-                blocks.append(self._convert(text))
-            elif isinstance(section, griffe.DocstringSectionParameters):
-                blocks.append(self._render_items("Parameters", section.value))
-            elif isinstance(section, griffe.DocstringSectionReturns):
-                blocks.append(self._render_items("Returns", section.value))
-            elif isinstance(section, griffe.DocstringSectionRaises):
-                blocks.append(self._render_items("Raises", section.value))
-            elif isinstance(section, griffe.DocstringSectionExamples):
-                blocks.extend(self._render_examples(section))
-
+    def _render_section(self, name: str, section: griffe.Class) -> str:
+        blocks: list[str] = [
+            f"# {self._title(name)}",
+            f"Endpoint group `{CLIENT}.{name}` ({section.name}).",
+            self._render_docstring(section.docstring),
+            *self._render_functions(section),
+        ]
         return "\n\n".join(block for block in blocks if block)
-
-    def _render_items(
-        self,
-        title: str,
-        items: list[griffe.DocstringParameter] | list[griffe.DocstringRaise] | list[griffe.DocstringReturn],
-    ) -> str:
-        lines: list[str] = [f"**{title}**", ""]
-
-        for item in items:
-            parts: list[str] = []
-
-            if isinstance(item, griffe.DocstringParameter):
-                parts.append(f"**{item.name}**")
-
-            if item.annotation is not None:
-                parts.append(f"`{item.annotation}`")
-
-            if isinstance(item, griffe.DocstringParameter) and item.default is not None:
-                parts.append(f"(default: `{item.default}`)")
-
-            description: str = self._convert(item.description).replace("\n", " ")
-            lines.append(f"- {' '.join(parts)}" + (f": {description}" if description else ""))
-
-        return "\n".join(lines)
-
-    def _render_examples(self, section: griffe.DocstringSectionExamples) -> list[str]:
-        blocks: list[str] = ["**Example**"]
-
-        for kind, text in section.value:
-            if kind is griffe.DocstringSectionKind.examples:
-                code: str = "\n".join(re.sub(r"^(>>>|\.\.\.) ?", "", line) for line in text.splitlines())
-                blocks.append(self._code(code))
-            else:
-                blocks.append(self._convert(text))
-
-        return blocks
-
-    def _convert(self, text: str) -> str:
-        """Convert reStructuredText markup of a docstring to Markdown."""
-        text = self._ROLE_PATTERN.sub(r"`\1`", text)
-        text = self._LITERAL_PATTERN.sub(r"`\1`", text)
-        paragraphs: list[str] = []
-
-        for paragraph in text.split("\n\n"):
-            if paragraph.startswith(self._WARNING_PREFIX):
-                body: str = paragraph.removeprefix(self._WARNING_PREFIX)
-                paragraphs.append(f":::warning[Attention]\n\n{body}\n\n:::")
-            else:
-                paragraphs.append(paragraph)
-
-        return "\n\n".join(paragraphs)
-
-    @staticmethod
-    def _code(code: str) -> str:
-        return f"```python\n{code}\n```"
 
 
 if __name__ == "__main__":
