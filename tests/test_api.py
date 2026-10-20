@@ -6,7 +6,6 @@
 import json
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Final
 from unittest.mock import patch
 
 import pytest
@@ -39,6 +38,8 @@ from keba_keenergy_api.error import InvalidJsonError
 from tests.conftest import READ_URL
 from tests.conftest import WRITE_URL
 from tests.conftest import SentRequests
+from tests.test_api_data import INVALID_LOGIN
+from tests.test_api_data import LOGIN
 from tests.test_api_data import positions_payload
 from tests.test_api_data import read_data_extra_attributes_payload_3
 from tests.test_api_data import read_data_option_payload_3
@@ -49,9 +50,6 @@ from tests.test_api_data import read_data_payload_3
 from tests.test_api_data import read_data_payload_4
 from tests.test_api_data import read_message_ids_payload
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_names_payload
-
-LOGIN: Final[str] = "test"
-INVALID_LOGIN: Final[str] = "invalid"
 
 if TYPE_CHECKING:
     from keba_keenergy_api.endpoints import SystemEndpoints

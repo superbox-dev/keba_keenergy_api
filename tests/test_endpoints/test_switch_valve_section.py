@@ -5,7 +5,6 @@
 
 import json
 from typing import Any
-from typing import Final
 
 import pytest
 from aioresponses import aioresponses
@@ -13,17 +12,7 @@ from aioresponses import aioresponses
 from keba_keenergy_api.api import KebaKeEnergyAPI
 from tests.conftest import READ_URL
 from tests.conftest import case_id
-
-GETTERS: Final[list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]]] = [
-    ("get_position", {"human_readable": True}, {"APPL.CtrlAppl.sParam.switchvalve[0].values.actPosition": "1"}, "open"),
-    ("get_position", {"human_readable": False}, {"APPL.CtrlAppl.sParam.switchvalve[0].values.actPosition": "0"}, 0),
-    (
-        "get_position",
-        {"human_readable": True},
-        {"APPL.CtrlAppl.sParam.switchvalve[0].values.actPosition": "2"},
-        "closed",
-    ),
-]
+from tests.test_endpoints.test_switch_valve_section_data import GETTERS
 
 
 class TestHappyPathSwitchValveSection:

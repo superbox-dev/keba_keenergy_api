@@ -4,6 +4,7 @@
 """Payloads and expected results for the `read_data()` tests."""
 
 from typing import Any
+from typing import Final
 
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_points_payload
 
@@ -633,3 +634,6 @@ positions_payload: list[dict[str, Any]] = [
         "value": "1",
     },
 ]
+
+LOGIN: Final[str] = "test"
+INVALID_LOGIN: Final[str] = "invalid"

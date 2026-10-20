@@ -73,6 +73,8 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
 - Helpers in the package are `_`-prefixed methods of the class that uses them (`@staticmethod` if they need no
   `self`), not module-level functions
   - used by several classes: method of their shared base class
+- Constants always in `constants.py`
+  - except module-private ones (`_` prefix), otherwise they would become public API
 - Class member order: `__init__`, dunder methods, properties, public methods grouped by topic, helpers directly
   below their first caller
   - applies to new methods, existing ones only moved when asked

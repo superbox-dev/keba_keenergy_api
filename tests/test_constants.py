@@ -4,36 +4,17 @@
 """Tests for the endpoint definitions."""
 
 from enum import Enum
-from typing import Final
 
 import pytest
 
-from keba_keenergy_api.constants import BufferTank
-from keba_keenergy_api.constants import ExternalHeatSource
 from keba_keenergy_api.constants import FloatEndpoint
 from keba_keenergy_api.constants import HeatCircuit
 from keba_keenergy_api.constants import HeatPump
-from keba_keenergy_api.constants import HotWaterTank
-from keba_keenergy_api.constants import PassiveCooling
-from keba_keenergy_api.constants import Photovoltaics
 from keba_keenergy_api.constants import SectionPrefix
 from keba_keenergy_api.constants import SolarCircuit
-from keba_keenergy_api.constants import SwitchValve
 from keba_keenergy_api.constants import System
 from keba_keenergy_api.endpoints import BaseEndpoints
-
-SECTIONS: Final[tuple[type[Enum], ...]] = (
-    System,
-    BufferTank,
-    HotWaterTank,
-    HeatPump,
-    HeatCircuit,
-    SolarCircuit,
-    ExternalHeatSource,
-    SwitchValve,
-    PassiveCooling,
-    Photovoltaics,
-)
+from tests.test_constants_data import SECTIONS
 
 
 class TestConstants:
