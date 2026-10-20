@@ -4,7 +4,7 @@ sidebar_position: 5
 
 # Usage
 
-## Read and write values
+## Read and write data
 
 ```python
 import asyncio
@@ -47,7 +47,7 @@ async def main():
 asyncio.run(main())
 ```
 
-## Share one connection
+## Session
 
 By default, the library creates a new connection to `KEBA KeEnergy API` with each coroutine. If you are calling a large
 number of coroutines, use the client with `async with`, so that all requests share one connection:
@@ -68,7 +68,8 @@ async def main():
 asyncio.run(main())
 ```
 
-You can also pass your own `aiohttp ClientSession()`, e.g. to share it with other code. The client leaves it open:
+You can also pass your own `aiohttp ClientSession()`, e.g. to share it with other code. The client leaves it open.
+Every request times out after 10 seconds (`API_DEFAULT_TIMEOUT`), also with a passed session:
 
 ```python
 import asyncio
@@ -123,3 +124,14 @@ Writing values should remain within normal limits, as is the case with typical u
 Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory. **Be careful!**
 
 :::
+
+## Errors
+
+All errors are subclasses of `APIError` (`keba_keenergy_api.error`):
+
+| Exception             | Raised when                                                                                                                                                          |
+|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `AuthenticationError` | The credentials were rejected (HTTP 401)                                                                                                                             |
+| `InvalidJsonError`    | The response is not valid JSON                                                                                                                                       |
+| `APITimeoutError`     | A request timed out, it is also a `TimeoutError`                                                                                                                     |
+| `APIError`            | Any other HTTP or connection error, a value that can't be converted, an invalid value for a setter or an unknown heating curve. `status` holds the HTTP status, if any |

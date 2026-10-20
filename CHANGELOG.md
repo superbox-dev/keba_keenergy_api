@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and the other public constants of `keba_keenergy_api.constants`
 - Added a preview image to the documentation for links shared on social media and removed the search page
   from the documentation sitemap
+- Added an errors section to the usage page of the documentation
 
 ### Changed
 

@@ -148,6 +148,7 @@
 
 .alert--secondary {
   --ifm-alert-background-color: #f0f0f3;
+  --ifm-alert-border-color: #6c757d;
 }
 
 .alert--info {
