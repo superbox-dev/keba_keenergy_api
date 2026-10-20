@@ -400,11 +400,7 @@ async def test_setter_position_0(client: KebaKeEnergyAPI, mock_api: aioresponses
 
 
 @pytest.mark.parametrize(
-    (
-        "section",
-        "position",
-        "payloads",
-    ),
+    ("section", "position", "responses"),
     [
         (
             [
@@ -415,12 +411,12 @@ async def test_setter_position_0(client: KebaKeEnergyAPI, mock_api: aioresponses
                 Photovoltaics.TOTAL_ENERGY,
             ],
             1,
-            (None, read_data_payload_1, None),
+            [read_data_payload_1],
         ),
         (
             [HeatCircuit.TARGET_TEMPERATURE, HeatPump.FLOW_TEMPERATURE],
             [0, 1, 3],
-            (None, read_data_payload_2, None),
+            [read_data_payload_2],
         ),
         (
             [
@@ -433,7 +429,12 @@ async def test_setter_position_0(client: KebaKeEnergyAPI, mock_api: aioresponses
                 SwitchValve.POSITION,
             ],
             None,
-            (read_data_option_payload_3, read_data_payload_3, read_data_extra_attributes_payload_3),
+            [
+                read_data_option_payload_3,
+                read_data_payload_3,
+                heating_curve_names_payload,
+                read_data_extra_attributes_payload_3,
+            ],
         ),
         (
             [
@@ -445,7 +446,7 @@ async def test_setter_position_0(client: KebaKeEnergyAPI, mock_api: aioresponses
                 HeatPump.SUBSTATE,
             ],
             None,
-            (read_data_option_payload_4, read_data_payload_4, None),
+            [read_data_option_payload_4, read_data_payload_4],
         ),
     ],
     ids=["position", "positions", "options-and-extra-attributes", "options"],
@@ -454,34 +455,13 @@ async def test_read_data(
     mock_api: aioresponses,
     section: Section,
     position: int | list[int] | None,
-    payloads: tuple[list[dict[str, Any]] | None, list[dict[str, Any]], list[dict[str, Any]] | None],
+    responses: list[list[dict[str, Any]]],
     snapshot: SnapshotAssertion,
     sent_requests: SentRequests,
 ) -> None:
     """Test that `read_data()` returns the values grouped by section."""
-    option_payload, payload, extra_attributes_payload = payloads
-
-    if option_payload is not None:
-        mock_api.post(
-            READ_URL,
-            payload=option_payload,
-        )
-
-    mock_api.post(
-        READ_URL,
-        payload=payload,
-    )
-
-    if extra_attributes_payload:
-        mock_api.post(
-            READ_URL,
-            payload=heating_curve_names_payload,
-        )
-
-        mock_api.post(
-            READ_URL,
-            payload=extra_attributes_payload,
-        )
+    for response in responses:
+        mock_api.post(READ_URL, payload=response)
 
     client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
     response: dict[str, ValueResponse] = await client.read_data(
@@ -783,42 +763,44 @@ async def test_write_data_nothing_to_write(client: KebaKeEnergyAPI, mock_api: ai
     mock_api.assert_not_called()
 
 
+async def test_filter_request_position(
+    mock_api: aioresponses, snapshot: SnapshotAssertion, sent_requests: SentRequests
+) -> None:
+    """Test that `filter_request()` checks the variables of one position without reading the positions."""
+    mock_api.post(READ_URL, payload=[])
+
+    client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
+    data: list[Section] = await client.filter_request(request=BufferTank.NAME, position=1)
+
+    assert data == [BufferTank.NAME]
+    assert sent_requests(mock_api) == snapshot(name="requests")
+
+
 @pytest.mark.parametrize(
-    ("section", "position", "expected"),
+    ("section", "expected"),
     [
-        (BufferTank.NAME, 1, [BufferTank.NAME]),
-        (SolarCircuit.PRIORITY_1_BEFORE_2, None, [SolarCircuit.PRIORITY_1_BEFORE_2]),
-        (SolarCircuit.HEAT_REQUEST, None, [SolarCircuit.HEAT_REQUEST]),
+        (SolarCircuit.PRIORITY_1_BEFORE_2, [SolarCircuit.PRIORITY_1_BEFORE_2]),
+        (SolarCircuit.HEAT_REQUEST, [SolarCircuit.HEAT_REQUEST]),
         (
             [HotWaterTank.CURRENT_TEMPERATURE, HeatPump.STATE, HotWaterTank.CURRENT_TEMPERATURE],
-            None,
             [HotWaterTank.CURRENT_TEMPERATURE, HeatPump.STATE],
         ),
     ],
-    ids=["position", "system-wide", "quantity", "duplicate-sections"],
+    ids=["system-wide", "quantity", "duplicate-sections"],
 )
 async def test_filter_request(
     mock_api: aioresponses,
     section: Section | list[Section],
-    position: int | None,
     expected: list[Section],
     snapshot: SnapshotAssertion,
     sent_requests: SentRequests,
 ) -> None:
-    """Test that `filter_request()` checks all variables with one read request."""
-    if position is None:
-        mock_api.post(
-            READ_URL,
-            payload=positions_payload,
-        )
-
-    mock_api.post(
-        READ_URL,
-        payload=[],
-    )
+    """Test that `filter_request()` reads the positions and checks all variables with one read request."""
+    mock_api.post(READ_URL, payload=positions_payload)
+    mock_api.post(READ_URL, payload=[])
 
     client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-    data: list[Section] = await client.filter_request(request=section, position=position)
+    data: list[Section] = await client.filter_request(request=section)
 
     assert data == expected
     assert sent_requests(mock_api) == snapshot(name="requests")

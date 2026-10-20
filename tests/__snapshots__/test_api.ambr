@@ -51,20 +51,6 @@
     }),
   ])
 # ---
-# name: test_filter_request[position][requests]
-  list([
-    dict({
-      'data': list([
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.bufferTank[0].param.name',
-        }),
-      ]),
-      'method': 'POST',
-      'url': 'http://mocked-host/var/readWriteVars',
-    }),
-  ])
-# ---
 # name: test_filter_request[quantity][requests]
   list([
     dict({
@@ -158,6 +144,20 @@
         dict({
           'attr': '0',
           'name': 'APPL.CtrlAppl.sParam.hmiRetainData.consumer1PrioritySolar[0]',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+  ])
+# ---
+# name: test_filter_request_position[requests]
+  list([
+    dict({
+      'data': list([
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.bufferTank[0].param.name',
         }),
       ]),
       'method': 'POST',
