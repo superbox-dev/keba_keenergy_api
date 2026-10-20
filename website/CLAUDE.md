@@ -16,5 +16,8 @@
   - only the dark theme, no switch, colors of contributors.home-assistant.io, except the links
   - `custom.css` is the same in all four projects, it has the light and the dark theme
   - the right column at least `17.5rem` wide on smaller screens
+  - translucent header without blur, search as a rounded field with a `/` hint, `/` focuses it on every keyboard
+    layout (`website/src/searchShortcut.ts`, the shortcut of the search plugin is off)
+  - category cards with Lucide icons (`lucide-react`, `website/src/theme/DocCard/Heading/Icon/`)
   - the project card in `website/src/components/ProjectInfo/` shows the brand logo of the integration
     (`website/static/logo.png`, `dark_logo.png`), like the integration card

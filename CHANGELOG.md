@@ -52,6 +52,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Showed the documentation only in the dark theme with the colors of contributors.home-assistant.io, the brand logo
   of the integration on the project card, a link to the website of the integration in the menu and a wider right
   column on smaller screens
+- Focused the search of the documentation with `/` instead of `Ctrl`/`Cmd` + `K`, styled the search and the cards of
+  the category pages like contributors.home-assistant.io and made the header translucent
 
 ### Fixed
 
