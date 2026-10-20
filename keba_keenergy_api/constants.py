@@ -12,7 +12,7 @@ from typing import Any
 from typing import Final
 from typing import TypeAlias
 
-API_DEFAULT_TIMEOUT: int = 10
+API_DEFAULT_TIMEOUT: Final[int] = 10
 
 
 class EndpointPath:
@@ -31,7 +31,7 @@ class BaseEnum(Enum):
     @classmethod
     def _missing_(cls, value: object) -> "BaseEnum":
         """Return the enum member matching the given value."""
-        # Scalar values are already matched by Enum itself, only tuple members are left
+        # Scalar values are already matched by Enum itself, only tuple members are left.
         for member in cls:
             if isinstance(member._value_, tuple) and value in member._value_:
                 return member
@@ -351,7 +351,7 @@ class SolarCircuitPriority1Before2StringEndpoint(StringEndpoint):
 
         """
         priority: dict[int | None, int] = {1: SolarCircuitPriority.LOW.value, 0: SolarCircuitPriority.HIGH.value}
-        # Only the first consumer of each solar circuit (sub index 0, 2, ...) is written
+        # Only the first consumer of each solar circuit (sub index 0, 2, ...) is written.
         priorities: list[int | None] = list(chain.from_iterable((priority.get(m), None) for m in modes))
 
         return {SolarCircuit["_PRIORITY"]: priorities}

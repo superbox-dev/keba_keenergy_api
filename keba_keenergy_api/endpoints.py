@@ -12,6 +12,7 @@ from enum import Enum
 from http import HTTPStatus
 from re import Pattern
 from typing import Any
+from typing import Final
 from typing import NamedTuple
 from typing import TypeAlias
 from typing import TypedDict
@@ -53,10 +54,12 @@ from keba_keenergy_api.error import InvalidJsonError
 
 _T = TypeVar("_T")
 
-# Attributes returned by the Web HMI that are not useful for API consumers
-_IGNORED_ATTRIBUTES: frozenset[str] = frozenset({"unitId", "longText", "formatId", "dynLowerLimit", "dynUpperLimit"})
-# Number of heating curve slots in the line table pool that are scanned for heating curves
-_HEATING_CURVE_POOL_SIZE: int = 30
+# Attributes returned by the Web HMI that are not useful for API consumers.
+_IGNORED_ATTRIBUTES: Final[frozenset[str]] = frozenset(
+    {"unitId", "longText", "formatId", "dynLowerLimit", "dynUpperLimit"}
+)
+# Number of heating curve slots in the line table pool that are scanned for heating curves.
+_HEATING_CURVE_POOL_SIZE: Final[int] = 30
 
 
 class ReadPayload(TypedDict):
@@ -211,7 +214,7 @@ class BaseEndpoints:
                 if resp.status == HTTPStatus.UNAUTHORIZED:
                     raise AuthenticationError(status=HTTPStatus.UNAUTHORIZED)
 
-                # Everything else than 2xx is an error, e.g. also a redirect or a 502 of a reverse proxy
+                # Everything else than 2xx is an error, e.g. also a redirect or a 502 of a reverse proxy.
                 if not HTTPStatus.OK <= resp.status < HTTPStatus.MULTIPLE_CHOICES:
                     error_message: str = await resp.text()
 
@@ -229,14 +232,14 @@ class BaseEndpoints:
         except (json.JSONDecodeError, ContentTypeError) as error:
             message: str = f"Invalid JSON response! {error}"
             raise InvalidJsonError(message) from error
-        # Before ClientError, as the aiohttp timeouts (e.g. ConnectionTimeoutError) are also a ClientError
+        # Before ClientError, as the aiohttp timeouts (e.g. ConnectionTimeoutError) are also a ClientError.
         except TimeoutError as error:
             message = f"Request timed out! {error}".rstrip()
             raise APITimeoutError(message) from error
         except ClientError as error:
             raise APIError(str(error)) from error
         finally:
-            # Close the session opened for this request, also if the shared session was already closed
+            # Close the session opened for this request, also if the shared session was already closed.
             if session is not self._session:
                 await session.close()
 
@@ -316,7 +319,7 @@ class BaseEndpoints:
             elif quantity == 1:
                 yield template % idx
             else:
-                # Sections with a quantity > 1 (e.g. two consumers per solar circuit) use a sub index
+                # Sections with a quantity > 1 (e.g. two consumers per solar circuit) use a sub index.
                 yield from (template % sub_idx for sub_idx in range(idx * quantity, (idx + 1) * quantity))
 
     def _generate_read_payload(
@@ -517,7 +520,7 @@ class BaseEndpoints:
             if value is not None
         ]
 
-        # Some endpoints need additional writes (e.g. the solar circuit priority)
+        # Some endpoints need additional writes (e.g. the solar circuit priority).
         for extra_section, extra_values in endpoint.extra_writes(_values).items():
             payload += self._generate_endpoint_write_payload(extra_section.value, extra_values)
 
@@ -661,7 +664,7 @@ class BaseEndpoints:
         if not heating_curves:
             return {}
 
-        # Only the values are needed, so no attributes are requested (attr="0")
+        # Only the values are needed, so no attributes are requested (attr="0").
         payload: Payload = [
             ReadPayload(name=name, attr="0")
             for idx, _ in heating_curves
@@ -4217,7 +4220,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         if heating_curve is None:
             return await self._read_heating_curve_points(heating_curves)
 
-        # Only the requested heating curve is read
+        # Only the requested heating curve is read.
         data: HeatingCurves = await self._read_heating_curve_points(
             tuple(curve for curve in heating_curves if curve[1] == heating_curve),
         )
@@ -4595,7 +4598,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
             Position of the solar circuit, starting at 1
 
         """
-        # Two consumers per solar circuit: consumer 1 is genericHeat[2 * (position - 1)]
+        # Two consumers per solar circuit: consumer 1 is genericHeat[2 * (position - 1)].
         quantity: int = SolarCircuit.TARGET_TEMPERATURE.value.quantity
         await self._write_for_position(SolarCircuit.TARGET_TEMPERATURE, temperature, quantity * position - 1)
 
@@ -4629,7 +4632,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
             Position of the solar circuit, starting at 1
 
         """
-        # Two consumers per solar circuit: consumer 2 is genericHeat[2 * (position - 1) + 1]
+        # Two consumers per solar circuit: consumer 2 is genericHeat[2 * (position - 1) + 1].
         quantity: int = SolarCircuit.TARGET_TEMPERATURE.value.quantity
         await self._write_for_position(SolarCircuit.TARGET_TEMPERATURE, temperature, quantity * position)
 

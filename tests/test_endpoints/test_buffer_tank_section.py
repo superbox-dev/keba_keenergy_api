@@ -6,6 +6,7 @@
 import json
 import re
 from typing import Any
+from typing import Final
 
 import pytest
 from aioresponses import aioresponses
@@ -14,8 +15,9 @@ from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.error import APIError
 from tests.conftest import READ_URL
 from tests.conftest import WRITE_URL
+from tests.conftest import case_id
 
-GETTERS: list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]] = [
+GETTERS: Final[list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]]] = [
     ("get_name", {}, {"APPL.CtrlAppl.sParam.bufferTank[0].param.name": "Puffer1"}, "Puffer1"),
     (
         "get_current_top_temperature",
@@ -133,7 +135,7 @@ GETTERS: list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]] = [
     ("get_cool_request", {"human_readable": False}, {"APPL.CtrlAppl.sParam.bufferTank[0].values.coolRequestBot": 0}, 0),
 ]
 
-INVALID_GETTERS: list[tuple[str, dict[str, Any], dict[str, Any], str]] = [
+INVALID_GETTERS: Final[list[tuple[str, dict[str, Any], dict[str, Any], str]]] = [
     (
         "get_operating_mode",
         {"human_readable": False},
@@ -154,7 +156,7 @@ INVALID_GETTERS: list[tuple[str, dict[str, Any], dict[str, Any], str]] = [
     ),
 ]
 
-SETTERS: list[tuple[str, float | int | str, dict[str, Any], dict[str, str]]] = [
+SETTERS: Final[list[tuple[str, float | int | str, dict[str, Any], dict[str, str]]]] = [
     ("set_operating_mode", "off", {}, {"APPL.CtrlAppl.sParam.bufferTank[0].param.operatingMode": "0"}),
     ("set_operating_mode", "ON", {}, {"APPL.CtrlAppl.sParam.bufferTank[0].param.operatingMode": "1"}),
     ("set_operating_mode", 2, {}, {"APPL.CtrlAppl.sParam.bufferTank[0].param.operatingMode": "2"}),
@@ -183,7 +185,7 @@ SETTERS: list[tuple[str, float | int | str, dict[str, Any], dict[str, str]]] = [
     ("set_use_excess_energy", 0, {}, {"APPL.CtrlAppl.sParam.bufferTank[0].param.useExcessEnergy": "0"}),
 ]
 
-INVALID_SETTERS: list[tuple[str, int | str, dict[str, Any], str]] = [
+INVALID_SETTERS: Final[list[tuple[str, int | str, dict[str, Any], str]]] = [
     ("set_use_excess_energy", "INVALID", {}, "Invalid value! Allowed values are ['OFF', '0', 'ON', '1']"),
     ("set_operating_mode", "INVALID", {}, "Invalid value! Allowed values are ['OFF', '0', 'ON', '1', 'HEAT_UP', '2']"),
 ]
@@ -192,7 +194,11 @@ INVALID_SETTERS: list[tuple[str, int | str, dict[str, Any], str]] = [
 class TestHappyPathBufferTankSection:
     """Tests for the buffer tank endpoints with valid responses and input."""
 
-    @pytest.mark.parametrize(("method", "kwargs", "response", "expected"), GETTERS)
+    @pytest.mark.parametrize(
+        ("method", "kwargs", "response", "expected"),
+        GETTERS,
+        ids=[case_id(method, kwargs, *response.values(), expected) for method, kwargs, response, expected in GETTERS],
+    )
     async def test_getter(
         self,
         client: KebaKeEnergyAPI,
@@ -218,7 +224,11 @@ class TestHappyPathBufferTankSection:
             ssl=False,
         )
 
-    @pytest.mark.parametrize(("method", "value", "kwargs", "expected"), SETTERS)
+    @pytest.mark.parametrize(
+        ("method", "value", "kwargs", "expected"),
+        SETTERS,
+        ids=[case_id(method, kwargs, value) for method, value, kwargs, _ in SETTERS],
+    )
     async def test_setter(
         self,
         client: KebaKeEnergyAPI,
@@ -245,7 +255,11 @@ class TestHappyPathBufferTankSection:
 class TestUnhappyPathBufferTankSection:
     """Tests for the buffer tank endpoints with invalid responses and input."""
 
-    @pytest.mark.parametrize(("method", "kwargs", "response", "message"), INVALID_GETTERS)
+    @pytest.mark.parametrize(
+        ("method", "kwargs", "response", "message"),
+        INVALID_GETTERS,
+        ids=[case_id(method, kwargs, *response.values()) for method, kwargs, response, _ in INVALID_GETTERS],
+    )
     async def test_invalid_getter(
         self,
         client: KebaKeEnergyAPI,
@@ -269,7 +283,11 @@ class TestUnhappyPathBufferTankSection:
             ssl=False,
         )
 
-    @pytest.mark.parametrize(("method", "value", "kwargs", "message"), INVALID_SETTERS)
+    @pytest.mark.parametrize(
+        ("method", "value", "kwargs", "message"),
+        INVALID_SETTERS,
+        ids=[case_id(method, kwargs, value) for method, value, kwargs, _ in INVALID_SETTERS],
+    )
     async def test_invalid_setter(
         self,
         client: KebaKeEnergyAPI,

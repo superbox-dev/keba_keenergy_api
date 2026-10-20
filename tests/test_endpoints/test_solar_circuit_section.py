@@ -6,6 +6,7 @@
 import json
 import re
 from typing import Any
+from typing import Final
 
 import pytest
 from aioresponses import aioresponses
@@ -14,8 +15,9 @@ from keba_keenergy_api.api import KebaKeEnergyAPI
 from keba_keenergy_api.error import APIError
 from tests.conftest import READ_URL
 from tests.conftest import WRITE_URL
+from tests.conftest import case_id
 
-GETTERS: list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]] = [
+GETTERS: Final[list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]]] = [
     ("get_name", {}, {"APPL.CtrlAppl.sParam.solarCircuit[0].param.name": "Diff. Regler 1"}, "Diff. Regler 1"),
     (
         "get_operating_mode",
@@ -162,7 +164,7 @@ GETTERS: list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]] = [
     ("get_actual_power", {}, {"APPL.CtrlAppl.sParam.solarCircuit[0].heatMeter.values.power": "3.23"}, 3.23),
 ]
 
-SETTERS: list[tuple[str, float | int | str, dict[str, Any], dict[str, str]]] = [
+SETTERS: Final[list[tuple[str, float | int | str, dict[str, Any], dict[str, str]]]] = [
     ("set_operating_mode", "on", {}, {"APPL.CtrlAppl.sParam.solarCircuit[0].param.operatingMode": "1"}),
     ("set_operating_mode", "OFF", {}, {"APPL.CtrlAppl.sParam.solarCircuit[0].param.operatingMode": "0"}),
     ("set_operating_mode", 1, {}, {"APPL.CtrlAppl.sParam.solarCircuit[0].param.operatingMode": "1"}),
@@ -209,7 +211,7 @@ SETTERS: list[tuple[str, float | int | str, dict[str, Any], dict[str, str]]] = [
     ),
 ]
 
-INVALID_SETTERS: list[tuple[str, int | str, dict[str, Any], str]] = [
+INVALID_SETTERS: Final[list[tuple[str, int | str, dict[str, Any], str]]] = [
     ("set_operating_mode", "INVALID", {}, "Invalid value! Allowed values are ['OFF', '0', 'ON', '1']"),
     (
         "set_priority_1_before_2",
@@ -223,7 +225,11 @@ INVALID_SETTERS: list[tuple[str, int | str, dict[str, Any], str]] = [
 class TestHappyPathSolarCircuitSection:
     """Tests for the solar circuit endpoints with valid responses and input."""
 
-    @pytest.mark.parametrize(("method", "kwargs", "response", "expected"), GETTERS)
+    @pytest.mark.parametrize(
+        ("method", "kwargs", "response", "expected"),
+        GETTERS,
+        ids=[case_id(method, kwargs, *response.values(), expected) for method, kwargs, response, expected in GETTERS],
+    )
     async def test_getter(
         self,
         client: KebaKeEnergyAPI,
@@ -249,7 +255,11 @@ class TestHappyPathSolarCircuitSection:
             ssl=False,
         )
 
-    @pytest.mark.parametrize(("method", "value", "kwargs", "expected"), SETTERS)
+    @pytest.mark.parametrize(
+        ("method", "value", "kwargs", "expected"),
+        SETTERS,
+        ids=[case_id(method, kwargs, value) for method, value, kwargs, _ in SETTERS],
+    )
     async def test_setter(
         self,
         client: KebaKeEnergyAPI,
@@ -276,7 +286,11 @@ class TestHappyPathSolarCircuitSection:
 class TestUnhappyPathSolarCircuitSection:
     """Tests for the solar circuit endpoints with invalid responses and input."""
 
-    @pytest.mark.parametrize(("method", "value", "kwargs", "message"), INVALID_SETTERS)
+    @pytest.mark.parametrize(
+        ("method", "value", "kwargs", "message"),
+        INVALID_SETTERS,
+        ids=[case_id(method, kwargs, value) for method, value, kwargs, _ in INVALID_SETTERS],
+    )
     async def test_invalid_setter(
         self,
         client: KebaKeEnergyAPI,

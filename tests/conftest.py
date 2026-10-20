@@ -7,6 +7,7 @@ import json
 from collections.abc import Callable
 from collections.abc import Iterator
 from typing import Any
+from typing import Final
 from typing import TypeAlias
 
 import pytest
@@ -14,10 +15,31 @@ from aioresponses import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
 
-READ_URL: str = "http://mocked-host/var/readWriteVars"
-WRITE_URL: str = f"{READ_URL}?action=set"
+READ_URL: Final[str] = "http://mocked-host/var/readWriteVars"
+WRITE_URL: Final[str] = f"{READ_URL}?action=set"
 
 SentRequests: TypeAlias = Callable[[aioresponses], list[dict[str, Any]]]
+
+
+def case_id(method: str, kwargs: dict[str, Any], /, *values: object) -> str:
+    """Return the test id of an endpoint test case.
+
+    Parameters
+    ----------
+    method
+        Name of the endpoint method.
+    kwargs
+        Keyword arguments of the method call.
+    *values
+        Further values that tell the cases apart, e.g. the raw and the expected value.
+
+    Returns
+    -------
+    str
+        The method, the keyword arguments and the values, joined by ``-``.
+
+    """
+    return "-".join([method, *(f"{key}_{value}" for key, value in kwargs.items()), *(str(value) for value in values)])
 
 
 @pytest.fixture

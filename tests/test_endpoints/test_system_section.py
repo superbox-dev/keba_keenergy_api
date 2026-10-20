@@ -6,6 +6,7 @@
 import json
 import re
 from typing import Any
+from typing import Final
 
 import pytest
 from aioresponses import aioresponses
@@ -15,8 +16,9 @@ from keba_keenergy_api.endpoints import Position
 from keba_keenergy_api.error import APIError
 from tests.conftest import READ_URL
 from tests.conftest import WRITE_URL
+from tests.conftest import case_id
 
-GETTERS: list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]] = [
+GETTERS: Final[list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]]] = [
     ("get_number_of_buffer_tanks", {}, {"APPL.CtrlAppl.sParam.options.systemNumberOfBuffers": "2"}, 2),
     ("get_number_of_hot_water_tanks", {}, {"APPL.CtrlAppl.sParam.options.systemNumberOfHotWaterTanks": "2"}, 2),
     ("get_number_of_heat_pumps", {}, {"APPL.CtrlAppl.sParam.options.systemNumberOfHeatPumps": "1"}, 1),
@@ -51,13 +53,13 @@ GETTERS: list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]] = [
     ("get_free_ram", {}, {"APPL.CtrlAppl.sProcData.totFreeRAM": "100060"}, 100060),
 ]
 
-SETTERS: list[tuple[str, float | int | str, dict[str, Any], dict[str, str]]] = [
+SETTERS: Final[list[tuple[str, float | int | str, dict[str, Any], dict[str, str]]]] = [
     ("set_operating_mode", "summer", {}, {"APPL.CtrlAppl.sParam.param.operatingMode": "1"}),
     ("set_operating_mode", "AUTO_HEAT", {}, {"APPL.CtrlAppl.sParam.param.operatingMode": "2"}),
     ("set_operating_mode", 3, {}, {"APPL.CtrlAppl.sParam.param.operatingMode": "3"}),
 ]
 
-INVALID_SETTERS: list[tuple[str, int | str, dict[str, Any], str]] = [
+INVALID_SETTERS: Final[list[tuple[str, int | str, dict[str, Any], str]]] = [
     (
         "set_operating_mode",
         "INVALID",
@@ -69,7 +71,7 @@ INVALID_SETTERS: list[tuple[str, int | str, dict[str, Any], str]] = [
     ),
 ]
 
-POSITION_NAMES: list[str] = [
+POSITION_NAMES: Final[list[str]] = [
     "APPL.CtrlAppl.sParam.options.systemNumberOfHeatPumps",
     "APPL.CtrlAppl.sParam.options.systemNumberOfHeatingCircuits",
     "APPL.CtrlAppl.sParam.options.systemNumberOfSolarCircuits",
@@ -83,7 +85,11 @@ POSITION_NAMES: list[str] = [
 class TestHappyPathSystemSection:
     """Tests for the system endpoints with valid responses and input."""
 
-    @pytest.mark.parametrize(("method", "kwargs", "response", "expected"), GETTERS)
+    @pytest.mark.parametrize(
+        ("method", "kwargs", "response", "expected"),
+        GETTERS,
+        ids=[case_id(method, kwargs, *response.values(), expected) for method, kwargs, response, expected in GETTERS],
+    )
     async def test_getter(
         self,
         client: KebaKeEnergyAPI,
@@ -109,7 +115,11 @@ class TestHappyPathSystemSection:
             ssl=False,
         )
 
-    @pytest.mark.parametrize(("method", "value", "kwargs", "expected"), SETTERS)
+    @pytest.mark.parametrize(
+        ("method", "value", "kwargs", "expected"),
+        SETTERS,
+        ids=[case_id(method, kwargs, value) for method, value, kwargs, _ in SETTERS],
+    )
     async def test_setter(
         self,
         client: KebaKeEnergyAPI,
@@ -202,6 +212,7 @@ class TestHappyPathSystemSection:
                 "Europe/Vienna",
             ),
         ],
+        ids=["get_info", "get_info_without_ret", "get_hmi_info", "get_device_info", "get_timezone"],
     )
     async def test_get_info(
         self,
@@ -230,7 +241,11 @@ class TestHappyPathSystemSection:
 class TestUnhappyPathSystemSection:
     """Tests for the system endpoints with invalid responses and input."""
 
-    @pytest.mark.parametrize(("method", "value", "kwargs", "message"), INVALID_SETTERS)
+    @pytest.mark.parametrize(
+        ("method", "value", "kwargs", "message"),
+        INVALID_SETTERS,
+        ids=[case_id(method, kwargs, value) for method, value, kwargs, _ in INVALID_SETTERS],
+    )
     async def test_invalid_setter(
         self,
         client: KebaKeEnergyAPI,

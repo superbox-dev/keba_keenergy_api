@@ -7,6 +7,7 @@ import json
 import re
 from copy import deepcopy
 from typing import Any
+from typing import Final
 
 import pytest
 from aioresponses import aioresponses
@@ -20,10 +21,11 @@ from keba_keenergy_api.error import APIError
 from tests.conftest import READ_URL
 from tests.conftest import WRITE_URL
 from tests.conftest import SentRequests
+from tests.conftest import case_id
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_names_payload
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_points_payload
 
-GETTERS: list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]] = [
+GETTERS: Final[list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]]] = [
     ("get_name", {}, {"APPL.CtrlAppl.sParam.heatCircuit[0].param.name": "FBH"}, "FBH"),
     ("get_mode", {"human_readable": True}, {"APPL.CtrlAppl.sParam.options.heatCircuit[0].type": "0"}, "heating"),
     ("get_mode", {"human_readable": False}, {"APPL.CtrlAppl.sParam.options.heatCircuit[0].type": 0}, 0),
@@ -499,7 +501,7 @@ GETTERS: list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]] = [
     ("has_mixer", {"position": 2}, {"APPL.CtrlAppl.sParam.options.heatCircuit[1].hasMixer": "true"}, "on"),
 ]
 
-INVALID_GETTERS: list[tuple[str, dict[str, Any], dict[str, Any], str]] = [
+INVALID_GETTERS: Final[list[tuple[str, dict[str, Any], dict[str, Any], str]]] = [
     (
         "get_heat_request",
         {"human_readable": True},
@@ -511,7 +513,7 @@ INVALID_GETTERS: list[tuple[str, dict[str, Any], dict[str, Any], str]] = [
     ),
 ]
 
-SETTERS: list[tuple[str, float | int | str, dict[str, Any], dict[str, str]]] = [
+SETTERS: Final[list[tuple[str, float | int | str, dict[str, Any], dict[str, str]]]] = [
     (
         "set_use_excess_energy",
         "off",
@@ -615,7 +617,7 @@ SETTERS: list[tuple[str, float | int | str, dict[str, Any], dict[str, str]]] = [
     ("set_use_heating_curve", 0, {}, {"APPL.CtrlAppl.sParam.heatCircuit[0].param.enableHeatCurveLinTab": "0"}),
 ]
 
-INVALID_SETTERS: list[tuple[str, int | str, dict[str, Any], str]] = [
+INVALID_SETTERS: Final[list[tuple[str, int | str, dict[str, Any], str]]] = [
     ("set_use_excess_energy", "INVALID", {}, "Invalid value! Allowed values are ['OFF', '0', 'ON', '1']"),
     (
         "set_operating_mode",
@@ -629,7 +631,7 @@ INVALID_SETTERS: list[tuple[str, int | str, dict[str, Any], str]] = [
     ("set_use_heating_curve", "INVALID", {}, "Invalid value! Allowed values are ['OFF', '0', 'ON', '1']"),
 ]
 
-HEATING_CURVE_POINTS: HeatingCurvePoints = (
+HEATING_CURVE_POINTS: Final[HeatingCurvePoints] = (
     HeatingCurvePoint(outdoor=-20, flow=35),
     HeatingCurvePoint(outdoor=-10, flow=33),
     HeatingCurvePoint(outdoor=-5, flow=32),
@@ -639,7 +641,7 @@ HEATING_CURVE_POINTS: HeatingCurvePoints = (
     HeatingCurvePoint(outdoor=20, flow=25),
 )
 
-INVALID_CURVE_MESSAGE: str = (
+INVALID_CURVE_MESSAGE: Final[str] = (
     "Invalid value! Allowed values are ['HC1', 'HC2', 'HC3', 'HC4', 'HC5', 'HC6', 'HC7', 'HC8', 'HC FBH', 'HC HK']"
 )
 
@@ -647,7 +649,11 @@ INVALID_CURVE_MESSAGE: str = (
 class TestHappyPathHeatCircuitSection:
     """Tests for the heating circuit endpoints with valid responses and input."""
 
-    @pytest.mark.parametrize(("method", "kwargs", "response", "expected"), GETTERS)
+    @pytest.mark.parametrize(
+        ("method", "kwargs", "response", "expected"),
+        GETTERS,
+        ids=[case_id(method, kwargs, *response.values(), expected) for method, kwargs, response, expected in GETTERS],
+    )
     async def test_getter(
         self,
         client: KebaKeEnergyAPI,
@@ -673,7 +679,11 @@ class TestHappyPathHeatCircuitSection:
             ssl=False,
         )
 
-    @pytest.mark.parametrize(("method", "value", "kwargs", "expected"), SETTERS)
+    @pytest.mark.parametrize(
+        ("method", "value", "kwargs", "expected"),
+        SETTERS,
+        ids=[case_id(method, kwargs, value) for method, value, kwargs, _ in SETTERS],
+    )
     async def test_setter(
         self,
         client: KebaKeEnergyAPI,
@@ -696,7 +706,7 @@ class TestHappyPathHeatCircuitSection:
             ssl=False,
         )
 
-    @pytest.mark.parametrize("name", ["HC1", "HC FBH"])
+    @pytest.mark.parametrize("name", ["HC1", "HC FBH"], ids=["HC1", "HC_FBH"])
     async def test_set_heating_curve(
         self,
         client: KebaKeEnergyAPI,
@@ -713,7 +723,7 @@ class TestHappyPathHeatCircuitSection:
 
         assert sent_requests(mock_api) == snapshot
 
-    @pytest.mark.parametrize("name", ["HC1", "HC FBH"])
+    @pytest.mark.parametrize("name", ["HC1", "HC FBH"], ids=["HC1", "HC_FBH"])
     async def test_set_cooling_curve(
         self,
         client: KebaKeEnergyAPI,
@@ -734,7 +744,7 @@ class TestHappyPathHeatCircuitSection:
         ("heating_curve", "points_payload"),
         [
             (None, heating_curve_points_payload),
-            # Only the requested heating curve is read (name, number of points and 16 points)
+            # Only the requested heating curve is read (name, number of points and 16 points).
             ("HC1", heating_curve_points_payload[:34]),
         ],
         ids=["all", "HC1"],
@@ -803,7 +813,11 @@ class TestHappyPathHeatCircuitSection:
 class TestUnhappyPathHeatCircuitSection:
     """Tests for the heating circuit endpoints with invalid responses and input."""
 
-    @pytest.mark.parametrize(("method", "kwargs", "response", "message"), INVALID_GETTERS)
+    @pytest.mark.parametrize(
+        ("method", "kwargs", "response", "message"),
+        INVALID_GETTERS,
+        ids=[case_id(method, kwargs, *response.values()) for method, kwargs, response, _ in INVALID_GETTERS],
+    )
     async def test_invalid_getter(
         self,
         client: KebaKeEnergyAPI,
@@ -827,7 +841,11 @@ class TestUnhappyPathHeatCircuitSection:
             ssl=False,
         )
 
-    @pytest.mark.parametrize(("method", "value", "kwargs", "message"), INVALID_SETTERS)
+    @pytest.mark.parametrize(
+        ("method", "value", "kwargs", "message"),
+        INVALID_SETTERS,
+        ids=[case_id(method, kwargs, value) for method, value, kwargs, _ in INVALID_SETTERS],
+    )
     async def test_invalid_setter(
         self,
         client: KebaKeEnergyAPI,
@@ -843,7 +861,7 @@ class TestUnhappyPathHeatCircuitSection:
 
         mock_api.assert_not_called()
 
-    @pytest.mark.parametrize("name", ["INVALID"])
+    @pytest.mark.parametrize("name", ["INVALID"], ids=["invalid"])
     async def test_set_invalid_heating_curve(
         self,
         client: KebaKeEnergyAPI,
@@ -860,7 +878,7 @@ class TestUnhappyPathHeatCircuitSection:
 
         assert sent_requests(mock_api) == snapshot
 
-    @pytest.mark.parametrize("name", ["INVALID"])
+    @pytest.mark.parametrize("name", ["INVALID"], ids=["invalid"])
     async def test_set_invalid_cooling_curve(
         self,
         client: KebaKeEnergyAPI,
@@ -877,7 +895,7 @@ class TestUnhappyPathHeatCircuitSection:
 
         assert sent_requests(mock_api) == snapshot
 
-    @pytest.mark.parametrize("heating_curve", ["HC10"])
+    @pytest.mark.parametrize("heating_curve", ["HC10"], ids=["HC10"])
     async def test_get_invalid_heating_curve_points(
         self,
         client: KebaKeEnergyAPI,

@@ -5,14 +5,16 @@
 
 import json
 from typing import Any
+from typing import Final
 
 import pytest
 from aioresponses import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
 from tests.conftest import READ_URL
+from tests.conftest import case_id
 
-GETTERS: list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]] = [
+GETTERS: Final[list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]]] = [
     (
         "get_excess_energy_active",
         {"human_readable": True},
@@ -56,7 +58,11 @@ GETTERS: list[tuple[str, dict[str, Any], dict[str, Any], float | int | str]] = [
 class TestHappyPathPhotovoltaicsSection:
     """Tests for the photovoltaics endpoints with valid responses and input."""
 
-    @pytest.mark.parametrize(("method", "kwargs", "response", "expected"), GETTERS)
+    @pytest.mark.parametrize(
+        ("method", "kwargs", "response", "expected"),
+        GETTERS,
+        ids=[case_id(method, kwargs, *response.values(), expected) for method, kwargs, response, expected in GETTERS],
+    )
     async def test_getter(
         self,
         client: KebaKeEnergyAPI,

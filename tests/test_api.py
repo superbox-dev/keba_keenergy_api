@@ -6,6 +6,7 @@
 import json
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import Final
 from unittest.mock import patch
 
 import pytest
@@ -49,8 +50,8 @@ from tests.test_api_data import read_data_payload_4
 from tests.test_api_data import read_message_ids_payload
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_names_payload
 
-LOGIN: str = "test"
-INVALID_LOGIN: str = "invalid"
+LOGIN: Final[str] = "test"
+INVALID_LOGIN: Final[str] = "invalid"
 
 if TYPE_CHECKING:
     from keba_keenergy_api.endpoints import ValueResponse
@@ -137,7 +138,7 @@ class TestApi:
             repeat=2,
         )
 
-        # The endpoint clients would create a session per request without the shared session
+        # The endpoint clients would create a session per request without the shared session.
         with patch("keba_keenergy_api.endpoints.ClientSession", side_effect=AssertionError):
             async with KebaKeEnergyAPI(host="mocked-host") as client:
                 session: ClientSession | None = client.session
@@ -405,6 +406,16 @@ class TestApi:
                 ),
             ),
         ],
+        ids=[
+            "solar_circuit_tuple_with_none",
+            "system_scalar",
+            "hot_water_tank_tuple",
+            "multiple_sections",
+            "heat_circuit_scalar",
+            "system_tuple",
+            "none_values_skipped",
+            "solar_circuit_priority_extra_write",
+        ],
     )
     async def test_write_data(
         self, client: KebaKeEnergyAPI, mock_api: aioresponses, section: dict[Section, Any], expected_data: str
@@ -562,7 +573,7 @@ class TestApi:
             System.OUTDOOR_TEMPERATURE: [0],
         }
 
-        # One request for the positions, two for the values and one for the message ids
+        # One request for the positions, two for the values and one for the message ids.
         assert [request["data"][0]["name"] for request in sent_requests(mock_api)] == [
             "APPL.CtrlAppl.sParam.options.systemNumberOfHeatPumps",
             "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue",
@@ -673,7 +684,7 @@ class TestApi:
                 HeatCircuit.ROOM_TEMPERATURE,
                 SolarCircuit.CURRENT_TEMPERATURE,
                 System.OUTDOOR_TEMPERATURE,
-                # Has no message id and is skipped
+                # This value has no message id, so it is skipped.
                 HeatPump.STATE,
             ],
         )
@@ -760,6 +771,7 @@ class TestApi:
             (502, "<html>Bad Gateway</html>", "502 Bad Gateway: .* - <html>Bad Gateway</html>"),
             (301, "", "301 Moved Permanently: .*"),
         ],
+        ids=["json_message", "json_list", "html", "bad_request", "bad_gateway", "redirect"],
     )
     async def test_api_error_status(
         self, client: KebaKeEnergyAPI, mock_api: aioresponses, status: int, body: str, expected_error: str
@@ -781,6 +793,7 @@ class TestApi:
             ("not json", "application/json"),
             ("<html></html>", "text/html"),
         ],
+        ids=["invalid_json", "html"],
     )
     async def test_api_invalid_json(
         self, client: KebaKeEnergyAPI, mock_api: aioresponses, body: str, content_type: str
@@ -803,6 +816,7 @@ class TestApi:
             (ConnectionTimeoutError("mocked-error"), "^Request timed out! mocked-error$"),
             (SocketTimeoutError("mocked-error"), "^Request timed out! mocked-error$"),
         ],
+        ids=["timeout", "server_timeout", "connection_timeout", "socket_timeout"],
     )
     async def test_api_timeout(
         self, client: KebaKeEnergyAPI, mock_api: aioresponses, exception: TimeoutError, expected_message: str
@@ -859,7 +873,7 @@ class TestApi:
             position=1,
         )
 
-        # One request for the values and one for the heating curve names, none for the points
+        # One request for the values and one for the heating curve names, none for the points.
         assert [request["data"][0]["name"] for request in sent_requests(mock_api)] == [
             "APPL.CtrlAppl.sParam.heatCircuit[0].param.linTab.fileName",
             "APPL.CtrlAppl.sParam.linTabPool[0].name",

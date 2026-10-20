@@ -54,7 +54,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
     The installed devices are read once and reused, as they do not change while the control unit is running.
     """
 
-    # The Web HMI rejects a read request with an unknown variable as a whole and names the first one
+    # The Web HMI rejects a read request with an unknown variable as a whole and names the first one.
     _READ_ERROR_PATTERN: Pattern[str] = re.compile(r"Reading variable: (\S+) failed")
 
     def __init__(
@@ -276,7 +276,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
         single_value_prefixes: tuple[SectionPrefix, ...] = (SectionPrefix.SYSTEM, SectionPrefix.PHOTOVOLTAICS)
 
         for key, value in response.items():
-            # Keys are built from the section class names, so every key has a known prefix
+            # Keys are built from the section class names, so every key has a known prefix.
             prefix: SectionPrefix = next(p for p in SectionPrefix if key.startswith(p.value))
 
             if prefix is SectionPrefix.HEAT_CIRCUIT and extra_attributes:
@@ -464,7 +464,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         request, position = self._normalize_request(request, position)
 
-        # A section that is requested more than once is checked once
+        # A section that is requested more than once is checked once.
         variables: list[tuple[Section, str]] = list(
             dict.fromkeys(
                 (section, name) for section in request for name in self._iter_variable_names(section, position)
@@ -473,7 +473,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         supported: list[tuple[Section, str]] = await self._filter_readable(variables)
 
-        # Variables are built in request order, so the sections keep the request order
+        # Variables are built in request order, so the sections keep the request order.
         return list(dict.fromkeys(section for section, _ in supported))
 
     async def _filter_readable(self, variables: list[tuple[Section, str]], /) -> list[tuple[Section, str]]:
@@ -522,11 +522,11 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         """
         if key.lower() == self._get_real_key(HeatCircuit.HEATING_CURVE):
-            # HEATING_CURVE has a quantity of 1, so the values are never nested
+            # HEATING_CURVE has a quantity of 1, so the values are never nested.
             items: list[Value] = [self._get_item(item) for item in value]
             used_curves: set[str] = {item["value"] for item in items}
 
-            # Only the points of the heating curves in use are read
+            # Only the points of the heating curves in use are read.
             heating_curve_points: HeatingCurves = await self._read_heating_curve_points(
                 tuple(
                     curve for curve in await self.heat_circuit.get_available_heating_curves() if curve[1] in used_curves
