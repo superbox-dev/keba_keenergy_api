@@ -1,59 +1,47 @@
-# Copyright 2023 Michael Hacker
+# Copyright 2023-2026 Michael Hacker
 # SPDX-License-Identifier: Apache-2.0
 
 """Tests for the switch valve endpoints."""
 
+import json
+from typing import Any
+
 import pytest
-from aioresponses.core import aioresponses
+from aioresponses import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
+from tests.conftest import READ_URL
+from tests.conftest import TIMEOUT
+from tests.conftest import case_id
+from tests.test_endpoints.test_switch_valve_section_data import GETTERS
 
 
-class TestHappyPathSwitchValveSection:
-    """Tests for the switch valve endpoints with valid responses and input."""
+@pytest.mark.parametrize(
+    ("method", "kwargs", "response", "expected"),
+    GETTERS,
+    ids=[case_id(method, kwargs, *response.values(), expected) for method, kwargs, response, expected in GETTERS],
+)
+async def test_getter(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    method: str,
+    kwargs: dict[str, Any],
+    response: dict[str, Any],
+    expected: float | str,
+) -> None:
+    """Test that a getter reads its variables and returns the converted value."""
+    mock_api.post(READ_URL, payload=[{"name": name, "value": value} for name, value in response.items()])
 
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("human_readable", "payload_value", "expected_value"),
-        [(True, 1, "open"), (False, 0, 0), (True, 2, "closed")],
+    data: float | str = await getattr(client.switch_valve, method)(**kwargs)
+
+    assert data == expected
+    assert type(data) is type(expected)
+
+    mock_api.assert_called_once_with(
+        url=READ_URL,
+        data=json.dumps([{"name": name, "attr": "1"} for name in response]),
+        method="POST",
+        headers={},
+        ssl=False,
+        timeout=TIMEOUT,
     )
-    async def test_get_position(
-        self,
-        *,
-        human_readable: bool,
-        payload_value: int,
-        expected_value: str,
-    ) -> None:
-        """Test that `get_position()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.switchvalve[0].values.actPosition",
-                        "attributes": {
-                            "formatId": "fmtSwitchValveStateV1",
-                            "longText": "Valve pos.",
-                            "unitId": "Enum",
-                            "upperLimit": "2",
-                            "lowerLimit": "0",
-                        },
-                        "value": f"{payload_value}",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.switch_valve.get_position(human_readable=human_readable)
-
-            assert isinstance(data, (int | str))
-            assert data == expected_value
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.switchvalve[0].values.actPosition", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )

@@ -1,166 +1,47 @@
-# Copyright 2023 Michael Hacker
+# Copyright 2023-2026 Michael Hacker
 # SPDX-License-Identifier: Apache-2.0
 
 """Tests for the photovoltaics endpoints."""
 
+import json
+from typing import Any
+
 import pytest
-from aioresponses.core import aioresponses
+from aioresponses import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
-from keba_keenergy_api.constants import BoolEnum
+from tests.conftest import READ_URL
+from tests.conftest import TIMEOUT
+from tests.conftest import case_id
+from tests.test_endpoints.test_photovoltaic_section_data import GETTERS
 
 
-class TestHappyPathPhotovoltaicsSection:
-    """Tests for the photovoltaics endpoints with valid responses and input."""
+@pytest.mark.parametrize(
+    ("method", "kwargs", "response", "expected"),
+    GETTERS,
+    ids=[case_id(method, kwargs, *response.values(), expected) for method, kwargs, response, expected in GETTERS],
+)
+async def test_getter(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    method: str,
+    kwargs: dict[str, Any],
+    response: dict[str, Any],
+    expected: float | str,
+) -> None:
+    """Test that a getter reads its variables and returns the converted value."""
+    mock_api.post(READ_URL, payload=[{"name": name, "value": value} for name, value in response.items()])
 
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("human_readable", "payload_value", "expected_value"),
-        [
-            (True, "true", "on"),
-            (False, BoolEnum.ON.value, 1),
-            (True, "false", "off"),
-            (False, BoolEnum.OFF.value, 0),
-        ],
+    data: float | str = await getattr(client.photovoltaics, method)(**kwargs)
+
+    assert data == expected
+    assert type(data) is type(expected)
+
+    mock_api.assert_called_once_with(
+        url=READ_URL,
+        data=json.dumps([{"name": name, "attr": "1"} for name in response]),
+        method="POST",
+        headers={},
+        ssl=False,
+        timeout=TIMEOUT,
     )
-    async def test_get_excess_energy_active(
-        self,
-        *,
-        human_readable: bool,
-        payload_value: str,
-        expected_value: str,
-    ) -> None:
-        """Test that `get_excess_energy_active()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.photovoltaics.values.excessEnergyActive",
-                        "attributes": {
-                            "longText": "Excess energy PV",
-                        },
-                        "value": payload_value,
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.photovoltaics.get_excess_energy_active(human_readable=human_readable)
-
-            assert isinstance(data, (int | str))
-            assert data == expected_value
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.photovoltaics.values.excessEnergyActive", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_get_excess_power(self) -> None:
-        """Test that `get_excess_power()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.power",
-                        "attributes": {
-                            "formatId": "fmt3p2",
-                            "longText": "Actual excess power",
-                            "unitId": "Pwr",
-                        },
-                        "value": "23.234",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.photovoltaics.get_excess_power()
-
-            assert isinstance(data, float)
-            assert data == pytest.approx(23.23)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.power", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_get_daily_energy(self) -> None:
-        """Test that `get_daily_energy()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.heatDay",
-                        "attributes": {
-                            "formatId": "fmt6p1",
-                            "longText": "Energy per day",
-                            "unitId": "kWh",
-                        },
-                        "value": "49.394",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.photovoltaics.get_daily_energy()
-
-            assert isinstance(data, float)
-            assert data == pytest.approx(49.39)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.heatDay", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_get_total_energy(self) -> None:
-        """Test that `get_total_energy()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.accumulatedHeat",
-                        "attributes": {
-                            "formatId": "fmt6p0",
-                            "longText": "Acc. energy",
-                            "unitId": "kWh",
-                        },
-                        "value": "349442.23",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.photovoltaics.get_total_energy()
-
-            assert isinstance(data, float)
-            assert data == pytest.approx(349442.23)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data=(
-                    '[{"name": "APPL.CtrlAppl.sParam.photovoltaics.ElectricEnergyMeter.values.'
-                    'accumulatedHeat", "attr": "1"}]'
-                ),
-                method="POST",
-                headers={},
-                ssl=False,
-            )

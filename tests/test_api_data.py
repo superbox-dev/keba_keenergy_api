@@ -1,9 +1,10 @@
-# Copyright 2023 Michael Hacker
+# Copyright 2023-2026 Michael Hacker
 # SPDX-License-Identifier: Apache-2.0
 
 """Payloads and expected results for the `read_data()` tests."""
 
 from typing import Any
+from typing import Final
 
 from tests.test_endpoints.test_heat_circuit_section_data import heating_curve_points_payload
 
@@ -275,7 +276,8 @@ read_data_payload_3: list[dict[str, Any]] = [
     },
 ]
 
-# Only HC1 (the first table of the line table pool) is in use, so only its name, number of points and 16 points are read
+# Only HC1 (the first table of the line table pool) is in use, so only its name, number of points and 16 points
+# are read.
 read_data_extra_attributes_payload_3: list[dict[str, Any]] = heating_curve_points_payload[:34]
 
 read_data_option_payload_4: list[dict[str, Any]] = [
@@ -632,3 +634,6 @@ positions_payload: list[dict[str, Any]] = [
         "value": "1",
     },
 ]
+
+LOGIN: Final[str] = "test"
+INVALID_LOGIN: Final[str] = "invalid"

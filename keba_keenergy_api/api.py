@@ -1,4 +1,4 @@
-# Copyright 2023 Michael Hacker
+# Copyright 2023-2026 Michael Hacker
 # SPDX-License-Identifier: Apache-2.0
 
 """Asynchronous client for the KEBA KeEnergy Web HMI API."""
@@ -11,7 +11,6 @@ from types import TracebackType
 from typing import Any
 from typing import Self
 from typing import TypeVar
-from typing import cast
 
 from aiohttp import ClientSession
 from aiohttp import ClientTimeout
@@ -37,6 +36,7 @@ from keba_keenergy_api.endpoints import SolarCircuitEndpoints
 from keba_keenergy_api.endpoints import SwitchValveEndpoints
 from keba_keenergy_api.endpoints import SystemEndpoints
 from keba_keenergy_api.endpoints import Value
+from keba_keenergy_api.endpoints import ValueList
 from keba_keenergy_api.endpoints import ValueResponse
 from keba_keenergy_api.error import APIError
 
@@ -54,7 +54,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
     The installed devices are read once and reused, as they do not change while the control unit is running.
     """
 
-    # The Web HMI rejects a read request with an unknown variable as a whole and names the first one
+    # The Web HMI rejects a read request with an unknown variable as a whole and names the first one.
     _READ_ERROR_PATTERN: Pattern[str] = re.compile(r"Reading variable: (\S+) failed")
 
     def __init__(
@@ -120,18 +120,6 @@ class KebaKeEnergyAPI(BaseEndpoints):
             session=session,
         )
 
-    @property
-    def device_url(self) -> str:
-        """Return the base URL of the KEBA controller.
-
-        Returns
-        -------
-        str
-            e.g. https://ap4400.local
-
-        """
-        return f"{self.schema}://{self.host}"
-
     async def __aenter__(self) -> Self:
         """Open a session that is shared by all requests, if no session was given.
 
@@ -172,22 +160,22 @@ class KebaKeEnergyAPI(BaseEndpoints):
         """
         await self.close()
 
-    async def close(self) -> None:
-        """Close the session opened by ``async with``.
+    @property
+    def device_url(self) -> str:
+        """Return the base URL of the KEBA controller.
 
-        A session passed to the client is left open, as its owner closes it.
+        Returns
+        -------
+        str
+            e.g. https://ap4400.local
+
         """
-        if self._own_session is not None:
-            await self._own_session.close()
-            self._own_session = None
-            self.session = self._session = None
+        return f"{self.schema}://{self.host}"
 
-    async def _get_positions(self) -> Position:
-        """Return the installed devices, read from the control unit on the first call only."""
-        if self._positions is None:
-            self._positions = await self.system.get_positions()
-
-        return self._positions
+    @property
+    def system(self) -> SystemEndpoints:
+        """Return an endpoint client for system-level values."""
+        return self._create_endpoints(SystemEndpoints)
 
     def _create_endpoints(self, endpoints: type[_E], /) -> _E:
         """Return an endpoint client with the connection settings of this client."""
@@ -198,11 +186,6 @@ class KebaKeEnergyAPI(BaseEndpoints):
             skip_ssl_verification=self.skip_ssl_verification,
             session=self.session,
         )
-
-    @property
-    def system(self) -> SystemEndpoints:
-        """Return an endpoint client for system-level values."""
-        return self._create_endpoints(SystemEndpoints)
 
     @property
     def buffer_tank(self) -> BufferTankEndpoints:
@@ -249,48 +232,20 @@ class KebaKeEnergyAPI(BaseEndpoints):
         """Return an endpoint client for photovoltaic values."""
         return self._create_endpoints(PhotovoltaicsEndpoints)
 
-    async def _group_data(
-        self,
-        response: dict[str, list[list[Value]] | list[Value]],
-        /,
-        *,
-        extra_attributes: bool = True,
-    ) -> dict[str, ValueResponse]:
-        """Group raw API values by their section prefix.
+    async def close(self) -> None:
+        """Close the session opened by ``async with``.
 
-        Parameters
-        ----------
-        response
-            Values returned by :meth:`BaseEndpoints._read_data`, keyed by ``<prefix>_<section name>``.
-        extra_attributes
-            Whether to enrich heating curve values with their points.
-
-        Returns
-        -------
-        dict[str, ValueResponse]
-            Values grouped by section prefix, with the prefix removed from the keys. System and
-            photovoltaics values are single values, all others are lists with one entry per device.
-
+        A session passed to the client is left open, as its owner closes it.
         """
-        data: dict[str, ValueResponse] = {prefix.value: {} for prefix in SectionPrefix}
-        single_value_prefixes: tuple[SectionPrefix, ...] = (SectionPrefix.SYSTEM, SectionPrefix.PHOTOVOLTAICS)
-
-        for key, value in response.items():
-            # Keys are built from the section class names, so every key has a known prefix
-            prefix: SectionPrefix = next(p for p in SectionPrefix if key.startswith(p.value))
-
-            if prefix is SectionPrefix.HEAT_CIRCUIT and extra_attributes:
-                await self._extra_attributes_heating_curve(key, value)
-
-            _key: str = key.lower().removeprefix(f"{prefix.value}_")
-            data[prefix.value][_key] = value[0] if prefix in single_value_prefixes else value
-
-        return data
+        if self._own_session is not None:
+            await self._own_session.close()
+            self._own_session = None
+            self.session = self._session = None
 
     async def read_data(
         self,
         request: Section | list[Section],
-        position: Position | int | list[int] | None = None,
+        position: int | Position | list[int] | None = None,
         *,
         human_readable: bool = True,
         extra_attributes: bool = True,
@@ -329,7 +284,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
         if position is None:
             position = await self._get_positions()
 
-        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+        response: dict[str, ValueList] = await self._read_data(
             request=request,
             position=position,
             human_readable=human_readable,
@@ -338,10 +293,84 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         return await self._group_data(response, extra_attributes=extra_attributes)
 
+    async def _get_positions(self) -> Position:
+        """Return the installed devices, read from the control unit on the first call only."""
+        if self._positions is None:
+            self._positions = await self.system.get_positions()
+
+        return self._positions
+
+    async def _group_data(
+        self,
+        response: dict[str, ValueList],
+        /,
+        *,
+        extra_attributes: bool = True,
+    ) -> dict[str, ValueResponse]:
+        """Group raw API values by their section prefix.
+
+        Parameters
+        ----------
+        response
+            Values returned by :meth:`BaseEndpoints._read_data`, keyed by ``<prefix>_<section name>``.
+        extra_attributes
+            Whether to enrich heating curve values with their points.
+
+        Returns
+        -------
+        dict[str, ValueResponse]
+            Values grouped by section prefix, with the prefix removed from the keys. System and
+            photovoltaics values are single values, all others are lists with one entry per device.
+
+        """
+        data: dict[str, ValueResponse] = {prefix.value: {} for prefix in SectionPrefix}
+        single_value_prefixes: tuple[SectionPrefix, ...] = (SectionPrefix.SYSTEM, SectionPrefix.PHOTOVOLTAICS)
+
+        for key, value in response.items():
+            # Keys are built from the section class names, so every key has a known prefix.
+            prefix: SectionPrefix = next(p for p in SectionPrefix if key.startswith(p.value))
+
+            if prefix is SectionPrefix.HEAT_CIRCUIT and extra_attributes:
+                await self._extra_attributes_heating_curve(key, value)
+
+            _key: str = key.lower().removeprefix(f"{prefix.value}_")
+            data[prefix.value][_key] = value[0] if prefix in single_value_prefixes else value
+
+        return data
+
+    async def _extra_attributes_heating_curve(self, key: str, value: ValueList, /) -> None:
+        """Add the heating curve points to the attributes of heating curve values (in place).
+
+        Parameters
+        ----------
+        key
+            Response key, only ``heat_circuit_heating_curve`` is enriched.
+        value
+            Values of the key. Each entry gets an attribute ``points`` with ``outdoor`` and ``flow``
+            temperatures.
+
+        """
+        if key.lower() == self._get_real_key(HeatCircuit.HEATING_CURVE):
+            # HEATING_CURVE has a quantity of 1, so the values are never nested.
+            items: list[Value] = [self._get_item(item) for item in value]
+            used_curves: set[str] = {item["value"] for item in items}
+
+            # Only the points of the heating curves in use are read.
+            heating_curve_points: HeatingCurves = await self._read_heating_curve_points(
+                tuple(
+                    curve for curve in await self.heat_circuit.get_available_heating_curves() if curve[1] in used_curves
+                ),
+            )
+
+            for item in items:
+                item["attributes"]["points"] = [
+                    {"outdoor": d[0], "flow": round(d[1], 2)} for d in heating_curve_points.get(item["value"], ())
+                ]
+
     async def read_message_ids(
         self,
         request: Section | list[Section],
-        position: Position | int | list[int] | None = None,
+        position: int | Position | list[int] | None = None,
     ) -> dict[Section, list[int]]:
         """Read the message ids of sensors, to find out whether a sensor is in use.
 
@@ -423,7 +452,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
     async def filter_request(
         self,
         request: Section | list[Section],
-        position: Position | int | list[int] | None = None,
+        position: int | Position | list[int] | None = None,
     ) -> list[Section]:
         """Return the requested sections that are supported by the Web HMI software version.
 
@@ -464,7 +493,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         request, position = self._normalize_request(request, position)
 
-        # A section that is requested more than once is checked once
+        # A section that is requested more than once is checked once.
         variables: list[tuple[Section, str]] = list(
             dict.fromkeys(
                 (section, name) for section in request for name in self._iter_variable_names(section, position)
@@ -473,7 +502,7 @@ class KebaKeEnergyAPI(BaseEndpoints):
 
         supported: list[tuple[Section, str]] = await self._filter_readable(variables)
 
-        # Variables are built in request order, so the sections keep the request order
+        # Variables are built in request order, so the sections keep the request order.
         return list(dict.fromkeys(section for section, _ in supported))
 
     async def _filter_readable(self, variables: list[tuple[Section, str]], /) -> list[tuple[Section, str]]:
@@ -508,32 +537,3 @@ class KebaKeEnergyAPI(BaseEndpoints):
                 return remaining
 
         return remaining
-
-    async def _extra_attributes_heating_curve(self, key: str, value: list[list[Value]] | list[Value], /) -> None:
-        """Add the heating curve points to the attributes of heating curve values (in place).
-
-        Parameters
-        ----------
-        key
-            Response key, only ``heat_circuit_heating_curve`` is enriched.
-        value
-            Values of the key. Each entry gets an attribute ``points`` with ``outdoor`` and ``flow``
-            temperatures.
-
-        """
-        if key.lower() == self._get_real_key(HeatCircuit.HEATING_CURVE):
-            # HEATING_CURVE has a quantity of 1, so the values are never nested
-            items: list[Value] = cast("list[Value]", value)
-            used_curves: set[str] = {item["value"] for item in items}
-
-            # Only the points of the heating curves in use are read
-            heating_curve_points: HeatingCurves = await self._read_heating_curve_points(
-                tuple(
-                    curve for curve in await self.heat_circuit.get_available_heating_curves() if curve[1] in used_curves
-                ),
-            )
-
-            for item in items:
-                item["attributes"]["points"] = [
-                    {"outdoor": d[0], "flow": round(d[1], 2)} for d in heating_curve_points.get(item["value"], ())
-                ]

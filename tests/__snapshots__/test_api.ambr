@@ -1,5 +1,5 @@
 # serializer version: 1
-# name: TestApi.test_filter_request[duplicate-sections][requests]
+# name: test_filter_request[duplicate-sections][requests]
   list([
     dict({
       'data': list([
@@ -51,21 +51,7 @@
     }),
   ])
 # ---
-# name: TestApi.test_filter_request[position][requests]
-  list([
-    dict({
-      'data': list([
-        dict({
-          'attr': '0',
-          'name': 'APPL.CtrlAppl.sParam.bufferTank[0].param.name',
-        }),
-      ]),
-      'method': 'POST',
-      'url': 'http://mocked-host/var/readWriteVars',
-    }),
-  ])
-# ---
-# name: TestApi.test_filter_request[quantity][requests]
+# name: test_filter_request[quantity][requests]
   list([
     dict({
       'data': list([
@@ -117,7 +103,7 @@
     }),
   ])
 # ---
-# name: TestApi.test_filter_request[system-wide][requests]
+# name: test_filter_request[system-wide][requests]
   list([
     dict({
       'data': list([
@@ -165,7 +151,7 @@
     }),
   ])
 # ---
-# name: TestApi.test_filter_request_with_unknown_variables[all-unknown][requests]
+# name: test_filter_request_position[requests]
   list([
     dict({
       'data': list([
@@ -179,7 +165,21 @@
     }),
   ])
 # ---
-# name: TestApi.test_filter_request_with_unknown_variables[some-unknown][requests]
+# name: test_filter_request_unknown_variables[all-unknown][requests]
+  list([
+    dict({
+      'data': list([
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.bufferTank[0].param.name',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+  ])
+# ---
+# name: test_filter_request_unknown_variables[some-unknown][requests]
   list([
     dict({
       'data': list([
@@ -225,7 +225,7 @@
     }),
   ])
 # ---
-# name: TestApi.test_read_data[options-and-extra-attributes][requests]
+# name: test_read_data[options-and-extra-attributes][requests]
   list([
     dict({
       'data': list([
@@ -569,7 +569,7 @@
     }),
   ])
 # ---
-# name: TestApi.test_read_data[options-and-extra-attributes][response]
+# name: test_read_data[options-and-extra-attributes][response]
   dict({
     'buffer_tank': dict({
     }),
@@ -684,7 +684,7 @@
     }),
   })
 # ---
-# name: TestApi.test_read_data[options][requests]
+# name: test_read_data[options][requests]
   list([
     dict({
       'data': list([
@@ -796,7 +796,7 @@
     }),
   ])
 # ---
-# name: TestApi.test_read_data[options][response]
+# name: test_read_data[options][response]
   dict({
     'buffer_tank': dict({
       'current_top_temperature': list([
@@ -961,7 +961,7 @@
     }),
   })
 # ---
-# name: TestApi.test_read_data[position][requests]
+# name: test_read_data[position][requests]
   list([
     dict({
       'data': list([
@@ -991,7 +991,7 @@
     }),
   ])
 # ---
-# name: TestApi.test_read_data[position][response]
+# name: test_read_data[position][response]
   dict({
     'buffer_tank': dict({
     }),
@@ -1054,7 +1054,7 @@
     }),
   })
 # ---
-# name: TestApi.test_read_data[positions][requests]
+# name: test_read_data[positions][requests]
   list([
     dict({
       'data': list([
@@ -1080,7 +1080,7 @@
     }),
   ])
 # ---
-# name: TestApi.test_read_data[positions][response]
+# name: test_read_data[positions][response]
   dict({
     'buffer_tank': dict({
     }),
@@ -1132,7 +1132,7 @@
     }),
   })
 # ---
-# name: TestApi.test_read_message_ids
+# name: test_read_message_ids
   list([
     dict({
       'data': list([

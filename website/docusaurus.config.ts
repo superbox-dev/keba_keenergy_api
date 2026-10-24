@@ -64,14 +64,21 @@ const config: Config = {
         docsRouteBasePath: '/',
         indexBlog: false,
         highlightSearchTermsOnTargetPage: true,
+        // "/" is handled in src/searchShortcut.ts, independent of the keyboard layout
+        searchBarShortcut: false,
+        searchBarShortcutHint: false,
       },
     ],
   ],
 
+  clientModules: ['./src/searchShortcut.ts'],
+
   themeConfig: {
     image: 'img/social-card.png',
     colorMode: {
-      respectPrefersColorScheme: true,
+      defaultMode: 'dark',
+      disableSwitch: true,
+      respectPrefersColorScheme: false,
     },
     docs: {
       sidebar: {
@@ -87,6 +94,7 @@ const config: Config = {
       items: [
         {type: 'doc', docId: 'api', label: 'Documentation', position: 'right'},
         {type: 'doc', docId: 'changelog', label: 'Changelog', position: 'right'},
+        {href: 'https://superbox-dev.github.io/keba_keenergy/', label: 'Integration', position: 'right'},
         {href: repository, label: 'GitHub', position: 'right'},
       ],
     },

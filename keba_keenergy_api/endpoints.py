@@ -1,4 +1,4 @@
-# Copyright 2023 Michael Hacker
+# Copyright 2023-2026 Michael Hacker
 # SPDX-License-Identifier: Apache-2.0
 
 """KEBA KeEnergy API endpoint definitions."""
@@ -12,11 +12,11 @@ from enum import Enum
 from http import HTTPStatus
 from re import Pattern
 from typing import Any
+from typing import Final
 from typing import NamedTuple
 from typing import TypeAlias
 from typing import TypedDict
 from typing import TypeVar
-from typing import cast
 
 from aiohttp import ClientError
 from aiohttp import ClientSession
@@ -54,10 +54,12 @@ from keba_keenergy_api.error import InvalidJsonError
 
 _T = TypeVar("_T")
 
-# Attributes returned by the Web HMI that are not useful for API consumers
-_IGNORED_ATTRIBUTES: frozenset[str] = frozenset({"unitId", "longText", "formatId", "dynLowerLimit", "dynUpperLimit"})
-# Number of heating curve slots in the line table pool that are scanned for heating curves
-_HEATING_CURVE_POOL_SIZE: int = 30
+# Attributes returned by the Web HMI that are not useful for API consumers.
+_IGNORED_ATTRIBUTES: Final[frozenset[str]] = frozenset(
+    {"unitId", "longText", "formatId", "dynLowerLimit", "dynUpperLimit"}
+)
+# Number of heating curve slots in the line table pool that are scanned for heating curves.
+_HEATING_CURVE_POOL_SIZE: Final[int] = 30
 
 
 class ReadPayload(TypedDict):
@@ -113,7 +115,8 @@ class Value(TypedDict, total=False):
     attributes: dict[str, Any]
 
 
-ValueResponse: TypeAlias = dict[str, list[list[Value]] | list[Value] | Value]
+ValueList: TypeAlias = list[Value] | list[list[Value]]
+ValueResponse: TypeAlias = dict[str, Value | ValueList]
 Payload: TypeAlias = list[ReadPayload | WritePayload]
 Response: TypeAlias = list[dict[str, Any]]
 
@@ -207,11 +210,13 @@ class BaseEndpoints:
                 headers=headers,
                 ssl=False if self._skip_ssl_verification else self._ssl,
                 data=payload,
+                # Also for a passed session, which has no timeout of its own.
+                timeout=ClientTimeout(total=API_DEFAULT_TIMEOUT),
             ) as resp:
                 if resp.status == HTTPStatus.UNAUTHORIZED:
                     raise AuthenticationError(status=HTTPStatus.UNAUTHORIZED)
 
-                # Everything else than 2xx is an error, e.g. also a redirect or a 502 of a reverse proxy
+                # Everything else than 2xx is an error, e.g. also a redirect or a 502 of a reverse proxy.
                 if not HTTPStatus.OK <= resp.status < HTTPStatus.MULTIPLE_CHOICES:
                     error_message: str = await resp.text()
 
@@ -229,14 +234,14 @@ class BaseEndpoints:
         except (json.JSONDecodeError, ContentTypeError) as error:
             message: str = f"Invalid JSON response! {error}"
             raise InvalidJsonError(message) from error
-        # Before ClientError, as the aiohttp timeouts (e.g. ConnectionTimeoutError) are also a ClientError
+        # Before ClientError, as the aiohttp timeouts (e.g. ConnectionTimeoutError) are also a ClientError.
         except TimeoutError as error:
             message = f"Request timed out! {error}".rstrip()
             raise APITimeoutError(message) from error
         except ClientError as error:
             raise APIError(str(error)) from error
         finally:
-            # Close the session opened for this request, also if the shared session was already closed
+            # Close the session opened for this request, also if the shared session was already closed.
             if session is not self._session:
                 await session.close()
 
@@ -266,7 +271,7 @@ class BaseEndpoints:
     @staticmethod
     def _normalize_request(
         request: Section | list[Section],
-        position: Position | int | list[int],
+        position: int | Position | list[int],
         /,
     ) -> tuple[list[Section], Position | list[int]]:
         """Return the request and the position as lists (a ``Position`` is kept as it is)."""
@@ -280,7 +285,7 @@ class BaseEndpoints:
 
         ``None`` means the section has no device index (system wide). Devices that are not installed are left out.
         """
-        if isinstance(section, System | Photovoltaics):
+        if isinstance(section, Photovoltaics | System):
             return [None]
 
         if isinstance(position, Position):
@@ -316,7 +321,7 @@ class BaseEndpoints:
             elif quantity == 1:
                 yield template % idx
             else:
-                # Sections with a quantity > 1 (e.g. two consumers per solar circuit) use a sub index
+                # Sections with a quantity > 1 (e.g. two consumers per solar circuit) use a sub index.
                 yield from (template % sub_idx for sub_idx in range(idx * quantity, (idx + 1) * quantity))
 
     def _generate_read_payload(
@@ -411,7 +416,7 @@ class BaseEndpoints:
         *,
         key_prefix: bool = True,
         human_readable: bool = True,
-    ) -> dict[str, list[list[Value]] | list[Value]]:
+    ) -> dict[str, ValueList]:
         """Map a read response back to the requested sections.
 
         The response items are consumed in the same order as the read payload was built.
@@ -450,12 +455,12 @@ class BaseEndpoints:
     async def _read_data(
         self,
         request: Section | list[Section],
-        position: Position | int | list[int] = 1,
+        position: int | Position | list[int] = 1,
         *,
         key_prefix: bool = True,
         human_readable: bool = True,
         extra_attributes: bool = False,
-    ) -> dict[str, list[list[Value]] | list[Value]]:
+    ) -> dict[str, ValueList]:
         """Read the requested sections with one request and return the converted values."""
         request, position = self._normalize_request(request, position)
 
@@ -517,7 +522,7 @@ class BaseEndpoints:
             if value is not None
         ]
 
-        # Some endpoints need additional writes (e.g. the solar circuit priority)
+        # Some endpoints need additional writes (e.g. the solar circuit priority).
         for extra_section, extra_values in endpoint.extra_writes(_values).items():
             payload += self._generate_endpoint_write_payload(extra_section.value, extra_values)
 
@@ -558,6 +563,11 @@ class BaseEndpoints:
         return [value if position == p else None for p in range(1, position + 1)]
 
     @staticmethod
+    def _get_item(value: Value | list[Value], index: int = 0, /) -> Value:
+        """Return the item at the index of a nested value (quantity > 1), or the value itself."""
+        return value[index] if isinstance(value, list) else value
+
+    @staticmethod
     def _to_int_or_str(value: float | str, /) -> int | str:
         """Return a value as integer if possible, otherwise as string."""
         try:
@@ -584,15 +594,14 @@ class BaseEndpoints:
             message: str = f"Invalid position {position}! Positions start at 1"
             raise APIError(message)
 
-        response: dict[str, list[list[Value]] | list[Value]] = await self._read_data(
+        response: dict[str, ValueList] = await self._read_data(
             request=section,
             position=position,
             human_readable=human_readable,
             extra_attributes=True,
         )
 
-        value: Value | list[Value] = response[self._get_real_key(section)][0]
-        item: Value = value[index] if isinstance(value, list) else value
+        item: Value = self._get_item(response[self._get_real_key(section)][0], index)
 
         return convert(item["attributes"][attribute] if attribute else item["value"])
 
@@ -657,7 +666,7 @@ class BaseEndpoints:
         if not heating_curves:
             return {}
 
-        # Only the values are needed, so no attributes are requested (attr="0")
+        # Only the values are needed, so no attributes are requested (attr="0").
         payload: Payload = [
             ReadPayload(name=name, attr="0")
             for idx, _ in heating_curves
@@ -690,9 +699,9 @@ class BaseEndpoints:
 
             if name in valid_curves:
                 no_of_points: int = min(int(response[data_idx + 1]["value"]), points_per_table)
-                raw = response[data_idx + 2 : data_idx + 2 + points_per_table * values_per_point]
+                raw: Response = response[data_idx + 2 : data_idx + 2 + points_per_table * values_per_point]
 
-                points = tuple(
+                points: HeatingCurvePoints = tuple(
                     HeatingCurvePoint(
                         outdoor=float(raw[i]["value"]),
                         flow=float(raw[i + 1]["value"]),
@@ -740,24 +749,27 @@ class SystemEndpoints(BaseEndpoints):
             The number of installed devices per device type
 
         """
-        response: dict[str, list[Value]] = cast(
-            "dict[str, list[Value]]",
-            await self._read_data(
-                request=[
-                    System.HEAT_PUMP_NUMBERS,
-                    System.HEAT_CIRCUIT_NUMBERS,
-                    System.SOLAR_CIRCUIT_NUMBERS,
-                    System.BUFFER_TANK_NUMBERS,
-                    System.HOT_WATER_TANK_NUMBERS,
-                    System.EXTERNAL_HEAT_SOURCE_NUMBERS,
-                    System.SWITCH_VALVE_NUMBERS,
-                ],
-                key_prefix=False,
-                extra_attributes=True,
-            ),
+        response: dict[str, ValueList] = await self._read_data(
+            request=[
+                System.HEAT_PUMP_NUMBERS,
+                System.HEAT_CIRCUIT_NUMBERS,
+                System.SOLAR_CIRCUIT_NUMBERS,
+                System.BUFFER_TANK_NUMBERS,
+                System.HOT_WATER_TANK_NUMBERS,
+                System.EXTERNAL_HEAT_SOURCE_NUMBERS,
+                System.SWITCH_VALVE_NUMBERS,
+            ],
+            key_prefix=False,
+            extra_attributes=True,
         )
 
-        return Position(**{k.replace("_numbers", ""): int(v[0]["value"]) for k, v in response.items()})
+        positions: dict[str, int] = {}
+
+        for key, values in response.items():
+            item: Value = self._get_item(values[0])
+            positions[key.replace("_numbers", "")] = int(item["value"])
+
+        return Position(**positions)
 
     async def get_info(self) -> dict[str, Any]:
         """Get the system information.
@@ -4210,7 +4222,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         if heating_curve is None:
             return await self._read_heating_curve_points(heating_curves)
 
-        # Only the requested heating curve is read
+        # Only the requested heating curve is read.
         data: HeatingCurves = await self._read_heating_curve_points(
             tuple(curve for curve in heating_curves if curve[1] == heating_curve),
         )
@@ -4242,12 +4254,12 @@ class HeatCircuitEndpoints(BaseEndpoints):
         """
         message: str
 
-        heating_curves = await self.get_available_heating_curves()
+        heating_curves: tuple[tuple[int, str], ...] = await self.get_available_heating_curves()
 
         curve_map: dict[str, int] = {name: idx for idx, name in heating_curves}
 
         try:
-            idx = curve_map[heating_curve]
+            idx: int = curve_map[heating_curve]
         except KeyError as error:
             message = f"Invalid value! Allowed values are {[name for _, name in heating_curves]}"
             raise APIError(message) from error
@@ -4588,7 +4600,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
             Position of the solar circuit, starting at 1
 
         """
-        # Two consumers per solar circuit: consumer 1 is genericHeat[2 * (position - 1)]
+        # Two consumers per solar circuit: consumer 1 is genericHeat[2 * (position - 1)].
         quantity: int = SolarCircuit.TARGET_TEMPERATURE.value.quantity
         await self._write_for_position(SolarCircuit.TARGET_TEMPERATURE, temperature, quantity * position - 1)
 
@@ -4622,7 +4634,7 @@ class SolarCircuitEndpoints(BaseEndpoints):
             Position of the solar circuit, starting at 1
 
         """
-        # Two consumers per solar circuit: consumer 2 is genericHeat[2 * (position - 1) + 1]
+        # Two consumers per solar circuit: consumer 2 is genericHeat[2 * (position - 1) + 1].
         quantity: int = SolarCircuit.TARGET_TEMPERATURE.value.quantity
         await self._write_for_position(SolarCircuit.TARGET_TEMPERATURE, temperature, quantity * position)
 

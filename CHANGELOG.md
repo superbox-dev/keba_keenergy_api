@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and the other public constants of `keba_keenergy_api.constants`
 - Added a preview image to the documentation for links shared on social media and removed the search page
   from the documentation sitemap
+- Added an errors section to the usage page of the documentation
 
 ### Changed
 
@@ -46,6 +47,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://superbox-dev.github.io/keba_keenergy_api/>)
 - Shortened the `README.md` to a quick start and moved the detailed examples and write warnings to the
   [Usage](https://superbox-dev.github.io/keba_keenergy_api/usage) page
+- Applied the request timeout of `API_DEFAULT_TIMEOUT` (10 seconds) also to the requests with a passed session,
+  which used the timeout of the session before (5 minutes by default in `aiohttp`)
+- Showed the documentation only in the dark theme with the colors of contributors.home-assistant.io, the brand logo
+  of the integration on the project card, a link to the website of the integration in the menu and a wider right
+  column on smaller screens
+- Focused the search of the documentation with `/` instead of `Ctrl`/`Cmd` + `K`, styled the search and the cards of
+  the category pages like contributors.home-assistant.io and made the header translucent
 
 ### Fixed
 

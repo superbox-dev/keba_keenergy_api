@@ -1,4 +1,4 @@
-# Copyright 2023 Michael Hacker
+# Copyright 2023-2026 Michael Hacker
 # SPDX-License-Identifier: Apache-2.0
 
 """Constants and endpoint definitions of the KEBA KeEnergy API."""
@@ -12,7 +12,7 @@ from typing import Any
 from typing import Final
 from typing import TypeAlias
 
-API_DEFAULT_TIMEOUT: int = 10
+API_DEFAULT_TIMEOUT: Final[int] = 10
 
 
 class EndpointPath:
@@ -31,7 +31,7 @@ class BaseEnum(Enum):
     @classmethod
     def _missing_(cls, value: object) -> "BaseEnum":
         """Return the enum member matching the given value."""
-        # Scalar values are already matched by Enum itself, only tuple members are left
+        # Scalar values are already matched by Enum itself, only tuple members are left.
         for member in cls:
             if isinstance(member._value_, tuple) and value in member._value_:
                 return member
@@ -231,8 +231,8 @@ class MixerSwitchValvePosition(BaseEnum):
 
 
 PAYLOAD_PREFIX: Final[str] = "APPL.CtrlAppl"
-_ACT_VALUE_SUFFIX: Final[str] = ".values.actValue"
-_MESSAGE_ID_SUFFIX: Final[str] = ".state.msgId"
+ACT_VALUE_SUFFIX: Final[str] = ".values.actValue"
+MESSAGE_ID_SUFFIX: Final[str] = ".state.msgId"
 
 
 @dataclass
@@ -271,7 +271,7 @@ class Endpoint:
         if ".param." in self.value:
             self.read_only = False
 
-        if self.has_message_id and not self.value.endswith(_ACT_VALUE_SUFFIX):
+        if self.has_message_id and not self.value.endswith(ACT_VALUE_SUFFIX):
             msg: str = f"message id is not supported for {self.value!r}"
             raise ValueError(msg)
 
@@ -285,7 +285,7 @@ class Endpoint:
         if not self.has_message_id:
             return None
 
-        return self.value.removesuffix(_ACT_VALUE_SUFFIX) + _MESSAGE_ID_SUFFIX
+        return self.value.removesuffix(ACT_VALUE_SUFFIX) + MESSAGE_ID_SUFFIX
 
     @staticmethod
     def extra_writes(values: list[Any], /) -> dict["Section", Any]:
@@ -351,7 +351,7 @@ class SolarCircuitPriority1Before2StringEndpoint(StringEndpoint):
 
         """
         priority: dict[int | None, int] = {1: SolarCircuitPriority.LOW.value, 0: SolarCircuitPriority.HIGH.value}
-        # Only the first consumer of each solar circuit (sub index 0, 2, ...) is written
+        # Only the first consumer of each solar circuit (sub index 0, 2, ...) is written.
         priorities: list[int | None] = list(chain.from_iterable((priority.get(m), None) for m in modes))
 
         return {SolarCircuit["_PRIORITY"]: priorities}
@@ -394,7 +394,7 @@ class System(Enum):
         human_readable=SystemOperatingMode,
     )
     OUTDOOR_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.outdoorTemp{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.outdoorTemp{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     CPU_USAGE = FloatEndpoint(
@@ -424,11 +424,11 @@ class BufferTank(Enum):
         f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].param.name",
     )
     CURRENT_TOP_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].topTemp{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].topTemp{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     CURRENT_BOTTOM_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].midTemp{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.bufferTank[%s].midTemp{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     OPERATING_MODE = IntegerEndpoint(
@@ -475,7 +475,7 @@ class HotWaterTank(Enum):
         f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.name",
     )
     CURRENT_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].topTemp{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].topTemp{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     OPERATING_MODE = IntegerEndpoint(
@@ -511,12 +511,12 @@ class HotWaterTank(Enum):
         human_readable=BoolEnum,
     )
     FRESH_WATER_FLOW = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterFlow{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterFlow{ACT_VALUE_SUFFIX}",
         has_message_id=True,
         human_readable=BoolEnum,
     )
     FRESH_WATER_MODULE_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterTemp{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].FreshWater.freshWaterTemp{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     FRESH_WATER_MODULE_PUMP_SPEED = FloatEndpoint(
@@ -524,7 +524,7 @@ class HotWaterTank(Enum):
         decimals=4,
     )
     CIRCULATION_RETURN_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].circTemp{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].circTemp{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     CIRCULATION_PUMP_STATE = StringEndpoint(
@@ -567,27 +567,27 @@ class HeatPump(Enum):
         decimals=4,
     )
     FLOW_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempHeatFlow{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempHeatFlow{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     RETURN_FLOW_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempHeatReflux{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempHeatReflux{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     SOURCE_INPUT_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempSourceIn{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempSourceIn{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     SOURCE_OUTPUT_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempSourceOut{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempSourceOut{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     COMPRESSOR_INPUT_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempCompressorIn{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempCompressorIn{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     COMPRESSOR_OUTPUT_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempCompressorOut{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].TempCompressorOut{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     COMPRESSOR = FloatEndpoint(
@@ -610,11 +610,11 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].OverHeatCtrl.values.stepperPos",
     )
     HIGH_PRESSURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HighPressure{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].HighPressure{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     LOW_PRESSURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].LowPressure{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].LowPressure{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     HEAT_REQUEST = StringEndpoint(
@@ -721,32 +721,32 @@ class HeatPump(Enum):
         f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].operationalData.activationCounter",
     )
     HAS_COMPRESSOR_FAILURE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureCompressor{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureCompressor{ACT_VALUE_SUFFIX}",
         has_message_id=True,
         human_readable=BoolEnum,
     )
     HAS_SOURCE_FAILURE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureSource{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureSource{ACT_VALUE_SUFFIX}",
         has_message_id=True,
         human_readable=BoolEnum,
     )
     HAS_SOURCE_ACTUATOR_FAILURE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureActuatorSource{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureActuatorSource{ACT_VALUE_SUFFIX}",
         has_message_id=True,
         human_readable=BoolEnum,
     )
     HAS_THREE_PHASE_FAILURE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureThreePhase{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureThreePhase{ACT_VALUE_SUFFIX}",
         has_message_id=True,
         human_readable=BoolEnum,
     )
     HAS_SOURCE_PRESSURE_FAILURE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureSrcPressure{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureSrcPressure{ACT_VALUE_SUFFIX}",
         has_message_id=True,
         human_readable=BoolEnum,
     )
     HAS_VFD_FAILURE = StringEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureVFD{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatpump[%s].FailureVFD{ACT_VALUE_SUFFIX}",
         has_message_id=True,
         human_readable=BoolEnum,
     )
@@ -779,7 +779,7 @@ class HeatCircuit(Enum):
         human_readable=BoolEnum,
     )
     ROOM_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].tempRoom{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].tempRoom{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     HAS_ROOM_HUMIDITY = StringEndpoint(
@@ -787,11 +787,11 @@ class HeatCircuit(Enum):
         human_readable=BoolEnum,
     )
     ROOM_HUMIDITY = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].humidityRoom{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].humidityRoom{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     DEW_POINT = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].dewPoint{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].dewPoint{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     FLOW_TEMPERATURE_SETPOINT = FloatEndpoint(
@@ -802,11 +802,11 @@ class HeatCircuit(Enum):
         human_readable=BoolEnum,
     )
     MIXER_FLOW_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.flowTemp{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.flowTemp{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     MIXER_RETURN_FLOW_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.refluxTemp{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].heatCircuitMixer.refluxTemp{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     MIXER_POSITION = FloatEndpoint(
@@ -824,7 +824,7 @@ class HeatCircuit(Enum):
         human_readable=BoolEnum,
     )
     RETURN_FLOW_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].tempReflux{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.heatCircuit[%s].tempReflux{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     TARGET_TEMPERATURE = FloatEndpoint(
@@ -989,7 +989,7 @@ class SolarCircuit(Enum):
         human_readable=BoolEnum,
     )
     SOURCE_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].collectorTemp{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].collectorTemp{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     PUMP_1 = FloatEndpoint(
@@ -999,7 +999,7 @@ class SolarCircuit(Enum):
         f"{PAYLOAD_PREFIX}.sParam.solarCircuit[%s].values.pump2",
     )
     CURRENT_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.genericHeat[%s].referenceTemp{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.genericHeat[%s].referenceTemp{ACT_VALUE_SUFFIX}",
         has_message_id=True,
         quantity=2,
     )
@@ -1090,7 +1090,7 @@ class PassiveCooling(Enum):
     """Passive cooling API endpoints."""
 
     TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].TempCoolPassive{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].TempCoolPassive{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     SWITCH_VALVE_POSITION = IntegerEndpoint(
@@ -1105,7 +1105,7 @@ class PassiveCooling(Enum):
         f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.values.setValue",
     )
     MIXER_FLOW_TEMPERATURE = FloatEndpoint(
-        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.flowTemp{_ACT_VALUE_SUFFIX}",
+        f"{PAYLOAD_PREFIX}.sParam.passivecooling[%s].Mixer.flowTemp{ACT_VALUE_SUFFIX}",
         has_message_id=True,
     )
     MIXER_POSITION = FloatEndpoint(
@@ -1149,14 +1149,14 @@ class SectionPrefix(StrEnum):
 
 
 Section: TypeAlias = (
-    System
-    | BufferTank
-    | HotWaterTank
-    | HeatPump
-    | HeatCircuit
-    | SolarCircuit
+    BufferTank
     | ExternalHeatSource
-    | SwitchValve
+    | HeatCircuit
+    | HeatPump
+    | HotWaterTank
     | PassiveCooling
     | Photovoltaics
+    | SolarCircuit
+    | SwitchValve
+    | System
 )

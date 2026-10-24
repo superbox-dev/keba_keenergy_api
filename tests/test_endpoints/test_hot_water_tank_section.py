@@ -1,1071 +1,162 @@
-# Copyright 2023 Michael Hacker
+# Copyright 2023-2026 Michael Hacker
 # SPDX-License-Identifier: Apache-2.0
 
 """Tests for the hot water tank endpoints."""
 
+import json
+import re
+from typing import Any
+
 import pytest
-from aioresponses.core import aioresponses
+from aioresponses import aioresponses
 
 from keba_keenergy_api.api import KebaKeEnergyAPI
-from keba_keenergy_api.constants import BoolEnum
-from keba_keenergy_api.constants import HotWaterTankExcessEnergyMode
-from keba_keenergy_api.constants import HotWaterTankOperatingMode
 from keba_keenergy_api.error import APIError
+from tests.conftest import READ_URL
+from tests.conftest import TIMEOUT
+from tests.conftest import WRITE_URL
+from tests.conftest import case_id
+from tests.test_endpoints.test_hot_water_tank_section_data import GETTERS
+from tests.test_endpoints.test_hot_water_tank_section_data import INVALID_GETTERS
+from tests.test_endpoints.test_hot_water_tank_section_data import INVALID_SETTERS
+from tests.test_endpoints.test_hot_water_tank_section_data import LIMIT_GETTERS
+from tests.test_endpoints.test_hot_water_tank_section_data import SETTERS
 
 
-class TestHappyPathHotWaterTankSection:
-    """Tests for the hot water tank endpoints with valid responses and input."""
+@pytest.mark.parametrize(
+    ("method", "kwargs", "response", "expected"),
+    GETTERS,
+    ids=[case_id(method, kwargs, *response.values(), expected) for method, kwargs, response, expected in GETTERS],
+)
+async def test_getter(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    method: str,
+    kwargs: dict[str, Any],
+    response: dict[str, Any],
+    expected: float | str,
+) -> None:
+    """Test that a getter reads its variables and returns the converted value."""
+    mock_api.post(READ_URL, payload=[{"name": name, "value": value} for name, value in response.items()])
 
-    @pytest.mark.asyncio
-    async def test_get_name(self) -> None:
-        """Test that `get_name()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.name",
-                        "attributes": {
-                            "longText": "Name",
-                        },
-                        "value": "Boiler",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
+    data: float | str = await getattr(client.hot_water_tank, method)(**kwargs)
 
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: str = await client.hot_water_tank.get_name()
+    assert data == expected
+    assert type(data) is type(expected)
 
-            assert isinstance(data, str)
-            assert data == "Boiler"
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.name", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_get_current_temperature(self) -> None:
-        """Test that `get_current_temperature()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].topTemp.values.actValue",
-                        "attributes": {
-                            "formatId": "fmtTemp",
-                            "longText": "Temp. act.",
-                            "lowerLimit": "20",
-                            "unitId": "Temp",
-                            "upperLimit": "90",
-                        },
-                        "value": "58.900002",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.hot_water_tank.get_current_temperature()
-
-            assert isinstance(data, float)
-            assert data == pytest.approx(58.9)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].topTemp.values.actValue", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("human_readable", "payload_value", "expected_value"),
-        [(True, 3, "heat_up"), (False, 3, 3)],
+    mock_api.assert_called_once_with(
+        url=READ_URL,
+        data=json.dumps([{"name": name, "attr": "1"} for name in response]),
+        method="POST",
+        headers={},
+        ssl=False,
+        timeout=TIMEOUT,
     )
-    async def test_get_operating_mode(
-        self,
-        *,
-        human_readable: bool,
-        payload_value: int,
-        expected_value: str,
-    ) -> None:
-        """Test that `get_operating_mode()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode",
-                        "attributes": {
-                            "formatId": "fmtHotWaterTank",
-                            "longText": "Op.mode",
-                            "lowerLimit": "0",
-                            "unitId": "Enum",
-                            "upperLimit": "32767",
-                        },
-                        "value": f"{payload_value}",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
 
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.hot_water_tank.get_operating_mode(human_readable=human_readable)
 
-            assert isinstance(data, (int | str))
-            assert data == expected_value
+@pytest.mark.parametrize(
+    ("method", "kwargs", "response", "message"),
+    INVALID_GETTERS,
+    ids=[case_id(method, kwargs, *response.values()) for method, kwargs, response, _ in INVALID_GETTERS],
+)
+async def test_getter_invalid_value(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    method: str,
+    kwargs: dict[str, Any],
+    response: dict[str, Any],
+    message: str,
+) -> None:
+    """Test that a getter raises `APIError` for a value that can't be converted."""
+    mock_api.post(READ_URL, payload=[{"name": name, "value": value} for name, value in response.items()])
 
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
+    with pytest.raises(APIError, match=re.escape(message)):
+        await getattr(client.hot_water_tank, method)(**kwargs)
 
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("operating_mode", "expected_value"),
-        [("off", 0), ("OFF", 0), (HotWaterTankOperatingMode.HEAT_UP.value, 3)],
+    mock_api.assert_called_once_with(
+        url=READ_URL,
+        data=json.dumps([{"name": name, "attr": "1"} for name in response]),
+        method="POST",
+        headers={},
+        ssl=False,
+        timeout=TIMEOUT,
     )
-    async def test_set_operating_mode(
-        self,
-        operating_mode: int | str,
-        expected_value: int,
-    ) -> None:
-        """Test that `set_operating_mode()` sends the expected payload."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
 
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            await client.hot_water_tank.set_operating_mode(operating_mode)
 
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars?action=set",
-                data=(
-                    '[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode", '
-                    f'"value": "{expected_value}"}}]'
-                ),
-                method="POST",
-                headers={},
-                ssl=False,
-            )
+@pytest.mark.parametrize(
+    ("method", "kwargs", "item", "expected"),
+    LIMIT_GETTERS,
+    ids=[case_id(method, kwargs, expected) for method, kwargs, _, expected in LIMIT_GETTERS],
+)
+async def test_limit_getter(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    method: str,
+    kwargs: dict[str, Any],
+    item: dict[str, Any],
+    expected: float,
+) -> None:
+    """Test that a limit getter returns the limit from the attributes and not the value."""
+    mock_api.post(READ_URL, payload=[item])
 
-    @pytest.mark.asyncio
-    async def test_get_min_target_temperature(self) -> None:
-        """Test that `get_min_target_temperature()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value",
-                        "attributes": {
-                            "dynUpperLimit": 1,
-                            "formatId": "fmtTemp",
-                            "longText": "Temp. nom.",
-                            "lowerLimit": "0",
-                            "unitId": "Temp",
-                            "upperLimit": "52",
-                        },
-                        "value": "50",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
+    data: float = await getattr(client.hot_water_tank, method)(**kwargs)
 
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int = await client.hot_water_tank.get_min_target_temperature()
+    assert data == expected
+    assert type(data) is type(expected)
 
-            assert isinstance(data, int)
-            assert data == 0
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_get_max_target_temperature(self) -> None:
-        """Test that `get_max_target_temperature()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value",
-                        "attributes": {
-                            "dynUpperLimit": 1,
-                            "formatId": "fmtTemp",
-                            "longText": "Temp. nom.",
-                            "lowerLimit": "0",
-                            "unitId": "Temp",
-                            "upperLimit": "52",
-                        },
-                        "value": "50",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int = await client.hot_water_tank.get_max_target_temperature()
-
-            assert isinstance(data, int)
-            expected: int = 52
-            assert data == expected
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_get_target_temperature(self) -> None:
-        """Test that `get_target_temperature()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value",
-                        "attributes": {
-                            "dynUpperLimit": 1,
-                            "formatId": "fmtTemp",
-                            "longText": "Temp. nom.",
-                            "lowerLimit": "0",
-                            "unitId": "Temp",
-                            "upperLimit": "52",
-                        },
-                        "value": "47",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.hot_water_tank.get_target_temperature()
-
-            assert isinstance(data, float)
-            assert data == pytest.approx(47.0)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_set_target_temperature(self) -> None:
-        """Test that `set_target_temperature()` sends the expected payload."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            await client.hot_water_tank.set_target_temperature(47)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value", "value": "47"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_get_standby_temperature(self) -> None:
-        """Test that `get_standby_temperature()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.reducedSetTempMax.value",
-                        "attributes": {
-                            "dynUpperLimit": 1,
-                            "formatId": "fmtTemp",
-                            "longText": "Sup.temp.",
-                            "lowerLimit": "0",
-                            "unitId": "Temp",
-                            "upperLimit": "52",
-                        },
-                        "value": "0",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.hot_water_tank.get_standby_temperature()
-
-            assert isinstance(data, float)
-            assert data == 0.0
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.reducedSetTempMax.value", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_set_standby_temperature(self) -> None:
-        """Test that `set_standby_temperature()` sends the expected payload."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            await client.hot_water_tank.set_standby_temperature(10)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.reducedSetTempMax.value", "value": "10"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_get_excess_energy_target_temperature(self) -> None:
-        """Test that `get_excess_energy_target_temperature()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.excessEnergyTemp.value",
-                        "attributes": {
-                            "formatId": "fmtTemp",
-                            "longText": "Set heat temp.",
-                            "unitId": "Temp",
-                            "upperLimit": "95",
-                            "lowerLimit": "0",
-                        },
-                        "value": "55",
-                    }
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.hot_water_tank.get_excess_energy_target_temperature()
-
-            assert isinstance(data, float)
-            assert data == pytest.approx(55.0)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.excessEnergyTemp.value", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_set_excess_energy_target_temperature(self) -> None:
-        """Test that `set_excess_energy_target_temperature()` sends the expected payload."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            await client.hot_water_tank.set_excess_energy_target_temperature(60)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.excessEnergyTemp.value", "value": "60"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_get_excess_energy_target_temperature_hysteresis(self) -> None:
-        """Test that `get_excess_energy_target_temperature_hysteresis()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.excessEnergyTemp.hyst",
-                        "attributes": {
-                            "formatId": "fmtTemp",
-                            "longText": "Hyst. heat temp.",
-                            "unitId": "TempRel",
-                            "upperLimit": "5",
-                            "lowerLimit": "0",
-                        },
-                        "value": "5",
-                    }
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.hot_water_tank.get_excess_energy_target_temperature_hysteresis()
-
-            assert isinstance(data, float)
-            expected: int = 5
-            assert data == expected
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.excessEnergyTemp.hyst", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_set_excess_energy_target_temperature_hysteresis(self) -> None:
-        """Test that `set_excess_energy_target_temperature_hysteresis()` sends the expected payload."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            await client.hot_water_tank.set_excess_energy_target_temperature_hysteresis(3)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars?action=set",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.excessEnergyTemp.hyst", "value": "3"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("human_readable", "payload_value", "expected_value"),
-        [
-            (True, "true", "on"),
-            (True, "false", "off"),
-            (False, "true", 1),
-            (False, "false", 0),
-        ],
+    mock_api.assert_called_once_with(
+        url=READ_URL,
+        data=json.dumps([{"name": item["name"], "attr": "1"}]),
+        method="POST",
+        headers={},
+        ssl=False,
+        timeout=TIMEOUT,
     )
-    async def test_get_use_excess_energy(
-        self,
-        *,
-        human_readable: bool,
-        payload_value: int,
-        expected_value: str,
-    ) -> None:
-        """Test that `get_use_excess_energy()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.useExcessEnergy",
-                        "attributes": {
-                            "longText": "Use excess en.",
-                        },
-                        "value": payload_value,
-                    }
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
 
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.hot_water_tank.get_use_excess_energy(human_readable=human_readable)
 
-            assert isinstance(data, (int | str))
-            assert data == expected_value
+@pytest.mark.parametrize(
+    ("method", "value", "kwargs", "expected"),
+    SETTERS,
+    ids=[case_id(method, kwargs, value) for method, value, kwargs, _ in SETTERS],
+)
+async def test_setter(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    method: str,
+    value: float | str,
+    kwargs: dict[str, Any],
+    expected: dict[str, str],
+) -> None:
+    """Test that a setter writes the expected variables."""
+    mock_api.post(WRITE_URL, payload={})
 
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.useExcessEnergy", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
+    await getattr(client.hot_water_tank, method)(value, **kwargs)
 
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("mode", "expected_value"),
-        [
-            ("off", "0"),
-            ("ON", "1"),
-            (BoolEnum.ON.value, "1"),
-            (BoolEnum.OFF.value, "0"),
-        ],
+    mock_api.assert_called_once_with(
+        url=WRITE_URL,
+        data=json.dumps([{"name": name, "value": value} for name, value in expected.items()]),
+        method="POST",
+        headers={},
+        ssl=False,
+        timeout=TIMEOUT,
     )
-    async def test_set_use_excess_energy(
-        self,
-        mode: int | str,
-        expected_value: str,
-    ) -> None:
-        """Test that `set_use_excess_energy()` sends the expected payload."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            await client.hot_water_tank.set_use_excess_energy(mode)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars?action=set",
-                data=(
-                    '[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.useExcessEnergy", '
-                    f'"value": "{expected_value}"}}]'
-                ),
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        "mode",
-        ["INVALID"],
-    )
-    async def test_set_invalid_use_excess_energy(self, mode: int | str) -> None:
-        """Test that `set_use_excess_energy()` raises `APIError` for invalid values and sends no request."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(APIError, match=r"Invalid value! Allowed values are \['OFF', '0', 'ON', '1']"):
-                await client.hot_water_tank.set_use_excess_energy(mode)
-
-            mock_keenergy_api.assert_not_called()
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("human_readable", "payload_value", "expected_value"),
-        [
-            (True, 2, "cooling"),
-            (False, HotWaterTankExcessEnergyMode.OFF.value, 0),
-            (False, HotWaterTankExcessEnergyMode.HEATING.value, 1),
-        ],
-    )
-    async def test_get_excess_energy_mode(
-        self,
-        *,
-        human_readable: bool,
-        payload_value: str,
-        expected_value: str,
-    ) -> None:
-        """Test that `get_excess_energy_mode()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].values.useExcessEnergy",
-                        "attributes": {
-                            "formatId": "fmtExcessEnergyInfo",
-                            "longText": "Excess energy HWT 1",
-                            "unitId": "Enum",
-                            "upperLimit": "2",
-                            "lowerLimit": "0",
-                        },
-                        "value": payload_value,
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.hot_water_tank.get_excess_energy_mode(human_readable=human_readable)
-
-            assert isinstance(data, (int | str))
-            assert data == expected_value
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].values.useExcessEnergy", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("human_readable", "payload_value", "expected_value"),
-        [
-            (True, "true", "on"),
-            (False, BoolEnum.ON.value, 1),
-            (True, "false", "off"),
-            (False, BoolEnum.OFF.value, 0),
-        ],
-    )
-    async def test_get_heat_request(
-        self,
-        *,
-        human_readable: bool,
-        payload_value: str,
-        expected_value: str,
-    ) -> None:
-        """Test that `get_heat_request()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].values.heatRequestTop",
-                        "attributes": {},
-                        "value": payload_value,
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.hot_water_tank.get_heat_request(human_readable=human_readable)
-
-            assert isinstance(data, (int | str))
-            assert data == expected_value
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].values.heatRequestTop", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("human_readable", "payload_value", "expected_value"),
-        [
-            (True, "true", "on"),
-            (False, BoolEnum.ON.value, 1),
-            (True, "false", "off"),
-            (False, BoolEnum.OFF.value, 0),
-        ],
-    )
-    async def test_has_fresh_water_module(
-        self,
-        *,
-        human_readable: bool,
-        payload_value: str,
-        expected_value: str,
-    ) -> None:
-        """Test that `has_fresh_water_module()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.hotWaterTank[0].hasFreshWaterModule",
-                        "attributes": {
-                            "longText": "Fresh water module",
-                        },
-                        "value": payload_value,
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.hot_water_tank.has_fresh_water_module(human_readable=human_readable)
-
-            assert isinstance(data, (int | str))
-            assert data == expected_value
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.options.hotWaterTank[0].hasFreshWaterModule", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("human_readable", "payload_value", "expected_value"),
-        [
-            (True, "true", "on"),
-            (False, BoolEnum.ON.value, 1),
-            (True, "false", "off"),
-            (False, BoolEnum.OFF.value, 0),
-        ],
-    )
-    async def test_get_fresh_water_flow(
-        self,
-        *,
-        human_readable: bool,
-        payload_value: str,
-        expected_value: str,
-    ) -> None:
-        """Test that `get_fresh_water_flow()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterFlow.values.actValue",
-                        "attributes": {
-                            "longText": "FWM flow switch",
-                        },
-                        "value": payload_value,
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.hot_water_tank.get_fresh_water_flow(human_readable=human_readable)
-
-            assert isinstance(data, (int | str))
-            assert data == expected_value
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data=(
-                    '[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterFlow.values.'
-                    'actValue", "attr": "1"}]'
-                ),
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_get_fresh_water_module_temperature(self) -> None:
-        """Test that `get_fresh_water_module_temperature()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterTemp.values.actValue",
-                        "attributes": {
-                            "formatId": "fmt3p2",
-                            "longText": "FWM temp.",
-                            "unitId": "Temp",
-                            "upperLimit": "100",
-                            "lowerLimit": "0",
-                        },
-                        "value": "30",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.hot_water_tank.get_fresh_water_module_temperature()
-
-            assert isinstance(data, float)
-            assert data == pytest.approx(30.0)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data=(
-                    '[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterTemp.values.'
-                    'actValue", "attr": "1"}]'
-                ),
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_get_fresh_water_module_pump_speed(self) -> None:
-        """Test that `get_fresh_water_module_pump_speed()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterPump.values.setValueScaled",
-                        "attributes": {
-                            "formatId": "fmt3p0",
-                            "longText": "FWM pump",
-                            "unitId": "Pct100",
-                            "upperLimit": "1",
-                            "lowerLimit": "0.0",
-                        },
-                        "value": "0.40020001",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.hot_water_tank.get_fresh_water_module_pump_speed()
-
-            assert isinstance(data, float)
-            assert data == pytest.approx(0.4002)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data=(
-                    '[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].FreshWater.freshWaterPump.values.setValueScaled", '
-                    '"attr": "1"}]'
-                ),
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_get_circulation_return_temperature(self) -> None:
-        """Test that `get_circulation_return_temperature()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].circTemp.values.actValue",
-                        "attributes": {
-                            "formatId": "fmtTemp",
-                            "longText": "Circ. reflux temp.",
-                            "unitId": "Temp",
-                            "upperLimit": "100",
-                            "lowerLimit": "-100",
-                        },
-                        "value": "47.44",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: float = await client.hot_water_tank.get_circulation_return_temperature()
-
-            assert isinstance(data, float)
-            assert data == pytest.approx(47.44)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data=('[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].circTemp.values.actValue", "attr": "1"}]'),
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("human_readable", "payload_value", "expected_value"),
-        [
-            (True, "true", "on"),
-            (False, BoolEnum.ON.value, 1),
-            (True, "false", "off"),
-            (False, BoolEnum.OFF.value, 0),
-        ],
-    )
-    async def test_get_circulation_pump_state(
-        self,
-        *,
-        human_readable: bool,
-        payload_value: str,
-        expected_value: str,
-    ) -> None:
-        """Test that `get_circulation_pump_state()` returns the value from the response."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].circPump.pump.values.setValueB",
-                        "attributes": {
-                            "longText": "Pumps nom. value Circ.",
-                        },
-                        "value": payload_value,
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.hot_water_tank.get_circulation_pump_state(human_readable=human_readable)
-
-            assert isinstance(data, (int | str))
-            assert data == expected_value
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data=('[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].circPump.pump.values.setValueB", "attr": "1"}]'),
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_get_max_target_temperature_with_position(self) -> None:
-        """Test `get_max_target_temperature()` for the second hot water tank."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[1].param.normalSetTempMax.value",
-                        "attributes": {"lowerLimit": "0", "upperLimit": "52"},
-                        "value": "50",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int = await client.hot_water_tank.get_max_target_temperature(position=2)
-
-            assert isinstance(data, int)
-            expected: int = 52
-            assert data == expected
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[1].param.normalSetTempMax.value", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    async def test_has_fresh_water_module_with_position(self) -> None:
-        """Test `has_fresh_water_module()` for the second hot water tank."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.options.hotWaterTank[1].hasFreshWaterModule",
-                        "attributes": {},
-                        "value": "true",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-            data: int | str = await client.hot_water_tank.has_fresh_water_module(position=2)
-
-            assert data == "on"
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.options.hotWaterTank[1].hasFreshWaterModule", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
 
 
-class TestUnhappyPathHotWaterTankSection:
-    """Tests for the hot water tank endpoints with invalid responses and input."""
+@pytest.mark.parametrize(
+    ("method", "value", "kwargs", "message"),
+    INVALID_SETTERS,
+    ids=[case_id(method, kwargs, value) for method, value, kwargs, _ in INVALID_SETTERS],
+)
+async def test_setter_invalid_value(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    method: str,
+    value: str,
+    kwargs: dict[str, Any],
+    message: str,
+) -> None:
+    """Test that a setter raises `APIError` for an invalid value and sends no request."""
+    with pytest.raises(APIError, match=re.escape(message)):
+        await getattr(client.hot_water_tank, method)(value, **kwargs)
 
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        ("human_readable", "payload_value"),
-        [(True, 10)],
-    )
-    async def test_get_invalid_human_readable_operating_mode(
-        self,
-        *,
-        human_readable: bool,
-        payload_value: int,
-    ) -> None:
-        """Test that `get_operating_mode()` raises `APIError` for an unknown value."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars",
-                payload=[
-                    {
-                        "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode",
-                        "attributes": {
-                            "formatId": "fmtHotWaterTank",
-                            "longText": "Op.mode",
-                            "lowerLimit": "0",
-                            "unitId": "Enum",
-                            "upperLimit": "32767",
-                        },
-                        "value": f"{payload_value}",
-                    },
-                ],
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(
-                APIError,
-                match=(
-                    "Can't convert value to human readable value! "
-                    r"{'name': 'APPL\.CtrlAppl\.sParam.hotWaterTank\[0]\.param\.operatingMode', "
-                    r"'attributes': {'formatId': 'fmtHotWaterTank', 'longText': 'Op\.mode', "
-                    "'lowerLimit': '0', 'unitId': 'Enum', 'upperLimit': '32767'}, 'value': '10'}"
-                ),
-            ):
-                await client.hot_water_tank.get_operating_mode(human_readable=human_readable)
-
-            mock_keenergy_api.assert_called_once_with(
-                url="http://mocked-host/var/readWriteVars",
-                data='[{"name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.operatingMode", "attr": "1"}]',
-                method="POST",
-                headers={},
-                ssl=False,
-            )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        "operating_mode",
-        ["INVALID"],
-    )
-    async def test_set_invalid_operating_mode(
-        self,
-        operating_mode: int | str,
-    ) -> None:
-        """Test that `set_operating_mode()` raises `APIError` for invalid values and sends no request."""
-        with aioresponses() as mock_keenergy_api:
-            mock_keenergy_api.post(
-                "http://mocked-host/var/readWriteVars?action=set",
-                payload={},
-                headers={"Content-Type": "application/json;charset=utf-8"},
-            )
-
-            client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host")
-
-            with pytest.raises(APIError) as error:
-                await client.hot_water_tank.set_operating_mode(operating_mode)
-
-            assert str(error.value) == (
-                "Invalid value! Allowed values are ['OFF', '0', 'AUTO', '1', 'ON', '2', 'HEAT_UP', '3']"
-            )
-
-            mock_keenergy_api.assert_not_called()
+    mock_api.assert_not_called()
