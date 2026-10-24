@@ -1,6 +1,6 @@
 .icon {
-  display: inline-flex;
-  margin-right: 0.5rem;
-  color: var(--ifm-color-primary);
-  vertical-align: -0.2em;
+    display: inline-flex;
+    margin-right: 0.5rem;
+    color: var(--ifm-color-primary);
+    vertical-align: -0.2em;
 }
