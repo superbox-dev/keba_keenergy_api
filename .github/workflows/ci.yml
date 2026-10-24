@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 permissions:
   contents: read
@@ -10,6 +10,8 @@ on:
         description: Build python package
         type: boolean
   pull_request:
+  schedule:
+    - cron: 30 5 * * *
   push:
     branches:
       - main
@@ -20,11 +22,20 @@ on:
 jobs:
   configure:
     name: Configure
-    uses: ./.github/workflows/configure.yml
+    runs-on: ubuntu-latest
+    outputs:
+      environments: ${{ steps.set-environments.outputs.environments }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Set environments
+        id: set-environments
+        run: echo "environments=$(jq -c . < ./.github/environments.json)" >> $GITHUB_OUTPUT
 
   code-analysis:
     name: Code analysis using Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
     needs: configure
     strategy:
       fail-fast: False
@@ -51,6 +62,7 @@ jobs:
   documentation:
     name: Documentation
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -68,15 +80,28 @@ jobs:
         run: ./scripts/docs.sh
 
   security:
-    name: Security
-    uses: ./.github/workflows/security.yml
+    name: Audit packages using Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    continue-on-error: True
     needs: configure
-    with:
-      environments: ${{ needs.configure.outputs.environments }}
+    strategy:
+      fail-fast: False
+      matrix:
+        python-version: ${{ fromJson(needs.configure.outputs.environments).python-version }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Set up project
+        uses: ./.github/actions/setup-project
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Audit python packages
+        run: uv audit
 
   tests:
     name: Tests using Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
     needs: configure
     strategy:
       fail-fast: False
