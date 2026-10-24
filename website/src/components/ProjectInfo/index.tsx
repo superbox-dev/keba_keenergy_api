@@ -2,7 +2,7 @@ import type {ReactNode} from 'react';
 import Link from '@docusaurus/Link';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import {Bug, FileCode, Github, HeartHandshake, History, Lightbulb, Package} from 'lucide-react';
+import {Bug, FileCode, GitBranch, HeartHandshake, History, Lightbulb, Package} from 'lucide-react';
 
 import styles from './styles.module.css';
 
@@ -41,7 +41,7 @@ export default function ProjectInfo(): ReactNode {
         </p>
         <p className={styles.section}>
           <Link href={repository}>
-            <Github className={styles.icon} aria-hidden="true" /> View source on GitHub
+            <GitBranch className={styles.icon} aria-hidden="true" /> View source on GitHub
           </Link>
           <br />
           <Link href={`${repository}/issues?q=is%3Aissue+is%3Aopen+label%3Abug`}>
