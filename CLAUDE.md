@@ -83,11 +83,13 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
   `exceptions.py`: `APIError` and subclasses
 - `client.py`: `KebaKeEnergyAPI`, transport (POST to `/var/readWriteVars`), payloads and type conversion
   - **no conversion of values** beyond the type (no rounding, scaling or interpretation), that is up to the caller
-- **Section member names are always the correct technical term for what the endpoint delivers**, valid for every
+- **Section and enum member names are always the correct technical term for what they deliver**, valid for every
   controller (e.g. fan or pump), not only for the test device
   - based on the KEBA variable and the Web HMI texts (EN and DE), checked against path, type, unit and limits
   - different from KEBA only where its name is ambiguous or technically wrong (e.g. `HeatingCircuit`, not `HeatCircuit`)
   - established technical abbreviations instead of long names (`DHW`, `COP`, `SPF`)
+  - grammatically correct, consistent forms: activities and states as `-ING` form or noun (`AUTO_HEATING`,
+    `WAITING_FOR_COMPRESSOR`), never imperatives or bare verbs (`AUTO_HEAT`, `WAIT_FOR_COMPRESSOR`)
   - fixed patterns: `TARGET_*`, `HAS_*` (options), `USE_*` (parameters), `*_ACTIVE` (boolean actual values),
     `EXCESS_ENERGY_*` as prefix, `*_SPEED`, `*_THERMAL_ENERGY` / `*_ELECTRICAL_ENERGY`, `*_FAILURE`
 - Helpers in the package are `_`-prefixed methods of the class that uses them (`@staticmethod` if they need no

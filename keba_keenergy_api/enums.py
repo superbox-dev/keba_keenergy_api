@@ -86,8 +86,8 @@ class SystemOperatingMode(_BaseEnum):
     SETUP = -1
     STANDBY = 0
     SUMMER = 1
-    AUTO_HEAT = 2
-    AUTO_COOL = 3
+    AUTO_HEATING = 2
+    AUTO_COOLING = 3
     AUTO = 4
 
 
@@ -155,8 +155,8 @@ class HeatPumpSubState(_BaseEnum):
     REDUCED_SPEED = (20, 26)
     COMPRESSOR_DELAY = 23
     DEFROST_FAN = 24
-    SWITCH_HEATING_COOLING = 27
-    WAIT_FOR_COMPRESSOR = (28, 33)
+    SWITCHING_HEATING_COOLING = 27
+    WAITING_FOR_COMPRESSOR = (28, 33)
     COMPRESSOR_STOP = 29
     BIVALENT_LOCK = 30
     LOCKED = 31

@@ -230,6 +230,8 @@ The section is the 2.x name, see [Sections](#sections) for the renamed ones.
 | 2.x | 3.0 |
 |---|---|
 | `BoolEnum` | `bool` |
+| `SystemOperatingMode.AUTO_HEAT` | `SystemOperatingMode.AUTO_HEATING` |
+| `SystemOperatingMode.AUTO_COOL` | `SystemOperatingMode.AUTO_COOLING` |
 | `BufferTankOperatingMode.HEAT_UP` | `BufferTankOperatingMode.MANUAL_CHARGE` |
 | `HotWaterTankOperatingMode` | `DHWTankOperatingMode` |
 | `HotWaterTankOperatingMode.HEAT_UP` | `DHWTankOperatingMode.MANUAL_CHARGE` |
@@ -242,6 +244,8 @@ The section is the 2.x name, see [Sections](#sections) for the renamed ones.
 | `HeatPumpSubState.PREHEAT_FLOW` | `HeatPumpSubState.PRE_RUN_HEAT_UP` |
 | `HeatPumpSubState.OPEN` | `HeatPumpSubState.OPENING` |
 | `HeatPumpSubState.DEFROST_VENTING` | `HeatPumpSubState.DEFROST_FAN` |
+| `HeatPumpSubState.SWITCH_HEATING_COOLING` | `HeatPumpSubState.SWITCHING_HEATING_COOLING` |
+| `HeatPumpSubState.WAIT_FOR_COMPRESSOR` | `HeatPumpSubState.WAITING_FOR_COMPRESSOR` |
 | `HeatPumpSubState.RETURN_FLOW_OFF` | `HeatPumpSubState.RETURN_OFF` |
 | `HeatPumpOperatingMode` | removed |
 | `HeatCircuitMode` | `HeatingCircuitType` |

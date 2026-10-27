@@ -535,7 +535,7 @@ async def test_write(
 
     await client.write(
         {
-            System.OPERATING_MODE: [SystemOperatingMode.AUTO_HEAT],
+            System.OPERATING_MODE: [SystemOperatingMode.AUTO_HEATING],
             BufferTank.OPERATING_MODE: [None, BufferTankOperatingMode.MANUAL_CHARGE],
             HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL: [20, None, 21.5],
             HeatingCircuit.USE_EXCESS_ENERGY: [True, False],
