@@ -5,16 +5,13 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING
 from typing import Literal
 from typing import NamedTuple
 from typing import NotRequired
 from typing import TypedDict
 
+from keba_keenergy_api.enums import MessageIdKind
 from keba_keenergy_api.sections import Section
-
-if TYPE_CHECKING:
-    from keba_keenergy_api.enums import MessageIdKind
 
 type Value = bool | Enum | float | int | str
 type WriteValue = bool | Enum | float | int | str

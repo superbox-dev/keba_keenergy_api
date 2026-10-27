@@ -457,20 +457,20 @@
       'variable': 'APPL.CtrlAppl.sParam.heatpump[%s].HotWaterMeter.values.power',
       'writable': False,
     }),
+    'HeatPump.ELECTRICAL_ENERGY_METER_TYPE': dict({
+      'message_id': None,
+      'quantity': 1,
+      'unit': None,
+      'value_type': 'ElectricalEnergyMeterType',
+      'variable': 'APPL.CtrlAppl.sParam.options.heatpump[%s].ElectricEnergyMeter.type',
+      'writable': False,
+    }),
     'HeatPump.ELECTRICAL_POWER': dict({
       'message_id': 'APPL.CtrlAppl.sParam.heatpump[%s].ElectricEnergyMeter.state.msgId',
       'quantity': 1,
       'unit': 'W',
       'value_type': 'float',
       'variable': 'APPL.CtrlAppl.sParam.heatpump[%s].ElectricEnergyMeter.values.power',
-      'writable': False,
-    }),
-    'HeatPump.ELECTRIC_ENERGY_METER_TYPE': dict({
-      'message_id': None,
-      'quantity': 1,
-      'unit': None,
-      'value_type': 'ElectricEnergyMeterType',
-      'variable': 'APPL.CtrlAppl.sParam.options.heatpump[%s].ElectricEnergyMeter.type',
       'writable': False,
     }),
     'HeatPump.EVAPORATION_TEMPERATURE': dict({
@@ -945,7 +945,7 @@
       'variable': 'APPL.CtrlAppl.sParam.options.heatCircuit[%s].hasPump',
       'writable': False,
     }),
-    'HeatingCircuit.HAS_RETURN_TEMPERATURE': dict({
+    'HeatingCircuit.HAS_RETURN_TEMPERATURE_SENSOR': dict({
       'message_id': None,
       'quantity': 1,
       'unit': None,
@@ -953,7 +953,7 @@
       'variable': 'APPL.CtrlAppl.sParam.options.heatCircuit[%s].hasRefluxTemp',
       'writable': False,
     }),
-    'HeatingCircuit.HAS_ROOM_HUMIDITY': dict({
+    'HeatingCircuit.HAS_ROOM_HUMIDITY_SENSOR': dict({
       'message_id': None,
       'quantity': 1,
       'unit': None,
@@ -961,7 +961,7 @@
       'variable': 'APPL.CtrlAppl.sParam.options.heatCircuit[%s].hasRoomHumidity',
       'writable': False,
     }),
-    'HeatingCircuit.HAS_ROOM_TEMPERATURE': dict({
+    'HeatingCircuit.HAS_ROOM_TEMPERATURE_SENSOR': dict({
       'message_id': None,
       'quantity': 1,
       'unit': None,
@@ -1441,7 +1441,7 @@
       'variable': 'APPL.CtrlAppl.sProcData.totFreeRAM',
       'writable': False,
     }),
-    'System.HAS_OUTDOOR_TEMPERATURE': dict({
+    'System.HAS_OUTDOOR_TEMPERATURE_SENSOR': dict({
       'message_id': None,
       'quantity': 1,
       'unit': None,

@@ -27,7 +27,7 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 - Added the message ids of the components of pumps, the compressor, the mixers, the heat and energy meters, the
   superheat control, the switch valve of the passive cooling and the external heat source ([Issue #132][issue-132])
 - Added `UnsupportedVariableError` (with the `variable` name) and `InvalidResponseError` ([Issue #132][issue-132])
-- Added `ExcessEnergyState`, `HeatingCircuitRequest`, `HeatingCircuitType`, `ElectricEnergyMeterType`, `HeatMeterType`
+- Added `ExcessEnergyState`, `HeatingCircuitRequest`, `HeatingCircuitType`, `ElectricalEnergyMeterType`, `HeatMeterType`
   and `SolarCircuitOperatingMode` ([Issue #132][issue-132])
 
 ### Changed

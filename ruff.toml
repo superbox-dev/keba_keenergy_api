@@ -17,6 +17,11 @@ ignore = [
 [lint.flake8-tidy-imports.banned-api]
 "typing.cast".msg = "Narrow types with runtime checks (e.g. `isinstance`) or generics"
 
+[lint.flake8-type-checking]
+# Field types of the public models must exist at runtime, e.g. for typing.get_type_hints().
+runtime-evaluated-decorators = ["dataclasses.dataclass"]
+runtime-evaluated-base-classes = ["typing.NamedTuple", "typing.TypedDict"]
+
 [lint.isort]
 force-single-line = true
 

@@ -228,7 +228,7 @@ class ExternalHeatSourceOperatingMode(_BaseEnum):
     FLUE = 2
 
 
-class ElectricEnergyMeterType(_BaseEnum):
+class ElectricalEnergyMeterType(_BaseEnum):
     """Types of the electric energy meter of a heat pump (not existing, S0 meter, via inverter)."""
 
     NONE = 0

@@ -116,6 +116,7 @@ The section is the 2.x name, see [Sections](#sections) for the renamed ones.
 | `System` | `EXTERNAL_HEAT_SOURCE_NUMBERS` | private, use `get_device_counts()` |
 | `System` | `SWITCH_VALVE_NUMBERS` | private, use `get_device_counts()` |
 | `System` | `RAM_USAGE` | `TEMPORARY_MEMORY_USAGE` |
+| `System` | `HAS_OUTDOOR_TEMPERATURE` | `HAS_OUTDOOR_TEMPERATURE_SENSOR` |
 | `System` | `FLASH_ERASE_COUNTER` | `FLASH_MAX_ERASE_COUNTER` |
 | `BufferTank` | `CURRENT_TOP_TEMPERATURE` | `TOP_TEMPERATURE` |
 | `BufferTank` | `CURRENT_BOTTOM_TEMPERATURE` | `BOTTOM_TEMPERATURE` |
@@ -174,6 +175,7 @@ The section is the 2.x name, see [Sections](#sections) for the renamed ones.
 | `HeatPump` | `HAS_VFD_FAILURE` | `VFD_FAILURE` |
 | `HeatPump` | `COOL_METER_TYPE` | removed |
 | `HeatPump` | `HOT_WATER_METER_TYPE` | removed |
+| `HeatPump` | `ELECTRIC_ENERGY_METER_TYPE` | `ELECTRICAL_ENERGY_METER_TYPE` |
 | `HeatCircuit` | `MODE` | `TYPE` |
 | `HeatCircuit` | `FLOW_TEMPERATURE_SETPOINT` | `TARGET_FLOW_TEMPERATURE` |
 | `HeatCircuit` | `MIXER_POSITION` | `MIXER_SETPOINT` |
@@ -205,8 +207,10 @@ The section is the 2.x name, see [Sections](#sections) for the renamed ones.
 | `HeatCircuit` | `AWAY_END_DATE` | `VACATION_END` |
 | `HeatCircuit` | `USE_HEATING_CURVE` | `USE_CURVE_TABLE` |
 | `HeatCircuit` | `HAS_VAR_SPEED_PUMP` | `HAS_VARIABLE_SPEED_PUMP` |
+| `HeatCircuit` | `HAS_ROOM_TEMPERATURE` | `HAS_ROOM_TEMPERATURE_SENSOR` |
+| `HeatCircuit` | `HAS_ROOM_HUMIDITY` | `HAS_ROOM_HUMIDITY_SENSOR` |
 | `HeatCircuit` | `MIXER_RETURN_FLOW_TEMPERATURE` | `MIXER_RETURN_TEMPERATURE` |
-| `HeatCircuit` | `HAS_RETURN_FLOW_TEMPERATURE` | `HAS_RETURN_TEMPERATURE` |
+| `HeatCircuit` | `HAS_RETURN_FLOW_TEMPERATURE` | `HAS_RETURN_TEMPERATURE_SENSOR` |
 | `HeatCircuit` | `RETURN_FLOW_TEMPERATURE` | `RETURN_TEMPERATURE` |
 | `SolarCircuit` | `SOURCE_TEMPERATURE` | `COLLECTOR_TEMPERATURE` |
 | `SolarCircuit` | `PUMP_1` | `PUMP_1_SPEED` |
@@ -266,5 +270,5 @@ The section is the 2.x name, see [Sections](#sections) for the renamed ones.
 | `SectionPrefix` | `DeviceType` |
 | `SectionPrefix.HEAT_CIRCUIT` | `DeviceType.HEATING_CIRCUIT` |
 | `SectionPrefix.HOT_WATER_TANK` | `DeviceType.DHW_TANK` |
-| int (`ELECTRIC_ENERGY_METER_TYPE`) | `ElectricEnergyMeterType` |
+| int (`ELECTRIC_ENERGY_METER_TYPE`) | `ElectricalEnergyMeterType` |
 | int (`HEAT_METER_TYPE`) | `HeatMeterType` |

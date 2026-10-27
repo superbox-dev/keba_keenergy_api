@@ -23,7 +23,7 @@ from keba_keenergy_api.constants import _WATT
 from keba_keenergy_api.enums import BufferTankOperatingMode
 from keba_keenergy_api.enums import DeviceType
 from keba_keenergy_api.enums import DHWTankOperatingMode
-from keba_keenergy_api.enums import ElectricEnergyMeterType
+from keba_keenergy_api.enums import ElectricalEnergyMeterType
 from keba_keenergy_api.enums import ExcessEnergyState
 from keba_keenergy_api.enums import ExternalHeatSourceOperatingMode
 from keba_keenergy_api.enums import HeatingCircuitOperatingMode
@@ -143,7 +143,7 @@ class System(_SectionEnum, device_type=DeviceType.SYSTEM):
         path="sParam.options.hasPhotovoltaics",
         value_type=bool,
     )
-    HAS_OUTDOOR_TEMPERATURE = Endpoint(
+    HAS_OUTDOOR_TEMPERATURE_SENSOR = Endpoint(
         path="sParam.options.hasOutdoorTemp",
         value_type=bool,
     )
@@ -623,9 +623,9 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         value_type=bool,
         message_id="sParam.heatpump[%s].FailureVFD",
     )
-    ELECTRIC_ENERGY_METER_TYPE = Endpoint(
+    ELECTRICAL_ENERGY_METER_TYPE = Endpoint(
         path="sParam.options.heatpump[%s].ElectricEnergyMeter.type",
-        value_type=ElectricEnergyMeterType,
+        value_type=ElectricalEnergyMeterType,
     )
     HEAT_METER_TYPE = Endpoint(
         path="sParam.options.heatpump[%s].HeatMeter.type",
@@ -644,7 +644,7 @@ class HeatingCircuit(_SectionEnum, device_type=DeviceType.HEATING_CIRCUIT):
         path="sParam.options.heatCircuit[%s].type",
         value_type=HeatingCircuitType,
     )
-    HAS_ROOM_TEMPERATURE = Endpoint(
+    HAS_ROOM_TEMPERATURE_SENSOR = Endpoint(
         path="sParam.options.heatCircuit[%s].hasRoomTemp",
         value_type=bool,
     )
@@ -654,7 +654,7 @@ class HeatingCircuit(_SectionEnum, device_type=DeviceType.HEATING_CIRCUIT):
         unit=_CELSIUS,
         message_id="sParam.heatCircuit[%s].tempRoom",
     )
-    HAS_ROOM_HUMIDITY = Endpoint(
+    HAS_ROOM_HUMIDITY_SENSOR = Endpoint(
         path="sParam.options.heatCircuit[%s].hasRoomHumidity",
         value_type=bool,
     )
@@ -701,7 +701,7 @@ class HeatingCircuit(_SectionEnum, device_type=DeviceType.HEATING_CIRCUIT):
         value_type=bool,
         message_id="sParam.heatCircuit[%s].pump",
     )
-    HAS_RETURN_TEMPERATURE = Endpoint(
+    HAS_RETURN_TEMPERATURE_SENSOR = Endpoint(
         path="sParam.options.heatCircuit[%s].hasRefluxTemp",
         value_type=bool,
     )
