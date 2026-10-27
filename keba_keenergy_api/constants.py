@@ -263,6 +263,49 @@ PAYLOAD_PREFIX: Final[str] = "APPL.CtrlAppl"
 ACT_VALUE_SUFFIX: Final[str] = ".values.actValue"
 MESSAGE_ID_SUFFIX: Final[str] = ".state.msgId"
 
+_OK_MESSAGE_ID: Final = 0
+_DEACTIVATED_MESSAGE_ID: Final = 10
+
+
+class MessageIdKind(Enum):
+    """Kinds of a sensor message id (``state.msgId``), like ``MsgIdKind`` of the Web HMI.
+
+    ``OK`` (``0``) means the value is valid, ``DEACTIVATED`` (``10``) that the sensor is not configured and
+    ``ERROR`` (any other value) that the sensor exists but its value is not valid.
+    """
+
+    OK = "ok"
+    DEACTIVATED = "deactivated"
+    ERROR = "error"
+
+    @classmethod
+    def from_message_id(cls, message_id: int) -> "MessageIdKind":
+        """Return the kind of a raw message id.
+
+        Parameters
+        ----------
+        message_id
+            The raw message id, e.g. from ``KebaKeEnergyAPI.read_message_ids()``.
+
+        Returns
+        -------
+        MessageIdKind
+            The kind of the message id.
+
+        Examples
+        --------
+        >>> MessageIdKind.from_message_id(10)
+        <MessageIdKind.DEACTIVATED: 'deactivated'>
+
+        """
+        if message_id == _OK_MESSAGE_ID:
+            return cls.OK
+
+        if message_id == _DEACTIVATED_MESSAGE_ID:
+            return cls.DEACTIVATED
+
+        return cls.ERROR
+
 
 @dataclass
 class Endpoint:

@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([Issue #131][issue-131])
 - Added `ExternalHeatSource.HAS_EMISSIONS` with `get_has_emissions` and `set_has_emissions` of the external heat
   source
+- Added `MessageIdKind` (`OK`, `DEACTIVATED`, `ERROR`) with `MessageIdKind.from_message_id()` to get the kind of a
+  message id from `read_message_ids()` like the Web HMI ([Issue #136][issue-136])
 
 ### Changed
 
@@ -27,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `on` stay the same ([Issue #131][issue-131])
 
 [issue-131]: https://github.com/superbox-dev/keba_keenergy_api/issues/131
+[issue-136]: https://github.com/superbox-dev/keba_keenergy_api/issues/136
 
 <!--start-->
 

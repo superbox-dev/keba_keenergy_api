@@ -10,6 +10,7 @@ import pytest
 from keba_keenergy_api.constants import FloatEndpoint
 from keba_keenergy_api.constants import HeatCircuit
 from keba_keenergy_api.constants import HeatPump
+from keba_keenergy_api.constants import MessageIdKind
 from keba_keenergy_api.constants import SectionPrefix
 from keba_keenergy_api.constants import SolarCircuit
 from keba_keenergy_api.constants import System
@@ -46,6 +47,21 @@ def test_message_id_path_without_act_value() -> None:
         match=r"message id is not supported for 'APPL\.CtrlAppl\.sParam\.heatpump\[%s\]\.values\.COP'",
     ):
         FloatEndpoint("APPL.CtrlAppl.sParam.heatpump[%s].values.COP", has_message_id=True)
+
+
+@pytest.mark.parametrize(
+    ("message_id", "expected"),
+    [
+        (0, MessageIdKind.OK),
+        (10, MessageIdKind.DEACTIVATED),
+        (1, MessageIdKind.ERROR),
+        (-1, MessageIdKind.ERROR),
+    ],
+    ids=["ok", "deactivated", "error", "negative_error"],
+)
+def test_message_id_kind_from_message_id(message_id: int, expected: MessageIdKind) -> None:
+    """Test the kind of a raw message id."""
+    assert MessageIdKind.from_message_id(message_id) is expected
 
 
 @pytest.mark.parametrize("section", SECTIONS, ids=lambda section: section.__name__)

@@ -125,6 +125,27 @@ Permanent and very frequent writing of values reduces the lifetime of the built-
 
 :::
 
+## Message ids
+
+`read_message_ids()` returns the raw message ids (`state.msgId`) of sensors. `MessageIdKind.from_message_id()`
+returns their kind, the same way the Web HMI handles them:
+
+| Message id      | `MessageIdKind` | Meaning                                         |
+|-----------------|-----------------|-------------------------------------------------|
+| `0`             | `OK`            | The value is valid                              |
+| `10`            | `DEACTIVATED`   | The sensor is not configured                    |
+| any other value | `ERROR`         | The sensor exists, but its value is not valid   |
+
+```python
+from keba_keenergy_api.constants import HeatCircuit
+from keba_keenergy_api.constants import MessageIdKind
+
+message_ids = await client.read_message_ids(request=[HeatCircuit.ROOM_TEMPERATURE])
+
+for message_id in message_ids[HeatCircuit.ROOM_TEMPERATURE]:
+    print(MessageIdKind.from_message_id(message_id))
+```
+
 ## Errors
 
 All errors are subclasses of `APIError` (`keba_keenergy_api.error`):

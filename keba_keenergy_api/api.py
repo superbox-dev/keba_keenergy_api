@@ -389,7 +389,8 @@ class KebaKeEnergyAPI(BaseEndpoints):
         -------
         dict[Section, list[int]]
             A dictionary with the section as key and a list of message ids as value, one per device
-            (position * quantity + sub index). 0 means the sensor is in use.
+            (position * quantity + sub index). 0 means the sensor is in use, ``MessageIdKind.from_message_id()``
+            returns the kind of a message id.
 
         Examples
         --------
