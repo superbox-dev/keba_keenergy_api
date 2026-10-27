@@ -7,6 +7,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+The 3.0.0 release is a typed low-level API with the technical terms as names. It breaks every 2.x import, see
+the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration) ([Issue #132][issue-132]).
+
+### Added
+
+- Added `KebaKeEnergyAPI.read()`, which returns a `Reading` per device with the typed `value`,
+  `position`, `consumer`, `lower_limit`, `upper_limit` and `unit` ([Issue #132][issue-132])
+- Added `write()`, `filter_supported()`, `get_device_counts()` (`DeviceCounts`), `get_system_info()`,
+  `get_hmi_info()`, `get_device_info()`, `get_heating_curves()` (`HeatingCurve`) and
+  `set_heating_curve_points()` to `KebaKeEnergyAPI` ([Issue #132][issue-132])
+- Added `Endpoint.unit`, `Endpoint.message_id` and `DeviceType` (the device type of a section as
+  `device_type`) ([Issue #132][issue-132])
+- Added `read(..., message_ids=True)`, which reads the message ids with the values in the same request
+  (`Reading.message_id` with `value` and `kind`). A message id the Web HMI doesn't know is left out, the value is
+  still read ([Issue #132][issue-132])
+- Added `read(..., limits=...)` to choose the endpoints whose limits are read (`all`, `none`, `read_only` or
+  `writable`), as the limits make a request about twice as slow ([Issue #132][issue-132])
+- Added the message ids of the components of pumps, the compressor, the mixers, the heat and energy meters, the
+  superheat control, the switch valve of the passive cooling and the external heat source ([Issue #132][issue-132])
+- Added `UnsupportedVariableError` (with the `variable` name) and `InvalidResponseError` ([Issue #132][issue-132])
+- Added `ExcessEnergyState`, `HeatingCircuitRequest`, `HeatingCircuitType`, `ElectricEnergyMeterType`, `HeatMeterType`
+  and `SolarCircuitOperatingMode` ([Issue #132][issue-132])
+
+### Changed
+
+- Changed the minimum Python version to 3.14.2 ([Issue #132][issue-132])
+- Changed the modules: `constants` became `sections` (endpoints), `enums` (values), `models` and `constants`
+  (`API_DEFAULT_TIMEOUT`, `MIN_HEATING_CURVE_POINTS`, `MAX_HEATING_CURVE_POINTS`), `api` became `client` and
+  `error` became `exceptions` ([Issue #132][issue-132])
+- Changed `KebaKeEnergyAPI()`: `username` and `password` are keyword-only, `verify_ssl` replaced
+  `skip_ssl_verification` ([Issue #132][issue-132])
+- Changed the values: `read()` returns `bool`, `float`, `int`, `str` or enum members instead of lowercase strings,
+  without rounding or scaling, e.g. ratios stay `0..1`, the CPU usage stays per mille and the mixer setpoint is
+  returned as it is ([Issue #132][issue-132])
+- Changed `filter_supported()` to drop a section if the Web HMI doesn't know its variable of one of the installed
+  devices, as `read()` would fail with it ([Issue #132][issue-132])
+- Changed the session: a passed session is used as it is, otherwise the client opens one on the first request and
+  closes it with `close()`, no session per request anymore ([Issue #132][issue-132])
+- Changed `write()` to raise an `APIError` for a read-only section or a value of the wrong type instead of
+  ignoring it ([Issue #132][issue-132])
+- Changed `InvalidJsonError` to `InvalidResponseError` ([Issue #132][issue-132])
+- Renamed the sections, the endpoints, the enums and their members to the technical terms (e.g. `HeatCircuit` to
+  `HeatingCircuit`, `HotWaterTank` to `DHWTank`) and replaced the methods of the section clients, the
+  [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration) has the tables (old name → new name)
+  ([Issue #132][issue-132])
+
+### Removed
+
+- Removed the section clients (`client.heat_pump`, …) with all `get_*`, `set_*`, `has_*` and `get_number_of_*`
+  methods, `read_data()`, `write_data()` and `filter_request()` ([Issue #132][issue-132])
+- Removed `human_readable`, `extra_attributes` and `key_prefix`, the heating curve points are no longer part of the
+  read response ([Issue #132][issue-132])
+- Removed `Position`, `EndpointPath`, `PAYLOAD_PREFIX`, `ACT_VALUE_SUFFIX`, `MESSAGE_ID_SUFFIX`, `BoolEnum`,
+  `HeatPumpOperatingMode` and `MixerSwitchValvePosition` ([Issue #132][issue-132])
+
+[issue-132]: https://github.com/superbox-dev/keba_keenergy_api/issues/132
+
+<!--start-->
+
+## [2.14.0] - 2026-10-27
+
 ### Added
 
 - Added `HeatPumpState.SOURCE_FLUSH` (`9`) and `ExternalHeatSourceOperatingMode` (`OFF`, `ON`, `FLUE`)
@@ -33,8 +94,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [issue-131]: https://github.com/superbox-dev/keba_keenergy_api/issues/131
 [issue-136]: https://github.com/superbox-dev/keba_keenergy_api/issues/136
 [issue-137]: https://github.com/superbox-dev/keba_keenergy_api/issues/137
-
-<!--start-->
 
 ## [2.13.0] - 2026-10-24
 
@@ -833,7 +892,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[Unreleased]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.13.0...HEAD
+[Unreleased]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.14.0...HEAD
+[2.14.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.13.0...v2.14.0
 [2.13.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.12.2...v2.13.0
 [2.12.2]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.12.1...v2.12.2
 [2.12.1]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.12.0...v2.12.1

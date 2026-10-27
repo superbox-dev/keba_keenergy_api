@@ -37,7 +37,7 @@ export default function ProjectInfo(): ReactNode {
                     A community project, not affiliated with or endorsed by KEBA. KEBA is a registered trademark of its owner.
                 </p>
                 <p className={styles.section}>
-                    <FileCode className={styles.icon} aria-hidden="true" /> Requires Python 3.11 or newer.
+                    <FileCode className={styles.icon} aria-hidden="true" /> Requires Python 3.14 or newer.
                 </p>
                 <p className={styles.section}>
                     <Link href={repository}>

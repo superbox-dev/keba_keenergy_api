@@ -10,63 +10,75 @@ sidebar_position: 5
 import asyncio
 
 from keba_keenergy_api import KebaKeEnergyAPI
-from keba_keenergy_api.constants import HeatCircuit
-from keba_keenergy_api.constants import HeatCircuitOperatingMode
-
-
-async def main():
-    client = KebaKeEnergyAPI(
-        host="ap4400.local", username="test", password="test", ssl=True, skip_ssl_verification=True
-    )
-
-    # Get current outdoor temperature
-    outdoor_temperature = await client.system.get_outdoor_temperature()
-
-    # Get heat circuit temperature from heat circuit 2
-    heat_circuit_temperature = await client.heat_circuit.get_target_temperature(position=2)
-
-    # Read multiple values
-    data = await client.read_data(
-        request=[HeatCircuit.TARGET_TEMPERATURE, HeatCircuit.TARGET_TEMPERATURE_DAY], extra_attributes=True
-    )
-
-    # Enable "day" mode for heat circuit 2
-    await client.heat_circuit.set_operating_mode(mode=HeatCircuitOperatingMode.DAY.value, position=2)
-
-    # Write multiple values
-    await client.write_data(
-        request={
-            # Write the day temperature of heat circuit 1 and 3
-            HeatCircuit.TARGET_TEMPERATURE_DAY: (20, None, 21),
-            # Write night temperature on position 1
-            HeatCircuit.TARGET_TEMPERATURE_NIGHT: (16,),
-        },
-    )
-
-
-asyncio.run(main())
-```
-
-## Session
-
-By default, the library creates a new connection to `KEBA KeEnergy API` with each coroutine. If you are calling a large
-number of coroutines, use the client with `async with`, so that all requests share one connection:
-
-```python
-import asyncio
-
-from keba_keenergy_api import KebaKeEnergyAPI
+from keba_keenergy_api.enums import HeatingCircuitOperatingMode
+from keba_keenergy_api.sections import HeatingCircuit
+from keba_keenergy_api.sections import System
 
 
 async def main():
     async with KebaKeEnergyAPI(
-        host="ap4400.local", username="test", password="test", ssl=True, skip_ssl_verification=True
+        host="ap4400.local", username="test", password="test", ssl=True, verify_ssl=False
     ) as client:
-        ...
+        # Read multiple values with one request
+        readings = await client.read(
+            [System.OUTDOOR_TEMPERATURE, HeatingCircuit.OPERATING_MODE, HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL]
+        )
+
+        outdoor_temperature = readings[System.OUTDOOR_TEMPERATURE][0]
+        print(outdoor_temperature.value, outdoor_temperature.unit)  # 10.808357 °C
+
+        # One reading per heating circuit, the position starts at 1
+        for reading in readings[HeatingCircuit.OPERATING_MODE]:
+            print(reading.position, reading.value)  # 1 HeatingCircuitOperatingMode.AUTO
+
+        # Write multiple values with one request, one value per device, None skips a device
+        await client.write(
+            {
+                # Normal room temperature of heating circuit 1 and 3
+                HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL: [20, None, 21.5],
+                # Operating mode of heating circuit 1
+                HeatingCircuit.OPERATING_MODE: [HeatingCircuitOperatingMode.NORMAL],
+            }
+        )
 
 
 asyncio.run(main())
 ```
+
+The sections are the members of the enums in `keba_keenergy_api.sections`, one enum per device type, see
+[Sections](/sections). The installed devices are read once with `get_device_counts()` and reused, sections of
+devices that are not installed return an empty list.
+
+Each `Reading` has the value converted to the type of the endpoint (`bool`, `float`, `int`, `str` or an enum member
+of `keba_keenergy_api.enums`), the `position` (and `consumer` for the two consumers of a solar
+circuit), the `lower_limit` and `upper_limit` of the Web HMI and the `unit`.
+
+Reading the limits makes the request of the Web HMI about twice as slow. `limits` chooses the endpoints whose limits
+are read, the others have `None`:
+
+| `limits`          | Limits are read for                                   |
+|-------------------|-------------------------------------------------------|
+| `"all"` (default) | all endpoints                                         |
+| `"writable"`      | writable endpoints only, enough to check a write      |
+| `"read_only"`     | read-only endpoints only                              |
+| `"none"`          | no endpoint, the fastest read                         |
+
+```python
+readings = await client.read([DHWTank.TARGET_TEMPERATURE, DHWTank.TEMPERATURE], limits="writable")
+```
+
+Values are not rounded, scaled or interpreted: ratios stay `0..1` (e.g. pump speeds), the CPU usage stays per mille,
+the energy of the photovoltaics and the solar circuit stays in joule. Temperature differences (hystereses, offsets,
+superheat) have the unit `K`. Converting the values is up to the caller.
+
+Older Web HMI versions don't know every variable. `filter_supported()` returns the sections the controller supports
+(all variables of the installed devices are known), `read()` raises an `UnsupportedVariableError` for an unknown
+variable.
+
+## Session
+
+Without a session, the client opens one on the first request and closes it with `close()` or at the end of
+`async with`.
 
 You can also pass your own `aiohttp ClientSession()`, e.g. to share it with other code. The client leaves it open.
 Every request times out after 10 seconds (`API_DEFAULT_TIMEOUT`), also with a passed session:
@@ -74,16 +86,14 @@ Every request times out after 10 seconds (`API_DEFAULT_TIMEOUT`), also with a pa
 ```python
 import asyncio
 
-from keba_keenergy_api import KebaKeEnergyAPI
-
 from aiohttp import ClientSession
+
+from keba_keenergy_api import KebaKeEnergyAPI
 
 
 async def main():
     async with ClientSession() as session:
-        client = KebaKeEnergyAPI(
-            host="ap4400.local", username="test", password="test", ssl=True, skip_ssl_verification=True, session=session
-        )
+        client = KebaKeEnergyAPI(host="ap4400.local", username="test", password="test", session=session)
         ...
 
 
@@ -93,29 +103,19 @@ asyncio.run(main())
 ## Write warnings
 
 This is a low-level API that allows writing values outside the safe operating range.
-Improper use can damage heating systems and hardware. Always check the `attributes`,
-as these may contain minimum and maximum values.
+Improper use can damage heating systems and hardware. Always check `lower_limit` and `upper_limit` of the reading
+before writing a value.
 
 *Use at your own risk!*
 
 **Example:**
 
-The upper limit of the hot water tank temperature is 52 °C. Do not write larger values under any circumstances,
+The upper limit of the DHW tank temperature is 52 °C. Do not write larger values under any circumstances,
 even if it would be possible.
 
-```json
-{
-    "name": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value",
-    "attributes": {
-        "dynUpperLimit": 1,
-        "formatId": "fmtTemp",
-        "longText": "Temp. nom.",
-        "lowerLimit": "0",
-        "unitId": "Temp",
-        "upperLimit": "52"
-    },
-    "value": "50"
-}
+```python
+readings = await client.read([DHWTank.TARGET_TEMPERATURE])
+readings[DHWTank.TARGET_TEMPERATURE][0].upper_limit  # 52.0
 ```
 
 :::warning[Attention]
@@ -127,32 +127,43 @@ Permanent and very frequent writing of values reduces the lifetime of the built-
 
 ## Message ids
 
-`read_message_ids()` returns the raw message ids (`state.msgId`) of sensors. `MessageIdKind.from_message_id()`
-returns their kind, the same way the Web HMI handles them:
+Many sensors and components have a message id (`state.msgId`), the section has an `Endpoint.message_id`.
+`read(..., message_ids=True)` reads them with the values in the same request and sets `Reading.message_id`
+with the raw `value` and the `kind`, the same way the Web HMI handles them:
 
-| Message id      | `MessageIdKind` | Meaning                                         |
-|-----------------|-----------------|-------------------------------------------------|
-| `0`             | `OK`            | The value is valid                              |
-| `10`            | `DEACTIVATED`   | The sensor is not configured                    |
-| any other value | `ERROR`         | The sensor exists, but its value is not valid   |
+| Message id      | `MessageIdKind` | Meaning                                          |
+|-----------------|-----------------|--------------------------------------------------|
+| `0`             | `OK`            | The value is valid                               |
+| `10`            | `DEACTIVATED`   | The component is not configured                  |
+| any other value | `ERROR`         | The component exists, but its value is not valid |
 
 ```python
-from keba_keenergy_api.constants import HeatCircuit
-from keba_keenergy_api.constants import MessageIdKind
+from keba_keenergy_api.sections import HeatingCircuit
 
-message_ids = await client.read_message_ids(request=[HeatCircuit.ROOM_TEMPERATURE])
+readings = await client.read([HeatingCircuit.ROOM_TEMPERATURE], message_ids=True)
 
-for message_id in message_ids[HeatCircuit.ROOM_TEMPERATURE]:
-    print(MessageIdKind.from_message_id(message_id))
+for reading in readings[HeatingCircuit.ROOM_TEMPERATURE]:
+    print(reading.position, reading.message_id)  # 1 MessageId(value=10, kind=<MessageIdKind.DEACTIVATED: ...>)
 ```
+
+If the Web HMI doesn't know a message id, `read()` sends the request again without it and leaves it out from then on.
+The value is read as usual, its `message_id` is `None`.
+
+## Heating curves
+
+`get_heating_curves()` returns the heating and cooling curves by name (e.g. `HC1`) with their points,
+`set_heating_curve_points()` writes the 7 to 16 points of a curve.
 
 ## Errors
 
-All errors are subclasses of `APIError` (`keba_keenergy_api.error`):
+All errors are subclasses of `APIError` (`keba_keenergy_api.exceptions`):
 
-| Exception             | Raised when                                                                                                                                                          |
-|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `AuthenticationError` | The credentials were rejected (HTTP 401)                                                                                                                             |
-| `InvalidJsonError`    | The response is not valid JSON                                                                                                                                       |
-| `APITimeoutError`     | A request timed out, it is also a `TimeoutError`                                                                                                                     |
-| `APIError`            | Any other HTTP or connection error, a value that can't be converted, an invalid value for a setter or an unknown heating curve. `status` holds the HTTP status, if any |
+| Exception                  | Raised when                                                                                         |
+|----------------------------|-----------------------------------------------------------------------------------------------------|
+| `AuthenticationError`      | The credentials were rejected (HTTP 401)                                                            |
+| `UnsupportedVariableError` | The Web HMI doesn't know a variable, `variable` holds its name                                      |
+| `InvalidResponseError`     | The response is not valid JSON or a value can't be converted to the endpoint type                   |
+| `APITimeoutError`          | A request timed out, it is also a `TimeoutError`                                                    |
+| `APIError`                 | Any other HTTP or connection error, an invalid or read-only value for `write()` or an unknown curve |
+
+`status` holds the HTTP status, if any.
