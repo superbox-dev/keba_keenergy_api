@@ -32,6 +32,7 @@ from keba_keenergy_api.constants import BufferTankOperatingMode
 from keba_keenergy_api.constants import Endpoint
 from keba_keenergy_api.constants import EndpointPath
 from keba_keenergy_api.constants import ExternalHeatSource
+from keba_keenergy_api.constants import ExternalHeatSourceOperatingMode
 from keba_keenergy_api.constants import FloatEndpoint
 from keba_keenergy_api.constants import HeatCircuit
 from keba_keenergy_api.constants import HeatCircuitOperatingMode
@@ -1850,7 +1851,7 @@ class HeatPumpEndpoints(BaseEndpoints):
         -------
         int | str
             (0) STANDBY / (1) FLOW / (2) AUTO_HEAT / (3) DEFROST / (4) AUTO_COOL / (5) INFLOW / (6) PUMP_DOWN /
-            (7) SHUTDOWN / (8) ERROR
+            (7) SHUTDOWN / (8) ERROR / (9) SOURCE_FLUSH. The *Constants* page describes what they mean.
 
         """
         return await self._read_int_or_str(HeatPump.STATE, position, human_readable=human_readable)
@@ -3093,7 +3094,7 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Returns
         -------
         int | str
-            -1 (CLOSED) / 0 (OFF) / 1 (OPEN)
+            -1 (CLOSED) / 0 (OFF) / 1 (OPEN). The *Constants* page describes what they mean.
 
         """
         return await self._read_int_or_str(HeatCircuit.MIXER_POSITION, position, human_readable=human_readable)
@@ -3873,7 +3874,8 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Returns
         -------
         int | str
-            0 (OFF) / 1 (ON)
+            0 (OFF) / 1 (ON) / 2 (FLOW_OFF) / 3 (TEMPORARY_OFF) / 4 (ROOM_OFF) / 5 (OUTDOOR_OFF) / 6 (INFLOW_OFF).
+            The *Constants* page describes what they mean.
 
         """
         return await self._read_int_or_str(HeatCircuit.HEAT_REQUEST, position, human_readable=human_readable)
@@ -3891,7 +3893,8 @@ class HeatCircuitEndpoints(BaseEndpoints):
         Returns
         -------
         int | str
-            0 (OFF) / 1 (ON)
+            0 (OFF) / 1 (ON) / 2 (FLOW_OFF) / 3 (TEMPORARY_OFF) / 4 (ROOM_OFF) / 5 (OUTDOOR_OFF) / 6 (INFLOW_OFF).
+            The *Constants* page describes what they mean.
 
         """
         return await self._read_int_or_str(HeatCircuit.COOL_REQUEST, position, human_readable=human_readable)
@@ -4752,7 +4755,7 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         Returns
         -------
         int | str
-            0 (OFF) / 1 (ON)
+            0 (OFF) / 1 (ON) / 2 (FLUE)
 
         """
         return await self._read_int_or_str(ExternalHeatSource.OPERATING_MODE, position, human_readable=human_readable)
@@ -4771,7 +4774,7 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
             Position of the external heat source, starting at 1
 
         """
-        await self._write_mode(ExternalHeatSource.OPERATING_MODE, mode, BoolEnum, position)
+        await self._write_mode(ExternalHeatSource.OPERATING_MODE, mode, ExternalHeatSourceOperatingMode, position)
 
     async def get_target_temperature(self, position: int = 1) -> float:
         """Get target temperature from the external heat source.
@@ -5026,7 +5029,7 @@ class SwitchValveEndpoints(BaseEndpoints):
         Returns
         -------
         int | str
-            (0) NEUTRAL / (1) OPEN / (2) CLOSED
+            (0) NEUTRAL / (1) OPEN / (2) CLOSED. The *Constants* page describes what they mean.
 
         """
         return await self._read_int_or_str(SwitchValve.POSITION, position, human_readable=human_readable)
@@ -5145,7 +5148,7 @@ class PassiveCoolingEndpoints(BaseEndpoints):
         Returns
         -------
         int | str
-            -1 (CLOSED) / 0 (OFF) / 1 (OPEN)
+            -1 (CLOSED) / 0 (OFF) / 1 (OPEN). The *Constants* page describes what they mean.
 
         """
         return await self._read_int_or_str(PassiveCooling.MIXER_POSITION, position, human_readable=human_readable)

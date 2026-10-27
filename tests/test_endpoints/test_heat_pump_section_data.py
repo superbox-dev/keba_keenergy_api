@@ -11,6 +11,12 @@ GETTERS: Final[list[tuple[str, dict[str, Any], dict[str, Any], float | int | str
     ("get_state", {"human_readable": True}, {"APPL.CtrlAppl.sParam.heatpump[0].values.heatpumpState": "1"}, "flow"),
     ("get_state", {"human_readable": False}, {"APPL.CtrlAppl.sParam.heatpump[0].values.heatpumpState": "1"}, 1),
     (
+        "get_state",
+        {"human_readable": True},
+        {"APPL.CtrlAppl.sParam.heatpump[0].values.heatpumpState": "9"},
+        "source_flush",
+    ),
+    (
         "get_substate",
         {"human_readable": True},
         {"APPL.CtrlAppl.sParam.heatpump[0].values.heatpumpSubState": "9"},

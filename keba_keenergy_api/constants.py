@@ -92,7 +92,11 @@ class HotWaterTankExcessEnergyMode(BaseEnum):
 
 
 class HeatPumpState(BaseEnum):
-    """Available heat pump states."""
+    """Available heat pump states.
+
+    ``FLOW`` is the pre-run, ``AUTO_HEAT`` the automatic mode, ``AUTO_COOL`` the cooling and ``INFLOW`` the
+    post-run (overrun).
+    """
 
     STANDBY = 0
     FLOW = 1
@@ -103,6 +107,7 @@ class HeatPumpState(BaseEnum):
     PUMP_DOWN = 6
     SHUTDOWN = 7
     ERROR = 8
+    SOURCE_FLUSH = 9
 
 
 class HeatPumpSubState(BaseEnum):
@@ -149,6 +154,14 @@ class HeatPumpOperatingMode(BaseEnum):
     BACKUP = 2
 
 
+class ExternalHeatSourceOperatingMode(BaseEnum):
+    """Available external heat source operating modes."""
+
+    OFF = 0
+    ON = 1
+    FLUE = 2
+
+
 class HeatCircuitMode(BaseEnum):
     """Available heat circuit modes."""
 
@@ -187,7 +200,11 @@ class SolarCircuitPriority(BaseEnum):
 
 
 class HeatCircuitHeatRequest(BaseEnum):
-    """Available heat circuit heat request states."""
+    """Available heat circuit heat request states.
+
+    ``FLOW_OFF`` is off because of the return flow, ``TEMPORARY_OFF`` off because of the temperature or priority
+    and ``INFLOW_OFF`` off because of the flow.
+    """
 
     OFF = 0
     ON = 1
@@ -199,7 +216,11 @@ class HeatCircuitHeatRequest(BaseEnum):
 
 
 class HeatCircuitCoolRequest(BaseEnum):
-    """Available heat circuit cool request states."""
+    """Available heat circuit cool request states.
+
+    ``FLOW_OFF`` is off because of the return flow, ``TEMPORARY_OFF`` off because of the temperature or priority
+    and ``INFLOW_OFF`` off because of the flow.
+    """
 
     OFF = 0
     ON = 1
@@ -215,7 +236,12 @@ MAX_HEATING_CURVE_POINTS: Final[int] = 16
 
 
 class SwitchValvePosition(BaseEnum):
-    """Available switch valve positions."""
+    """Available switch valve positions.
+
+    For ``SwitchValve.POSITION``, ``OPEN`` is position 1 (hot water) and ``CLOSED`` position 2, what they mean can
+    differ between controllers. For ``PassiveCooling.SWITCH_VALVE_POSITION``, the values are
+    neutral, open and closed.
+    """
 
     NEUTRAL = 0
     OPEN = 1
@@ -223,7 +249,10 @@ class SwitchValvePosition(BaseEnum):
 
 
 class MixerSwitchValvePosition(BaseEnum):
-    """Available mixer positions."""
+    """Available mixer positions.
+
+    The value is the sign of the mixer setpoint, not a position. What it means can differ between controllers.
+    """
 
     CLOSED = -1
     OFF = 0
@@ -1037,7 +1066,7 @@ class ExternalHeatSource(Enum):
 
     OPERATING_MODE = IntegerEndpoint(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].param.operatingMode",
-        human_readable=BoolEnum,
+        human_readable=ExternalHeatSourceOperatingMode,
     )
     TARGET_TEMPERATURE = FloatEndpoint(
         f"{PAYLOAD_PREFIX}.sParam.extHeatSource[%s].values.setTemp",

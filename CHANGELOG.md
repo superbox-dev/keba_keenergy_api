@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `HeatPumpState.SOURCE_FLUSH` (`9`) and `ExternalHeatSourceOperatingMode` (`OFF`, `ON`, `FLUE`)
+  ([Issue #131][issue-131])
+
+### Changed
+
+- Documented the meaning of the `HeatPumpState`, `HeatCircuitHeatRequest`, `HeatCircuitCoolRequest`,
+  `SwitchValvePosition` and `MixerSwitchValvePosition` values with misleading names ([Issue #131][issue-131])
+
+### Fixed
+
+- Fixed reading the heat pump state `9` (source flush), which raised an `APIError` ([Issue #131][issue-131])
+- Fixed reading and setting the external heat source operating mode `2` (flue), which raised an `APIError`.
+  `ExternalHeatSource.OPERATING_MODE` now uses `ExternalHeatSourceOperatingMode` instead of `BoolEnum`, `off` and
+  `on` stay the same ([Issue #131][issue-131])
+
+[issue-131]: https://github.com/superbox-dev/keba_keenergy_api/issues/131
+
 <!--start-->
 
 ## [2.13.0] - 2026-10-24
