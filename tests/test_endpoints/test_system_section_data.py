@@ -39,6 +39,7 @@ GETTERS: Final[list[tuple[str, dict[str, Any], dict[str, Any], float | int | str
     ("get_control_cpu_usage", {}, {"APPL.CtrlAppl.sProcData.processStatus[2].cpuTimePercent": "7"}, 0.7),
     ("get_ram_usage", {}, {"APPL.CtrlAppl.sProcData.RAMstatus.tmpfs": "6432"}, 6432),
     ("get_free_ram", {}, {"APPL.CtrlAppl.sProcData.totFreeRAM": "100060"}, 100060),
+    ("get_flash_erase_counter", {}, {"APPL.CtrlAppl.sParam.values.UBIMaxEraseCounter": "341"}, 341),
 ]
 
 SETTERS: Final[list[tuple[str, float | int | str, dict[str, Any], dict[str, str]]]] = [

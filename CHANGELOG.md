@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   source
 - Added `MessageIdKind` (`OK`, `DEACTIVATED`, `ERROR`) with `MessageIdKind.from_message_id()` to get the kind of a
   message id from `read_message_ids()` like the Web HMI ([Issue #136][issue-136])
+- Added `System.FLASH_ERASE_COUNTER` with `get_flash_erase_counter` to read the flash erase counter of the
+  controller, which also counts writes from the Web HMI and the display ([Issue #137][issue-137])
 
 ### Changed
 
@@ -30,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [issue-131]: https://github.com/superbox-dev/keba_keenergy_api/issues/131
 [issue-136]: https://github.com/superbox-dev/keba_keenergy_api/issues/136
+[issue-137]: https://github.com/superbox-dev/keba_keenergy_api/issues/137
 
 <!--start-->
 

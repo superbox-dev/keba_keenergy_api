@@ -487,6 +487,9 @@ class System(Enum):
     FREE_RAM = IntegerEndpoint(
         f"{PAYLOAD_PREFIX}.sProcData.totFreeRAM",
     )
+    FLASH_ERASE_COUNTER = IntegerEndpoint(
+        f"{PAYLOAD_PREFIX}.sParam.values.UBIMaxEraseCounter",
+    )
 
 
 class BufferTank(Enum):

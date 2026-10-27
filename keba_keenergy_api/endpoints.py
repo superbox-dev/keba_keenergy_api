@@ -1024,6 +1024,17 @@ class SystemEndpoints(BaseEndpoints):
         """
         return await self._read_int(System.FREE_RAM)
 
+    async def get_flash_erase_counter(self) -> int:
+        """Get the flash erase counter.
+
+        Returns
+        -------
+        int
+            Highest erase count of a flash block in partition 2 (long-term flash wear)
+
+        """
+        return await self._read_int(System.FLASH_ERASE_COUNTER)
+
     async def get_timezone(self) -> str:
         """Get the timezone.
 
