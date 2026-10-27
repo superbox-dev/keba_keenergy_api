@@ -266,10 +266,16 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG_NAME="${GITHUB_REF#refs/tags/}"
+          # Only pre-releases of the same major version, e.g. a 3.x release keeps the 2.x pre-releases.
+          MAJOR="${TAG_NAME%%.*}"
 
           git ls-remote --tags --refs origin 'v*' | sed 's|.*refs/tags/||' |
             while read -r TAG; do
               if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+b[0-9]+$ || "$TAG" == "$TAG_NAME" ]]; then
+                continue
+              fi
+
+              if [[ "${TAG%%.*}" != "$MAJOR" ]]; then
                 continue
               fi
 
