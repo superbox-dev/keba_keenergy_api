@@ -38,6 +38,7 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
     `Value | list[Value] | list[list[Value]] | None`)
   - type alias for complex annotations (nested or repeated unions)
 - Module-level constants with `Final` (`NAME: Final = ...`)
+  - containers read-only: `Final[Mapping[...]]`, `Final[Sequence[...]]` or a `tuple`
 - Comments as complete sentences with a trailing period
 - US English everywhere (names, docstrings, comments, docs, changelog), e.g. `behavior`, `tank`
 - `TypedDict` only for JSON data from or to the Web HMI (optional keys as `NotRequired`), `NamedTuple` only for
