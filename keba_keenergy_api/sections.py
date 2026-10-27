@@ -1106,10 +1106,10 @@ class Photovoltaics(_SectionEnum, device_type=DeviceType.PHOTOVOLTAICS):
 
 type Section = (
     BufferTank
+    | DHWTank
     | ExternalHeatSource
     | HeatingCircuit
     | HeatPump
-    | DHWTank
     | PassiveCooling
     | Photovoltaics
     | SolarCircuit

@@ -400,10 +400,25 @@ async def test_read_invalid_limits(client: KebaKeEnergyAPI, counts: DeviceCounts
     # Typed as Any, as a type checker would reject the invalid value.
     limits: Any = "some"
 
-    with pytest.raises(APIError, match=r"^Invalid limits 'some'! Allowed values are 'all', 'none', "):
+    with pytest.raises(
+        APIError, match=r"^Invalid limits 'some'! Allowed values are 'all', 'none', 'read_only' and 'writable'$"
+    ):
         await client.read([System.OUTDOOR_TEMPERATURE], counts=counts, limits=limits)
 
     await client.close()
+
+
+async def test_read_invalid_limits_without_variables(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, counts: DeviceCounts
+) -> None:
+    """Test that an invalid `limits` value raises `APIError` also if no variable is read."""
+    # Typed as Any, as a type checker would reject the invalid value.
+    limits: Any = "some"
+
+    with pytest.raises(APIError, match=r"^Invalid limits 'some'!"):
+        await client.read([BufferTank.TOP_TEMPERATURE], counts=counts, limits=limits)
+
+    mock_api.assert_not_called()
 
 
 @pytest.mark.parametrize(

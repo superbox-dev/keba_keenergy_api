@@ -48,16 +48,16 @@ def test_sections(snapshot: SnapshotAssertion) -> None:
 @pytest.mark.parametrize(
     ("section_class", "expected"),
     [
-        (System, DeviceType.SYSTEM),
         (BufferTank, DeviceType.BUFFER_TANK),
         (DHWTank, DeviceType.DHW_TANK),
-        (HeatPump, DeviceType.HEAT_PUMP),
-        (HeatingCircuit, DeviceType.HEATING_CIRCUIT),
-        (SolarCircuit, DeviceType.SOLAR_CIRCUIT),
         (ExternalHeatSource, DeviceType.EXTERNAL_HEAT_SOURCE),
-        (SwitchValve, DeviceType.SWITCH_VALVE),
+        (HeatingCircuit, DeviceType.HEATING_CIRCUIT),
+        (HeatPump, DeviceType.HEAT_PUMP),
         (PassiveCooling, DeviceType.PASSIVE_COOLING),
         (Photovoltaics, DeviceType.PHOTOVOLTAICS),
+        (SolarCircuit, DeviceType.SOLAR_CIRCUIT),
+        (SwitchValve, DeviceType.SWITCH_VALVE),
+        (System, DeviceType.SYSTEM),
     ],
     ids=[device_type.value for device_type in DeviceType],
 )

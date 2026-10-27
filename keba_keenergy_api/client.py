@@ -4,17 +4,15 @@
 """Asynchronous client for the KEBA KeEnergy Web HMI API."""
 
 import json
-import re
+from dataclasses import dataclass
 from enum import Enum
 from http import HTTPStatus
 from itertools import batched
-from re import Pattern
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import ClassVar
-from typing import NamedTuple
 from typing import Self
 from typing import TypedDict
+from typing import get_args
 
 from aiohttp import ClientError
 from aiohttp import ClientSession
@@ -31,6 +29,7 @@ from keba_keenergy_api.constants import _HEATING_CURVE_NAME_PREFIX
 from keba_keenergy_api.constants import _HMI_INSTALLED
 from keba_keenergy_api.constants import _LINE_TABLE
 from keba_keenergy_api.constants import _LINE_TABLE_POOL_SIZE
+from keba_keenergy_api.constants import _READ_ERROR_PATTERN
 from keba_keenergy_api.constants import _READ_WRITE_VARS
 from keba_keenergy_api.constants import _SAVE_LINE_TABLE
 from keba_keenergy_api.constants import _SYSTEM_INSTALLED
@@ -64,6 +63,7 @@ from keba_keenergy_api.sections import SolarCircuit
 from keba_keenergy_api.sections import System
 
 if TYPE_CHECKING:
+    import re
     from collections.abc import Iterable
     from collections.abc import Iterator
     from collections.abc import Mapping
@@ -85,7 +85,8 @@ class _WritePayload(TypedDict):
     value: str
 
 
-class _Variable(NamedTuple):
+@dataclass(frozen=True, kw_only=True)
+class _Variable:
     """Variable name of one value of a section, with its 1-based position and consumer."""
 
     name: str
@@ -106,9 +107,6 @@ class KebaKeEnergyAPI:
 
     The installed devices are read once and reused, as they don't change while the control unit is running.
     """
-
-    # The Web HMI rejects a read request with an unknown variable as a whole and names the first one.
-    _READ_ERROR_PATTERN: ClassVar[Pattern[str]] = re.compile(r"Reading variable: (\S+) failed")
 
     def __init__(
         self,
@@ -310,7 +308,7 @@ class KebaKeEnergyAPI:
             return APIError(text, status=status)
 
         message: str = self._get_developer_message(text)
-        match: re.Match[str] | None = self._READ_ERROR_PATTERN.search(message)
+        match: re.Match[str] | None = _READ_ERROR_PATTERN.search(message)
 
         if match is not None:
             return UnsupportedVariableError(message, variable=match.group(1), status=status)
@@ -443,6 +441,16 @@ class KebaKeEnergyAPI:
         MessageId(value=10, kind=<MessageIdKind.DEACTIVATED: 'deactivated'>)
 
         """
+        allowed_limits: tuple[str, ...] = get_args(Limits.__value__)
+
+        # Checked up front, also if no variable is read (e.g. no device of the sections is installed).
+        if limits not in allowed_limits:
+            message: str = (
+                f"Invalid limits {limits!r}! Allowed values are "
+                f"{', '.join(map(repr, allowed_limits[:-1]))} and {allowed_limits[-1]!r}"
+            )
+            raise APIError(message)
+
         requested: list[Section] = list(dict.fromkeys(sections))
         _counts: DeviceCounts = counts or await self.get_device_counts()
 
@@ -531,14 +539,7 @@ class KebaKeEnergyAPI:
 
     @staticmethod
     def _has_limits(section: Section, limits: Limits, /) -> bool:
-        """Return whether the limits of a section are read.
-
-        Raises
-        ------
-        APIError
-            ``limits`` is not a valid value.
-
-        """
+        """Return whether the limits of a section are read, ``limits`` is already checked by :meth:`read`."""
         match limits:
             case "all":
                 return True
@@ -546,11 +547,8 @@ class KebaKeEnergyAPI:
                 return False
             case "read_only":
                 return not section.value.writable
-            case "writable":
-                return section.value.writable
 
-        message: str = f"Invalid limits {limits!r}! Allowed values are 'all', 'none', 'read_only' and 'writable'"
-        raise APIError(message)
+        return section.value.writable
 
     @staticmethod
     def _iter_variables(section: Section, counts: DeviceCounts, template: str, /) -> Iterator[_Variable]:

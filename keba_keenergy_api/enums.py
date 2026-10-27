@@ -28,16 +28,16 @@ class _BaseEnum(Enum):
 class DeviceType(StrEnum):
     """Device types of the control unit, one per section."""
 
-    SYSTEM = "system"
     BUFFER_TANK = "buffer_tank"
     DHW_TANK = "dhw_tank"
-    HEAT_PUMP = "heat_pump"
-    HEATING_CIRCUIT = "heating_circuit"
-    SOLAR_CIRCUIT = "solar_circuit"
     EXTERNAL_HEAT_SOURCE = "external_heat_source"
-    SWITCH_VALVE = "switch_valve"
+    HEATING_CIRCUIT = "heating_circuit"
+    HEAT_PUMP = "heat_pump"
     PASSIVE_COOLING = "passive_cooling"
     PHOTOVOLTAICS = "photovoltaics"
+    SOLAR_CIRCUIT = "solar_circuit"
+    SWITCH_VALVE = "switch_valve"
+    SYSTEM = "system"
 
 
 class MessageIdKind(Enum):

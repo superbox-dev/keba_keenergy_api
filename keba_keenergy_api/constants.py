@@ -3,6 +3,7 @@
 
 """Constants of the KEBA KeEnergy API."""
 
+import re
 from typing import Final
 
 API_DEFAULT_TIMEOUT: Final = 10
@@ -39,6 +40,9 @@ _SYSTEM_INSTALLED: Final = "/swupdate?action=getSystemInstalled"
 _HMI_INSTALLED: Final = "/swupdate?action=getHmiInstalled"
 _DEVICE_INFO: Final = "/deviceControl?action=getDeviceInfo"
 _TIME_ZONE: Final = "/dateTime?action=getTimeZone"
+
+# The Web HMI rejects a read request with an unknown variable as a whole and names the first one.
+_READ_ERROR_PATTERN: Final = re.compile(r"Reading variable: (\S+) failed")
 
 # Raw boolean values of the Web HMI and the value written for them.
 _BOOL_VALUES: Final = {"true": True, "false": False, "1": True, "0": False}
