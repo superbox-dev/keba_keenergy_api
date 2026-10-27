@@ -149,10 +149,12 @@ for reading in readings[HeatingCircuit.ROOM_TEMPERATURE]:
 If the Web HMI doesn't know a message id, `read()` sends the request again without it and leaves it out from then on.
 The value is read as usual, its `message_id` is `None`.
 
-## Heating curves
+## Curve tables
 
-`get_heating_curves()` returns the heating and cooling curves by name (e.g. `HC1`) with their points,
-`set_heating_curve_points()` writes the 7 to 16 points of a curve.
+A heating circuit uses either its curve slope and offset or a curve table (`USE_CURVE_TABLE`). The curve tables are
+stored in a pool and selected by name with `HEATING_CURVE` and `COOLING_CURVE`, the same table can be a heating or a
+cooling curve. `get_curve_tables()` returns them by name (e.g. `HC1`) with their points, `set_curve_table_points()`
+writes the 7 to 16 points of a table.
 
 ## Errors
 

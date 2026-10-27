@@ -233,20 +233,20 @@
       'variable': 'APPL.CtrlAppl.sParam.extHeatSource[%s].DO.operationalData.activationCounter',
       'writable': False,
     }),
-    'ExternalHeatSource.CONSUMING_EXCESS_ENERGY': dict({
-      'message_id': None,
-      'quantity': 1,
-      'unit': None,
-      'value_type': 'bool',
-      'variable': 'APPL.CtrlAppl.sParam.extHeatSource[%s].values.consumingExcessEnergy',
-      'writable': False,
-    }),
     'ExternalHeatSource.EXCESS_ENERGY_ACTIVATION_COUNTER': dict({
       'message_id': None,
       'quantity': 1,
       'unit': None,
       'value_type': 'int',
       'variable': 'APPL.CtrlAppl.sParam.extHeatSource[%s].operationalDataExcessEnergy.activationCounter',
+      'writable': False,
+    }),
+    'ExternalHeatSource.EXCESS_ENERGY_ACTIVE': dict({
+      'message_id': None,
+      'quantity': 1,
+      'unit': None,
+      'value_type': 'bool',
+      'variable': 'APPL.CtrlAppl.sParam.extHeatSource[%s].values.consumingExcessEnergy',
       'writable': False,
     }),
     'ExternalHeatSource.EXCESS_ENERGY_MAX_RUNTIME': dict({
@@ -393,14 +393,6 @@
       'variable': 'APPL.CtrlAppl.sParam.heatpump[%s].OverHeatCtrl.values.tempCond',
       'writable': False,
     }),
-    'HeatPump.CONSUMING_EXCESS_ENERGY': dict({
-      'message_id': None,
-      'quantity': 1,
-      'unit': None,
-      'value_type': 'bool',
-      'variable': 'APPL.CtrlAppl.sParam.heatpump[%s].values.consumingExcessEnergy',
-      'writable': False,
-    }),
     'HeatPump.COOLING_ELECTRICAL_ENERGY': dict({
       'message_id': None,
       'quantity': 1,
@@ -441,14 +433,6 @@
       'variable': 'APPL.CtrlAppl.sStatisticalData.heatpump[%s].consumption.domHotWater.electricalenergy',
       'writable': False,
     }),
-    'HeatPump.DHW_POWER': dict({
-      'message_id': 'APPL.CtrlAppl.sParam.heatpump[%s].HotWaterMeter.state.msgId',
-      'quantity': 1,
-      'unit': 'W',
-      'value_type': 'float',
-      'variable': 'APPL.CtrlAppl.sParam.heatpump[%s].HotWaterMeter.values.power',
-      'writable': False,
-    }),
     'HeatPump.DHW_SPF': dict({
       'message_id': None,
       'quantity': 1,
@@ -463,6 +447,14 @@
       'unit': 'kWh',
       'value_type': 'float',
       'variable': 'APPL.CtrlAppl.sStatisticalData.heatpump[%s].consumption.domHotWater.energy',
+      'writable': False,
+    }),
+    'HeatPump.DHW_THERMAL_POWER': dict({
+      'message_id': 'APPL.CtrlAppl.sParam.heatpump[%s].HotWaterMeter.state.msgId',
+      'quantity': 1,
+      'unit': 'W',
+      'value_type': 'float',
+      'variable': 'APPL.CtrlAppl.sParam.heatpump[%s].HotWaterMeter.values.power',
       'writable': False,
     }),
     'HeatPump.ELECTRICAL_POWER': dict({
@@ -495,6 +487,14 @@
       'unit': None,
       'value_type': 'int',
       'variable': 'APPL.CtrlAppl.sParam.heatpump[%s].operationalDataExcessEnergy.activationCounter',
+      'writable': False,
+    }),
+    'HeatPump.EXCESS_ENERGY_ACTIVE': dict({
+      'message_id': None,
+      'quantity': 1,
+      'unit': None,
+      'value_type': 'bool',
+      'variable': 'APPL.CtrlAppl.sParam.heatpump[%s].values.consumingExcessEnergy',
       'writable': False,
     }),
     'HeatPump.EXCESS_ENERGY_CONSUMPTION': dict({
@@ -585,14 +585,6 @@
       'variable': 'APPL.CtrlAppl.sStatisticalData.heatpump[%s].consumption.heating.electricalenergy',
       'writable': False,
     }),
-    'HeatPump.HEATING_POWER': dict({
-      'message_id': 'APPL.CtrlAppl.sParam.heatpump[%s].HeatMeter.state.msgId',
-      'quantity': 1,
-      'unit': 'W',
-      'value_type': 'float',
-      'variable': 'APPL.CtrlAppl.sParam.heatpump[%s].HeatMeter.values.power',
-      'writable': False,
-    }),
     'HeatPump.HEATING_SPF': dict({
       'message_id': None,
       'quantity': 1,
@@ -607,6 +599,14 @@
       'unit': 'kWh',
       'value_type': 'float',
       'variable': 'APPL.CtrlAppl.sStatisticalData.heatpump[%s].consumption.heating.energy',
+      'writable': False,
+    }),
+    'HeatPump.HEATING_THERMAL_POWER': dict({
+      'message_id': 'APPL.CtrlAppl.sParam.heatpump[%s].HeatMeter.state.msgId',
+      'quantity': 1,
+      'unit': 'W',
+      'value_type': 'float',
+      'variable': 'APPL.CtrlAppl.sParam.heatpump[%s].HeatMeter.values.power',
       'writable': False,
     }),
     'HeatPump.HEAT_METER_TYPE': dict({
@@ -665,7 +665,7 @@
       'variable': 'APPL.CtrlAppl.sParam.heatpump[%s].values.request',
       'writable': False,
     }),
-    'HeatPump.RETURN_FLOW_TEMPERATURE': dict({
+    'HeatPump.RETURN_TEMPERATURE': dict({
       'message_id': 'APPL.CtrlAppl.sParam.heatpump[%s].TempHeatReflux.state.msgId',
       'quantity': 1,
       'unit': '°C',
@@ -945,7 +945,7 @@
       'variable': 'APPL.CtrlAppl.sParam.options.heatCircuit[%s].hasPump',
       'writable': False,
     }),
-    'HeatingCircuit.HAS_RETURN_FLOW_TEMPERATURE': dict({
+    'HeatingCircuit.HAS_RETURN_TEMPERATURE': dict({
       'message_id': None,
       'quantity': 1,
       'unit': None,
@@ -1033,7 +1033,7 @@
       'variable': 'APPL.CtrlAppl.sParam.heatCircuit[%s].heatCircuitMixer.flowTemp.values.actValue',
       'writable': False,
     }),
-    'HeatingCircuit.MIXER_RETURN_FLOW_TEMPERATURE': dict({
+    'HeatingCircuit.MIXER_RETURN_TEMPERATURE': dict({
       'message_id': 'APPL.CtrlAppl.sParam.heatCircuit[%s].heatCircuitMixer.refluxTemp.state.msgId',
       'quantity': 1,
       'unit': '°C',
@@ -1081,7 +1081,7 @@
       'variable': 'APPL.CtrlAppl.sParam.heatCircuit[%s].pumpAO.values.setValueScaled',
       'writable': False,
     }),
-    'HeatingCircuit.RETURN_FLOW_TEMPERATURE': dict({
+    'HeatingCircuit.RETURN_TEMPERATURE': dict({
       'message_id': 'APPL.CtrlAppl.sParam.heatCircuit[%s].tempReflux.state.msgId',
       'quantity': 1,
       'unit': '°C',
@@ -1361,14 +1361,6 @@
       'variable': 'APPL.CtrlAppl.sParam.solarCircuit[%s].param.operatingMode',
       'writable': True,
     }),
-    'SolarCircuit.POWER': dict({
-      'message_id': 'APPL.CtrlAppl.sParam.solarCircuit[%s].heatMeter.state.msgId',
-      'quantity': 1,
-      'unit': 'W',
-      'value_type': 'float',
-      'variable': 'APPL.CtrlAppl.sParam.solarCircuit[%s].heatMeter.values.power',
-      'writable': False,
-    }),
     'SolarCircuit.PUMP_1_SPEED': dict({
       'message_id': None,
       'quantity': 1,
@@ -1383,6 +1375,14 @@
       'unit': None,
       'value_type': 'float',
       'variable': 'APPL.CtrlAppl.sParam.solarCircuit[%s].values.pump2',
+      'writable': False,
+    }),
+    'SolarCircuit.THERMAL_POWER': dict({
+      'message_id': 'APPL.CtrlAppl.sParam.solarCircuit[%s].heatMeter.state.msgId',
+      'quantity': 1,
+      'unit': 'W',
+      'value_type': 'float',
+      'variable': 'APPL.CtrlAppl.sParam.solarCircuit[%s].heatMeter.values.power',
       'writable': False,
     }),
     'SolarCircuit.TOTAL_THERMAL_ENERGY': dict({

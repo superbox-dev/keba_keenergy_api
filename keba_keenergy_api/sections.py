@@ -375,7 +375,7 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         unit=_CELSIUS,
         message_id="sParam.heatpump[%s].TempHeatFlow",
     )
-    RETURN_FLOW_TEMPERATURE = Endpoint(
+    RETURN_TEMPERATURE = Endpoint(
         path="sParam.heatpump[%s].TempHeatReflux.values.actValue",
         value_type=float,
         unit=_CELSIUS,
@@ -455,7 +455,7 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         path="sParam.heatpump[%s].values.request",
         value_type=bool,
     )
-    CONSUMING_EXCESS_ENERGY = Endpoint(
+    EXCESS_ENERGY_ACTIVE = Endpoint(
         path="sParam.heatpump[%s].values.consumingExcessEnergy",
         value_type=bool,
     )
@@ -473,13 +473,13 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         path="sParam.heatpump[%s].operationalDataExcessEnergy.activationCounter",
         value_type=int,
     )
-    HEATING_POWER = Endpoint(
+    HEATING_THERMAL_POWER = Endpoint(
         path="sParam.heatpump[%s].HeatMeter.values.power",
         value_type=float,
         unit=_WATT,
         message_id="sParam.heatpump[%s].HeatMeter",
     )
-    DHW_POWER = Endpoint(
+    DHW_THERMAL_POWER = Endpoint(
         path="sParam.heatpump[%s].HotWaterMeter.values.power",
         value_type=float,
         unit=_WATT,
@@ -685,7 +685,7 @@ class HeatingCircuit(_SectionEnum, device_type=DeviceType.HEATING_CIRCUIT):
         unit=_CELSIUS,
         message_id="sParam.heatCircuit[%s].heatCircuitMixer.flowTemp",
     )
-    MIXER_RETURN_FLOW_TEMPERATURE = Endpoint(
+    MIXER_RETURN_TEMPERATURE = Endpoint(
         path="sParam.heatCircuit[%s].heatCircuitMixer.refluxTemp.values.actValue",
         value_type=float,
         unit=_CELSIUS,
@@ -701,11 +701,11 @@ class HeatingCircuit(_SectionEnum, device_type=DeviceType.HEATING_CIRCUIT):
         value_type=bool,
         message_id="sParam.heatCircuit[%s].pump",
     )
-    HAS_RETURN_FLOW_TEMPERATURE = Endpoint(
+    HAS_RETURN_TEMPERATURE = Endpoint(
         path="sParam.options.heatCircuit[%s].hasRefluxTemp",
         value_type=bool,
     )
-    RETURN_FLOW_TEMPERATURE = Endpoint(
+    RETURN_TEMPERATURE = Endpoint(
         path="sParam.heatCircuit[%s].tempReflux.values.actValue",
         value_type=float,
         unit=_CELSIUS,
@@ -943,7 +943,7 @@ class SolarCircuit(_SectionEnum, device_type=DeviceType.SOLAR_CIRCUIT):
         unit=_JOULE,
         message_id="sParam.solarCircuit[%s].heatMeter",
     )
-    POWER = Endpoint(
+    THERMAL_POWER = Endpoint(
         path="sParam.solarCircuit[%s].heatMeter.values.power",
         value_type=float,
         unit=_WATT,
@@ -997,7 +997,7 @@ class ExternalHeatSource(_SectionEnum, device_type=DeviceType.EXTERNAL_HEAT_SOUR
         value_type=int,
         message_id="sParam.extHeatSource[%s].DO",
     )
-    CONSUMING_EXCESS_ENERGY = Endpoint(
+    EXCESS_ENERGY_ACTIVE = Endpoint(
         path="sParam.extHeatSource[%s].values.consumingExcessEnergy",
         value_type=bool,
     )

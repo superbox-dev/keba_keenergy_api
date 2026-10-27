@@ -15,8 +15,8 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 - Added `KebaKeEnergyAPI.read()`, which returns a `Reading` per device with the typed `value`,
   `position`, `consumer`, `lower_limit`, `upper_limit` and `unit` ([Issue #132][issue-132])
 - Added `write()`, `filter_supported()`, `get_device_counts()` (`DeviceCounts`), `get_system_info()`,
-  `get_hmi_info()`, `get_device_info()`, `get_heating_curves()` (`HeatingCurve`) and
-  `set_heating_curve_points()` to `KebaKeEnergyAPI` ([Issue #132][issue-132])
+  `get_hmi_info()`, `get_device_info()`, `get_curve_tables()` (`CurveTable`) and
+  `set_curve_table_points()` to `KebaKeEnergyAPI` ([Issue #132][issue-132])
 - Added `Endpoint.unit`, `Endpoint.message_id` and `DeviceType` (the device type of a section as
   `device_type`) ([Issue #132][issue-132])
 - Added `read(..., message_ids=True)`, which reads the message ids with the values in the same request
@@ -34,7 +34,7 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 
 - Changed the minimum Python version to 3.14.2 ([Issue #132][issue-132])
 - Changed the modules: `constants` became `sections` (endpoints), `enums` (values), `models` and `constants`
-  (`API_DEFAULT_TIMEOUT`, `MIN_HEATING_CURVE_POINTS`, `MAX_HEATING_CURVE_POINTS`), `api` became `client` and
+  (`API_DEFAULT_TIMEOUT`, `MIN_CURVE_TABLE_POINTS`, `MAX_CURVE_TABLE_POINTS`), `api` became `client` and
   `error` became `exceptions` ([Issue #132][issue-132])
 - Changed `KebaKeEnergyAPI()`: `username` and `password` are keyword-only, `verify_ssl` replaced
   `skip_ssl_verification` ([Issue #132][issue-132])

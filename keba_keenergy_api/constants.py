@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 
 API_DEFAULT_TIMEOUT: Final = 10
 
-MIN_HEATING_CURVE_POINTS: Final = 7
-MAX_HEATING_CURVE_POINTS: Final = 16
+MIN_CURVE_TABLE_POINTS: Final = 7
+MAX_CURVE_TABLE_POINTS: Final = 16
 
 # Prefix of all variables of the control application.
 _PAYLOAD_PREFIX: Final = "APPL.CtrlAppl"
@@ -71,6 +71,6 @@ _CONSUMER_PRIORITY_HIGH: Final = 15
 # The heating and cooling curves are stored in a pool of line tables.
 _LINE_TABLE: Final = f"{_PAYLOAD_PREFIX}.sParam.linTabPool[%s]"
 _LINE_TABLE_POOL_SIZE: Final = 30
-_HEATING_CURVE_NAME_PREFIX: Final = "HC"
+_CURVE_TABLE_NAME_PREFIX: Final = "HC"
 # The Web HMI writes this value to the version counter to save a line table.
 _SAVE_LINE_TABLE: Final = "192"

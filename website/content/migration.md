@@ -46,7 +46,7 @@ readings[HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL][0].value  # 20.5
 - Values are typed: `bool` instead of `"on"` / `"off"`, enum members instead of lowercase names.
 - Values are not rounded or scaled anymore and the mixer setpoint (`MIXER_SETPOINT`, was `MIXER_POSITION`) is the raw
   setpoint `-1..1` instead of `closed` / `off` / `open`.
-- The heating curve points are no longer part of the read response, use `get_heating_curves()`.
+- The heating curve points are no longer part of the read response, use `get_curve_tables()`.
 - `read_message_ids()` is replaced by `read(..., message_ids=True)`, which reads the message ids with the values in
   the same request and sets `Reading.message_id` (`value` and `kind`) instead of the raw number.
 
@@ -82,8 +82,8 @@ section or a value of the wrong type instead of ignoring it.
 | `client.system.get_hmi_info()` | `get_hmi_info()` |
 | `client.system.get_device_info()` | `get_device_info()` |
 | `client.system.get_timezone()` | `get_timezone()` |
-| `client.heat_circuit.get_heating_curve_points()` | `get_heating_curves()` |
-| `client.heat_circuit.set_heating_curve_points()` | `set_heating_curve_points()` |
+| `client.heat_circuit.get_heating_curve_points()` | `get_curve_tables()` |
+| `client.heat_circuit.set_heating_curve_points()` | `set_curve_table_points()` |
 | all other `client.<section>.get_*()` / `set_*()` / `has_*()` | `read()` / `write()` |
 
 ## Sections
@@ -94,6 +94,13 @@ section or a value of the wrong type instead of ignoring it.
 | `HotWaterTank` | `DHWTank` |
 
 `get_device_counts()` returns `DeviceCounts` with the fields `heating_circuit` and `dhw_tank` for these sections.
+
+## Constants and models
+
+| 2.x | 3.0 |
+|---|---|
+| `MIN_HEATING_CURVE_POINTS`, `MAX_HEATING_CURVE_POINTS` | `MIN_CURVE_TABLE_POINTS`, `MAX_CURVE_TABLE_POINTS` |
+| heating curve points as `(outdoor, flow)` tuples | `CurveTable` with `CurvePoint`s |
 
 ## Endpoints
 
@@ -143,7 +150,10 @@ The section is the 2.x name, see [Sections](#sections) for the renamed ones.
 | `HeatPump` | `HEATING_MASS_FLOW_RATE` | removed |
 | `HeatPump` | `COOLING_MASS_FLOW_RATE` | removed |
 | `HeatPump` | `HOT_WATER_MASS_FLOW_RATE` | removed |
-| `HeatPump` | `HOT_WATER_POWER` | `DHW_POWER` |
+| `HeatPump` | `HEATING_POWER` | `HEATING_THERMAL_POWER` |
+| `HeatPump` | `HOT_WATER_POWER` | `DHW_THERMAL_POWER` |
+| `HeatPump` | `RETURN_FLOW_TEMPERATURE` | `RETURN_TEMPERATURE` |
+| `HeatPump` | `CONSUMING_EXCESS_ENERGY` | `EXCESS_ENERGY_ACTIVE` |
 | `HeatPump` | `COMPRESSOR_POWER` | `ELECTRICAL_POWER` |
 | `HeatPump` | `HEATING_ENERGY` | `HEATING_THERMAL_ENERGY` |
 | `HeatPump` | `HEATING_ENERGY_CONSUMPTION` | `HEATING_ELECTRICAL_ENERGY` |
@@ -195,6 +205,9 @@ The section is the 2.x name, see [Sections](#sections) for the renamed ones.
 | `HeatCircuit` | `AWAY_END_DATE` | `VACATION_END` |
 | `HeatCircuit` | `USE_HEATING_CURVE` | `USE_CURVE_TABLE` |
 | `HeatCircuit` | `HAS_VAR_SPEED_PUMP` | `HAS_VARIABLE_SPEED_PUMP` |
+| `HeatCircuit` | `MIXER_RETURN_FLOW_TEMPERATURE` | `MIXER_RETURN_TEMPERATURE` |
+| `HeatCircuit` | `HAS_RETURN_FLOW_TEMPERATURE` | `HAS_RETURN_TEMPERATURE` |
+| `HeatCircuit` | `RETURN_FLOW_TEMPERATURE` | `RETURN_TEMPERATURE` |
 | `SolarCircuit` | `SOURCE_TEMPERATURE` | `COLLECTOR_TEMPERATURE` |
 | `SolarCircuit` | `PUMP_1` | `PUMP_1_SPEED` |
 | `SolarCircuit` | `PUMP_2` | `PUMP_2_SPEED` |
@@ -203,10 +216,11 @@ The section is the 2.x name, see [Sections](#sections) for the renamed ones.
 | `SolarCircuit` | `HEAT_REQUEST` | `CONSUMER_HEATING_REQUEST` |
 | `SolarCircuit` | `HEATING_ENERGY` | `TOTAL_THERMAL_ENERGY` |
 | `SolarCircuit` | `DAILY_ENERGY` | `DAILY_THERMAL_ENERGY` |
-| `SolarCircuit` | `ACTUAL_POWER` | `POWER` |
+| `SolarCircuit` | `ACTUAL_POWER` | `THERMAL_POWER` |
 | `SolarCircuit` | `PRIORITY_1_BEFORE_2` | `CONSUMER_1_PRIORITY` |
 | `ExternalHeatSource` | `MIN_RUNTIME_EXCESS_ENERGY` | `EXCESS_ENERGY_MIN_RUNTIME` |
 | `ExternalHeatSource` | `HEAT_REQUEST` | `HEATING_REQUEST` |
+| `ExternalHeatSource` | `CONSUMING_EXCESS_ENERGY` | `EXCESS_ENERGY_ACTIVE` |
 | `PassiveCooling` | `MIXER_POSITION` | `MIXER_SETPOINT` |
 | `Photovoltaics` | `DAILY_ENERGY` | `DAILY_EXCESS_ENERGY` |
 | `Photovoltaics` | `TOTAL_ENERGY` | `TOTAL_EXCESS_ENERGY` |
@@ -228,6 +242,7 @@ The section is the 2.x name, see [Sections](#sections) for the renamed ones.
 | `HeatPumpSubState.PREHEAT_FLOW` | `HeatPumpSubState.PRE_RUN_HEAT_UP` |
 | `HeatPumpSubState.OPEN` | `HeatPumpSubState.OPENING` |
 | `HeatPumpSubState.DEFROST_VENTING` | `HeatPumpSubState.DEFROST_FAN` |
+| `HeatPumpSubState.RETURN_FLOW_OFF` | `HeatPumpSubState.RETURN_OFF` |
 | `HeatPumpOperatingMode` | removed |
 | `HeatCircuitMode` | `HeatingCircuitType` |
 | `HeatCircuitOperatingMode` | `HeatingCircuitOperatingMode` |
@@ -236,7 +251,7 @@ The section is the 2.x name, see [Sections](#sections) for the renamed ones.
 | `HeatCircuitOperatingMode.HOLIDAY` | `HeatingCircuitOperatingMode.VACATION` |
 | `HeatCircuitHeatRequest`, `HeatCircuitCoolRequest` | `HeatingCircuitRequest` |
 | `HeatCircuitHeatRequest.ON` | `HeatingCircuitRequest.ACTIVE` |
-| `HeatCircuitHeatRequest.FLOW_OFF` | `HeatingCircuitRequest.RETURN_FLOW_OFF` |
+| `HeatCircuitHeatRequest.FLOW_OFF` | `HeatingCircuitRequest.RETURN_OFF` |
 | `HeatCircuitHeatRequest.TEMPORARY_OFF` | `HeatingCircuitRequest.TEMPERATURE_PRIORITY_OFF` |
 | `HeatCircuitHeatRequest.INFLOW_OFF` | `HeatingCircuitRequest.FLOW_OFF` |
 | `SolarCircuitPriority` | private |

@@ -27,9 +27,9 @@ from keba_keenergy_api.exceptions import APITimeoutError
 from keba_keenergy_api.exceptions import AuthenticationError
 from keba_keenergy_api.exceptions import InvalidResponseError
 from keba_keenergy_api.exceptions import UnsupportedVariableError
+from keba_keenergy_api.models import CurvePoint
+from keba_keenergy_api.models import CurveTable
 from keba_keenergy_api.models import DeviceCounts
-from keba_keenergy_api.models import HeatingCurve
-from keba_keenergy_api.models import HeatingCurvePoint
 from keba_keenergy_api.models import Limits
 from keba_keenergy_api.models import MessageId
 from keba_keenergy_api.models import Reading
@@ -46,11 +46,11 @@ from tests.conftest import READ_URL
 from tests.conftest import TIMEOUT
 from tests.conftest import WRITE_URL
 from tests.conftest import SentRequests
+from tests.test_client_data import CURVE_TABLE_MAX_POINTS
+from tests.test_client_data import CURVE_TABLE_NAMES_RESPONSE
+from tests.test_client_data import CURVE_TABLE_POINTS
 from tests.test_client_data import DEVICE_COUNTS_RESPONSE
 from tests.test_client_data import FILTER_COUNTS
-from tests.test_client_data import HEATING_CURVE_MAX_POINTS
-from tests.test_client_data import HEATING_CURVE_NAMES_RESPONSE
-from tests.test_client_data import HEATING_CURVE_POINTS
 from tests.test_client_data import LOGIN
 from tests.test_client_data import READ_RESPONSE
 from tests.test_client_data import READ_SECTIONS
@@ -58,7 +58,7 @@ from tests.test_client_data import READ_WITH_MESSAGE_IDS_RESPONSE
 from tests.test_client_data import READ_WITHOUT_UNKNOWN_MESSAGE_ID_RESPONSE
 from tests.test_client_data import TIMEZONE_RESPONSE
 from tests.test_client_data import UNKNOWN_MESSAGE_ID
-from tests.test_client_data import heating_curve_response
+from tests.test_client_data import curve_table_response
 
 if TYPE_CHECKING:
     from aioresponses import aioresponses
@@ -696,72 +696,72 @@ async def test_filter_supported_empty(client: KebaKeEnergyAPI, mock_api: aioresp
     mock_api.assert_not_called()
 
 
-async def test_get_heating_curves(
+async def test_get_curve_tables(
     client: KebaKeEnergyAPI, mock_api: aioresponses, snapshot: SnapshotAssertion, sent_requests: SentRequests
 ) -> None:
-    """Test that `get_heating_curves()` reads the names and the points of the curves in use."""
-    mock_api.post(READ_URL, payload=HEATING_CURVE_NAMES_RESPONSE)
+    """Test that `get_curve_tables()` reads the names and the points of the curves in use."""
+    mock_api.post(READ_URL, payload=CURVE_TABLE_NAMES_RESPONSE)
     mock_api.post(
         READ_URL,
         payload=[
-            *heating_curve_response("7", HEATING_CURVE_POINTS),
+            *curve_table_response("7", CURVE_TABLE_POINTS),
             # A number of points above the maximum is limited to the maximum.
-            *heating_curve_response("20", HEATING_CURVE_MAX_POINTS),
+            *curve_table_response("20", CURVE_TABLE_MAX_POINTS),
         ],
     )
 
-    curves: dict[str, HeatingCurve] = await client.get_heating_curves()
+    curves: dict[str, CurveTable] = await client.get_curve_tables()
 
     assert curves == {
-        "HC1": HeatingCurve(name="HC1", points=tuple(HEATING_CURVE_POINTS)),
-        "HC2": HeatingCurve(name="HC2", points=tuple(HEATING_CURVE_MAX_POINTS)),
+        "HC1": CurveTable(name="HC1", points=tuple(CURVE_TABLE_POINTS)),
+        "HC2": CurveTable(name="HC2", points=tuple(CURVE_TABLE_MAX_POINTS)),
     }
     assert sent_requests(mock_api) == snapshot(name="requests")
     await client.close()
 
 
-async def test_get_heating_curves_without_curves(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
-    """Test that `get_heating_curves()` reads no points without curves."""
+async def test_get_curve_tables_without_curves(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that `get_curve_tables()` reads no points without curves."""
     mock_api.post(READ_URL, payload=[{"value": ""} for _ in range(30)])
 
-    assert await client.get_heating_curves() == {}
+    assert await client.get_curve_tables() == {}
 
     mock_api.assert_called_once()
     await client.close()
 
 
-async def test_set_heating_curve_points(
+async def test_set_curve_table_points(
     client: KebaKeEnergyAPI, mock_api: aioresponses, snapshot: SnapshotAssertion, sent_requests: SentRequests
 ) -> None:
-    """Test that `set_heating_curve_points()` writes the points, resets the unused ones and saves the curve."""
-    mock_api.post(READ_URL, payload=HEATING_CURVE_NAMES_RESPONSE)
+    """Test that `set_curve_table_points()` writes the points, resets the unused ones and saves the curve."""
+    mock_api.post(READ_URL, payload=CURVE_TABLE_NAMES_RESPONSE)
     mock_api.post(WRITE_URL, payload=[])
 
-    await client.set_heating_curve_points("HC2", HEATING_CURVE_POINTS)
+    await client.set_curve_table_points("HC2", CURVE_TABLE_POINTS)
 
     assert sent_requests(mock_api) == snapshot(name="requests")
     await client.close()
 
 
-async def test_set_heating_curve_points_unknown_curve(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+async def test_set_curve_table_points_unknown_curve(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
     """Test that an unknown curve raises `APIError` without a write."""
-    mock_api.post(READ_URL, payload=HEATING_CURVE_NAMES_RESPONSE)
+    mock_api.post(READ_URL, payload=CURVE_TABLE_NAMES_RESPONSE)
 
-    with pytest.raises(APIError, match=r"^Invalid heating curve 'HC3'! Allowed values are \['HC1', 'HC2'\]$"):
-        await client.set_heating_curve_points("HC3", HEATING_CURVE_POINTS)
+    with pytest.raises(APIError, match=r"^Invalid curve table 'HC3'! Allowed values are \['HC1', 'HC2'\]$"):
+        await client.set_curve_table_points("HC3", CURVE_TABLE_POINTS)
 
     mock_api.assert_called_once()
     await client.close()
 
 
 @pytest.mark.parametrize("number_of_points", [6, 17], ids=["too_few", "too_many"])
-async def test_set_heating_curve_points_invalid_number(
+async def test_set_curve_table_points_invalid_number(
     client: KebaKeEnergyAPI, mock_api: aioresponses, number_of_points: int
 ) -> None:
     """Test that an invalid number of points raises `APIError` without a request."""
-    points: list[HeatingCurvePoint] = [HeatingCurvePoint(outdoor=0, flow=30)] * number_of_points
+    points: list[CurvePoint] = [CurvePoint(outdoor=0, flow=30)] * number_of_points
 
-    with pytest.raises(APIError, match=f"^A heating curve needs 7 to 16 points, not {number_of_points}$"):
-        await client.set_heating_curve_points("HC1", points)
+    with pytest.raises(APIError, match=f"^A curve table needs 7 to 16 points, not {number_of_points}$"):
+        await client.set_curve_table_points("HC1", points)
 
     mock_api.assert_not_called()

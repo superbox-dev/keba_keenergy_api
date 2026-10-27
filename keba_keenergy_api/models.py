@@ -94,16 +94,16 @@ class DeviceCounts:
         return self.heat_pump
 
 
-class HeatingCurvePoint(NamedTuple):
-    """Point on a heating curve."""
+class CurvePoint(NamedTuple):
+    """Point of a heating or cooling curve."""
 
     outdoor: float
     flow: float
 
 
 @dataclass(frozen=True, kw_only=True)
-class HeatingCurve:
-    """A heating or cooling curve of the line table pool.
+class CurveTable:
+    """A curve table (line table) with the points of a heating or cooling curve.
 
     Attributes
     ----------
@@ -115,7 +115,7 @@ class HeatingCurve:
     """
 
     name: str
-    points: tuple[HeatingCurvePoint, ...]
+    points: tuple[CurvePoint, ...]
 
 
 class SystemInfo(TypedDict):

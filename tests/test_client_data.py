@@ -6,8 +6,8 @@
 from typing import Any
 from typing import Final
 
+from keba_keenergy_api.models import CurvePoint
 from keba_keenergy_api.models import DeviceCounts
-from keba_keenergy_api.models import HeatingCurvePoint
 from keba_keenergy_api.sections import BufferTank
 from keba_keenergy_api.sections import HeatingCircuit
 from keba_keenergy_api.sections import HeatPump
@@ -108,26 +108,26 @@ READ_WITHOUT_UNKNOWN_MESSAGE_ID_RESPONSE: Final = [
     {"name": "APPL.CtrlAppl.sParam.heatCircuit[1].tempRoom.state.msgId", "value": "0"},
 ]
 
-HEATING_CURVE_NAMES_RESPONSE: Final = [
+CURVE_TABLE_NAMES_RESPONSE: Final = [
     {"name": f"APPL.CtrlAppl.sParam.linTabPool[{index}].name", "value": name}
     for index, name in enumerate(["HC1", "", "", "HC2", "LT5", *[""] * 25])
 ]
 
-HEATING_CURVE_POINTS: Final = [
-    HeatingCurvePoint(outdoor=-20.0, flow=50.0),
-    HeatingCurvePoint(outdoor=-10.0, flow=45.0),
-    HeatingCurvePoint(outdoor=-5.0, flow=40.5),
-    HeatingCurvePoint(outdoor=0.0, flow=38.0),
-    HeatingCurvePoint(outdoor=5.0, flow=33.25),
-    HeatingCurvePoint(outdoor=10.0, flow=30.0),
-    HeatingCurvePoint(outdoor=20.0, flow=25.0),
+CURVE_TABLE_POINTS: Final = [
+    CurvePoint(outdoor=-20.0, flow=50.0),
+    CurvePoint(outdoor=-10.0, flow=45.0),
+    CurvePoint(outdoor=-5.0, flow=40.5),
+    CurvePoint(outdoor=0.0, flow=38.0),
+    CurvePoint(outdoor=5.0, flow=33.25),
+    CurvePoint(outdoor=10.0, flow=30.0),
+    CurvePoint(outdoor=20.0, flow=25.0),
 ]
 
 # More than the maximum number of points.
-HEATING_CURVE_MAX_POINTS: Final = [HeatingCurvePoint(outdoor=float(index), flow=30.0) for index in range(16)]
+CURVE_TABLE_MAX_POINTS: Final = [CurvePoint(outdoor=float(index), flow=30.0) for index in range(16)]
 
 
-def heating_curve_response(number_of_points: str, points: list[HeatingCurvePoint], /) -> list[dict[str, Any]]:
+def curve_table_response(number_of_points: str, points: list[CurvePoint], /) -> list[dict[str, Any]]:
     """Return the response for the number of points and the points of one line table.
 
     Parameters

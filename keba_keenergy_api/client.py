@@ -23,9 +23,9 @@ from aiohttp import encode_basic_auth
 from keba_keenergy_api.constants import _BOOL_VALUES
 from keba_keenergy_api.constants import _CONSUMER_PRIORITY_HIGH
 from keba_keenergy_api.constants import _CONSUMER_PRIORITY_LOW
+from keba_keenergy_api.constants import _CURVE_TABLE_NAME_PREFIX
 from keba_keenergy_api.constants import _DEVICE_COUNT_SECTIONS
 from keba_keenergy_api.constants import _DEVICE_INFO
-from keba_keenergy_api.constants import _HEATING_CURVE_NAME_PREFIX
 from keba_keenergy_api.constants import _HMI_INSTALLED
 from keba_keenergy_api.constants import _LINE_TABLE
 from keba_keenergy_api.constants import _LINE_TABLE_POOL_SIZE
@@ -38,18 +38,18 @@ from keba_keenergy_api.constants import _WRITE_FALSE
 from keba_keenergy_api.constants import _WRITE_TRUE
 from keba_keenergy_api.constants import _WRITE_VARS
 from keba_keenergy_api.constants import API_DEFAULT_TIMEOUT
-from keba_keenergy_api.constants import MAX_HEATING_CURVE_POINTS
-from keba_keenergy_api.constants import MIN_HEATING_CURVE_POINTS
+from keba_keenergy_api.constants import MAX_CURVE_TABLE_POINTS
+from keba_keenergy_api.constants import MIN_CURVE_TABLE_POINTS
 from keba_keenergy_api.enums import MessageIdKind
 from keba_keenergy_api.exceptions import APIError
 from keba_keenergy_api.exceptions import APITimeoutError
 from keba_keenergy_api.exceptions import AuthenticationError
 from keba_keenergy_api.exceptions import InvalidResponseError
 from keba_keenergy_api.exceptions import UnsupportedVariableError
+from keba_keenergy_api.models import CurvePoint
+from keba_keenergy_api.models import CurveTable
 from keba_keenergy_api.models import DeviceCounts
 from keba_keenergy_api.models import DeviceInfo
-from keba_keenergy_api.models import HeatingCurve
-from keba_keenergy_api.models import HeatingCurvePoint
 from keba_keenergy_api.models import HmiInfo
 from keba_keenergy_api.models import Limits
 from keba_keenergy_api.models import MessageId
@@ -829,16 +829,16 @@ class KebaKeEnergyAPI:
             if section_names and unsupported.isdisjoint(section_names)
         ]
 
-    async def get_heating_curves(self) -> dict[str, HeatingCurve]:
-        """Return the heating and cooling curves of the line table pool.
+    async def get_curve_tables(self) -> dict[str, CurveTable]:
+        """Return the curve tables of the line table pool, used as heating or cooling curves.
 
         Returns
         -------
-        dict[str, HeatingCurve]
+        dict[str, CurveTable]
             The curves by name, e.g. ``HC1``.
 
         """
-        indexes: dict[str, int] = await self._get_heating_curve_indexes()
+        indexes: dict[str, int] = await self._get_curve_table_indexes()
 
         names: list[str] = [
             name
@@ -847,29 +847,29 @@ class KebaKeEnergyAPI:
                 f"{_LINE_TABLE % index}.noOfPoints",
                 *(
                     f"{_LINE_TABLE % index}.points[{point_index}].{axis}"
-                    for point_index in range(MAX_HEATING_CURVE_POINTS)
+                    for point_index in range(MAX_CURVE_TABLE_POINTS)
                     for axis in ("x", "y")
                 ),
             )
         ]
         response: _Response = await self._read_payload([_ReadPayload(name=name, attr="0") for name in names])
 
-        curves: dict[str, HeatingCurve] = {}
+        curves: dict[str, CurveTable] = {}
 
-        for name, items in zip(indexes, batched(response, 1 + 2 * MAX_HEATING_CURVE_POINTS, strict=True), strict=True):
-            number_of_points: int = min(int(items[0]["value"]), MAX_HEATING_CURVE_POINTS)
-            curves[name] = HeatingCurve(
+        for name, items in zip(indexes, batched(response, 1 + 2 * MAX_CURVE_TABLE_POINTS, strict=True), strict=True):
+            number_of_points: int = min(int(items[0]["value"]), MAX_CURVE_TABLE_POINTS)
+            curves[name] = CurveTable(
                 name=name,
                 points=tuple(
-                    HeatingCurvePoint(outdoor=float(items[1 + 2 * i]["value"]), flow=float(items[2 + 2 * i]["value"]))
+                    CurvePoint(outdoor=float(items[1 + 2 * i]["value"]), flow=float(items[2 + 2 * i]["value"]))
                     for i in range(number_of_points)
                 ),
             )
 
         return curves
 
-    async def _get_heating_curve_indexes(self) -> dict[str, int]:
-        """Return the index in the line table pool of each heating curve by name."""
+    async def _get_curve_table_indexes(self) -> dict[str, int]:
+        """Return the index in the line table pool of each curve table by name."""
         response: _Response = await self._read_payload(
             [_ReadPayload(name=f"{_LINE_TABLE % index}.name", attr="0") for index in range(_LINE_TABLE_POOL_SIZE)]
         )
@@ -877,11 +877,11 @@ class KebaKeEnergyAPI:
         return {
             str(item["value"]): index
             for index, item in enumerate(response)
-            if str(item["value"]).startswith(_HEATING_CURVE_NAME_PREFIX)
+            if str(item["value"]).startswith(_CURVE_TABLE_NAME_PREFIX)
         }
 
-    async def set_heating_curve_points(self, name: str, points: Sequence[HeatingCurvePoint]) -> None:
-        """Write the points of a heating or cooling curve.
+    async def set_curve_table_points(self, name: str, points: Sequence[CurvePoint]) -> None:
+        """Write the points of a curve table.
 
         **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
         Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
@@ -891,7 +891,7 @@ class KebaKeEnergyAPI:
         name
             Name of the curve, e.g. ``HC1``.
         points
-            The points of the curve, ``MIN_HEATING_CURVE_POINTS`` to ``MAX_HEATING_CURVE_POINTS``.
+            The points of the curve, ``MIN_CURVE_TABLE_POINTS`` to ``MAX_CURVE_TABLE_POINTS``.
 
         Raises
         ------
@@ -900,36 +900,33 @@ class KebaKeEnergyAPI:
 
         Examples
         --------
-        >>> await client.set_heating_curve_points(
+        >>> await client.set_curve_table_points(
         ...     "HC1",
-        ...     [HeatingCurvePoint(outdoor=-20, flow=55), ..., HeatingCurvePoint(outdoor=20, flow=25)],
+        ...     [CurvePoint(outdoor=-20, flow=55), ..., CurvePoint(outdoor=20, flow=25)],
         ... )
 
         """
         message: str
 
-        if not MIN_HEATING_CURVE_POINTS <= len(points) <= MAX_HEATING_CURVE_POINTS:
+        if not MIN_CURVE_TABLE_POINTS <= len(points) <= MAX_CURVE_TABLE_POINTS:
             message = (
-                f"A heating curve needs {MIN_HEATING_CURVE_POINTS} to {MAX_HEATING_CURVE_POINTS} points, "
-                f"not {len(points)}"
+                f"A curve table needs {MIN_CURVE_TABLE_POINTS} to {MAX_CURVE_TABLE_POINTS} points, not {len(points)}"
             )
             raise APIError(message)
 
-        indexes: dict[str, int] = await self._get_heating_curve_indexes()
+        indexes: dict[str, int] = await self._get_curve_table_indexes()
 
         try:
             line_table: str = _LINE_TABLE % indexes[name]
         except KeyError as error:
-            message = f"Invalid heating curve {name!r}! Allowed values are {list(indexes)}"
+            message = f"Invalid curve table {name!r}! Allowed values are {list(indexes)}"
             raise APIError(message) from error
 
         payload: list[_WritePayload] = [_WritePayload(name=f"{line_table}.noOfPoints", value=str(len(points)))]
 
         # Unused points are reset, like the Web HMI does.
-        for point_index in range(MAX_HEATING_CURVE_POINTS):
-            point: HeatingCurvePoint = (
-                points[point_index] if point_index < len(points) else HeatingCurvePoint(outdoor=0, flow=0)
-            )
+        for point_index in range(MAX_CURVE_TABLE_POINTS):
+            point: CurvePoint = points[point_index] if point_index < len(points) else CurvePoint(outdoor=0, flow=0)
             payload += [
                 _WritePayload(name=f"{line_table}.points[{point_index}].x", value=str(point.outdoor)),
                 _WritePayload(name=f"{line_table}.points[{point_index}].y", value=str(point.flow)),

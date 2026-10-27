@@ -129,7 +129,7 @@
     <HeatingCircuit.TYPE: Endpoint(path='sParam.options.heatCircuit[%s].type', value_type=<enum 'HeatingCircuitType'>, unit=None, writable=False, message_id=None, quantity=1)>,
   ])
 # ---
-# name: test_get_heating_curves[requests]
+# name: test_get_curve_tables[requests]
   list([
     dict({
       'data': list([
@@ -944,7 +944,7 @@
     }),
   ])
 # ---
-# name: test_set_heating_curve_points[requests]
+# name: test_set_curve_table_points[requests]
   list([
     dict({
       'data': list([

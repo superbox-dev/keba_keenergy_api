@@ -160,7 +160,7 @@ class HeatPumpSubState(_BaseEnum):
     COMPRESSOR_STOP = 29
     BIVALENT_LOCK = 30
     LOCKED = 31
-    RETURN_FLOW_OFF = 32
+    RETURN_OFF = 32
     MIXER_OPEN = 34
     ZONE_VALVE = 35
     ELECTRIC_DEFROST = 36
@@ -194,7 +194,7 @@ class HeatingCircuitRequest(_BaseEnum):
 
     OFF = 0
     ACTIVE = 1
-    RETURN_FLOW_OFF = 2
+    RETURN_OFF = 2
     TEMPERATURE_PRIORITY_OFF = 3
     ROOM_OFF = 4
     OUTDOOR_OFF = 5
