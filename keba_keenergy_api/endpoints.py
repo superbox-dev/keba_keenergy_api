@@ -4999,6 +4999,40 @@ class ExternalHeatSourceEndpoints(BaseEndpoints):
         """
         await self._write_for_position(ExternalHeatSource.MIN_RUNTIME_EXCESS_ENERGY, minute, position)
 
+    async def get_has_emissions(self, position: int = 1, *, human_readable: bool = True) -> int | str:
+        """Get the has emissions state.
+
+        Parameters
+        ----------
+        position
+            Position of the external heat source, starting at 1
+        human_readable
+            Return a human-readable string
+
+        Returns
+        -------
+        int | str
+            (0) OFF / (1) ON
+
+        """
+        return await self._read_int_or_str(ExternalHeatSource.HAS_EMISSIONS, position, human_readable=human_readable)
+
+    async def set_has_emissions(self, mode: int | str, position: int = 1) -> None:
+        """Set the has emissions state.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        mode
+            Set the mode as integer or string (human-readable) e.g. 0 or OFF
+        position
+            Position of the external heat source, starting at 1
+
+        """
+        await self._write_mode(ExternalHeatSource.HAS_EMISSIONS, mode, BoolEnum, position)
+
 
 class SwitchValveEndpoints(BaseEndpoints):
     """API Endpoints to retrieve the switch valve data.

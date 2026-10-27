@@ -135,6 +135,30 @@ GETTERS: Final[list[tuple[str, dict[str, Any], dict[str, Any], float | int | str
         {"APPL.CtrlAppl.sParam.extHeatSource[0].param.minRunTimeExcessEnergy": "2"},
         2,
     ),
+    (
+        "get_has_emissions",
+        {"human_readable": True},
+        {"APPL.CtrlAppl.sParam.extHeatSource[0].param.hasEmmission": "true"},
+        "on",
+    ),
+    (
+        "get_has_emissions",
+        {"human_readable": True},
+        {"APPL.CtrlAppl.sParam.extHeatSource[0].param.hasEmmission": "false"},
+        "off",
+    ),
+    (
+        "get_has_emissions",
+        {"human_readable": False},
+        {"APPL.CtrlAppl.sParam.extHeatSource[0].param.hasEmmission": "true"},
+        1,
+    ),
+    (
+        "get_has_emissions",
+        {"human_readable": False},
+        {"APPL.CtrlAppl.sParam.extHeatSource[0].param.hasEmmission": "false"},
+        0,
+    ),
 ]
 
 SETTERS: Final[list[tuple[str, float | int | str, dict[str, Any], dict[str, str]]]] = [
@@ -153,10 +177,15 @@ SETTERS: Final[list[tuple[str, float | int | str, dict[str, Any], dict[str, str]
         {},
         {"APPL.CtrlAppl.sParam.extHeatSource[0].param.minRunTimeExcessEnergy": "5"},
     ),
+    ("set_has_emissions", "off", {}, {"APPL.CtrlAppl.sParam.extHeatSource[0].param.hasEmmission": "0"}),
+    ("set_has_emissions", "ON", {}, {"APPL.CtrlAppl.sParam.extHeatSource[0].param.hasEmmission": "1"}),
+    ("set_has_emissions", 1, {}, {"APPL.CtrlAppl.sParam.extHeatSource[0].param.hasEmmission": "1"}),
+    ("set_has_emissions", 0, {}, {"APPL.CtrlAppl.sParam.extHeatSource[0].param.hasEmmission": "0"}),
 ]
 
 INVALID_SETTERS: Final[list[tuple[str, int | str, dict[str, Any], str]]] = [
     ("set_use_excess_energy", "INVALID", {}, "Invalid value! Allowed values are ['OFF', '0', 'ON', '1']"),
+    ("set_has_emissions", "INVALID", {}, "Invalid value! Allowed values are ['OFF', '0', 'ON', '1']"),
     (
         "set_operating_mode",
         "INVALID",

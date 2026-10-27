@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added `HeatPumpState.SOURCE_FLUSH` (`9`) and `ExternalHeatSourceOperatingMode` (`OFF`, `ON`, `FLUE`)
   ([Issue #131][issue-131])
+- Added `ExternalHeatSource.HAS_EMISSIONS` with `get_has_emissions` and `set_has_emissions` of the external heat
+  source
 
 ### Changed
 
