@@ -11,6 +11,7 @@ import pytest
 
 from keba_keenergy_api.enums import DeviceType
 from keba_keenergy_api.sections import BufferTank
+from keba_keenergy_api.sections import Cascade
 from keba_keenergy_api.sections import DHWTank
 from keba_keenergy_api.sections import Endpoint
 from keba_keenergy_api.sections import ExternalHeatSource
@@ -49,6 +50,7 @@ def test_sections(snapshot: SnapshotAssertion) -> None:
     ("section_class", "expected"),
     [
         (BufferTank, DeviceType.BUFFER_TANK),
+        (Cascade, DeviceType.CASCADE),
         (DHWTank, DeviceType.DHW_TANK),
         (ExternalHeatSource, DeviceType.EXTERNAL_HEAT_SOURCE),
         (HeatingCircuit, DeviceType.HEATING_CIRCUIT),

@@ -68,8 +68,9 @@ readings = await client.read([DHWTank.TARGET_TEMPERATURE, DHWTank.TEMPERATURE], 
 ```
 
 Values are not rounded, scaled or interpreted: ratios stay `0..1` (e.g. pump speeds), the CPU usage stays per mille,
-the energy of the photovoltaics and the solar circuit stays in joule. Temperature differences (hystereses, offsets,
-superheat) have the unit `K`. Converting the values is up to the caller.
+the energy of the meters (heat pump, photovoltaics, solar circuit) stays in joule, mass flows in kg/s and volume
+flows in m³/s. Temperature differences (hystereses, offsets, superheat) have the unit `K`. Converting the values is
+up to the caller.
 
 Older Web HMI versions don't know every variable. `filter_supported()` returns the sections the controller supports
 (all variables of the installed devices are known), `read()` raises an `UnsupportedVariableError` for an unknown

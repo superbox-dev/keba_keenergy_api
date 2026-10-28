@@ -29,6 +29,30 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 - Added `UnsupportedVariableError` (with the `variable` name) and `InvalidResponseError` ([Issue #132][issue-132])
 - Added `ExcessEnergyState`, `HeatingCircuitRequest`, `HeatingCircuitType`, `ElectricalEnergyMeterType`, `HeatMeterType`
   and `SolarCircuitOperatingMode` ([Issue #132][issue-132])
+- Added the heat pump endpoints `MODEL`, `TYPE` (`HeatPumpType`), `TARGET_TEMPERATURE`, `STATE_DURATION`,
+  `STATE_REMAINING_TIME`, `SUPERHEAT_CONTROL_STATE` (`SuperheatControlState`), the operating times per mode
+  (`HEATING_OPERATING_TIME`, `COOLING_OPERATING_TIME`, `DHW_OPERATING_TIME`), the defrost statistics (`DEFROST_CYCLES`,
+  `FAILED_DEFROST_CYCLES`, `DEFROST_THERMAL_ENERGY`, `DEFROST_ELECTRICAL_ENERGY`, `DEFROST_OPERATING_TIME`,
+  `EXCESS_ENERGY_DEFROST_CONSUMPTION`), the thermal excess energy in total and per mode (`EXCESS_ENERGY_THERMAL_ENERGY`,
+  `EXCESS_ENERGY_HEATING_THERMAL_ENERGY`, `EXCESS_ENERGY_COOLING_THERMAL_ENERGY`, `EXCESS_ENERGY_DHW_THERMAL_ENERGY`,
+  `EXCESS_ENERGY_DEFROST_THERMAL_ENERGY`), the options `HAS_REVERSE_CYCLE_DEFROST` and `HAS_ELECTRIC_DEFROST` and the
+  failures `HIGH_PRESSURE_FAILURE`, `LOW_PRESSURE_FAILURE`, `PHASE_MONITOR_FAILURE` and `GAS_LEAK_FAILURE` ([Issue
+  #133][issue-133])
+- Added the meter values of the heat pump: power, accumulated and daily energy and mass flow of the heating, DHW,
+  cooling and source meter (`HEATING_METER_*`, `DHW_METER_*`, `COOLING_METER_*`, `SOURCE_METER_*`) and the
+  accumulated and daily energy of the electrical meter (`METER_ACCUMULATED_ELECTRICAL_ENERGY`,
+  `METER_DAILY_ELECTRICAL_ENERGY`) ([Issue #133][issue-133])
+- Added `HeatPump.SOURCE_VOLUME_FLOW`, the volume flow on the source side ([Issue #133][issue-133])
+- Added the `Cascade` section (`DeviceType.CASCADE`) with the settings, power and COP of the cascade and its
+  statistics, the `CASCADE_*` endpoints of the heat pump and the external heat source (state, power level,
+  priorities, lock, forced activation, times) and `CascadeStrategy` and `CascadeState` ([Issue #133][issue-133])
+- Added the sensors and outputs `HeatPump.CONDENSER_OUTLET_TEMPERATURE`, `OIL_TEMPERATURE`, `SOURCE_PRESSURE`,
+  `OUTDOOR_UNIT_TEMPERATURE`, `COOLING_ACTIVE`, `ELECTRIC_DEFROST_ACTIVE`, `OIL_HEATER_ACTIVE`,
+  `CONDENSATE_HEATER_ACTIVE`, `DHWTank.BOTTOM_TEMPERATURE`, the flow and return temperatures of the buffer tank, the
+  external heat source and the passive cooling (`FLOW_TEMPERATURE`, `RETURN_TEMPERATURE`,
+  `ExternalHeatSource.TEMPERATURE`) and `HeatingCircuit.FILTERED_OUTDOOR_TEMPERATURE` ([Issue #133][issue-133])
+- Added `SolarCircuit.METER_MASS_FLOW` and the solar circuit statistics `THERMAL_ENERGY` and `OPERATING_TIME`
+  ([Issue #133][issue-133])
 
 ### Changed
 
@@ -63,6 +87,7 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
   `HeatPumpOperatingMode` and `MixerSwitchValvePosition` ([Issue #132][issue-132])
 
 [issue-132]: https://github.com/superbox-dev/keba_keenergy_api/issues/132
+[issue-133]: https://github.com/superbox-dev/keba_keenergy_api/issues/133
 
 <!--start-->
 

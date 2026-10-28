@@ -29,6 +29,7 @@ class DeviceType(StrEnum):
     """Device types of the control unit, one per section."""
 
     BUFFER_TANK = "buffer_tank"
+    CASCADE = "cascade"
     DHW_TANK = "dhw_tank"
     EXTERNAL_HEAT_SOURCE = "external_heat_source"
     HEATING_CIRCUIT = "heating_circuit"
@@ -116,6 +117,18 @@ class ExcessEnergyState(_BaseEnum):
     COOLING = 2
 
 
+class HeatPumpType(_BaseEnum):
+    """Types of a heat pump by its source (Brine, Water, Air, DX, Air-Brine, Multi source, DX source)."""
+
+    BRINE = 0
+    WATER = 1
+    AIR = 2
+    DX = 3
+    AIR_BRINE = 4
+    MULTI_SOURCE = 5
+    DX_SOURCE = 6
+
+
 class HeatPumpState(_BaseEnum):
     """States of a heat pump."""
 
@@ -165,6 +178,16 @@ class HeatPumpSubState(_BaseEnum):
     ZONE_VALVE = 35
     ELECTRIC_DEFROST = 36
     COUNTERFLOW_VALVE = 37
+
+
+class SuperheatControlState(_BaseEnum):
+    """States of the superheat control of a heat pump (Undefined, Init, Reference, Run, Manual mode)."""
+
+    UNDEFINED = 0
+    INITIALIZING = 1
+    REFERENCING = 2
+    RUNNING = 3
+    MANUAL = 4
 
 
 class HeatingCircuitType(_BaseEnum):
@@ -218,6 +241,29 @@ class SolarCircuitOperatingMode(_BaseEnum):
 
     OFF = 0
     ON = 1
+
+
+class CascadeStrategy(_BaseEnum):
+    """Strategies of the cascade to distribute the power to the heat generators (Balanced, Priority)."""
+
+    BALANCED = 0
+    PRIORITY = 1
+
+
+class CascadeState(_BaseEnum):
+    """States of a heat generator in the cascade.
+
+    (Standby, Active, Error, Blocked, Forced, Emergency cooling, Not available, DHW)
+    """
+
+    STANDBY = 0
+    ACTIVE = 1
+    ERROR = 2
+    LOCKED = 3
+    FORCED_ACTIVATION = 4
+    EMERGENCY_COOLING = 5
+    NOT_AVAILABLE = 6
+    DHW_HEATING = 7
 
 
 class ExternalHeatSourceOperatingMode(_BaseEnum):

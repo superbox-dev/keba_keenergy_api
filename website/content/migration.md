@@ -148,14 +148,14 @@ The section is the 2.x name, see [Sections](#sections) for the renamed ones.
 | `HeatPump` | `TARGET_OVERHEATING` | `TARGET_SUCTION_SUPERHEAT` |
 | `HeatPump` | `CURRENT_OVERHEATING` | `SUCTION_SUPERHEAT` |
 | `HeatPump` | `HEAT_REQUEST` | `REQUEST` |
-| `HeatPump` | `HEATING_MASS_FLOW_RATE` | removed |
-| `HeatPump` | `COOLING_MASS_FLOW_RATE` | removed |
-| `HeatPump` | `HOT_WATER_MASS_FLOW_RATE` | removed |
-| `HeatPump` | `HEATING_POWER` | `HEATING_THERMAL_POWER` |
-| `HeatPump` | `HOT_WATER_POWER` | `DHW_THERMAL_POWER` |
+| `HeatPump` | `HEATING_MASS_FLOW_RATE` | `HEATING_METER_MASS_FLOW` |
+| `HeatPump` | `COOLING_MASS_FLOW_RATE` | `COOLING_METER_MASS_FLOW` |
+| `HeatPump` | `HOT_WATER_MASS_FLOW_RATE` | `DHW_METER_MASS_FLOW` |
+| `HeatPump` | `HEATING_POWER` | `HEATING_METER_THERMAL_POWER` |
+| `HeatPump` | `HOT_WATER_POWER` | `DHW_METER_THERMAL_POWER` |
 | `HeatPump` | `RETURN_FLOW_TEMPERATURE` | `RETURN_TEMPERATURE` |
 | `HeatPump` | `CONSUMING_EXCESS_ENERGY` | `EXCESS_ENERGY_ACTIVE` |
-| `HeatPump` | `COMPRESSOR_POWER` | `ELECTRICAL_POWER` |
+| `HeatPump` | `COMPRESSOR_POWER` | `METER_ELECTRICAL_POWER` |
 | `HeatPump` | `HEATING_ENERGY` | `HEATING_THERMAL_ENERGY` |
 | `HeatPump` | `HEATING_ENERGY_CONSUMPTION` | `HEATING_ELECTRICAL_ENERGY` |
 | `HeatPump` | `COOLING_ENERGY` | `COOLING_THERMAL_ENERGY` |
@@ -218,16 +218,17 @@ The section is the 2.x name, see [Sections](#sections) for the renamed ones.
 | `SolarCircuit` | `CURRENT_TEMPERATURE` | `CONSUMER_TEMPERATURE` |
 | `SolarCircuit` | `TARGET_TEMPERATURE` | `CONSUMER_TARGET_TEMPERATURE` |
 | `SolarCircuit` | `HEAT_REQUEST` | `CONSUMER_HEATING_REQUEST` |
-| `SolarCircuit` | `HEATING_ENERGY` | `TOTAL_THERMAL_ENERGY` |
-| `SolarCircuit` | `DAILY_ENERGY` | `DAILY_THERMAL_ENERGY` |
-| `SolarCircuit` | `ACTUAL_POWER` | `THERMAL_POWER` |
+| `SolarCircuit` | `HEATING_ENERGY` | `METER_ACCUMULATED_THERMAL_ENERGY` |
+| `SolarCircuit` | `DAILY_ENERGY` | `METER_DAILY_THERMAL_ENERGY` |
+| `SolarCircuit` | `ACTUAL_POWER` | `METER_THERMAL_POWER` |
 | `SolarCircuit` | `PRIORITY_1_BEFORE_2` | `CONSUMER_1_PRIORITY` |
 | `ExternalHeatSource` | `MIN_RUNTIME_EXCESS_ENERGY` | `EXCESS_ENERGY_MIN_RUNTIME` |
 | `ExternalHeatSource` | `HEAT_REQUEST` | `HEATING_REQUEST` |
 | `ExternalHeatSource` | `CONSUMING_EXCESS_ENERGY` | `EXCESS_ENERGY_ACTIVE` |
 | `PassiveCooling` | `MIXER_POSITION` | `MIXER_SETPOINT` |
-| `Photovoltaics` | `DAILY_ENERGY` | `DAILY_EXCESS_ENERGY` |
-| `Photovoltaics` | `TOTAL_ENERGY` | `TOTAL_EXCESS_ENERGY` |
+| `Photovoltaics` | `EXCESS_POWER` | `METER_EXCESS_POWER` |
+| `Photovoltaics` | `DAILY_ENERGY` | `METER_DAILY_EXCESS_ENERGY` |
+| `Photovoltaics` | `TOTAL_ENERGY` | `METER_ACCUMULATED_EXCESS_ENERGY` |
 
 ## Enums
 

@@ -79,6 +79,16 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
   - paths containing `.param.` are writable, other paths only with `writable=True`
   - `message_id`: component node with a `state.msgId`, only when confirmed on a controller
   - `unit`: unit of the raw value as the Web HMI delivers it, `None` for ratios (`0..1`)
+    - always derived from the `unitId` of the variable and its conversion in `var/readAllUnits?action=getUnits`
+      (display = raw × `multiplier` / `divisor`), the `unitId` itself is the display unit (`TimeHour` and `TimeMin`
+      deliver seconds, `kWh` delivers joule, `MassFlow` delivers kg/s)
+  - `HAS_*` options only when the gated endpoints have no `message_id`, the message id already shows availability
+  - values of an energy meter (`*Meter` with `power`, `accumulatedHeat`, `heatDay`, `massFlow`) always as
+    `[<METER>_]METER_[ACCUMULATED_|DAILY_]<QUANTITY>`, values of `sStatisticalData` without `METER` (`TOTAL_` only
+    for the sum of all modes)
+    - sensors named `*Meter` with only an `actValue` (e.g. `SourceFlowMeter`) are named like other sensors
+    - `<METER>_` prefix only when a section has several meters of the same kind (`HEATING_`, `DHW_`, `COOLING_`,
+      `SOURCE_` for the heat meters of the heat pump)
 - `enums.py`: values of the Web HMI, `models.py`: `Reading`, `MessageId`, `DeviceCounts`, …,
   `exceptions.py`: `APIError` and subclasses
 - `client.py`: `KebaKeEnergyAPI`, transport (POST to `/var/readWriteVars`), payloads and type conversion
