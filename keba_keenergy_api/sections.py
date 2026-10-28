@@ -530,6 +530,11 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         value_type=SuperheatControlState,
         message_id="sParam.heatpump[%s].OverHeatCtrl",
     )
+    MOP_ACTIVE = Endpoint(
+        path="sParam.heatpump[%s].OverHeatCtrl.values.MOPactive",
+        value_type=bool,
+        message_id="sParam.heatpump[%s].OverHeatCtrl",
+    )
     COMPRESSOR_INLET_TEMPERATURE = Endpoint(
         path="sParam.heatpump[%s].TempCompressorIn.values.actValue",
         value_type=float,
@@ -540,6 +545,18 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         path="sParam.heatpump[%s].Compressor.values.setValueScaled",
         value_type=float,
         message_id="sParam.heatpump[%s].Compressor",
+    )
+    COMPRESSOR_ESTIMATED_ELECTRICAL_POWER = Endpoint(
+        path="sParam.heatpump[%s].CompPowerEstim.values.electricPower",
+        value_type=float,
+        unit=_WATT,
+        message_id="sParam.heatpump[%s].CompPowerEstim",
+    )
+    COMPRESSOR_ESTIMATED_REFRIGERATING_CAPACITY = Endpoint(
+        path="sParam.heatpump[%s].CompPowerEstim.values.coolingCapacity",
+        value_type=float,
+        unit=_WATT,
+        message_id="sParam.heatpump[%s].CompPowerEstim",
     )
     OIL_TEMPERATURE = Endpoint(
         path="sParam.heatpump[%s].TempOil.values.actValue",
@@ -726,6 +743,10 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         path="sStatisticalData.heatpump[%s].EnergyEfficiencyRatioHeat",
         value_type=float,
     )
+    HEATING_PF = Endpoint(
+        path="sStatisticalData.heatpump[%s].OverallEERHeat",
+        value_type=float,
+    )
     HEATING_OPERATING_TIME = Endpoint(
         path="sStatisticalData.heatpump[%s].consumption.heating.operatingtime",
         value_type=int,
@@ -745,6 +766,10 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         path="sStatisticalData.heatpump[%s].EnergyEfficiencyRatioCool",
         value_type=float,
     )
+    COOLING_PF = Endpoint(
+        path="sStatisticalData.heatpump[%s].OverallEERCool",
+        value_type=float,
+    )
     COOLING_OPERATING_TIME = Endpoint(
         path="sStatisticalData.heatpump[%s].consumption.cooling.operatingtime",
         value_type=int,
@@ -762,6 +787,10 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
     )
     DHW_SPF = Endpoint(
         path="sStatisticalData.heatpump[%s].EnergyEfficiencyRatioDomHotWater",
+        value_type=float,
+    )
+    DHW_PF = Endpoint(
+        path="sStatisticalData.heatpump[%s].OverallEERDomHotWater",
         value_type=float,
     )
     DHW_OPERATING_TIME = Endpoint(
@@ -805,6 +834,15 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
     TOTAL_SPF = Endpoint(
         path="sStatisticalData.heatpump[%s].EnergyEfficiencyRatio",
         value_type=float,
+    )
+    TOTAL_PF = Endpoint(
+        path="sStatisticalData.heatpump[%s].OverallEER",
+        value_type=float,
+    )
+    TOTAL_OPERATING_TIME = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.operatingtime",
+        value_type=int,
+        unit=_SECOND,
     )
     # The Web HMI has no text and unit for the thermal excess energy per mode, the unit is the one of the total
     # and of all other energy values of the same mode (`kWhwithoutConv`, raw kWh).
@@ -1546,6 +1584,10 @@ class Cascade(_SectionEnum, device_type=DeviceType.CASCADE):
         path="sStatisticalData.cascade.EnergyEfficiencyRatioHeat",
         value_type=float,
     )
+    HEATING_PF = Endpoint(
+        path="sStatisticalData.cascade.OverallEERHeat",
+        value_type=float,
+    )
     HEATING_OPERATING_TIME = Endpoint(
         path="sStatisticalData.cascade.consumption.heating.operatingtime",
         value_type=int,
@@ -1565,6 +1607,10 @@ class Cascade(_SectionEnum, device_type=DeviceType.CASCADE):
         path="sStatisticalData.cascade.EnergyEfficiencyRatioCool",
         value_type=float,
     )
+    COOLING_PF = Endpoint(
+        path="sStatisticalData.cascade.OverallEERCool",
+        value_type=float,
+    )
     COOLING_OPERATING_TIME = Endpoint(
         path="sStatisticalData.cascade.consumption.cooling.operatingtime",
         value_type=int,
@@ -1582,6 +1628,10 @@ class Cascade(_SectionEnum, device_type=DeviceType.CASCADE):
     )
     DHW_SPF = Endpoint(
         path="sStatisticalData.cascade.EnergyEfficiencyRatioDomHotWater",
+        value_type=float,
+    )
+    DHW_PF = Endpoint(
+        path="sStatisticalData.cascade.OverallEERDomHotWater",
         value_type=float,
     )
     DHW_OPERATING_TIME = Endpoint(
@@ -1624,6 +1674,10 @@ class Cascade(_SectionEnum, device_type=DeviceType.CASCADE):
     )
     TOTAL_SPF = Endpoint(
         path="sStatisticalData.cascade.EnergyEfficiencyRatio",
+        value_type=float,
+    )
+    TOTAL_PF = Endpoint(
+        path="sStatisticalData.cascade.OverallEER",
         value_type=float,
     )
     TOTAL_OPERATING_TIME = Endpoint(
