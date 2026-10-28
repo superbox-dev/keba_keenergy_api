@@ -60,8 +60,9 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 - Added `KebaKeEnergyAPI.get_alarms()` and `get_alarm_count()`, which read the pending alarms of the control unit
   (`Alarm`, `AlarmPriority`) ([Issue #135][issue-135])
 - Added `KebaKeEnergyAPI.is_remote_maintenance_active()`, `is_remote_maintenance_connected()`,
-  `is_remote_maintenance_server_reachable()` and `set_remote_maintenance_active()` for the remote maintenance of the
-  control unit ([Issue #138][issue-138])
+  `is_remote_maintenance_server_reachable()` and `set_remote_maintenance_active()` for the remote maintenance and
+  `is_modbus_active()` and `set_modbus_active()` for the Modbus TCP server of the control unit ([Issue
+  #138][issue-138])
 
 ### Changed
 

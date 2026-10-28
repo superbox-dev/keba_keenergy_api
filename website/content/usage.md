@@ -179,24 +179,29 @@ if await client.get_alarm_count():
 `acknowledgeable` shows whether the alarm must be acknowledged on the control unit, the library doesn't acknowledge
 alarms.
 
-## Remote maintenance
+## Remote maintenance and Modbus TCP
 
-The control unit can be reached by KEBA or the installer via remote maintenance. Each method sends one request.
+The control unit can be reached by KEBA or the installer via remote maintenance and offers a Modbus TCP server. Each
+method sends one request.
 
 ```python
 if not await client.is_remote_maintenance_active():
     await client.set_remote_maintenance_active(active=True)
 
 await client.is_remote_maintenance_connected()  # True during a connection to the remote maintenance server.
+
+await client.set_modbus_active(active=True)
 ```
 
 `is_remote_maintenance_server_reachable()` lets the control unit check the remote maintenance server, which takes a
-few seconds. Don't use it in a regular poll.
+few seconds. Don't use it in a regular poll. After `set_modbus_active(active=True)`, `is_modbus_active()` still returns
+`False` for a few seconds, disabling takes effect immediately.
 
 :::warning[Attention]
 
-`set_remote_maintenance_active()` changes the settings of the control unit, like the Web HMI does. Don't switch it
-permanently or very frequently, see [write warnings](#write-warnings).
+`set_remote_maintenance_active()` and `set_modbus_active()` change the settings of the control unit, like the Web HMI
+does. Don't disable the Modbus TCP server while another Modbus client depends on it. Don't switch them permanently or
+very frequently, see [write warnings](#write-warnings).
 
 :::
 

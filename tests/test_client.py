@@ -360,6 +360,8 @@ async def test_get_info(
             {"ret": "OK", "reachable": False},
             False,
         ),
+        ("is_modbus_active", "isModbusActive", {"ret": "OK", "active": True}, True),
+        ("is_modbus_active", "isModbusActive", {"ret": "OK", "active": False}, False),
     ],
     ids=[
         "remote_maintenance_active",
@@ -368,6 +370,8 @@ async def test_get_info(
         "remote_maintenance_not_connected",
         "remote_maintenance_server_reachable",
         "remote_maintenance_server_not_reachable",
+        "modbus_active",
+        "modbus_inactive",
     ],
 )
 async def test_device_control_status(
@@ -392,8 +396,10 @@ async def test_device_control_status(
     [
         ("set_remote_maintenance_active", "activateRemoteM", True),
         ("set_remote_maintenance_active", "activateRemoteM", False),
+        ("set_modbus_active", "activateModbus", True),
+        ("set_modbus_active", "activateModbus", False),
     ],
-    ids=["enable_remote_maintenance", "disable_remote_maintenance"],
+    ids=["enable_remote_maintenance", "disable_remote_maintenance", "enable_modbus", "disable_modbus"],
 )
 async def test_device_control_activate(
     client: KebaKeEnergyAPI,

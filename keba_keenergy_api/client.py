@@ -24,6 +24,7 @@ from aiohttp import ClientTimeout
 from aiohttp import ContentTypeError
 from aiohttp import encode_basic_auth
 
+from keba_keenergy_api.constants import _ACTIVATE_MODBUS
 from keba_keenergy_api.constants import _ACTIVATE_REMOTE_MAINTENANCE
 from keba_keenergy_api.constants import _ALARM_COUNT
 from keba_keenergy_api.constants import _ALARMS
@@ -36,6 +37,7 @@ from keba_keenergy_api.constants import _DEVICE_INFO
 from keba_keenergy_api.constants import _HMI_INSTALLED
 from keba_keenergy_api.constants import _LINE_TABLE
 from keba_keenergy_api.constants import _LINE_TABLE_POOL_SIZE
+from keba_keenergy_api.constants import _MODBUS_ACTIVE
 from keba_keenergy_api.constants import _READ_ERROR_PATTERN
 from keba_keenergy_api.constants import _READ_WRITE_VARS
 from keba_keenergy_api.constants import _REMOTE_MAINTENANCE_ACTIVE
@@ -463,6 +465,39 @@ class KebaKeEnergyAPI:
 
         """
         await self._post(_ACTIVATE_REMOTE_MAINTENANCE, _ActivatePayload(activate=active))
+
+    async def is_modbus_active(self) -> bool:
+        """Return whether the Modbus TCP server of the control unit is enabled.
+
+        Returns
+        -------
+        bool
+            ``True`` if the Modbus TCP server is enabled.
+
+        """
+        response: _Response = await self._post(_MODBUS_ACTIVE)
+        return bool(response[0]["active"])
+
+    async def set_modbus_active(self, *, active: bool) -> None:
+        """Enable or disable the Modbus TCP server of the control unit, like the Web HMI does.
+
+        Disabling takes effect immediately. After enabling, :meth:`is_modbus_active` still returns ``False`` for a
+        few seconds.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        active
+            ``True`` to enable the Modbus TCP server, ``False`` to disable it.
+
+        Examples
+        --------
+        >>> await client.set_modbus_active(active=False)
+
+        """
+        await self._post(_ACTIVATE_MODBUS, _ActivatePayload(activate=active))
 
     async def read(
         self,
