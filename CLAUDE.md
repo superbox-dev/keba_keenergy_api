@@ -92,6 +92,15 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
     - sensors named `*Meter` with only an `actValue` (e.g. `SourceFlowMeter`) are named like other sensors
     - `<METER>_` prefix only when a section has several meters of the same kind (`HEATING_`, `DHW_`, `COOLING_`,
       `SOURCE_` for the heat meters of the heat pump)
+  - member order in blocks: identity and equipment (`NAME`, `MODEL`, `TYPE`, all `HAS_*`, `*_METER_TYPE`),
+    operation (`OPERATING_MODE`, `USE_*`, parameters), state (`STATE`, requests, `*_ACTIVE`, calculated setpoints),
+    measured values, excess energy (parameters, state, operational data), meters, statistics (`COP`, `*_SPF`,
+    `sStatisticalData`, excess energy last), operational data, `*_FAILURE`, `CASCADE_*`, `_`-prefixed members
+    - `HAS_*` in the order of the endpoints they enable, `USE_*` directly before the parameters they enable
+    - modes: heating, cooling, DHW, defrost, total, each thermal, electrical, SPF, operating time
+    - meters: `HEATING_`, `DHW_`, `COOLING_`, `SOURCE_`, electrical, each power, accumulated, daily, mass flow
+    - normal, reduced, vacation; target before actual value; flow direction (flow before return, inlet before
+      outlet, refrigerant circuit from evaporator to expansion valve)
 - `enums.py`: values of the Web HMI, `models.py`: `Reading`, `MessageId`, `DeviceCounts`, …,
   `exceptions.py`: `APIError` and subclasses
 - `client.py`: `KebaKeEnergyAPI`, transport (POST to `/var/readWriteVars`), payloads and type conversion

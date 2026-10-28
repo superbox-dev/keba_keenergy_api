@@ -116,34 +116,6 @@ class _SectionEnum(Enum):
 class System(_SectionEnum, device_type=DeviceType.SYSTEM):
     """Endpoints of the system."""
 
-    _NUMBER_OF_BUFFER_TANKS = Endpoint(
-        path="sParam.options.systemNumberOfBuffers",
-        value_type=int,
-    )
-    _NUMBER_OF_DHW_TANKS = Endpoint(
-        path="sParam.options.systemNumberOfHotWaterTanks",
-        value_type=int,
-    )
-    _NUMBER_OF_HEAT_PUMPS = Endpoint(
-        path="sParam.options.systemNumberOfHeatPumps",
-        value_type=int,
-    )
-    _NUMBER_OF_HEATING_CIRCUITS = Endpoint(
-        path="sParam.options.systemNumberOfHeatingCircuits",
-        value_type=int,
-    )
-    _NUMBER_OF_SOLAR_CIRCUITS = Endpoint(
-        path="sParam.options.systemNumberOfSolarCircuits",
-        value_type=int,
-    )
-    _NUMBER_OF_EXTERNAL_HEAT_SOURCES = Endpoint(
-        path="sParam.options.systemNumberOfExtHeatSources",
-        value_type=int,
-    )
-    _NUMBER_OF_SWITCH_VALVES = Endpoint(
-        path="sParam.options.systemNumberOfSwitchValves",
-        value_type=int,
-    )
     HAS_PHOTOVOLTAICS = Endpoint(
         path="sParam.options.hasPhotovoltaics",
         value_type=bool,
@@ -196,6 +168,34 @@ class System(_SectionEnum, device_type=DeviceType.SYSTEM):
         path="sParam.values.UBIMaxEraseCounter",
         value_type=int,
     )
+    _NUMBER_OF_BUFFER_TANKS = Endpoint(
+        path="sParam.options.systemNumberOfBuffers",
+        value_type=int,
+    )
+    _NUMBER_OF_DHW_TANKS = Endpoint(
+        path="sParam.options.systemNumberOfHotWaterTanks",
+        value_type=int,
+    )
+    _NUMBER_OF_HEAT_PUMPS = Endpoint(
+        path="sParam.options.systemNumberOfHeatPumps",
+        value_type=int,
+    )
+    _NUMBER_OF_HEATING_CIRCUITS = Endpoint(
+        path="sParam.options.systemNumberOfHeatingCircuits",
+        value_type=int,
+    )
+    _NUMBER_OF_SOLAR_CIRCUITS = Endpoint(
+        path="sParam.options.systemNumberOfSolarCircuits",
+        value_type=int,
+    )
+    _NUMBER_OF_EXTERNAL_HEAT_SOURCES = Endpoint(
+        path="sParam.options.systemNumberOfExtHeatSources",
+        value_type=int,
+    )
+    _NUMBER_OF_SWITCH_VALVES = Endpoint(
+        path="sParam.options.systemNumberOfSwitchValves",
+        value_type=int,
+    )
 
 
 class BufferTank(_SectionEnum, device_type=DeviceType.BUFFER_TANK):
@@ -204,6 +204,28 @@ class BufferTank(_SectionEnum, device_type=DeviceType.BUFFER_TANK):
     NAME = Endpoint(
         path="sParam.bufferTank[%s].param.name",
         value_type=str,
+    )
+    OPERATING_MODE = Endpoint(
+        path="sParam.bufferTank[%s].param.operatingMode",
+        value_type=BufferTankOperatingMode,
+    )
+    BACKUP_TEMPERATURE = Endpoint(
+        path="sParam.bufferTank[%s].param.backupTemp",
+        value_type=float,
+        unit=_CELSIUS,
+    )
+    TARGET_TEMPERATURE = Endpoint(
+        path="sParam.bufferTank[%s].values.setTemp",
+        value_type=float,
+        unit=_CELSIUS,
+    )
+    HEATING_REQUEST = Endpoint(
+        path="sParam.bufferTank[%s].values.heatRequestTop",
+        value_type=bool,
+    )
+    COOLING_REQUEST = Endpoint(
+        path="sParam.bufferTank[%s].values.coolRequestBot",
+        value_type=bool,
     )
     TOP_TEMPERATURE = Endpoint(
         path="sParam.bufferTank[%s].topTemp.values.actValue",
@@ -229,19 +251,9 @@ class BufferTank(_SectionEnum, device_type=DeviceType.BUFFER_TANK):
         unit=_CELSIUS,
         message_id="sParam.bufferTank[%s].refluxTemp",
     )
-    OPERATING_MODE = Endpoint(
-        path="sParam.bufferTank[%s].param.operatingMode",
-        value_type=BufferTankOperatingMode,
-    )
-    BACKUP_TEMPERATURE = Endpoint(
-        path="sParam.bufferTank[%s].param.backupTemp",
-        value_type=float,
-        unit=_CELSIUS,
-    )
-    TARGET_TEMPERATURE = Endpoint(
-        path="sParam.bufferTank[%s].values.setTemp",
-        value_type=float,
-        unit=_CELSIUS,
+    USE_EXCESS_ENERGY = Endpoint(
+        path="sParam.bufferTank[%s].param.useExcessEnergy",
+        value_type=bool,
     )
     EXCESS_ENERGY_TARGET_TEMPERATURE = Endpoint(
         path="sParam.bufferTank[%s].param.excessEnergyTemp.value",
@@ -258,21 +270,9 @@ class BufferTank(_SectionEnum, device_type=DeviceType.BUFFER_TANK):
         value_type=float,
         unit=_CELSIUS,
     )
-    USE_EXCESS_ENERGY = Endpoint(
-        path="sParam.bufferTank[%s].param.useExcessEnergy",
-        value_type=bool,
-    )
     EXCESS_ENERGY_STATE = Endpoint(
         path="sParam.bufferTank[%s].values.useExcessEnergy",
         value_type=ExcessEnergyState,
-    )
-    HEATING_REQUEST = Endpoint(
-        path="sParam.bufferTank[%s].values.heatRequestTop",
-        value_type=bool,
-    )
-    COOLING_REQUEST = Endpoint(
-        path="sParam.bufferTank[%s].values.coolRequestBot",
-        value_type=bool,
     )
 
 
@@ -282,6 +282,33 @@ class DHWTank(_SectionEnum, device_type=DeviceType.DHW_TANK):
     NAME = Endpoint(
         path="sParam.hotWaterTank[%s].param.name",
         value_type=str,
+    )
+    HAS_FRESH_WATER_MODULE = Endpoint(
+        path="sParam.options.hotWaterTank[%s].hasFreshWaterModule",
+        value_type=bool,
+    )
+    OPERATING_MODE = Endpoint(
+        path="sParam.hotWaterTank[%s].param.operatingMode",
+        value_type=DHWTankOperatingMode,
+    )
+    TARGET_TEMPERATURE = Endpoint(
+        path="sParam.hotWaterTank[%s].param.normalSetTempMax.value",
+        value_type=float,
+        unit=_CELSIUS,
+    )
+    BACKUP_TEMPERATURE = Endpoint(
+        path="sParam.hotWaterTank[%s].param.reducedSetTempMax.value",
+        value_type=float,
+        unit=_CELSIUS,
+    )
+    HEATING_REQUEST = Endpoint(
+        path="sParam.hotWaterTank[%s].values.heatRequestTop",
+        value_type=bool,
+    )
+    CIRCULATION_PUMP_ACTIVE = Endpoint(
+        path="sParam.hotWaterTank[%s].circPump.pump.values.setValueB",
+        value_type=bool,
+        message_id="sParam.hotWaterTank[%s].circPump.pump",
     )
     TEMPERATURE = Endpoint(
         path="sParam.hotWaterTank[%s].topTemp.values.actValue",
@@ -295,45 +322,11 @@ class DHWTank(_SectionEnum, device_type=DeviceType.DHW_TANK):
         unit=_CELSIUS,
         message_id="sParam.hotWaterTank[%s].botTemp",
     )
-    OPERATING_MODE = Endpoint(
-        path="sParam.hotWaterTank[%s].param.operatingMode",
-        value_type=DHWTankOperatingMode,
-    )
-    BACKUP_TEMPERATURE = Endpoint(
-        path="sParam.hotWaterTank[%s].param.reducedSetTempMax.value",
+    CIRCULATION_RETURN_TEMPERATURE = Endpoint(
+        path="sParam.hotWaterTank[%s].circTemp.values.actValue",
         value_type=float,
         unit=_CELSIUS,
-    )
-    TARGET_TEMPERATURE = Endpoint(
-        path="sParam.hotWaterTank[%s].param.normalSetTempMax.value",
-        value_type=float,
-        unit=_CELSIUS,
-    )
-    EXCESS_ENERGY_TARGET_TEMPERATURE = Endpoint(
-        path="sParam.hotWaterTank[%s].param.excessEnergyTemp.value",
-        value_type=float,
-        unit=_CELSIUS,
-    )
-    EXCESS_ENERGY_TARGET_TEMPERATURE_HYSTERESIS = Endpoint(
-        path="sParam.hotWaterTank[%s].param.excessEnergyTemp.hyst",
-        value_type=float,
-        unit=_KELVIN,
-    )
-    USE_EXCESS_ENERGY = Endpoint(
-        path="sParam.hotWaterTank[%s].param.useExcessEnergy",
-        value_type=bool,
-    )
-    EXCESS_ENERGY_STATE = Endpoint(
-        path="sParam.hotWaterTank[%s].values.useExcessEnergy",
-        value_type=ExcessEnergyState,
-    )
-    HEATING_REQUEST = Endpoint(
-        path="sParam.hotWaterTank[%s].values.heatRequestTop",
-        value_type=bool,
-    )
-    HAS_FRESH_WATER_MODULE = Endpoint(
-        path="sParam.options.hotWaterTank[%s].hasFreshWaterModule",
-        value_type=bool,
+        message_id="sParam.hotWaterTank[%s].circTemp",
     )
     FRESH_WATER_FLOW_ACTIVE = Endpoint(
         path="sParam.hotWaterTank[%s].FreshWater.freshWaterFlow.values.actValue",
@@ -346,16 +339,23 @@ class DHWTank(_SectionEnum, device_type=DeviceType.DHW_TANK):
         unit=_CELSIUS,
         message_id="sParam.hotWaterTank[%s].FreshWater.freshWaterTemp",
     )
-    CIRCULATION_RETURN_TEMPERATURE = Endpoint(
-        path="sParam.hotWaterTank[%s].circTemp.values.actValue",
+    USE_EXCESS_ENERGY = Endpoint(
+        path="sParam.hotWaterTank[%s].param.useExcessEnergy",
+        value_type=bool,
+    )
+    EXCESS_ENERGY_TARGET_TEMPERATURE = Endpoint(
+        path="sParam.hotWaterTank[%s].param.excessEnergyTemp.value",
         value_type=float,
         unit=_CELSIUS,
-        message_id="sParam.hotWaterTank[%s].circTemp",
     )
-    CIRCULATION_PUMP_ACTIVE = Endpoint(
-        path="sParam.hotWaterTank[%s].circPump.pump.values.setValueB",
-        value_type=bool,
-        message_id="sParam.hotWaterTank[%s].circPump.pump",
+    EXCESS_ENERGY_TARGET_TEMPERATURE_HYSTERESIS = Endpoint(
+        path="sParam.hotWaterTank[%s].param.excessEnergyTemp.hyst",
+        value_type=float,
+        unit=_KELVIN,
+    )
+    EXCESS_ENERGY_STATE = Endpoint(
+        path="sParam.hotWaterTank[%s].values.useExcessEnergy",
+        value_type=ExcessEnergyState,
     )
 
 
@@ -373,6 +373,34 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
     TYPE = Endpoint(
         path="sParam.options.heatpump[%s].heatpumpType",
         value_type=HeatPumpType,
+    )
+    HAS_ACTIVE_COOLING = Endpoint(
+        path="sParam.options.heatpump[%s].hasActiveCooling",
+        value_type=bool,
+    )
+    HAS_PASSIVE_COOLING = Endpoint(
+        path="sParam.options.heatpump[%s].hasPassiveCooling",
+        value_type=bool,
+    )
+    HAS_REVERSE_CYCLE_DEFROST = Endpoint(
+        path="sParam.options.heatpump[%s].defrostingMode",
+        value_type=bool,
+    )
+    HEAT_METER_TYPE = Endpoint(
+        path="sParam.options.heatpump[%s].HeatMeter.type",
+        value_type=HeatMeterType,
+    )
+    ELECTRICAL_ENERGY_METER_TYPE = Endpoint(
+        path="sParam.options.heatpump[%s].ElectricEnergyMeter.type",
+        value_type=ElectricalEnergyMeterType,
+    )
+    USE_COMPRESSOR_NIGHT_POWER_LIMIT = Endpoint(
+        path="sParam.heatpump[%s].HeatPumpPowerCtrl.param.useDayNightSpeed",
+        value_type=bool,
+    )
+    COMPRESSOR_NIGHT_POWER_LIMIT = Endpoint(
+        path="sParam.heatpump[%s].HeatPumpPowerCtrl.param.maxPowerScaledNight",
+        value_type=float,
     )
     STATE = Endpoint(
         path="sParam.heatpump[%s].values.heatpumpState",
@@ -392,28 +420,34 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         value_type=int,
         unit=_SECOND,
     )
+    REQUEST = Endpoint(
+        path="sParam.heatpump[%s].values.request",
+        value_type=bool,
+    )
     TARGET_TEMPERATURE = Endpoint(
         path="sParam.heatpump[%s].values.setTemp",
         value_type=float,
         unit=_CELSIUS,
     )
-    USE_COMPRESSOR_NIGHT_POWER_LIMIT = Endpoint(
-        path="sParam.heatpump[%s].HeatPumpPowerCtrl.param.useDayNightSpeed",
+    COOLING_ACTIVE = Endpoint(
+        path="sParam.heatpump[%s].OpModeCooling.values.setValueB",
         value_type=bool,
+        message_id="sParam.heatpump[%s].OpModeCooling",
     )
-    COMPRESSOR_NIGHT_POWER_LIMIT = Endpoint(
-        path="sParam.heatpump[%s].HeatPumpPowerCtrl.param.maxPowerScaledNight",
-        value_type=float,
+    ELECTRIC_DEFROST_ACTIVE = Endpoint(
+        path="sParam.heatpump[%s].ElectricDefrost.values.setValueB",
+        value_type=bool,
+        message_id="sParam.heatpump[%s].ElectricDefrost",
     )
-    CIRCULATION_PUMP_SPEED = Endpoint(
-        path="sParam.heatpump[%s].CircPump.values.setValueScaled",
-        value_type=float,
-        message_id="sParam.heatpump[%s].CircPump",
+    OIL_HEATER_ACTIVE = Endpoint(
+        path="sParam.heatpump[%s].OilHeater.values.setValueB",
+        value_type=bool,
+        message_id="sParam.heatpump[%s].OilHeater",
     )
-    SOURCE_ACTUATOR_SPEED = Endpoint(
-        path="sParam.heatpump[%s].Source.values.setValueScaled",
-        value_type=float,
-        message_id="sParam.heatpump[%s].Source",
+    CONDENSATE_HEATER_ACTIVE = Endpoint(
+        path="sParam.heatpump[%s].CondensateHeater.values.setValueB",
+        value_type=bool,
+        message_id="sParam.heatpump[%s].CondensateHeater",
     )
     FLOW_TEMPERATURE = Endpoint(
         path="sParam.heatpump[%s].TempHeatFlow.values.actValue",
@@ -426,6 +460,11 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         value_type=float,
         unit=_CELSIUS,
         message_id="sParam.heatpump[%s].TempHeatReflux",
+    )
+    CIRCULATION_PUMP_SPEED = Endpoint(
+        path="sParam.heatpump[%s].CircPump.values.setValueScaled",
+        value_type=float,
+        message_id="sParam.heatpump[%s].CircPump",
     )
     SOURCE_INLET_TEMPERATURE = Endpoint(
         path="sParam.heatpump[%s].TempSourceIn.values.actValue",
@@ -451,52 +490,28 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         unit=_BAR,
         message_id="sParam.heatpump[%s].SourcePressure",
     )
+    SOURCE_ACTUATOR_SPEED = Endpoint(
+        path="sParam.heatpump[%s].Source.values.setValueScaled",
+        value_type=float,
+        message_id="sParam.heatpump[%s].Source",
+    )
     OUTDOOR_UNIT_TEMPERATURE = Endpoint(
         path="sParam.heatpump[%s].TempSourceUnit.values.actValue",
         value_type=float,
         unit=_CELSIUS,
         message_id="sParam.heatpump[%s].TempSourceUnit",
     )
-    COMPRESSOR_INLET_TEMPERATURE = Endpoint(
-        path="sParam.heatpump[%s].TempCompressorIn.values.actValue",
-        value_type=float,
-        unit=_CELSIUS,
-        message_id="sParam.heatpump[%s].TempCompressorIn",
-    )
-    COMPRESSOR_OUTLET_TEMPERATURE = Endpoint(
-        path="sParam.heatpump[%s].TempCompressorOut.values.actValue",
-        value_type=float,
-        unit=_CELSIUS,
-        message_id="sParam.heatpump[%s].TempCompressorOut",
-    )
-    CONDENSER_OUTLET_TEMPERATURE = Endpoint(
-        path="sParam.heatpump[%s].TempCondenserOut.values.actValue",
-        value_type=float,
-        unit=_CELSIUS,
-        message_id="sParam.heatpump[%s].TempCondenserOut",
-    )
-    OIL_TEMPERATURE = Endpoint(
-        path="sParam.heatpump[%s].TempOil.values.actValue",
-        value_type=float,
-        unit=_CELSIUS,
-        message_id="sParam.heatpump[%s].TempOil",
-    )
-    COMPRESSOR_SPEED = Endpoint(
-        path="sParam.heatpump[%s].Compressor.values.setValueScaled",
-        value_type=float,
-        message_id="sParam.heatpump[%s].Compressor",
-    )
-    CONDENSATION_TEMPERATURE = Endpoint(
-        path="sParam.heatpump[%s].OverHeatCtrl.values.tempCond",
-        value_type=float,
-        unit=_CELSIUS,
-        message_id="sParam.heatpump[%s].OverHeatCtrl",
-    )
     EVAPORATION_TEMPERATURE = Endpoint(
         path="sParam.heatpump[%s].OverHeatCtrl.values.tempVap",
         value_type=float,
         unit=_CELSIUS,
         message_id="sParam.heatpump[%s].OverHeatCtrl",
+    )
+    LOW_PRESSURE = Endpoint(
+        path="sParam.heatpump[%s].LowPressure.values.actValue",
+        value_type=float,
+        unit=_BAR,
+        message_id="sParam.heatpump[%s].LowPressure",
     )
     TARGET_SUCTION_SUPERHEAT = Endpoint(
         path="sParam.heatpump[%s].OverHeatCtrl.values.setOH",
@@ -510,15 +525,33 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         unit=_KELVIN,
         message_id="sParam.heatpump[%s].OverHeatCtrl",
     )
-    EXPANSION_VALVE_POSITION = Endpoint(
-        path="sParam.heatpump[%s].OverHeatCtrl.values.stepperPos",
-        value_type=int,
-        message_id="sParam.heatpump[%s].OverHeatCtrl",
-    )
     SUPERHEAT_CONTROL_STATE = Endpoint(
         path="sParam.heatpump[%s].OverHeatCtrl.values.state",
         value_type=SuperheatControlState,
         message_id="sParam.heatpump[%s].OverHeatCtrl",
+    )
+    COMPRESSOR_INLET_TEMPERATURE = Endpoint(
+        path="sParam.heatpump[%s].TempCompressorIn.values.actValue",
+        value_type=float,
+        unit=_CELSIUS,
+        message_id="sParam.heatpump[%s].TempCompressorIn",
+    )
+    COMPRESSOR_SPEED = Endpoint(
+        path="sParam.heatpump[%s].Compressor.values.setValueScaled",
+        value_type=float,
+        message_id="sParam.heatpump[%s].Compressor",
+    )
+    OIL_TEMPERATURE = Endpoint(
+        path="sParam.heatpump[%s].TempOil.values.actValue",
+        value_type=float,
+        unit=_CELSIUS,
+        message_id="sParam.heatpump[%s].TempOil",
+    )
+    COMPRESSOR_OUTLET_TEMPERATURE = Endpoint(
+        path="sParam.heatpump[%s].TempCompressorOut.values.actValue",
+        value_type=float,
+        unit=_CELSIUS,
+        message_id="sParam.heatpump[%s].TempCompressorOut",
     )
     HIGH_PRESSURE = Endpoint(
         path="sParam.heatpump[%s].HighPressure.values.actValue",
@@ -526,35 +559,22 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         unit=_BAR,
         message_id="sParam.heatpump[%s].HighPressure",
     )
-    LOW_PRESSURE = Endpoint(
-        path="sParam.heatpump[%s].LowPressure.values.actValue",
+    CONDENSATION_TEMPERATURE = Endpoint(
+        path="sParam.heatpump[%s].OverHeatCtrl.values.tempCond",
         value_type=float,
-        unit=_BAR,
-        message_id="sParam.heatpump[%s].LowPressure",
+        unit=_CELSIUS,
+        message_id="sParam.heatpump[%s].OverHeatCtrl",
     )
-    REQUEST = Endpoint(
-        path="sParam.heatpump[%s].values.request",
-        value_type=bool,
+    CONDENSER_OUTLET_TEMPERATURE = Endpoint(
+        path="sParam.heatpump[%s].TempCondenserOut.values.actValue",
+        value_type=float,
+        unit=_CELSIUS,
+        message_id="sParam.heatpump[%s].TempCondenserOut",
     )
-    COOLING_ACTIVE = Endpoint(
-        path="sParam.heatpump[%s].OpModeCooling.values.setValueB",
-        value_type=bool,
-        message_id="sParam.heatpump[%s].OpModeCooling",
-    )
-    ELECTRIC_DEFROST_ACTIVE = Endpoint(
-        path="sParam.heatpump[%s].ElectricDefrost.values.setValueB",
-        value_type=bool,
-        message_id="sParam.heatpump[%s].ElectricDefrost",
-    )
-    OIL_HEATER_ACTIVE = Endpoint(
-        path="sParam.heatpump[%s].OilHeater.values.setValueB",
-        value_type=bool,
-        message_id="sParam.heatpump[%s].OilHeater",
-    )
-    CONDENSATE_HEATER_ACTIVE = Endpoint(
-        path="sParam.heatpump[%s].CondensateHeater.values.setValueB",
-        value_type=bool,
-        message_id="sParam.heatpump[%s].CondensateHeater",
+    EXPANSION_VALVE_POSITION = Endpoint(
+        path="sParam.heatpump[%s].OverHeatCtrl.values.stepperPos",
+        value_type=int,
+        message_id="sParam.heatpump[%s].OverHeatCtrl",
     )
     EXCESS_ENERGY_ACTIVE = Endpoint(
         path="sParam.heatpump[%s].values.consumingExcessEnergy",
@@ -706,6 +726,11 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         path="sStatisticalData.heatpump[%s].EnergyEfficiencyRatioHeat",
         value_type=float,
     )
+    HEATING_OPERATING_TIME = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.heating.operatingtime",
+        value_type=int,
+        unit=_SECOND,
+    )
     COOLING_THERMAL_ENERGY = Endpoint(
         path="sStatisticalData.heatpump[%s].consumption.cooling.energy",
         value_type=float,
@@ -719,6 +744,11 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
     COOLING_SPF = Endpoint(
         path="sStatisticalData.heatpump[%s].EnergyEfficiencyRatioCool",
         value_type=float,
+    )
+    COOLING_OPERATING_TIME = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.cooling.operatingtime",
+        value_type=int,
+        unit=_SECOND,
     )
     DHW_THERMAL_ENERGY = Endpoint(
         path="sStatisticalData.heatpump[%s].consumption.domHotWater.energy",
@@ -734,94 +764,10 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         path="sStatisticalData.heatpump[%s].EnergyEfficiencyRatioDomHotWater",
         value_type=float,
     )
-    TOTAL_THERMAL_ENERGY = Endpoint(
-        path="sStatisticalData.heatpump[%s].consumption.energy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    TOTAL_ELECTRICAL_ENERGY = Endpoint(
-        path="sStatisticalData.heatpump[%s].consumption.electricalenergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_CONSUMPTION = Endpoint(
-        path="sStatisticalData.heatpump[%s].consumption.consumedExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_HEATING_CONSUMPTION = Endpoint(
-        path="sStatisticalData.heatpump[%s].consumption.heating.consumedExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_COOLING_CONSUMPTION = Endpoint(
-        path="sStatisticalData.heatpump[%s].consumption.cooling.consumedExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_DHW_CONSUMPTION = Endpoint(
-        path="sStatisticalData.heatpump[%s].consumption.domHotWater.consumedExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_DEFROST_CONSUMPTION = Endpoint(
-        path="sStatisticalData.heatpump[%s].consumption.defrost.data.consumedExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_THERMAL_ENERGY = Endpoint(
-        path="sStatisticalData.heatpump[%s].consumption.energyExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    # The Web HMI has no text and unit for the thermal excess energy per mode, the unit is the one of the total
-    # and of all other energy values of the same mode (`kWhwithoutConv`, raw kWh).
-    EXCESS_ENERGY_HEATING_THERMAL_ENERGY = Endpoint(
-        path="sStatisticalData.heatpump[%s].consumption.heating.energyExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_COOLING_THERMAL_ENERGY = Endpoint(
-        path="sStatisticalData.heatpump[%s].consumption.cooling.energyExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_DHW_THERMAL_ENERGY = Endpoint(
-        path="sStatisticalData.heatpump[%s].consumption.domHotWater.energyExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_DEFROST_THERMAL_ENERGY = Endpoint(
-        path="sStatisticalData.heatpump[%s].consumption.defrost.data.energyExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    TOTAL_SPF = Endpoint(
-        path="sStatisticalData.heatpump[%s].EnergyEfficiencyRatio",
-        value_type=float,
-    )
-    HEATING_OPERATING_TIME = Endpoint(
-        path="sStatisticalData.heatpump[%s].consumption.heating.operatingtime",
-        value_type=int,
-        unit=_SECOND,
-    )
-    COOLING_OPERATING_TIME = Endpoint(
-        path="sStatisticalData.heatpump[%s].consumption.cooling.operatingtime",
-        value_type=int,
-        unit=_SECOND,
-    )
     DHW_OPERATING_TIME = Endpoint(
         path="sStatisticalData.heatpump[%s].consumption.domHotWater.operatingtime",
         value_type=int,
         unit=_SECOND,
-    )
-    DEFROST_CYCLES = Endpoint(
-        path="sStatisticalData.heatpump[%s].consumption.defrost.cycles",
-        value_type=int,
-    )
-    FAILED_DEFROST_CYCLES = Endpoint(
-        path="sStatisticalData.heatpump[%s].consumption.defrost.failedCycles",
-        value_type=int,
     )
     DEFROST_THERMAL_ENERGY = Endpoint(
         path="sStatisticalData.heatpump[%s].consumption.defrost.data.energy",
@@ -838,17 +784,79 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         value_type=int,
         unit=_SECOND,
     )
-    HAS_ACTIVE_COOLING = Endpoint(
-        path="sParam.options.heatpump[%s].hasActiveCooling",
-        value_type=bool,
+    DEFROST_CYCLES = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.defrost.cycles",
+        value_type=int,
     )
-    HAS_PASSIVE_COOLING = Endpoint(
-        path="sParam.options.heatpump[%s].hasPassiveCooling",
-        value_type=bool,
+    FAILED_DEFROST_CYCLES = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.defrost.failedCycles",
+        value_type=int,
     )
-    HAS_REVERSE_CYCLE_DEFROST = Endpoint(
-        path="sParam.options.heatpump[%s].defrostingMode",
-        value_type=bool,
+    TOTAL_THERMAL_ENERGY = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.energy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    TOTAL_ELECTRICAL_ENERGY = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.electricalenergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    TOTAL_SPF = Endpoint(
+        path="sStatisticalData.heatpump[%s].EnergyEfficiencyRatio",
+        value_type=float,
+    )
+    # The Web HMI has no text and unit for the thermal excess energy per mode, the unit is the one of the total
+    # and of all other energy values of the same mode (`kWhwithoutConv`, raw kWh).
+    EXCESS_ENERGY_HEATING_THERMAL_ENERGY = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.heating.energyExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_HEATING_CONSUMPTION = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.heating.consumedExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_COOLING_THERMAL_ENERGY = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.cooling.energyExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_COOLING_CONSUMPTION = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.cooling.consumedExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_DHW_THERMAL_ENERGY = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.domHotWater.energyExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_DHW_CONSUMPTION = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.domHotWater.consumedExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_DEFROST_THERMAL_ENERGY = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.defrost.data.energyExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_DEFROST_CONSUMPTION = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.defrost.data.consumedExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_THERMAL_ENERGY = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.energyExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_CONSUMPTION = Endpoint(
+        path="sStatisticalData.heatpump[%s].consumption.consumedExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
     )
     OPERATING_TIME = Endpoint(
         path="sParam.heatpump[%s].operationalData.operationalTimeS",
@@ -914,14 +922,6 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         value_type=bool,
         message_id="sParam.heatpump[%s].GasLeakSensor",
     )
-    ELECTRICAL_ENERGY_METER_TYPE = Endpoint(
-        path="sParam.options.heatpump[%s].ElectricEnergyMeter.type",
-        value_type=ElectricalEnergyMeterType,
-    )
-    HEAT_METER_TYPE = Endpoint(
-        path="sParam.options.heatpump[%s].HeatMeter.type",
-        value_type=HeatMeterType,
-    )
 
     CASCADE_STATE = Endpoint(
         path="sParam.cascade.heatpump[%s].values.state",
@@ -935,6 +935,10 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         path="sParam.cascade.heatpump[%s].param.priority",
         value_type=int,
     )
+    USE_CASCADE_MODE_PRIORITIES = Endpoint(
+        path="sParam.cascade.heatpump[%s].param.useModePriorities",
+        value_type=bool,
+    )
     CASCADE_COOLING_PRIORITY = Endpoint(
         path="sParam.cascade.heatpump[%s].param.priorityCool",
         value_type=int,
@@ -942,10 +946,6 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
     CASCADE_DHW_PRIORITY = Endpoint(
         path="sParam.cascade.heatpump[%s].param.priorityDHW",
         value_type=int,
-    )
-    USE_CASCADE_MODE_PRIORITIES = Endpoint(
-        path="sParam.cascade.heatpump[%s].param.useModePriorities",
-        value_type=bool,
     )
     USE_CASCADE_DHW_HEATING = Endpoint(
         path="sParam.cascade.heatpump[%s].param.domesticHWheatup",
@@ -991,111 +991,29 @@ class HeatingCircuit(_SectionEnum, device_type=DeviceType.HEATING_CIRCUIT):
         path="sParam.options.heatCircuit[%s].hasRoomTemp",
         value_type=bool,
     )
-    ROOM_TEMPERATURE = Endpoint(
-        path="sParam.heatCircuit[%s].tempRoom.values.actValue",
-        value_type=float,
-        unit=_CELSIUS,
-        message_id="sParam.heatCircuit[%s].tempRoom",
-    )
     HAS_ROOM_HUMIDITY_SENSOR = Endpoint(
         path="sParam.options.heatCircuit[%s].hasRoomHumidity",
         value_type=bool,
-    )
-    ROOM_HUMIDITY = Endpoint(
-        path="sParam.heatCircuit[%s].humidityRoom.values.actValue",
-        value_type=float,
-        unit=_PERCENT,
-        message_id="sParam.heatCircuit[%s].humidityRoom",
-    )
-    DEW_POINT = Endpoint(
-        path="sParam.heatCircuit[%s].dewPoint.values.actValue",
-        value_type=float,
-        unit=_CELSIUS,
-        message_id="sParam.heatCircuit[%s].dewPoint",
-    )
-    FILTERED_OUTDOOR_TEMPERATURE = Endpoint(
-        path="sParam.heatCircuit[%s].values.filteredOutTemp",
-        value_type=float,
-        unit=_CELSIUS,
-    )
-    TARGET_FLOW_TEMPERATURE = Endpoint(
-        path="sParam.heatCircuit[%s].values.flowSetTemp",
-        value_type=float,
-        unit=_CELSIUS,
     )
     HAS_MIXER = Endpoint(
         path="sParam.options.heatCircuit[%s].hasMixer",
         value_type=bool,
     )
-    MIXER_FLOW_TEMPERATURE = Endpoint(
-        path="sParam.heatCircuit[%s].heatCircuitMixer.flowTemp.values.actValue",
-        value_type=float,
-        unit=_CELSIUS,
-        message_id="sParam.heatCircuit[%s].heatCircuitMixer.flowTemp",
-    )
-    MIXER_RETURN_TEMPERATURE = Endpoint(
-        path="sParam.heatCircuit[%s].heatCircuitMixer.refluxTemp.values.actValue",
-        value_type=float,
-        unit=_CELSIUS,
-        message_id="sParam.heatCircuit[%s].heatCircuitMixer.refluxTemp",
-    )
-    MIXER_SETPOINT = Endpoint(
-        path="sParam.heatCircuit[%s].heatCircuitMixer.mixer.values.setValueScaled",
-        value_type=float,
-        message_id="sParam.heatCircuit[%s].heatCircuitMixer.mixer",
-    )
-    PUMP_ACTIVE = Endpoint(
-        path="sParam.heatCircuit[%s].pump.values.setValueB",
-        value_type=bool,
-        message_id="sParam.heatCircuit[%s].pump",
-    )
     HAS_RETURN_TEMPERATURE_SENSOR = Endpoint(
         path="sParam.options.heatCircuit[%s].hasRefluxTemp",
         value_type=bool,
     )
-    RETURN_TEMPERATURE = Endpoint(
-        path="sParam.heatCircuit[%s].tempReflux.values.actValue",
-        value_type=float,
-        unit=_CELSIUS,
-        message_id="sParam.heatCircuit[%s].tempReflux",
-    )
-    TARGET_ROOM_TEMPERATURE = Endpoint(
-        path="sParam.heatCircuit[%s].values.setValue",
-        value_type=float,
-        unit=_CELSIUS,
-    )
-    USE_EXCESS_ENERGY = Endpoint(
-        path="sParam.heatCircuit[%s].param.excessEnergy.useExcessEnergy",
+    HAS_PUMP = Endpoint(
+        path="sParam.options.heatCircuit[%s].hasPump",
         value_type=bool,
     )
-    EXCESS_ENERGY_STATE = Endpoint(
-        path="sParam.heatCircuit[%s].values.useExcessEnergy",
-        value_type=ExcessEnergyState,
+    HAS_VARIABLE_SPEED_PUMP = Endpoint(
+        path="sParam.options.heatCircuit[%s].hasVarSpeedPump",
+        value_type=bool,
     )
-    EXCESS_ENERGY_TARGET_ROOM_TEMPERATURE = Endpoint(
-        path="sParam.heatCircuit[%s].param.excessEnergyTemp.value",
-        value_type=float,
-        unit=_CELSIUS,
-    )
-    EXCESS_ENERGY_TARGET_ROOM_TEMPERATURE_HYSTERESIS = Endpoint(
-        path="sParam.heatCircuit[%s].param.excessEnergyTemp.hyst",
-        value_type=float,
-        unit=_KELVIN,
-    )
-    EXCESS_ENERGY_TARGET_ROOM_COOLING_TEMPERATURE = Endpoint(
-        path="sParam.heatCircuit[%s].param.excessEnergyTempCool.value",
-        value_type=float,
-        unit=_CELSIUS,
-    )
-    EXCESS_ENERGY_TARGET_ROOM_COOLING_TEMPERATURE_HYSTERESIS = Endpoint(
-        path="sParam.heatCircuit[%s].param.excessEnergyTempCool.hyst",
-        value_type=float,
-        unit=_KELVIN,
-    )
-    SELECTED_TARGET_ROOM_TEMPERATURE = Endpoint(
-        path="sParam.heatCircuit[%s].values.selectedSetTemp",
-        value_type=float,
-        unit=_CELSIUS,
+    OPERATING_MODE = Endpoint(
+        path="sParam.heatCircuit[%s].param.operatingMode",
+        value_type=HeatingCircuitOperatingMode,
     )
     TARGET_ROOM_TEMPERATURE_NORMAL = Endpoint(
         path="sParam.heatCircuit[%s].param.normalSetTemp",
@@ -1114,16 +1032,6 @@ class HeatingCircuit(_SectionEnum, device_type=DeviceType.HEATING_CIRCUIT):
     )
     COOLING_LIMIT_NORMAL = Endpoint(
         path="sParam.heatCircuit[%s].param.thresholdDayCoolTemp.value",
-        value_type=float,
-        unit=_CELSIUS,
-    )
-    EXCESS_ENERGY_HEATING_LIMIT_NORMAL = Endpoint(
-        path="sParam.heatCircuit[%s].param.excessEnergy.thresholdDayTemp",
-        value_type=float,
-        unit=_CELSIUS,
-    )
-    EXCESS_ENERGY_COOLING_LIMIT_NORMAL = Endpoint(
-        path="sParam.heatCircuit[%s].param.excessEnergy.thresholdDayCoolTemp",
         value_type=float,
         unit=_CELSIUS,
     )
@@ -1147,6 +1055,167 @@ class HeatingCircuit(_SectionEnum, device_type=DeviceType.HEATING_CIRCUIT):
         value_type=float,
         unit=_CELSIUS,
     )
+    TARGET_ROOM_TEMPERATURE_VACATION = Endpoint(
+        path="sParam.heatCircuit[%s].param.holidaySetTemp",
+        value_type=float,
+        unit=_CELSIUS,
+    )
+    VACATION_START = Endpoint(
+        path="sParam.heatCircuit[%s].param.holiday.start",
+        value_type=int,
+    )
+    VACATION_END = Endpoint(
+        path="sParam.heatCircuit[%s].param.holiday.stop",
+        value_type=int,
+    )
+    ROOM_TEMPERATURE_OFFSET = Endpoint(
+        path="sParam.heatCircuit[%s].param.offsetRoomTemp",
+        value_type=float,
+        unit=_KELVIN,
+    )
+    USE_CURVE_TABLE = Endpoint(
+        path="sParam.heatCircuit[%s].param.enableHeatCurveLinTab",
+        value_type=bool,
+    )
+    HEATING_CURVE_OFFSET = Endpoint(
+        path="sParam.heatCircuit[%s].param.heatCurveOffset",
+        value_type=float,
+        unit=_KELVIN,
+    )
+    HEATING_CURVE_SLOPE = Endpoint(
+        path="sParam.heatCircuit[%s].param.heatCurveGradient",
+        value_type=float,
+    )
+    HEATING_CURVE = Endpoint(
+        path="sParam.heatCircuit[%s].param.linTab.fileName",
+        value_type=str,
+    )
+    COOLING_CURVE_OFFSET = Endpoint(
+        path="sParam.heatCircuit[%s].param.coolCurveOffset",
+        value_type=float,
+        unit=_KELVIN,
+    )
+    COOLING_CURVE_SLOPE = Endpoint(
+        path="sParam.heatCircuit[%s].param.coolCurveGradient",
+        value_type=float,
+    )
+    COOLING_CURVE = Endpoint(
+        path="sParam.heatCircuit[%s].param.coollinTab.fileName",
+        value_type=str,
+    )
+    SELECTED_TARGET_ROOM_TEMPERATURE = Endpoint(
+        path="sParam.heatCircuit[%s].values.selectedSetTemp",
+        value_type=float,
+        unit=_CELSIUS,
+    )
+    TARGET_ROOM_TEMPERATURE = Endpoint(
+        path="sParam.heatCircuit[%s].values.setValue",
+        value_type=float,
+        unit=_CELSIUS,
+    )
+    TARGET_FLOW_TEMPERATURE = Endpoint(
+        path="sParam.heatCircuit[%s].values.flowSetTemp",
+        value_type=float,
+        unit=_CELSIUS,
+    )
+    HEATING_REQUEST = Endpoint(
+        path="sParam.heatCircuit[%s].values.heatRequest",
+        value_type=HeatingCircuitRequest,
+    )
+    COOLING_REQUEST = Endpoint(
+        path="sParam.heatCircuit[%s].values.coolRequest",
+        value_type=HeatingCircuitRequest,
+    )
+    ROOM_TEMPERATURE = Endpoint(
+        path="sParam.heatCircuit[%s].tempRoom.values.actValue",
+        value_type=float,
+        unit=_CELSIUS,
+        message_id="sParam.heatCircuit[%s].tempRoom",
+    )
+    ROOM_HUMIDITY = Endpoint(
+        path="sParam.heatCircuit[%s].humidityRoom.values.actValue",
+        value_type=float,
+        unit=_PERCENT,
+        message_id="sParam.heatCircuit[%s].humidityRoom",
+    )
+    DEW_POINT = Endpoint(
+        path="sParam.heatCircuit[%s].dewPoint.values.actValue",
+        value_type=float,
+        unit=_CELSIUS,
+        message_id="sParam.heatCircuit[%s].dewPoint",
+    )
+    FILTERED_OUTDOOR_TEMPERATURE = Endpoint(
+        path="sParam.heatCircuit[%s].values.filteredOutTemp",
+        value_type=float,
+        unit=_CELSIUS,
+    )
+    MIXER_FLOW_TEMPERATURE = Endpoint(
+        path="sParam.heatCircuit[%s].heatCircuitMixer.flowTemp.values.actValue",
+        value_type=float,
+        unit=_CELSIUS,
+        message_id="sParam.heatCircuit[%s].heatCircuitMixer.flowTemp",
+    )
+    MIXER_RETURN_TEMPERATURE = Endpoint(
+        path="sParam.heatCircuit[%s].heatCircuitMixer.refluxTemp.values.actValue",
+        value_type=float,
+        unit=_CELSIUS,
+        message_id="sParam.heatCircuit[%s].heatCircuitMixer.refluxTemp",
+    )
+    MIXER_SETPOINT = Endpoint(
+        path="sParam.heatCircuit[%s].heatCircuitMixer.mixer.values.setValueScaled",
+        value_type=float,
+        message_id="sParam.heatCircuit[%s].heatCircuitMixer.mixer",
+    )
+    RETURN_TEMPERATURE = Endpoint(
+        path="sParam.heatCircuit[%s].tempReflux.values.actValue",
+        value_type=float,
+        unit=_CELSIUS,
+        message_id="sParam.heatCircuit[%s].tempReflux",
+    )
+    PUMP_ACTIVE = Endpoint(
+        path="sParam.heatCircuit[%s].pump.values.setValueB",
+        value_type=bool,
+        message_id="sParam.heatCircuit[%s].pump",
+    )
+    PUMP_SPEED = Endpoint(
+        path="sParam.heatCircuit[%s].pumpAO.values.setValueScaled",
+        value_type=float,
+        message_id="sParam.heatCircuit[%s].pumpAO",
+    )
+    USE_EXCESS_ENERGY = Endpoint(
+        path="sParam.heatCircuit[%s].param.excessEnergy.useExcessEnergy",
+        value_type=bool,
+    )
+    EXCESS_ENERGY_TARGET_ROOM_TEMPERATURE = Endpoint(
+        path="sParam.heatCircuit[%s].param.excessEnergyTemp.value",
+        value_type=float,
+        unit=_CELSIUS,
+    )
+    EXCESS_ENERGY_TARGET_ROOM_TEMPERATURE_HYSTERESIS = Endpoint(
+        path="sParam.heatCircuit[%s].param.excessEnergyTemp.hyst",
+        value_type=float,
+        unit=_KELVIN,
+    )
+    EXCESS_ENERGY_TARGET_ROOM_COOLING_TEMPERATURE = Endpoint(
+        path="sParam.heatCircuit[%s].param.excessEnergyTempCool.value",
+        value_type=float,
+        unit=_CELSIUS,
+    )
+    EXCESS_ENERGY_TARGET_ROOM_COOLING_TEMPERATURE_HYSTERESIS = Endpoint(
+        path="sParam.heatCircuit[%s].param.excessEnergyTempCool.hyst",
+        value_type=float,
+        unit=_KELVIN,
+    )
+    EXCESS_ENERGY_HEATING_LIMIT_NORMAL = Endpoint(
+        path="sParam.heatCircuit[%s].param.excessEnergy.thresholdDayTemp",
+        value_type=float,
+        unit=_CELSIUS,
+    )
+    EXCESS_ENERGY_COOLING_LIMIT_NORMAL = Endpoint(
+        path="sParam.heatCircuit[%s].param.excessEnergy.thresholdDayCoolTemp",
+        value_type=float,
+        unit=_CELSIUS,
+    )
     EXCESS_ENERGY_HEATING_LIMIT_REDUCED = Endpoint(
         path="sParam.heatCircuit[%s].param.excessEnergy.thresholdNightTemp",
         value_type=float,
@@ -1157,78 +1226,9 @@ class HeatingCircuit(_SectionEnum, device_type=DeviceType.HEATING_CIRCUIT):
         value_type=float,
         unit=_CELSIUS,
     )
-    TARGET_ROOM_TEMPERATURE_VACATION = Endpoint(
-        path="sParam.heatCircuit[%s].param.holidaySetTemp",
-        value_type=float,
-        unit=_CELSIUS,
-    )
-    ROOM_TEMPERATURE_OFFSET = Endpoint(
-        path="sParam.heatCircuit[%s].param.offsetRoomTemp",
-        value_type=float,
-        unit=_KELVIN,
-    )
-    OPERATING_MODE = Endpoint(
-        path="sParam.heatCircuit[%s].param.operatingMode",
-        value_type=HeatingCircuitOperatingMode,
-    )
-    HEATING_REQUEST = Endpoint(
-        path="sParam.heatCircuit[%s].values.heatRequest",
-        value_type=HeatingCircuitRequest,
-    )
-    COOLING_REQUEST = Endpoint(
-        path="sParam.heatCircuit[%s].values.coolRequest",
-        value_type=HeatingCircuitRequest,
-    )
-    VACATION_START = Endpoint(
-        path="sParam.heatCircuit[%s].param.holiday.start",
-        value_type=int,
-    )
-    VACATION_END = Endpoint(
-        path="sParam.heatCircuit[%s].param.holiday.stop",
-        value_type=int,
-    )
-    HEATING_CURVE_OFFSET = Endpoint(
-        path="sParam.heatCircuit[%s].param.heatCurveOffset",
-        value_type=float,
-        unit=_KELVIN,
-    )
-    COOLING_CURVE_OFFSET = Endpoint(
-        path="sParam.heatCircuit[%s].param.coolCurveOffset",
-        value_type=float,
-        unit=_KELVIN,
-    )
-    HEATING_CURVE_SLOPE = Endpoint(
-        path="sParam.heatCircuit[%s].param.heatCurveGradient",
-        value_type=float,
-    )
-    COOLING_CURVE_SLOPE = Endpoint(
-        path="sParam.heatCircuit[%s].param.coolCurveGradient",
-        value_type=float,
-    )
-    USE_CURVE_TABLE = Endpoint(
-        path="sParam.heatCircuit[%s].param.enableHeatCurveLinTab",
-        value_type=bool,
-    )
-    HEATING_CURVE = Endpoint(
-        path="sParam.heatCircuit[%s].param.linTab.fileName",
-        value_type=str,
-    )
-    COOLING_CURVE = Endpoint(
-        path="sParam.heatCircuit[%s].param.coollinTab.fileName",
-        value_type=str,
-    )
-    HAS_PUMP = Endpoint(
-        path="sParam.options.heatCircuit[%s].hasPump",
-        value_type=bool,
-    )
-    HAS_VARIABLE_SPEED_PUMP = Endpoint(
-        path="sParam.options.heatCircuit[%s].hasVarSpeedPump",
-        value_type=bool,
-    )
-    PUMP_SPEED = Endpoint(
-        path="sParam.heatCircuit[%s].pumpAO.values.setValueScaled",
-        value_type=float,
-        message_id="sParam.heatCircuit[%s].pumpAO",
+    EXCESS_ENERGY_STATE = Endpoint(
+        path="sParam.heatCircuit[%s].values.useExcessEnergy",
+        value_type=ExcessEnergyState,
     )
 
 
@@ -1247,19 +1247,27 @@ class SolarCircuit(_SectionEnum, device_type=DeviceType.SOLAR_CIRCUIT):
         path="sParam.solarCircuit[%s].param.operatingMode",
         value_type=SolarCircuitOperatingMode,
     )
+    CONSUMER_TARGET_TEMPERATURE = Endpoint(
+        path="sParam.genericHeat[%s].param.setTempMax.value",
+        value_type=float,
+        unit=_CELSIUS,
+        quantity=2,
+    )
+    CONSUMER_1_PRIORITY = Endpoint(
+        path="sParam.hmiRetainData.consumer1PrioritySolar[%s]",
+        value_type=bool,
+        writable=True,
+    )
+    CONSUMER_HEATING_REQUEST = Endpoint(
+        path="sParam.genericHeat[%s].values.heatRequest",
+        value_type=bool,
+        quantity=2,
+    )
     COLLECTOR_TEMPERATURE = Endpoint(
         path="sParam.solarCircuit[%s].collectorTemp.values.actValue",
         value_type=float,
         unit=_CELSIUS,
         message_id="sParam.solarCircuit[%s].collectorTemp",
-    )
-    PUMP_1_SPEED = Endpoint(
-        path="sParam.solarCircuit[%s].values.pump1",
-        value_type=float,
-    )
-    PUMP_2_SPEED = Endpoint(
-        path="sParam.solarCircuit[%s].values.pump2",
-        value_type=float,
     )
     CONSUMER_TEMPERATURE = Endpoint(
         path="sParam.genericHeat[%s].referenceTemp.values.actValue",
@@ -1268,16 +1276,13 @@ class SolarCircuit(_SectionEnum, device_type=DeviceType.SOLAR_CIRCUIT):
         message_id="sParam.genericHeat[%s].referenceTemp",
         quantity=2,
     )
-    CONSUMER_TARGET_TEMPERATURE = Endpoint(
-        path="sParam.genericHeat[%s].param.setTempMax.value",
+    PUMP_1_SPEED = Endpoint(
+        path="sParam.solarCircuit[%s].values.pump1",
         value_type=float,
-        unit=_CELSIUS,
-        quantity=2,
     )
-    CONSUMER_HEATING_REQUEST = Endpoint(
-        path="sParam.genericHeat[%s].values.heatRequest",
-        value_type=bool,
-        quantity=2,
+    PUMP_2_SPEED = Endpoint(
+        path="sParam.solarCircuit[%s].values.pump2",
+        value_type=float,
     )
     METER_THERMAL_POWER = Endpoint(
         path="sParam.solarCircuit[%s].heatMeter.values.power",
@@ -1313,11 +1318,6 @@ class SolarCircuit(_SectionEnum, device_type=DeviceType.SOLAR_CIRCUIT):
         value_type=int,
         unit=_SECOND,
     )
-    CONSUMER_1_PRIORITY = Endpoint(
-        path="sParam.hmiRetainData.consumer1PrioritySolar[%s]",
-        value_type=bool,
-        writable=True,
-    )
     _CONSUMER_PRIORITY = Endpoint(
         path="sParam.genericHeat[%s].param.priority",
         value_type=int,
@@ -1328,6 +1328,10 @@ class SolarCircuit(_SectionEnum, device_type=DeviceType.SOLAR_CIRCUIT):
 class ExternalHeatSource(_SectionEnum, device_type=DeviceType.EXTERNAL_HEAT_SOURCE):
     """Endpoints of an external heat source."""
 
+    HAS_EMISSIONS = Endpoint(
+        path="sParam.extHeatSource[%s].param.hasEmmission",
+        value_type=bool,
+    )
     OPERATING_MODE = Endpoint(
         path="sParam.extHeatSource[%s].param.operatingMode",
         value_type=ExternalHeatSourceOperatingMode,
@@ -1338,6 +1342,11 @@ class ExternalHeatSource(_SectionEnum, device_type=DeviceType.EXTERNAL_HEAT_SOUR
         value_type=float,
         unit=_CELSIUS,
         message_id="sParam.extHeatSource[%s]",
+    )
+    HEATING_REQUEST = Endpoint(
+        path="sParam.extHeatSource[%s].DO.values.setValueB",
+        value_type=bool,
+        message_id="sParam.extHeatSource[%s].DO",
     )
     TEMPERATURE = Endpoint(
         path="sParam.extHeatSource[%s].TI.values.actValue",
@@ -1351,27 +1360,14 @@ class ExternalHeatSource(_SectionEnum, device_type=DeviceType.EXTERNAL_HEAT_SOUR
         unit=_CELSIUS,
         message_id="sParam.extHeatSource[%s].TempReflux",
     )
-    HEATING_REQUEST = Endpoint(
-        path="sParam.extHeatSource[%s].DO.values.setValueB",
+    USE_EXCESS_ENERGY = Endpoint(
+        path="sParam.extHeatSource[%s].param.supportExcessEnergy",
         value_type=bool,
-        message_id="sParam.extHeatSource[%s].DO",
     )
-    OPERATING_TIME = Endpoint(
-        path="sParam.extHeatSource[%s].DO.operationalData.operationalTimeS",
+    EXCESS_ENERGY_MIN_RUNTIME = Endpoint(
+        path="sParam.extHeatSource[%s].param.minRunTimeExcessEnergy",
         value_type=int,
         unit=_SECOND,
-        message_id="sParam.extHeatSource[%s].DO",
-    )
-    MAX_RUNTIME = Endpoint(
-        path="sParam.extHeatSource[%s].DO.operationalData.maxRunTimeS",
-        value_type=int,
-        unit=_SECOND,
-        message_id="sParam.extHeatSource[%s].DO",
-    )
-    ACTIVATION_COUNTER = Endpoint(
-        path="sParam.extHeatSource[%s].DO.operationalData.activationCounter",
-        value_type=int,
-        message_id="sParam.extHeatSource[%s].DO",
     )
     EXCESS_ENERGY_ACTIVE = Endpoint(
         path="sParam.extHeatSource[%s].values.consumingExcessEnergy",
@@ -1391,18 +1387,22 @@ class ExternalHeatSource(_SectionEnum, device_type=DeviceType.EXTERNAL_HEAT_SOUR
         path="sParam.extHeatSource[%s].operationalDataExcessEnergy.activationCounter",
         value_type=int,
     )
-    USE_EXCESS_ENERGY = Endpoint(
-        path="sParam.extHeatSource[%s].param.supportExcessEnergy",
-        value_type=bool,
-    )
-    EXCESS_ENERGY_MIN_RUNTIME = Endpoint(
-        path="sParam.extHeatSource[%s].param.minRunTimeExcessEnergy",
+    OPERATING_TIME = Endpoint(
+        path="sParam.extHeatSource[%s].DO.operationalData.operationalTimeS",
         value_type=int,
         unit=_SECOND,
+        message_id="sParam.extHeatSource[%s].DO",
     )
-    HAS_EMISSIONS = Endpoint(
-        path="sParam.extHeatSource[%s].param.hasEmmission",
-        value_type=bool,
+    MAX_RUNTIME = Endpoint(
+        path="sParam.extHeatSource[%s].DO.operationalData.maxRunTimeS",
+        value_type=int,
+        unit=_SECOND,
+        message_id="sParam.extHeatSource[%s].DO",
+    )
+    ACTIVATION_COUNTER = Endpoint(
+        path="sParam.extHeatSource[%s].DO.operationalData.activationCounter",
+        value_type=int,
+        message_id="sParam.extHeatSource[%s].DO",
     )
 
     CASCADE_STATE = Endpoint(
@@ -1417,6 +1417,10 @@ class ExternalHeatSource(_SectionEnum, device_type=DeviceType.EXTERNAL_HEAT_SOUR
         path="sParam.cascade.extHeatSource[%s].param.priority",
         value_type=int,
     )
+    USE_CASCADE_MODE_PRIORITIES = Endpoint(
+        path="sParam.cascade.extHeatSource[%s].param.useModePriorities",
+        value_type=bool,
+    )
     CASCADE_COOLING_PRIORITY = Endpoint(
         path="sParam.cascade.extHeatSource[%s].param.priorityCool",
         value_type=int,
@@ -1424,10 +1428,6 @@ class ExternalHeatSource(_SectionEnum, device_type=DeviceType.EXTERNAL_HEAT_SOUR
     CASCADE_DHW_PRIORITY = Endpoint(
         path="sParam.cascade.extHeatSource[%s].param.priorityDHW",
         value_type=int,
-    )
-    USE_CASCADE_MODE_PRIORITIES = Endpoint(
-        path="sParam.cascade.extHeatSource[%s].param.useModePriorities",
-        value_type=bool,
     )
     USE_CASCADE_DHW_HEATING = Endpoint(
         path="sParam.cascade.extHeatSource[%s].param.domesticHWheatup",
@@ -1501,16 +1501,12 @@ class Cascade(_SectionEnum, device_type=DeviceType.CASCADE):
         value_type=float,
         unit=_CELSIUS,
     )
-    POWER_LEVEL = Endpoint(
-        path="sParam.cascade.cascadeControl.values.actPowerScaled",
-        value_type=float,
-    )
     TARGET_POWER_LEVEL = Endpoint(
         path="sParam.cascade.cascadeControl.values.setPowerScaled",
         value_type=float,
     )
-    EXCESS_ENERGY_TARGET_POWER_LEVEL = Endpoint(
-        path="sParam.cascade.cascadeControl.values.setPVPowerScaled",
+    POWER_LEVEL = Endpoint(
+        path="sParam.cascade.cascadeControl.values.actPowerScaled",
         value_type=float,
     )
     NOMINAL_POWER = Endpoint(
@@ -1527,6 +1523,10 @@ class Cascade(_SectionEnum, device_type=DeviceType.CASCADE):
         path="sParam.cascade.cascadeControl.values.sumPowerConsumption",
         value_type=float,
         unit=_WATT,
+    )
+    EXCESS_ENERGY_TARGET_POWER_LEVEL = Endpoint(
+        path="sParam.cascade.cascadeControl.values.setPVPowerScaled",
+        value_type=float,
     )
     COP = Endpoint(
         path="sParam.cascade.cascadeControl.values.COP",
@@ -1546,6 +1546,11 @@ class Cascade(_SectionEnum, device_type=DeviceType.CASCADE):
         path="sStatisticalData.cascade.EnergyEfficiencyRatioHeat",
         value_type=float,
     )
+    HEATING_OPERATING_TIME = Endpoint(
+        path="sStatisticalData.cascade.consumption.heating.operatingtime",
+        value_type=int,
+        unit=_SECOND,
+    )
     COOLING_THERMAL_ENERGY = Endpoint(
         path="sStatisticalData.cascade.consumption.cooling.energy",
         value_type=float,
@@ -1559,6 +1564,11 @@ class Cascade(_SectionEnum, device_type=DeviceType.CASCADE):
     COOLING_SPF = Endpoint(
         path="sStatisticalData.cascade.EnergyEfficiencyRatioCool",
         value_type=float,
+    )
+    COOLING_OPERATING_TIME = Endpoint(
+        path="sStatisticalData.cascade.consumption.cooling.operatingtime",
+        value_type=int,
+        unit=_SECOND,
     )
     DHW_THERMAL_ENERGY = Endpoint(
         path="sStatisticalData.cascade.consumption.domHotWater.energy",
@@ -1574,99 +1584,10 @@ class Cascade(_SectionEnum, device_type=DeviceType.CASCADE):
         path="sStatisticalData.cascade.EnergyEfficiencyRatioDomHotWater",
         value_type=float,
     )
-    TOTAL_THERMAL_ENERGY = Endpoint(
-        path="sStatisticalData.cascade.consumption.energy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    TOTAL_ELECTRICAL_ENERGY = Endpoint(
-        path="sStatisticalData.cascade.consumption.electricalenergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_CONSUMPTION = Endpoint(
-        path="sStatisticalData.cascade.consumption.consumedExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_HEATING_CONSUMPTION = Endpoint(
-        path="sStatisticalData.cascade.consumption.heating.consumedExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_COOLING_CONSUMPTION = Endpoint(
-        path="sStatisticalData.cascade.consumption.cooling.consumedExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_DHW_CONSUMPTION = Endpoint(
-        path="sStatisticalData.cascade.consumption.domHotWater.consumedExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_DEFROST_CONSUMPTION = Endpoint(
-        path="sStatisticalData.cascade.consumption.defrost.data.consumedExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_THERMAL_ENERGY = Endpoint(
-        path="sStatisticalData.cascade.consumption.energyExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    # The Web HMI has no text and unit for the thermal excess energy per mode, the unit is the one of the total
-    # and of all other energy values of the same mode (`kWhwithoutConv`, raw kWh).
-    EXCESS_ENERGY_HEATING_THERMAL_ENERGY = Endpoint(
-        path="sStatisticalData.cascade.consumption.heating.energyExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_COOLING_THERMAL_ENERGY = Endpoint(
-        path="sStatisticalData.cascade.consumption.cooling.energyExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_DHW_THERMAL_ENERGY = Endpoint(
-        path="sStatisticalData.cascade.consumption.domHotWater.energyExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    EXCESS_ENERGY_DEFROST_THERMAL_ENERGY = Endpoint(
-        path="sStatisticalData.cascade.consumption.defrost.data.energyExcessEnergy",
-        value_type=float,
-        unit=_KILOWATT_HOUR,
-    )
-    TOTAL_SPF = Endpoint(
-        path="sStatisticalData.cascade.EnergyEfficiencyRatio",
-        value_type=float,
-    )
-    TOTAL_OPERATING_TIME = Endpoint(
-        path="sStatisticalData.cascade.consumption.operatingtime",
-        value_type=int,
-        unit=_SECOND,
-    )
-    HEATING_OPERATING_TIME = Endpoint(
-        path="sStatisticalData.cascade.consumption.heating.operatingtime",
-        value_type=int,
-        unit=_SECOND,
-    )
-    COOLING_OPERATING_TIME = Endpoint(
-        path="sStatisticalData.cascade.consumption.cooling.operatingtime",
-        value_type=int,
-        unit=_SECOND,
-    )
     DHW_OPERATING_TIME = Endpoint(
         path="sStatisticalData.cascade.consumption.domHotWater.operatingtime",
         value_type=int,
         unit=_SECOND,
-    )
-    DEFROST_CYCLES = Endpoint(
-        path="sStatisticalData.cascade.consumption.defrost.cycles",
-        value_type=int,
-    )
-    FAILED_DEFROST_CYCLES = Endpoint(
-        path="sStatisticalData.cascade.consumption.defrost.failedCycles",
-        value_type=int,
     )
     DEFROST_THERMAL_ENERGY = Endpoint(
         path="sStatisticalData.cascade.consumption.defrost.data.energy",
@@ -1683,6 +1604,85 @@ class Cascade(_SectionEnum, device_type=DeviceType.CASCADE):
         value_type=int,
         unit=_SECOND,
     )
+    DEFROST_CYCLES = Endpoint(
+        path="sStatisticalData.cascade.consumption.defrost.cycles",
+        value_type=int,
+    )
+    FAILED_DEFROST_CYCLES = Endpoint(
+        path="sStatisticalData.cascade.consumption.defrost.failedCycles",
+        value_type=int,
+    )
+    TOTAL_THERMAL_ENERGY = Endpoint(
+        path="sStatisticalData.cascade.consumption.energy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    TOTAL_ELECTRICAL_ENERGY = Endpoint(
+        path="sStatisticalData.cascade.consumption.electricalenergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    TOTAL_SPF = Endpoint(
+        path="sStatisticalData.cascade.EnergyEfficiencyRatio",
+        value_type=float,
+    )
+    TOTAL_OPERATING_TIME = Endpoint(
+        path="sStatisticalData.cascade.consumption.operatingtime",
+        value_type=int,
+        unit=_SECOND,
+    )
+    # The Web HMI has no text and unit for the thermal excess energy per mode, the unit is the one of the total
+    # and of all other energy values of the same mode (`kWhwithoutConv`, raw kWh).
+    EXCESS_ENERGY_HEATING_THERMAL_ENERGY = Endpoint(
+        path="sStatisticalData.cascade.consumption.heating.energyExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_HEATING_CONSUMPTION = Endpoint(
+        path="sStatisticalData.cascade.consumption.heating.consumedExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_COOLING_THERMAL_ENERGY = Endpoint(
+        path="sStatisticalData.cascade.consumption.cooling.energyExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_COOLING_CONSUMPTION = Endpoint(
+        path="sStatisticalData.cascade.consumption.cooling.consumedExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_DHW_THERMAL_ENERGY = Endpoint(
+        path="sStatisticalData.cascade.consumption.domHotWater.energyExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_DHW_CONSUMPTION = Endpoint(
+        path="sStatisticalData.cascade.consumption.domHotWater.consumedExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_DEFROST_THERMAL_ENERGY = Endpoint(
+        path="sStatisticalData.cascade.consumption.defrost.data.energyExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_DEFROST_CONSUMPTION = Endpoint(
+        path="sStatisticalData.cascade.consumption.defrost.data.consumedExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_THERMAL_ENERGY = Endpoint(
+        path="sStatisticalData.cascade.consumption.energyExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
+    EXCESS_ENERGY_CONSUMPTION = Endpoint(
+        path="sStatisticalData.cascade.consumption.consumedExcessEnergy",
+        value_type=float,
+        unit=_KILOWATT_HOUR,
+    )
 
 
 class SwitchValve(_SectionEnum, device_type=DeviceType.SWITCH_VALVE):
@@ -1697,6 +1697,12 @@ class SwitchValve(_SectionEnum, device_type=DeviceType.SWITCH_VALVE):
 class PassiveCooling(_SectionEnum, device_type=DeviceType.PASSIVE_COOLING):
     """Endpoints of a passive cooling unit (one per heat pump)."""
 
+    MIXER_TARGET_TEMPERATURE = Endpoint(
+        path="sParam.passivecooling[%s].Mixer.values.setValue",
+        value_type=float,
+        unit=_CELSIUS,
+        message_id="sParam.passivecooling[%s].Mixer",
+    )
     TEMPERATURE = Endpoint(
         path="sParam.passivecooling[%s].TempCoolPassive.values.actValue",
         value_type=float,
@@ -1724,12 +1730,6 @@ class PassiveCooling(_SectionEnum, device_type=DeviceType.PASSIVE_COOLING):
         path="sParam.passivecooling[%s].Pump.values.setValueScaled",
         value_type=float,
         message_id="sParam.passivecooling[%s].Pump",
-    )
-    MIXER_TARGET_TEMPERATURE = Endpoint(
-        path="sParam.passivecooling[%s].Mixer.values.setValue",
-        value_type=float,
-        unit=_CELSIUS,
-        message_id="sParam.passivecooling[%s].Mixer",
     )
     MIXER_FLOW_TEMPERATURE = Endpoint(
         path="sParam.passivecooling[%s].Mixer.flowTemp.values.actValue",
