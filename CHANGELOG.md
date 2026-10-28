@@ -103,7 +103,7 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 
 <!--start-->
 
-## [2.14.0] - 2026-10-27
+## [2.14.0] - 2026-10-28
 
 ### Added
 
