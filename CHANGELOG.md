@@ -59,6 +59,9 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
   (`COMPRESSOR_ESTIMATED_ELECTRICAL_POWER`, `COMPRESSOR_ESTIMATED_REFRIGERATING_CAPACITY`) ([Issue #133][issue-133])
 - Added `KebaKeEnergyAPI.get_alarms()` and `get_alarm_count()`, which read the pending alarms of the control unit
   (`Alarm`, `AlarmPriority`) ([Issue #135][issue-135])
+- Added `KebaKeEnergyAPI.is_remote_maintenance_active()`, `is_remote_maintenance_connected()`,
+  `is_remote_maintenance_server_reachable()` and `set_remote_maintenance_active()` for the remote maintenance of the
+  control unit ([Issue #138][issue-138])
 
 ### Changed
 
@@ -95,6 +98,7 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 [issue-132]: https://github.com/superbox-dev/keba_keenergy_api/issues/132
 [issue-133]: https://github.com/superbox-dev/keba_keenergy_api/issues/133
 [issue-135]: https://github.com/superbox-dev/keba_keenergy_api/issues/135
+[issue-138]: https://github.com/superbox-dev/keba_keenergy_api/issues/138
 
 <!--start-->
 

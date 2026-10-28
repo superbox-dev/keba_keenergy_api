@@ -24,6 +24,7 @@ from aiohttp import ClientTimeout
 from aiohttp import ContentTypeError
 from aiohttp import encode_basic_auth
 
+from keba_keenergy_api.constants import _ACTIVATE_REMOTE_MAINTENANCE
 from keba_keenergy_api.constants import _ALARM_COUNT
 from keba_keenergy_api.constants import _ALARMS
 from keba_keenergy_api.constants import _BOOL_VALUES
@@ -37,6 +38,9 @@ from keba_keenergy_api.constants import _LINE_TABLE
 from keba_keenergy_api.constants import _LINE_TABLE_POOL_SIZE
 from keba_keenergy_api.constants import _READ_ERROR_PATTERN
 from keba_keenergy_api.constants import _READ_WRITE_VARS
+from keba_keenergy_api.constants import _REMOTE_MAINTENANCE_ACTIVE
+from keba_keenergy_api.constants import _REMOTE_MAINTENANCE_CONNECTED
+from keba_keenergy_api.constants import _REMOTE_MAINTENANCE_SERVER_REACHABLE
 from keba_keenergy_api.constants import _SAVE_LINE_TABLE
 from keba_keenergy_api.constants import _SYSTEM_INSTALLED
 from keba_keenergy_api.constants import _TIME_ZONE
@@ -93,6 +97,12 @@ class _WritePayload(TypedDict):
     value: str
 
 
+class _ActivatePayload(TypedDict):
+    """Payload for enabling or disabling a service of the control unit."""
+
+    activate: bool
+
+
 @dataclass(frozen=True, kw_only=True)
 class _Variable:
     """Variable name of one value of a section, with its 1-based position and consumer."""
@@ -102,7 +112,7 @@ class _Variable:
     consumer: int | None
 
 
-type _Payload = list[_ReadPayload] | list[_WritePayload]
+type _Payload = _ActivatePayload | list[_ReadPayload] | list[_WritePayload]
 type _Response = list[dict[str, Any]]
 
 
@@ -396,6 +406,63 @@ class KebaKeEnergyAPI:
         """
         response: _Response = await self._post(_TIME_ZONE)
         return str(response[0]["timezone"])
+
+    async def is_remote_maintenance_active(self) -> bool:
+        """Return whether remote maintenance is enabled in the settings of the control unit.
+
+        Returns
+        -------
+        bool
+            ``True`` if remote maintenance is enabled.
+
+        """
+        response: _Response = await self._post(_REMOTE_MAINTENANCE_ACTIVE)
+        return bool(response[0]["active"])
+
+    async def is_remote_maintenance_connected(self) -> bool:
+        """Return whether the control unit is connected to the remote maintenance server.
+
+        Returns
+        -------
+        bool
+            ``True`` if the connection is alive.
+
+        """
+        response: _Response = await self._post(_REMOTE_MAINTENANCE_CONNECTED)
+        return bool(response[0]["connected"])
+
+    async def is_remote_maintenance_server_reachable(self) -> bool:
+        """Return whether the control unit reaches the remote maintenance server.
+
+        The control unit checks the server for this request, which takes a few seconds. Don't use it in a regular
+        poll.
+
+        Returns
+        -------
+        bool
+            ``True`` if the server is reachable.
+
+        """
+        response: _Response = await self._post(_REMOTE_MAINTENANCE_SERVER_REACHABLE)
+        return bool(response[0]["reachable"])
+
+    async def set_remote_maintenance_active(self, *, active: bool) -> None:
+        """Enable or disable remote maintenance, like the Web HMI does.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        active
+            ``True`` to enable remote maintenance, ``False`` to disable it.
+
+        Examples
+        --------
+        >>> await client.set_remote_maintenance_active(active=True)
+
+        """
+        await self._post(_ACTIVATE_REMOTE_MAINTENANCE, _ActivatePayload(activate=active))
 
     async def read(
         self,

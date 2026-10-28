@@ -346,6 +346,74 @@ async def test_get_info(
     await client.close()
 
 
+@pytest.mark.parametrize(
+    ("method", "endpoint", "payload", "expected"),
+    [
+        ("is_remote_maintenance_active", "isRemoteMActive", {"ret": "OK", "active": True}, True),
+        ("is_remote_maintenance_active", "isRemoteMActive", {"ret": "OK", "active": False}, False),
+        ("is_remote_maintenance_connected", "isRemoteMConnectionAlive", {"ret": "OK", "connected": True}, True),
+        ("is_remote_maintenance_connected", "isRemoteMConnectionAlive", {"ret": "OK", "connected": False}, False),
+        ("is_remote_maintenance_server_reachable", "isRemoteMServerReachable", {"ret": "OK", "reachable": True}, True),
+        (
+            "is_remote_maintenance_server_reachable",
+            "isRemoteMServerReachable",
+            {"ret": "OK", "reachable": False},
+            False,
+        ),
+    ],
+    ids=[
+        "remote_maintenance_active",
+        "remote_maintenance_inactive",
+        "remote_maintenance_connected",
+        "remote_maintenance_not_connected",
+        "remote_maintenance_server_reachable",
+        "remote_maintenance_server_not_reachable",
+    ],
+)
+async def test_device_control_status(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    method: str,
+    endpoint: str,
+    payload: dict[str, Any],
+    *,
+    expected: bool,
+) -> None:
+    """Test that the device control status methods return the state."""
+    mock_api.post(f"http://mocked-host/deviceControl?action={endpoint}", payload=payload)
+
+    assert await getattr(client, method)() is expected
+
+    await client.close()
+
+
+@pytest.mark.parametrize(
+    ("method", "endpoint", "active"),
+    [
+        ("set_remote_maintenance_active", "activateRemoteM", True),
+        ("set_remote_maintenance_active", "activateRemoteM", False),
+    ],
+    ids=["enable_remote_maintenance", "disable_remote_maintenance"],
+)
+async def test_device_control_activate(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    sent_requests: SentRequests,
+    method: str,
+    endpoint: str,
+    *,
+    active: bool,
+) -> None:
+    """Test that the device control setters send the requested state."""
+    url: str = f"http://mocked-host/deviceControl?action={endpoint}"
+    mock_api.post(url, payload={"ret": "OK"})
+
+    assert await getattr(client, method)(active=active) is None
+    assert sent_requests(mock_api) == [{"method": "POST", "url": url, "data": {"activate": active}}]
+
+    await client.close()
+
+
 async def test_read(
     client: KebaKeEnergyAPI,
     mock_api: aioresponses,

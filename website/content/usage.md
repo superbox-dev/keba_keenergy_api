@@ -179,6 +179,27 @@ if await client.get_alarm_count():
 `acknowledgeable` shows whether the alarm must be acknowledged on the control unit, the library doesn't acknowledge
 alarms.
 
+## Remote maintenance
+
+The control unit can be reached by KEBA or the installer via remote maintenance. Each method sends one request.
+
+```python
+if not await client.is_remote_maintenance_active():
+    await client.set_remote_maintenance_active(active=True)
+
+await client.is_remote_maintenance_connected()  # True during a connection to the remote maintenance server.
+```
+
+`is_remote_maintenance_server_reachable()` lets the control unit check the remote maintenance server, which takes a
+few seconds. Don't use it in a regular poll.
+
+:::warning[Attention]
+
+`set_remote_maintenance_active()` changes the settings of the control unit, like the Web HMI does. Don't switch it
+permanently or very frequently, see [write warnings](#write-warnings).
+
+:::
+
 ## Errors
 
 All errors are subclasses of `APIError` (`keba_keenergy_api.exceptions`):
