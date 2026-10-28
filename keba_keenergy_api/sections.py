@@ -774,7 +774,8 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
         value_type=float,
         unit=_KILOWATT_HOUR,
     )
-    # The Web HMI has no text and unit for the thermal excess energy per mode, the unit is the one of the total.
+    # The Web HMI has no text and unit for the thermal excess energy per mode, the unit is the one of the total
+    # and of all other energy values of the same mode (`kWhwithoutConv`, raw kWh).
     EXCESS_ENERGY_HEATING_THERMAL_ENERGY = Endpoint(
         path="sStatisticalData.heatpump[%s].consumption.heating.energyExcessEnergy",
         value_type=float,
@@ -847,10 +848,6 @@ class HeatPump(_SectionEnum, device_type=DeviceType.HEAT_PUMP):
     )
     HAS_REVERSE_CYCLE_DEFROST = Endpoint(
         path="sParam.options.heatpump[%s].defrostingMode",
-        value_type=bool,
-    )
-    HAS_ELECTRIC_DEFROST = Endpoint(
-        path="sParam.options.heatpump[%s].hasElectricDefrost",
         value_type=bool,
     )
     OPERATING_TIME = Endpoint(
@@ -1617,7 +1614,8 @@ class Cascade(_SectionEnum, device_type=DeviceType.CASCADE):
         value_type=float,
         unit=_KILOWATT_HOUR,
     )
-    # The Web HMI has no text and unit for the thermal excess energy per mode, the unit is the one of the total.
+    # The Web HMI has no text and unit for the thermal excess energy per mode, the unit is the one of the total
+    # and of all other energy values of the same mode (`kWhwithoutConv`, raw kWh).
     EXCESS_ENERGY_HEATING_THERMAL_ENERGY = Endpoint(
         path="sStatisticalData.cascade.consumption.heating.energyExcessEnergy",
         value_type=float,

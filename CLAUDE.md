@@ -66,6 +66,9 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
 - NumPy-style docstrings everywhere, also in tests
 - No inline lint/type suppressions, no new ones in the config, no `# pragma: no cover`, fix or test the code
 - No real hosts, serial numbers or customer data, use placeholders like `"mocked-host"`
+- Test controller: host and login in `.env` (`KEBA_HOST`, `KEBA_USER`, `KEBA_PASS`, git-ignored)
+  - **only** read-only requests, small batches (≤ 10 variables with `attr`), certificate check on
+  - never print, log or commit its values, never copy them into code, tests or docs
 - No new dependencies (`pyproject.toml`, also dev dependencies) without asking first
 - `git add` new files, the pre-commit hooks only check tracked files
 - Never edit generated or CI-managed files (`version.py`, `coverage-badge.svg`)

@@ -1353,14 +1353,6 @@
       'variable': 'APPL.CtrlAppl.sParam.options.heatpump[%s].hasActiveCooling',
       'writable': False,
     }),
-    'HeatPump.HAS_ELECTRIC_DEFROST': dict({
-      'message_id': None,
-      'quantity': 1,
-      'unit': None,
-      'value_type': 'bool',
-      'variable': 'APPL.CtrlAppl.sParam.options.heatpump[%s].hasElectricDefrost',
-      'writable': False,
-    }),
     'HeatPump.HAS_PASSIVE_COOLING': dict({
       'message_id': None,
       'quantity': 1,
