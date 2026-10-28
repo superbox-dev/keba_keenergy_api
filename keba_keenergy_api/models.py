@@ -4,12 +4,14 @@
 """Data models of the KEBA KeEnergy API."""
 
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 from typing import Literal
 from typing import NamedTuple
 from typing import NotRequired
 from typing import TypedDict
 
+from keba_keenergy_api.enums import AlarmPriority
 from keba_keenergy_api.enums import MessageIdKind
 from keba_keenergy_api.sections import Section
 
@@ -113,6 +115,42 @@ class CurveTable:
 
     name: str
     points: tuple[CurvePoint, ...]
+
+
+@dataclass(frozen=True, kw_only=True)
+class Alarm:
+    """A pending alarm of the control unit.
+
+    Attributes
+    ----------
+    number
+        Number of the alarm (``alarmNr``), e.g. ``700`` for a sensor break.
+    component
+        Number of the component that raised the alarm (``compNr``).
+    instance
+        Instance of the component (``instanceNr``), e.g. the number of the differential control.
+    priority
+        Priority of the alarm.
+    acknowledgeable
+        Whether the alarm must be acknowledged on the control unit (``quittable``).
+    short_text
+        Short text of the alarm in the requested language.
+    long_text
+        Long text of the alarm in the requested language, with the names configured on the control unit.
+    timestamp
+        Time the alarm was raised, as local time of the control unit without a timezone (see
+        ``get_timezone()``).
+
+    """
+
+    number: int
+    component: int
+    instance: int
+    priority: AlarmPriority
+    acknowledgeable: bool
+    short_text: str
+    long_text: str
+    timestamp: datetime
 
 
 class SystemInfo(TypedDict):

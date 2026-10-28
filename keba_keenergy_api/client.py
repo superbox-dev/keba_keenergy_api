@@ -5,6 +5,9 @@
 
 import json
 from dataclasses import dataclass
+from datetime import date
+from datetime import datetime
+from datetime import time
 from enum import Enum
 from http import HTTPStatus
 from itertools import batched
@@ -13,6 +16,7 @@ from typing import Any
 from typing import Self
 from typing import TypedDict
 from typing import get_args
+from urllib.parse import urlencode
 
 from aiohttp import ClientError
 from aiohttp import ClientSession
@@ -20,6 +24,8 @@ from aiohttp import ClientTimeout
 from aiohttp import ContentTypeError
 from aiohttp import encode_basic_auth
 
+from keba_keenergy_api.constants import _ALARM_COUNT
+from keba_keenergy_api.constants import _ALARMS
 from keba_keenergy_api.constants import _BOOL_VALUES
 from keba_keenergy_api.constants import _CONSUMER_PRIORITY_HIGH
 from keba_keenergy_api.constants import _CONSUMER_PRIORITY_LOW
@@ -40,12 +46,14 @@ from keba_keenergy_api.constants import _WRITE_VARS
 from keba_keenergy_api.constants import API_DEFAULT_TIMEOUT
 from keba_keenergy_api.constants import MAX_CURVE_TABLE_POINTS
 from keba_keenergy_api.constants import MIN_CURVE_TABLE_POINTS
+from keba_keenergy_api.enums import AlarmPriority
 from keba_keenergy_api.enums import MessageIdKind
 from keba_keenergy_api.exceptions import APIError
 from keba_keenergy_api.exceptions import APITimeoutError
 from keba_keenergy_api.exceptions import AuthenticationError
 from keba_keenergy_api.exceptions import InvalidResponseError
 from keba_keenergy_api.exceptions import UnsupportedVariableError
+from keba_keenergy_api.models import Alarm
 from keba_keenergy_api.models import CurvePoint
 from keba_keenergy_api.models import CurveTable
 from keba_keenergy_api.models import DeviceCounts
@@ -935,3 +943,85 @@ class KebaKeEnergyAPI:
         payload.append(_WritePayload(name=f"{line_table}.verCnt", value=_SAVE_LINE_TABLE))
 
         await self._post(_WRITE_VARS, payload)
+
+    async def get_alarm_count(self) -> int:
+        """Return the number of pending alarms.
+
+        The request is cheaper than :meth:`get_alarms`, e.g. to read the alarms only when there are any.
+
+        Returns
+        -------
+        int
+            The number of pending alarms.
+
+        """
+        response: _Response = await self._post(_ALARM_COUNT)
+        return int(response[0]["value"])
+
+    async def get_alarms(self, *, language: str = "en") -> list[Alarm]:
+        """Return the pending alarms, the same list as on the display and in the Web HMI.
+
+        An alarm is removed by the control unit as soon as its cause is gone.
+
+        Parameters
+        ----------
+        language
+            Language code of the alarm texts, e.g. ``en`` or ``de``.
+
+        Returns
+        -------
+        list[Alarm]
+            The pending alarms.
+
+        Raises
+        ------
+        InvalidResponseError
+            The timestamp of an alarm is not a valid date.
+
+        Examples
+        --------
+        >>> alarms = await client.get_alarms(language="de")
+        >>> timezone = ZoneInfo(await client.get_timezone())
+        >>> [alarm.timestamp.replace(tzinfo=timezone) for alarm in alarms]
+
+        """
+        response: _Response = await self._post(f"{_ALARMS}&{urlencode({'languageCode': language})}")
+        return [self._to_alarm(item) for item in response[0]["alarms"]]
+
+    @staticmethod
+    def _to_alarm(item: dict[str, Any], /) -> Alarm:
+        """Return the alarm of a response item.
+
+        Raises
+        ------
+        InvalidResponseError
+            The timestamp is not a valid date.
+
+        """
+        timestamp: dict[str, int] = item["timeStamp"]
+
+        try:
+            # Without a timezone, as the Web HMI delivers the local time of the control unit.
+            raised: datetime = datetime.combine(
+                date(timestamp["year"], timestamp["month"], timestamp["day"]),
+                time(
+                    timestamp["hours"],
+                    timestamp["minutes"],
+                    timestamp["seconds"],
+                    timestamp.get("milliseconds", 0) * 1000,
+                ),
+            )
+        except ValueError as error:
+            message: str = f"Invalid timestamp of alarm {item['alarmNr']}: {timestamp}"
+            raise InvalidResponseError(message) from error
+
+        return Alarm(
+            number=int(item["alarmNr"]),
+            component=int(item["compNr"]),
+            instance=int(item["instanceNr"]),
+            priority=AlarmPriority(int(item["prio"])),
+            acknowledgeable=bool(item["quittable"]),
+            short_text=str(item["shortText"]),
+            long_text=str(item["longText"]),
+            timestamp=raised,
+        )

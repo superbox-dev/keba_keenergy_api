@@ -157,6 +157,28 @@ stored in a pool and selected by name with `HEATING_CURVE` and `COOLING_CURVE`, 
 cooling curve. `get_curve_tables()` returns them by name (e.g. `HC1`) with their points, `set_curve_table_points()`
 writes the 7 to 16 points of a table.
 
+## Alarms
+
+`get_alarms()` returns the pending alarms, the same list as on the display and in the Web HMI. The texts are in the
+requested `language` (default `en`), names configured on the control unit stay as they are. The control unit removes an
+alarm as soon as its cause is gone. `get_alarm_count()` is a cheaper request, e.g. to read the alarms only when there
+are any.
+
+```python
+from zoneinfo import ZoneInfo
+
+if await client.get_alarm_count():
+    timezone = ZoneInfo(await client.get_timezone())
+
+    for alarm in await client.get_alarms(language="de"):
+        print(alarm.priority, alarm.short_text, alarm.timestamp.replace(tzinfo=timezone))
+```
+
+`timestamp` is the local time of the control unit without a timezone, `get_timezone()` returns it. `priority` is an
+`AlarmPriority` (`EMERGENCY`, `ERROR`, `WARNING`, `INFO`), an unknown priority is an `INFO` like in the Web HMI.
+`acknowledgeable` shows whether the alarm must be acknowledged on the control unit, the library doesn't acknowledge
+alarms.
+
 ## Errors
 
 All errors are subclasses of `APIError` (`keba_keenergy_api.exceptions`):
@@ -165,7 +187,7 @@ All errors are subclasses of `APIError` (`keba_keenergy_api.exceptions`):
 |----------------------------|-----------------------------------------------------------------------------------------------------|
 | `AuthenticationError`      | The credentials were rejected (HTTP 401)                                                            |
 | `UnsupportedVariableError` | The Web HMI doesn't know a variable, `variable` holds its name                                      |
-| `InvalidResponseError`     | The response is not valid JSON or a value can't be converted to the endpoint type                   |
+| `InvalidResponseError`     | The response is not valid JSON, a value can't be converted or an alarm has an invalid timestamp     |
 | `APITimeoutError`          | A request timed out, it is also a `TimeoutError`                                                    |
 | `APIError`                 | Any other HTTP or connection error, an invalid or read-only value for `write()` or an unknown curve |
 

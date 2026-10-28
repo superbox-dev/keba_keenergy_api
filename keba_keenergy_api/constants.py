@@ -45,6 +45,8 @@ _SYSTEM_INSTALLED: Final = "/swupdate?action=getSystemInstalled"
 _HMI_INSTALLED: Final = "/swupdate?action=getHmiInstalled"
 _DEVICE_INFO: Final = "/deviceControl?action=getDeviceInfo"
 _TIME_ZONE: Final = "/dateTime?action=getTimeZone"
+_ALARM_COUNT: Final = "/alarm?action=getCount"
+_ALARMS: Final = "/alarm?action=getAll"
 
 # The Web HMI rejects a read request with an unknown variable as a whole and names the first one.
 _READ_ERROR_PATTERN: Final = re.compile(r"Reading variable: (\S+) failed")

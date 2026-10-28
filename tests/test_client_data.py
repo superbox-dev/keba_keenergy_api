@@ -3,9 +3,12 @@
 
 """Test data for the `KebaKeEnergyAPI` client."""
 
+from datetime import datetime
 from typing import Any
 from typing import Final
 
+from keba_keenergy_api.enums import AlarmPriority
+from keba_keenergy_api.models import Alarm
 from keba_keenergy_api.models import CurvePoint
 from keba_keenergy_api.models import DeviceCounts
 from keba_keenergy_api.sections import BufferTank
@@ -17,6 +20,63 @@ from keba_keenergy_api.sections import System
 
 LOGIN: Final = "mocked-login"
 TIMEZONE_RESPONSE: Final = {"timezone": "Europe/Vienna"}
+
+# A sensor break as the Web HMI returns it (without milliseconds) and an alarm with milliseconds and an unknown
+# priority.
+ALARMS_RESPONSE: Final = {
+    "alarms": [
+        {
+            "timeStamp": {"hours": 16, "seconds": 51, "month": 10, "year": 2026, "minutes": 53, "day": 28},
+            "quittable": False,
+            "alarmNr": 700,
+            "longText": "Differential control 1 Diff. Regler 1: Sensor source temperature broken (53 - Sensor break)",
+            "shortText": "Sensor source temperature",
+            "instanceNr": 1,
+            "prio": 1,
+            "compNr": 100,
+        },
+        {
+            "timeStamp": {
+                "hours": 8,
+                "seconds": 5,
+                "month": 1,
+                "year": 2026,
+                "minutes": 0,
+                "day": 2,
+                "milliseconds": 250,
+            },
+            "quittable": True,
+            "alarmNr": 12,
+            "longText": "Mocked long text",
+            "shortText": "Mocked short text",
+            "instanceNr": 0,
+            "prio": 7,
+            "compNr": 3,
+        },
+    ]
+}
+ALARMS: Final = [
+    Alarm(
+        number=700,
+        component=100,
+        instance=1,
+        priority=AlarmPriority.ERROR,
+        acknowledgeable=False,
+        short_text="Sensor source temperature",
+        long_text="Differential control 1 Diff. Regler 1: Sensor source temperature broken (53 - Sensor break)",
+        timestamp=datetime.fromisoformat("2026-10-28T16:53:51"),
+    ),
+    Alarm(
+        number=12,
+        component=3,
+        instance=0,
+        priority=AlarmPriority.INFO,
+        acknowledgeable=True,
+        short_text="Mocked short text",
+        long_text="Mocked long text",
+        timestamp=datetime.fromisoformat("2026-01-02T08:00:05.250"),
+    ),
+]
 
 DEVICE_COUNTS_RESPONSE: Final = [
     {"name": f"APPL.CtrlAppl.sParam.options.systemNumberOf{name}", "value": value}

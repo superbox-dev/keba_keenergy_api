@@ -46,6 +46,8 @@ from tests.conftest import READ_URL
 from tests.conftest import TIMEOUT
 from tests.conftest import WRITE_URL
 from tests.conftest import SentRequests
+from tests.test_client_data import ALARMS
+from tests.test_client_data import ALARMS_RESPONSE
 from tests.test_client_data import CURVE_TABLE_MAX_POINTS
 from tests.test_client_data import CURVE_TABLE_NAMES_RESPONSE
 from tests.test_client_data import CURVE_TABLE_POINTS
@@ -65,6 +67,7 @@ if TYPE_CHECKING:
     from syrupy.assertion import SnapshotAssertion
 
 TIMEZONE_URL = "http://mocked-host/dateTime?action=getTimeZone"
+ALARMS_URL = "http://mocked-host/alarm?action=getAll"
 
 
 async def test_client_creates_own_session(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
@@ -765,3 +768,58 @@ async def test_set_curve_table_points_invalid_number(
         await client.set_curve_table_points("HC1", points)
 
     mock_api.assert_not_called()
+
+
+async def test_get_alarm_count(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that the number of pending alarms is returned."""
+    mock_api.post("http://mocked-host/alarm?action=getCount", payload={"value": 1})
+
+    assert await client.get_alarm_count() == 1
+
+    await client.close()
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "language"),
+    [({}, "en"), ({"language": "de"}, "de")],
+    ids=["default_language", "language"],
+)
+async def test_get_alarms(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    sent_requests: SentRequests,
+    kwargs: dict[str, str],
+    language: str,
+) -> None:
+    """Test that the pending alarms are returned in the requested language."""
+    mock_api.post(f"{ALARMS_URL}&languageCode={language}", payload=ALARMS_RESPONSE)
+
+    assert await client.get_alarms(**kwargs) == ALARMS
+    assert sent_requests(mock_api) == [
+        {"method": "POST", "url": f"{ALARMS_URL}&languageCode={language}", "data": None},
+    ]
+
+    await client.close()
+
+
+async def test_get_alarms_without_alarms(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that no pending alarms return an empty list."""
+    mock_api.post(f"{ALARMS_URL}&languageCode=en", payload={"alarms": []})
+
+    assert await client.get_alarms() == []
+
+    await client.close()
+
+
+async def test_get_alarms_invalid_timestamp(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that an alarm with an invalid date raises `InvalidResponseError`."""
+    alarm: dict[str, Any] = {
+        **ALARMS_RESPONSE["alarms"][0],
+        "timeStamp": {"hours": 0, "seconds": 0, "month": 0, "year": 0, "minutes": 0, "day": 0},
+    }
+    mock_api.post(f"{ALARMS_URL}&languageCode=en", payload={"alarms": [alarm]})
+
+    with pytest.raises(InvalidResponseError, match=r"^Invalid timestamp of alarm 700: \{"):
+        await client.get_alarms()
+
+    await client.close()

@@ -57,6 +57,8 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 - Added the performance factors `HEATING_PF`, `COOLING_PF`, `DHW_PF` and `TOTAL_PF` of the heat pump and the
   cascade, `HeatPump.TOTAL_OPERATING_TIME`, `HeatPump.MOP_ACTIVE` and the estimated compressor power
   (`COMPRESSOR_ESTIMATED_ELECTRICAL_POWER`, `COMPRESSOR_ESTIMATED_REFRIGERATING_CAPACITY`) ([Issue #133][issue-133])
+- Added `KebaKeEnergyAPI.get_alarms()` and `get_alarm_count()`, which read the pending alarms of the control unit
+  (`Alarm`, `AlarmPriority`) ([Issue #135][issue-135])
 
 ### Changed
 
@@ -92,6 +94,7 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 
 [issue-132]: https://github.com/superbox-dev/keba_keenergy_api/issues/132
 [issue-133]: https://github.com/superbox-dev/keba_keenergy_api/issues/133
+[issue-135]: https://github.com/superbox-dev/keba_keenergy_api/issues/135
 
 <!--start-->
 

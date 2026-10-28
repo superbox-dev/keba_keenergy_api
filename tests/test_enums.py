@@ -5,6 +5,7 @@
 
 import pytest
 
+from keba_keenergy_api.enums import AlarmPriority
 from keba_keenergy_api.enums import HeatPumpSubState
 from keba_keenergy_api.enums import MessageIdKind
 from keba_keenergy_api.enums import SystemOperatingMode
@@ -34,3 +35,19 @@ def test_enum_invalid_value() -> None:
 def test_message_id_kind(message_id: int, expected: MessageIdKind) -> None:
     """Test the kind of a raw message id."""
     assert MessageIdKind.from_message_id(message_id) is expected
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [(1, AlarmPriority.ERROR), (3, AlarmPriority.INFO), (7, AlarmPriority.INFO)],
+    ids=["known", "info", "unknown"],
+)
+def test_alarm_priority(value: int, expected: AlarmPriority) -> None:
+    """Test that an unknown priority is an info, like in the Web HMI."""
+    assert AlarmPriority(value) is expected
+
+
+def test_alarm_priority_invalid_value() -> None:
+    """Test that a priority that is not an integer raises `ValueError`."""
+    with pytest.raises(ValueError, match=r"^'error' is not a valid AlarmPriority$"):
+        AlarmPriority("error")

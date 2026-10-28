@@ -288,3 +288,23 @@ class HeatMeterType(_BaseEnum):
     NONE = 0
     S0 = 2
     VORTEX = 3
+
+
+class AlarmPriority(Enum):
+    """Priorities of an alarm (emergency, error, warning, info).
+
+    Like the Web HMI, any unknown priority is an ``INFO``.
+    """
+
+    EMERGENCY = 0
+    ERROR = 1
+    WARNING = 2
+    INFO = 3
+
+    @classmethod
+    def _missing_(cls, value: object) -> AlarmPriority | None:
+        """Return ``INFO`` for an unknown integer priority."""
+        if isinstance(value, int):
+            return cls.INFO
+
+        return None

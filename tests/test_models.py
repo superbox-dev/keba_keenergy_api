@@ -8,6 +8,7 @@ from typing import get_type_hints
 
 import pytest
 
+from keba_keenergy_api.models import Alarm
 from keba_keenergy_api.models import CurvePoint
 from keba_keenergy_api.models import CurveTable
 from keba_keenergy_api.models import DeviceCounts
@@ -29,8 +30,9 @@ def test_device_counts_passive_cooling(counts: DeviceCounts) -> None:
 
 @pytest.mark.parametrize(
     "model",
-    [CurvePoint, CurveTable, DeviceCounts, DeviceInfo, Endpoint, HmiInfo, MessageId, Reading, SystemInfo],
+    [Alarm, CurvePoint, CurveTable, DeviceCounts, DeviceInfo, Endpoint, HmiInfo, MessageId, Reading, SystemInfo],
     ids=[
+        "alarm",
         "curve_point",
         "curve_table",
         "device_counts",
