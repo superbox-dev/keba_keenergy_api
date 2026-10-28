@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+<!--start-->
+
+## [2.14.0] - 2026-10-28
+
 ### Added
 
 - Added `HeatPumpState.SOURCE_FLUSH` (`9`) and `ExternalHeatSourceOperatingMode` (`OFF`, `ON`, `FLUE`)
@@ -33,8 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [issue-131]: https://github.com/superbox-dev/keba_keenergy_api/issues/131
 [issue-136]: https://github.com/superbox-dev/keba_keenergy_api/issues/136
 [issue-137]: https://github.com/superbox-dev/keba_keenergy_api/issues/137
-
-<!--start-->
 
 ## [2.13.0] - 2026-10-24
 
@@ -833,7 +835,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[Unreleased]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.13.0...HEAD
+[Unreleased]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.14.0...HEAD
+[2.14.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.13.0...v2.14.0
 [2.13.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.12.2...v2.13.0
 [2.12.2]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.12.1...v2.12.2
 [2.12.1]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.12.0...v2.12.1
