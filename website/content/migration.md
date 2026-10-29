@@ -125,7 +125,7 @@ The section is the 2.x name, see [Sections](#sections) for the renamed ones.
 | `BufferTank` | `EXCESS_ENERGY_MODE` | `EXCESS_ENERGY_STATE` |
 | `BufferTank` | `HEAT_REQUEST` | `HEATING_REQUEST` |
 | `BufferTank` | `COOL_REQUEST` | `COOLING_REQUEST` |
-| `HotWaterTank` | `CURRENT_TEMPERATURE` | `TEMPERATURE` |
+| `HotWaterTank` | `CURRENT_TEMPERATURE` | `TOP_TEMPERATURE` |
 | `HotWaterTank` | `STANDBY_TEMPERATURE` | `BACKUP_TEMPERATURE` |
 | `HotWaterTank` | `EXCESS_ENERGY_MODE` | `EXCESS_ENERGY_STATE` |
 | `HotWaterTank` | `HEAT_REQUEST` | `HEATING_REQUEST` |

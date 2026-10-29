@@ -310,7 +310,7 @@ class DHWTank(_SectionEnum, device_type=DeviceType.DHW_TANK):
         value_type=bool,
         message_id="sParam.hotWaterTank[%s].circPump.pump",
     )
-    TEMPERATURE = Endpoint(
+    TOP_TEMPERATURE = Endpoint(
         path="sParam.hotWaterTank[%s].topTemp.values.actValue",
         value_type=float,
         unit=_CELSIUS,

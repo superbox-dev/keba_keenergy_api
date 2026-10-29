@@ -64,7 +64,7 @@ are read, the others have `None`:
 | `"none"`          | no endpoint, the fastest read                         |
 
 ```python
-readings = await client.read([DHWTank.TARGET_TEMPERATURE, DHWTank.TEMPERATURE], limits="writable")
+readings = await client.read([DHWTank.TARGET_TEMPERATURE, DHWTank.TOP_TEMPERATURE], limits="writable")
 ```
 
 Values are not rounded, scaled or interpreted: ratios stay `0..1` (e.g. pump speeds), the CPU usage stays per mille,

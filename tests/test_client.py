@@ -762,7 +762,7 @@ async def test_filter_supported_api_error(
     mock_api.post(READ_URL, status=status, body=body)
 
     with pytest.raises(APIError, match=expected_error):
-        await client.filter_supported([DHWTank.TEMPERATURE, HeatPump.STATE], counts=counts)
+        await client.filter_supported([DHWTank.TOP_TEMPERATURE, HeatPump.STATE], counts=counts)
 
     await client.close()
 

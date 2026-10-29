@@ -641,7 +641,7 @@
       'variable': 'APPL.CtrlAppl.sParam.hotWaterTank[%s].param.normalSetTempMax.value',
       'writable': True,
     }),
-    'DHWTank.TEMPERATURE': dict({
+    'DHWTank.TOP_TEMPERATURE': dict({
       'message_id': 'APPL.CtrlAppl.sParam.hotWaterTank[%s].topTemp.state.msgId',
       'quantity': 1,
       'unit': '°C',
