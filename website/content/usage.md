@@ -155,7 +155,7 @@ The value is read as usual, its `message_id` is `None`.
 A heating circuit uses either its curve slope and offset or a curve table (`USE_CURVE_TABLE`). The curve tables are
 stored in a pool and selected by name with `HEATING_CURVE` and `COOLING_CURVE`, the same table can be a heating or a
 cooling curve. `get_curve_tables()` returns them by name (e.g. `HC1`) with their points, `set_curve_table_points()`
-writes the 7 to 16 points of a table.
+writes the 1 to 16 points of a table.
 
 ## Alarms
 

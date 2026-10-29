@@ -820,6 +820,19 @@ async def test_set_curve_table_points(
     await client.close()
 
 
+async def test_set_curve_table_points_single_point(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, snapshot: SnapshotAssertion, sent_requests: SentRequests
+) -> None:
+    """Test that `set_curve_table_points()` writes a single point and resets the other ones."""
+    mock_api.post(READ_URL, payload=CURVE_TABLE_NAMES_RESPONSE)
+    mock_api.post(WRITE_URL, payload=[])
+
+    await client.set_curve_table_points("HC2", [CurvePoint(outdoor=0, flow=30)])
+
+    assert sent_requests(mock_api) == snapshot(name="requests")
+    await client.close()
+
+
 async def test_set_curve_table_points_unknown_curve(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
     """Test that an unknown curve raises `APIError` without a write."""
     mock_api.post(READ_URL, payload=CURVE_TABLE_NAMES_RESPONSE)
@@ -831,14 +844,14 @@ async def test_set_curve_table_points_unknown_curve(client: KebaKeEnergyAPI, moc
     await client.close()
 
 
-@pytest.mark.parametrize("number_of_points", [6, 17], ids=["too_few", "too_many"])
+@pytest.mark.parametrize("number_of_points", [0, 17], ids=["too_few", "too_many"])
 async def test_set_curve_table_points_invalid_number(
     client: KebaKeEnergyAPI, mock_api: aioresponses, number_of_points: int
 ) -> None:
     """Test that an invalid number of points raises `APIError` without a request."""
     points: list[CurvePoint] = [CurvePoint(outdoor=0, flow=30)] * number_of_points
 
-    with pytest.raises(APIError, match=f"^A curve table needs 7 to 16 points, not {number_of_points}$"):
+    with pytest.raises(APIError, match=f"^A curve table needs 1 to 16 points, not {number_of_points}$"):
         await client.set_curve_table_points("HC1", points)
 
     mock_api.assert_not_called()

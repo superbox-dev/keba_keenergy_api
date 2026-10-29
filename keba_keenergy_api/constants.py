@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 API_DEFAULT_TIMEOUT: Final = 10
 
-MIN_CURVE_TABLE_POINTS: Final = 7
+MIN_CURVE_TABLE_POINTS: Final = 1
 MAX_CURVE_TABLE_POINTS: Final = 16
 
 # Prefix of all variables of the control application.
