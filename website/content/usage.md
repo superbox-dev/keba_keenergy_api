@@ -51,7 +51,8 @@ devices that are not installed return an empty list.
 
 Each `Reading` has the value converted to the type of the endpoint (`bool`, `float`, `int`, `str` or an enum member
 of `keba_keenergy_api.enums`), the `position` (and `consumer` for the two consumers of a solar
-circuit), the `lower_limit` and `upper_limit` of the Web HMI and the `unit`.
+circuit), the `lower_limit` and `upper_limit` of the Web HMI and the `unit`. Enum values also have the
+`raw_value` of the Web HMI, as some members stand for several values (`HeatPumpSubState.DRIP` for `13` and `25`).
 
 Reading the limits makes the request of the Web HMI about twice as slow. `limits` chooses the endpoints whose limits
 are read, the others have `None`:

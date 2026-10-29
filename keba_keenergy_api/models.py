@@ -46,6 +46,10 @@ class Reading:
     message_id
         Message id of the component, only if it was read with ``read(..., message_ids=True)`` and the endpoint has
         one.
+    raw_value
+        Raw value of the Web HMI before the conversion to an enum member, e.g. ``25`` for
+        ``HeatPumpSubState.DRIP``, ``None`` for values of other types. ``float`` lets callers that convert a value
+        to an enum themselves keep the raw value (``dataclasses.replace()``).
 
     """
 
@@ -56,6 +60,7 @@ class Reading:
     upper_limit: float | None = None
     unit: str | None = None
     message_id: MessageId | None = None
+    raw_value: float | int | None = None
 
 
 @dataclass(frozen=True, kw_only=True)

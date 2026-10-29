@@ -20,6 +20,7 @@ from aiohttp import encode_basic_auth
 from keba_keenergy_api.client import KebaKeEnergyAPI
 from keba_keenergy_api.enums import BufferTankOperatingMode
 from keba_keenergy_api.enums import HeatingCircuitOperatingMode
+from keba_keenergy_api.enums import HeatPumpSubState
 from keba_keenergy_api.enums import MessageIdKind
 from keba_keenergy_api.enums import SystemOperatingMode
 from keba_keenergy_api.exceptions import APIError
@@ -435,6 +436,12 @@ async def test_read(
     assert readings == snapshot(name="readings")
     assert readings[System.OPERATING_MODE][0].value is SystemOperatingMode.AUTO
     assert readings[HeatingCircuit.PUMP_ACTIVE][0].value is True
+    # `DRIP` has the values 13 and 25, only `raw_value` tells which one was read.
+    assert (readings[HeatPump.SUB_STATE][0].value, readings[HeatPump.SUB_STATE][0].raw_value) == (
+        HeatPumpSubState.DRIP,
+        25,
+    )
+    assert readings[HeatingCircuit.PUMP_ACTIVE][0].raw_value is None
     assert sent_requests(mock_api) == snapshot(name="requests")
     await client.close()
 

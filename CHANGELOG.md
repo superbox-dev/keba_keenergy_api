@@ -13,7 +13,8 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 ### Added
 
 - Added `KebaKeEnergyAPI.read()`, which returns a `Reading` per device with the typed `value`,
-  `position`, `consumer`, `lower_limit`, `upper_limit` and `unit` ([Issue #132][issue-132])
+  `position`, `consumer`, `lower_limit`, `upper_limit`, `unit` and the `raw_value` of enum values (e.g. `25` for
+  `HeatPumpSubState.DRIP`, which has the values `13` and `25`) ([Issue #132][issue-132])
 - Added `write()`, `filter_supported()`, `get_device_counts()` (`DeviceCounts`), `get_system_info()`,
   `get_hmi_info()`, `get_device_info()`, `get_curve_tables()` (`CurveTable`) and
   `set_curve_table_points()` to `KebaKeEnergyAPI` ([Issue #132][issue-132])

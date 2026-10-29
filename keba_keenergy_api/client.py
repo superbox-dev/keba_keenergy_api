@@ -699,15 +699,18 @@ class KebaKeEnergyAPI:
     ) -> Reading:
         """Return the reading of a response item."""
         attributes: dict[str, Any] = item.get("attributes", {})
+        value: Value = self._convert_value(section, item)
 
         return Reading(
-            value=self._convert_value(section, item),
+            value=value,
             position=variable.position,
             consumer=variable.consumer,
             lower_limit=self._to_limit(attributes.get("lowerLimit")),
             upper_limit=self._to_limit(attributes.get("upperLimit")),
             unit=section.value.unit,
             message_id=message_id,
+            # Enum members with several values (e.g. `HeatPumpSubState.DRIP`) don't tell which one was read.
+            raw_value=int(item["value"]) if isinstance(value, Enum) else None,
         )
 
     @staticmethod
