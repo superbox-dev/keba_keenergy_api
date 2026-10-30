@@ -30,49 +30,34 @@ class Reading:
     ----------
     value
         The value converted to the type of the endpoint: ``bool``, ``float``, ``int``, ``str`` or an enum member.
+    raw_value
+        The value exactly as the Web HMI delivers it, e.g. ``"25"`` for ``HeatPumpSubState.DRIP``, which has the
+        values ``13`` and ``25``, or ``"0.54009795"``. ``value`` is its conversion to the type of the endpoint. Its
+        unit is ``Endpoint.raw_unit`` of the section.
     device_number
         Number of the device, starting at 1.
     consumer_number
         Number of the consumer of the device, starting at 1, only for endpoints with more than one value per device
         (the consumers of a solar circuit).
     lower_limit
-        Lower limit of the value in the ``raw_unit``, as reported by the Web HMI. ``None`` if there is none or it was
-        not read (``read(..., limits=...)``). Multiply it by ``display_factor`` for the display unit.
+        Lower limit of the value in the ``Endpoint.raw_unit``, as reported by the Web HMI. ``None`` if there is none or
+        it was not read (``read(..., limits=...)``). Multiply it by ``Endpoint.display_factor`` for the display unit.
     upper_limit
-        Upper limit of the value in the ``raw_unit``, as reported by the Web HMI. ``None`` if there is none or it was
-        not read (``read(..., limits=...)``). Multiply it by ``display_factor`` for the display unit.
+        Upper limit of the value in the ``Endpoint.raw_unit``, as reported by the Web HMI. ``None`` if there is none or
+        it was not read (``read(..., limits=...)``). Multiply it by ``Endpoint.display_factor`` for the display unit.
     message_id
         Message id of the component, only if it was read with ``read(..., message_ids=True)`` and the endpoint has
         one.
-    raw_value
-        The value exactly as the Web HMI delivers it, e.g. ``"25"`` for ``HeatPumpSubState.DRIP``, which has the
-        values ``13`` and ``25``, or ``"0.54009795"``. ``value`` is its conversion to the type of the endpoint.
-    raw_unit
-        Unit of ``value`` and ``raw_value`` as the Web HMI delivers it, e.g. ``°C`` or ``J``, ``None`` for values
-        without a unit or ratios (``0..1``).
-    display_unit
-        Unit the Web HMI shows, e.g. ``kW`` for a power delivered in ``W``, ``None`` for values without a unit.
-    display_factor
-        Factor from ``value`` to the display unit of the Web HMI, e.g. ``0.001`` for ``W`` to ``kW`` or ``100.0`` for a
-        ratio (``0..1``) shown in ``%``. ``1.0`` if the value is shown unchanged. The ``value`` itself is never
-        converted.
-    display_precision
-        Number of decimal places the Web HMI shows for ``value * display_factor``, ``None`` for values without a
-        number format. The value itself is never rounded.
 
     """
 
     value: Value
+    raw_value: str
     device_number: int
     consumer_number: int | None = None
     lower_limit: float | None = None
     upper_limit: float | None = None
     message_id: MessageId | None = None
-    raw_value: str
-    raw_unit: str | None = None
-    display_unit: str | None = None
-    display_factor: float = 1.0
-    display_precision: int | None = None
 
 
 @dataclass(frozen=True, kw_only=True)

@@ -13,9 +13,8 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 ### Added
 
 - Added `KebaKeEnergyAPI.read()`, which returns a `Reading` per device with the typed `value`, the `raw_value`
-  (as the Web HMI delivers it, e.g. `"25"` for `HeatPumpSubState.DRIP`, which has the values `13` and `25`) with its
-  `raw_unit`, `device_number`, `consumer_number`, `lower_limit`, `upper_limit` and the display of the Web HMI (`display_unit`,
-  `display_factor` and `display_precision`) ([Issue #132][issue-132])
+  (as the Web HMI delivers it, e.g. `"25"` for `HeatPumpSubState.DRIP`, which has the values `13` and `25`),
+  `device_number`, `consumer_number`, `lower_limit`, `upper_limit` and `message_id` ([Issue #132][issue-132])
 - Added `write()`, `filter_supported()`, `get_device_counts()` (`DeviceCounts`), `get_system_info()`,
   `get_hmi_info()`, `get_device_info()`, `get_curve_tables()` (`CurveTable`) and
   `set_curve_table_points()` to `KebaKeEnergyAPI` ([Issue #132][issue-132])

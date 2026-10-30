@@ -25,7 +25,7 @@ async def main():
         )
 
         outdoor_temperature = readings[System.OUTDOOR_TEMPERATURE][0]
-        print(outdoor_temperature.value, outdoor_temperature.raw_unit)  # 10.808357 °C
+        print(outdoor_temperature.value, System.OUTDOOR_TEMPERATURE.value.raw_unit)  # 10.808357 °C
 
         # One reading per heating circuit, the device number starts at 1
         for reading in readings[HeatingCircuit.OPERATING_MODE]:
@@ -49,17 +49,16 @@ The sections are the members of the enums in `keba_keenergy_api.sections`, one e
 [Sections](/sections). The installed devices are read once with `get_device_counts()` and reused, sections of
 devices that are not installed return an empty list.
 
-Each `Reading` has the `value` converted to the type of the endpoint (`bool`, `float`, `int`, `str` or an enum member
-of `keba_keenergy_api.enums`), the `raw_value` exactly as the Web HMI delivers it (a string, e.g. `"25"` for
-`HeatPumpSubState.DRIP`, as some members stand for several values: `13` and `25`) with its `raw_unit`, the `device_number`
-(and `consumer_number` for the two consumers of a solar circuit) and the `lower_limit` and `upper_limit` of the Web HMI.
+Each `Reading` has:
 
-The `value` is never scaled or rounded. How the Web HMI shows it is described by `display_unit`, `display_factor`
-and `display_precision`: the Web HMI shows `value * display_factor` in the `display_unit` with `display_precision`
-decimal places (`postComma` of its `formatId`). For example, the speed of a pump delivered as ratio `0.54009795` has the
-`display_factor` `100.0`, the `display_unit` `%` and the `display_precision` `0`, so the Web HMI shows `54 %`. Values
-without a conversion have the `display_factor` `1.0` and the `raw_unit` as `display_unit`, values without a number
-format (`bool`, enums, `str`) have no `display_precision`.
+- `value`: the value converted to the type of the endpoint (`bool`, `float`, `int`, `str` or an enum member of
+  `keba_keenergy_api.enums`)
+- `raw_value`: the value exactly as the Web HMI delivers it, as a string (e.g. `"25"` for `HeatPumpSubState.DRIP`,
+  which stands for `13` and `25`)
+- `device_number`: the number of the device, starting at 1
+- `consumer_number`: the number of the consumer, only for the two consumers of a solar circuit
+- `lower_limit` and `upper_limit`: the limits of the Web HMI
+- `message_id`: the message id, see [Message ids](#message-ids)
 
 Reading the limits makes the request of the Web HMI about twice as slow. `limits` chooses the endpoints whose limits
 are read, the others have `None`:
@@ -75,14 +74,73 @@ are read, the others have `None`:
 readings = await client.read([DHWTank.TARGET_TEMPERATURE, DHWTank.TOP_TEMPERATURE], limits="writable")
 ```
 
-Values are not rounded, scaled or interpreted: ratios stay `0..1` (e.g. pump speeds), the CPU usage stays per mille,
-the energy of the meters (heat pump, photovoltaics, solar circuit) stays in joule, mass flows in kg/s and volume
-flows in m³/s. Temperature differences (hystereses, offsets, superheat) have the unit `K`. Converting the values is
-up to the caller.
+The `value` is never rounded, scaled or interpreted, see [Units and display](#units-and-display).
 
 Older Web HMI versions don't know every variable. `filter_supported()` returns the sections the controller supports
 (all variables of the installed devices are known), `read()` raises an `UnsupportedVariableError` for an unknown
 variable.
+
+## Units and display
+
+The `value` is the value of the Web HMI, only converted to the type of the endpoint:
+
+- It is never rounded, scaled or interpreted.
+- Ratios stay `0..1` (e.g. pump speeds) and the CPU usage stays per mille.
+- The energy of the meters (heat pump, photovoltaics, solar circuit) stays in joule.
+- Mass flows stay in kg/s and volume flows in m³/s.
+- Temperature differences (hystereses, offsets, superheat) have the unit `K`.
+- Converting the values is up to the caller.
+
+How the Web HMI shows a value is static data of the section:
+
+- `section.value` is its `Endpoint`, a `Reading` doesn't repeat it.
+- It is not read from the controller, so `read()` stays one request.
+- The conversion comes from the `unitId` of the variable (`display = raw * multiplier / divisor`).
+- The decimal places come from the `formatId` of the variable (`postComma`).
+
+The fields of the `Endpoint`:
+
+| Field               | Meaning                                                                                  |
+|---------------------|------------------------------------------------------------------------------------------|
+| `raw_unit`          | Unit of the `value` as the Web HMI delivers it, `None` for ratios (`0..1`) and no unit   |
+| `display_unit`      | Unit the Web HMI shows, `raw_unit` if the value is shown unchanged                       |
+| `display_factor`    | `value * display_factor` is the value the Web HMI shows, `1.0` if it is shown unchanged  |
+| `display_precision` | Decimal places the Web HMI shows for `value * display_factor`, `None` without a format   |
+
+The conversions of the Web HMI:
+
+| `raw_unit` | `display_unit` | `display_factor` |
+|------------|----------------|------------------|
+| ratio      | `%`            | `100`            |
+| `‰`        | `%`            | `0.1`            |
+| `W`        | `kW`           | `1/1000`         |
+| `J`        | `kWh`          | `1/3600000`      |
+| `s`        | `h`            | `1/3600`         |
+| `s`        | `min`          | `1/60`           |
+| `m³/s`     | `L/h`          | `3600000`        |
+| `kg/s`     | `kg/h`         | `3600`           |
+
+- All other numbers are shown in the unit they are delivered in (e.g. `°C`, `K`, `bar`, `kWh` of the statistics).
+- The [Sections](/sections) page lists these values for every endpoint.
+
+```python
+endpoint = HeatPump.CIRCULATION_PUMP_SPEED.value
+reading = readings[HeatPump.CIRCULATION_PUMP_SPEED][0]
+
+# The pump speed is delivered as ratio 0.54009795, the Web HMI shows 54 %.
+print(reading.value, endpoint.raw_unit)  # 0.54009795 None
+print(round(reading.value * endpoint.display_factor, endpoint.display_precision), endpoint.display_unit)  # 54.0 %
+```
+
+Good to know:
+
+- The `display_precision` refers to the **display unit**, not to the raw value. A power delivered in `W` is shown in
+  `kW` with 2 decimal places.
+- `lower_limit` and `upper_limit` are in the `raw_unit` like the `value`, multiply them by `display_factor` for the
+  display unit.
+- `bool`, enums and `str` have no `display_precision`. A few numbers (e.g. seasonal performance factors) are delivered
+  by the Web HMI without a number format and also have none.
+- The vacation start and end of the heating circuit are Unix timestamps, they have no display data.
 
 ## Session
 

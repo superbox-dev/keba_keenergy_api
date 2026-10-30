@@ -47,9 +47,9 @@ readings[HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL][0].value  # 20.5
 - Values are not rounded or scaled anymore and the mixer setpoint (`MIXER_SETPOINT`, was `MIXER_POSITION`) is the raw
   setpoint `-1..1` instead of `closed` / `off` / `open`.
 - 2.x rounded every float to 2 decimal places (4 for some, e.g. the pump speeds). 3.0 returns the raw value of the
-  Web HMI and describes how the Web HMI shows it: `Reading.display_unit`, `display_factor` and `display_precision`
-  (the Web HMI shows `value * display_factor` in the `display_unit` with `display_precision` decimal places). Round
-  the value yourself if you need the 2.x behavior.
+  Web HMI and describes how the Web HMI shows it with `Endpoint.display_unit`, `display_factor` and
+  `display_precision` (`section.value`): the Web HMI shows `value * display_factor` in the `display_unit` with
+  `display_precision` decimal places. Round the value yourself if you need the 2.x behavior.
 - The heating curve points are no longer part of the read response, use `get_curve_tables()`.
 - `read_message_ids()` is replaced by `read(..., message_ids=True)`, which reads the message ids with the values in
   the same request and sets `Reading.message_id` (`value` and `kind`) instead of the raw number.

@@ -705,16 +705,12 @@ class KebaKeEnergyAPI:
 
         return Reading(
             value=value,
+            raw_value=str(item["value"]),
             device_number=variable.device_number,
             consumer_number=variable.consumer_number,
             lower_limit=self._to_limit(attributes.get("lowerLimit")),
             upper_limit=self._to_limit(attributes.get("upperLimit")),
             message_id=message_id,
-            raw_value=str(item["value"]),
-            raw_unit=section.value.raw_unit,
-            display_unit=section.value.display_unit,
-            display_factor=section.value.display_factor,
-            display_precision=section.value.display_precision,
         )
 
     @staticmethod
