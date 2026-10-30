@@ -64,6 +64,8 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
   `is_remote_maintenance_server_reachable()` and `set_remote_maintenance_active()` for the remote maintenance and
   `is_modbus_active()` and `set_modbus_active()` for the Modbus TCP server of the control unit ([Issue
   #138][issue-138])
+- Added `KebaKeEnergyAPI.get_curve_table_names()`, which reads only the names of the curve tables, and
+  `get_curve_tables(names)`, which reads only the points of the requested curve tables ([Issue #144][issue-144])
 
 ### Changed
 
@@ -101,6 +103,7 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 [issue-133]: https://github.com/superbox-dev/keba_keenergy_api/issues/133
 [issue-135]: https://github.com/superbox-dev/keba_keenergy_api/issues/135
 [issue-138]: https://github.com/superbox-dev/keba_keenergy_api/issues/138
+[issue-144]: https://github.com/superbox-dev/keba_keenergy_api/issues/144
 
 <!--start-->
 

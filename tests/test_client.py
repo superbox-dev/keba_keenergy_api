@@ -804,6 +804,54 @@ async def test_get_curve_tables(
     await client.close()
 
 
+@pytest.mark.parametrize(
+    ("names", "expected_names"),
+    [(["HC2"], ["HC2"]), (["HC2", "HC1"], ["HC2", "HC1"]), (["HC2", "HC2"], ["HC2"])],
+    ids=["single", "requested_order", "duplicate"],
+)
+async def test_get_curve_tables_selected(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    snapshot: SnapshotAssertion,
+    sent_requests: SentRequests,
+    names: list[str],
+    expected_names: list[str],
+) -> None:
+    """Test that `get_curve_tables()` only reads the points of the requested curves, each once."""
+    mock_api.post(READ_URL, payload=CURVE_TABLE_NAMES_RESPONSE)
+    mock_api.post(
+        READ_URL, payload=[item for _ in expected_names for item in curve_table_response("7", CURVE_TABLE_POINTS)]
+    )
+
+    curves: dict[str, CurveTable] = await client.get_curve_tables(names)
+
+    assert list(curves) == expected_names
+    assert curves[names[0]] == CurveTable(name=names[0], points=tuple(CURVE_TABLE_POINTS))
+    assert sent_requests(mock_api) == snapshot(name="requests")
+    await client.close()
+
+
+async def test_get_curve_tables_unknown_curve(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that an unknown curve raises `APIError` without reading the points."""
+    mock_api.post(READ_URL, payload=CURVE_TABLE_NAMES_RESPONSE)
+
+    with pytest.raises(APIError, match=r"^Invalid curve table 'HC3'! Allowed values are \['HC1', 'HC2'\]$"):
+        await client.get_curve_tables(["HC1", "HC3"])
+
+    mock_api.assert_called_once()
+    await client.close()
+
+
+async def test_get_curve_table_names(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that `get_curve_table_names()` returns only the names of the curve tables."""
+    mock_api.post(READ_URL, payload=CURVE_TABLE_NAMES_RESPONSE)
+
+    assert await client.get_curve_table_names() == ("HC1", "HC2")
+
+    mock_api.assert_called_once()
+    await client.close()
+
+
 async def test_get_curve_tables_without_curves(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
     """Test that `get_curve_tables()` reads no points without curves."""
     mock_api.post(READ_URL, payload=[{"value": ""} for _ in range(30)])

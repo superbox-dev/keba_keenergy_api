@@ -942,18 +942,47 @@ class KebaKeEnergyAPI:
             if section_names and unsupported.isdisjoint(section_names)
         ]
 
-    async def get_curve_tables(self) -> dict[str, CurveTable]:
+    async def get_curve_table_names(self) -> tuple[str, ...]:
+        """Return the names of the curve tables of the line table pool, without their points.
+
+        Returns
+        -------
+        tuple[str, ...]
+            The names of the curves, e.g. ``("HC1", "HC2")``.
+
+        """
+        return tuple(await self._get_curve_table_indexes())
+
+    async def get_curve_tables(self, names: Iterable[str] | None = None) -> dict[str, CurveTable]:
         """Return the curve tables of the line table pool, used as heating or cooling curves.
+
+        Parameters
+        ----------
+        names
+            The names of the curves to read, e.g. ``["HC1"]``, all curves if not given.
 
         Returns
         -------
         dict[str, CurveTable]
-            The curves by name, e.g. ``HC1``.
+            The curves by name, e.g. ``HC1``, in the requested order and each once.
+
+        Raises
+        ------
+        APIError
+            A curve doesn't exist.
+
+        Examples
+        --------
+        >>> curves = await client.get_curve_tables(["HC1"])
+        >>> curves["HC1"].points
 
         """
         indexes: dict[str, int] = await self._get_curve_table_indexes()
 
-        names: list[str] = [
+        if names is not None:
+            indexes = {name: self._get_curve_table_index(name, indexes) for name in dict.fromkeys(names)}
+
+        variables: list[str] = [
             name
             for index in indexes.values()
             for name in (
@@ -965,7 +994,9 @@ class KebaKeEnergyAPI:
                 ),
             )
         ]
-        response: _Response = await self._read_payload([_ReadPayload(name=name, attr="0") for name in names])
+        response: _Response = await self._read_payload(
+            [_ReadPayload(name=variable, attr="0") for variable in variables]
+        )
 
         curves: dict[str, CurveTable] = {}
 
@@ -980,6 +1011,15 @@ class KebaKeEnergyAPI:
             )
 
         return curves
+
+    @staticmethod
+    def _get_curve_table_index(name: str, indexes: Mapping[str, int], /) -> int:
+        """Return the index in the line table pool of a curve table, raise `APIError` for an unknown curve."""
+        try:
+            return indexes[name]
+        except KeyError as error:
+            message: str = f"Invalid curve table {name!r}! Allowed values are {list(indexes)}"
+            raise APIError(message) from error
 
     async def _get_curve_table_indexes(self) -> dict[str, int]:
         """Return the index in the line table pool of each curve table by name."""
@@ -1019,21 +1059,14 @@ class KebaKeEnergyAPI:
         ... )
 
         """
-        message: str
-
         if not MIN_CURVE_TABLE_POINTS <= len(points) <= MAX_CURVE_TABLE_POINTS:
-            message = (
+            message: str = (
                 f"A curve table needs {MIN_CURVE_TABLE_POINTS} to {MAX_CURVE_TABLE_POINTS} points, not {len(points)}"
             )
             raise APIError(message)
 
         indexes: dict[str, int] = await self._get_curve_table_indexes()
-
-        try:
-            line_table: str = _LINE_TABLE % indexes[name]
-        except KeyError as error:
-            message = f"Invalid curve table {name!r}! Allowed values are {list(indexes)}"
-            raise APIError(message) from error
+        line_table: str = _LINE_TABLE % self._get_curve_table_index(name, indexes)
 
         payload: list[_WritePayload] = [_WritePayload(name=f"{line_table}.noOfPoints", value=str(len(points)))]
 
