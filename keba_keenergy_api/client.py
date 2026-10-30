@@ -52,6 +52,9 @@ from keba_keenergy_api.constants import _WRITE_VARS
 from keba_keenergy_api.constants import API_DEFAULT_TIMEOUT
 from keba_keenergy_api.constants import MAX_CURVE_TABLE_POINTS
 from keba_keenergy_api.constants import MIN_CURVE_TABLE_POINTS
+from keba_keenergy_api.endpoints import Endpoint
+from keba_keenergy_api.endpoints import SolarCircuit
+from keba_keenergy_api.endpoints import System
 from keba_keenergy_api.enums import AlarmPriority
 from keba_keenergy_api.enums import MessageIdKind
 from keba_keenergy_api.exceptions import APIError
@@ -72,9 +75,6 @@ from keba_keenergy_api.models import Readings
 from keba_keenergy_api.models import SystemInfo
 from keba_keenergy_api.models import Value
 from keba_keenergy_api.models import WriteValue
-from keba_keenergy_api.sections import Endpoint
-from keba_keenergy_api.sections import SolarCircuit
-from keba_keenergy_api.sections import System
 
 if TYPE_CHECKING:
     import re

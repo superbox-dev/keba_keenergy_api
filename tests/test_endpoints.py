@@ -9,26 +9,26 @@ from typing import get_args
 
 import pytest
 
+from keba_keenergy_api.endpoints import BufferTank
+from keba_keenergy_api.endpoints import Cascade
+from keba_keenergy_api.endpoints import DHWTank
+from keba_keenergy_api.endpoints import Endpoint
+from keba_keenergy_api.endpoints import EndpointDefinition
+from keba_keenergy_api.endpoints import ExternalHeatSource
+from keba_keenergy_api.endpoints import HeatingCircuit
+from keba_keenergy_api.endpoints import HeatPump
+from keba_keenergy_api.endpoints import PassiveCooling
+from keba_keenergy_api.endpoints import Photovoltaics
+from keba_keenergy_api.endpoints import SolarCircuit
+from keba_keenergy_api.endpoints import SwitchValve
+from keba_keenergy_api.endpoints import System
 from keba_keenergy_api.enums import DeviceType
-from keba_keenergy_api.sections import BufferTank
-from keba_keenergy_api.sections import Cascade
-from keba_keenergy_api.sections import DHWTank
-from keba_keenergy_api.sections import Endpoint
-from keba_keenergy_api.sections import EndpointDefinition
-from keba_keenergy_api.sections import ExternalHeatSource
-from keba_keenergy_api.sections import HeatingCircuit
-from keba_keenergy_api.sections import HeatPump
-from keba_keenergy_api.sections import PassiveCooling
-from keba_keenergy_api.sections import Photovoltaics
-from keba_keenergy_api.sections import SolarCircuit
-from keba_keenergy_api.sections import SwitchValve
-from keba_keenergy_api.sections import System
 
 if TYPE_CHECKING:
     from syrupy.assertion import SnapshotAssertion
 
 
-def test_sections(snapshot: SnapshotAssertion) -> None:
+def test_endpoints(snapshot: SnapshotAssertion) -> None:
     """Test the variables, types, units, display, writable state, message ids and quantities of all endpoints."""
     endpoints: dict[str, dict[str, Any]] = {
         str(endpoint): {

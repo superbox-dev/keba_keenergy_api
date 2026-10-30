@@ -11,9 +11,9 @@ from typing import NamedTuple
 from typing import NotRequired
 from typing import TypedDict
 
+from keba_keenergy_api.endpoints import Endpoint
 from keba_keenergy_api.enums import AlarmPriority
 from keba_keenergy_api.enums import MessageIdKind
-from keba_keenergy_api.sections import Endpoint
 
 type Value = bool | Enum | float | int | str
 type WriteValue = bool | Enum | float | int | str

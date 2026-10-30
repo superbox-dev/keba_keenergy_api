@@ -11,8 +11,8 @@ import asyncio
 
 from keba_keenergy_api import KebaKeEnergyAPI
 from keba_keenergy_api.enums import HeatingCircuitOperatingMode
-from keba_keenergy_api.sections import HeatingCircuit
-from keba_keenergy_api.sections import System
+from keba_keenergy_api.endpoints import HeatingCircuit
+from keba_keenergy_api.endpoints import System
 
 
 async def main():
@@ -45,8 +45,8 @@ async def main():
 asyncio.run(main())
 ```
 
-The endpoints are the members of the enums in `keba_keenergy_api.sections`, one enum per device type, see
-[Sections](/sections). The installed devices are read once with `get_device_counts()` and reused, endpoints of
+The endpoints are the members of the enums in `keba_keenergy_api.endpoints`, one enum per device type, see
+[Endpoints](/endpoints). The installed devices are read once with `get_device_counts()` and reused, endpoints of
 devices that are not installed return an empty list.
 
 Each `Reading` has:
@@ -121,7 +121,7 @@ The conversions of the Web HMI:
 | `kg/s`     | `kg/h`         | `3600`           |
 
 - All other numbers are shown in the unit they are delivered in (e.g. `°C`, `K`, `bar`, `kWh` of the statistics).
-- The [Sections](/sections) page lists these values for every endpoint.
+- The [Endpoints](/endpoints) page lists these values for every endpoint.
 
 ```python
 definition = HeatPump.CIRCULATION_PUMP_SPEED.value
@@ -205,7 +205,7 @@ with the raw `value` and the `kind`, the same way the Web HMI handles them:
 | any other value | `ERROR`         | The component exists, but its value is not valid |
 
 ```python
-from keba_keenergy_api.sections import HeatingCircuit
+from keba_keenergy_api.endpoints import HeatingCircuit
 
 readings = await client.read([HeatingCircuit.ROOM_TEMPERATURE], message_ids=True)
 

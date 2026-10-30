@@ -1,5 +1,5 @@
 # serializer version: 1
-# name: test_sections
+# name: test_endpoints
   dict({
     'BufferTank.BACKUP_TEMPERATURE': dict({
       'display_factor': 1.0,

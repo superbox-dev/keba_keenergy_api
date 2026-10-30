@@ -8,6 +8,7 @@ from typing import get_type_hints
 
 import pytest
 
+from keba_keenergy_api.endpoints import EndpointDefinition
 from keba_keenergy_api.models import Alarm
 from keba_keenergy_api.models import CurvePoint
 from keba_keenergy_api.models import CurveTable
@@ -17,7 +18,6 @@ from keba_keenergy_api.models import HmiInfo
 from keba_keenergy_api.models import MessageId
 from keba_keenergy_api.models import Reading
 from keba_keenergy_api.models import SystemInfo
-from keba_keenergy_api.sections import EndpointDefinition
 
 if TYPE_CHECKING:
     from typing import Any

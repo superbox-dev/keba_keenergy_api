@@ -44,7 +44,7 @@ pip install keba-keenergy-api
 import asyncio
 
 from keba_keenergy_api import KebaKeEnergyAPI
-from keba_keenergy_api.sections import System
+from keba_keenergy_api.endpoints import System
 
 
 async def main():

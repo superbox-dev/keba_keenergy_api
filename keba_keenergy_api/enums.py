@@ -26,7 +26,7 @@ class _BaseEnum(Enum):
 
 
 class DeviceType(StrEnum):
-    """Device types of the control unit, each with one enum of endpoints in ``sections``."""
+    """Device types of the control unit, each with one enum of endpoints in ``endpoints``."""
 
     BUFFER_TANK = "buffer_tank"
     CASCADE = "cascade"

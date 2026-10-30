@@ -71,7 +71,7 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 ### Changed
 
 - Changed the minimum Python version to 3.14.2 ([Issue #132][issue-132])
-- Changed the modules: `constants` became `sections` (endpoints), `enums` (values), `models` and `constants`
+- Changed the modules: `constants` became `endpoints`, `enums` (values), `models` and `constants`
   (`API_DEFAULT_TIMEOUT`, `MIN_CURVE_TABLE_POINTS`, `MAX_CURVE_TABLE_POINTS`), `api` became `client` and
   `error` became `exceptions` ([Issue #132][issue-132])
 - Changed `KebaKeEnergyAPI()`: `username` and `password` are keyword-only, `verify_ssl` replaced
@@ -86,7 +86,7 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 - Changed `write()` to raise an `APIError` for a read-only endpoint or a value of the wrong type instead of
   ignoring it ([Issue #132][issue-132])
 - Changed `InvalidJsonError` to `InvalidResponseError` ([Issue #132][issue-132])
-- Renamed the sections, the endpoints, the enums and their members to the technical terms (e.g. `HeatCircuit` to
+- Renamed the device types, the endpoints, the enums and their members to the technical terms (e.g. `HeatCircuit` to
   `HeatingCircuit`, `HotWaterTank` to `DHWTank`) and replaced the methods of the section clients, the
   [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration) has the tables (old name → new name)
   ([Issue #132][issue-132])

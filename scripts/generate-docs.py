@@ -4,7 +4,7 @@
 
 """Generate the Markdown pages of the Docusaurus website.
 
-The API reference is rendered from the NumPy-style docstrings with griffe, the sections, enums and models pages
+The API reference is rendered from the NumPy-style docstrings with griffe, the endpoints, enums and models pages
 from the modules. The home, donation, contributing and changelog pages are copied from the marked sections of the
 Markdown files in the repository root, the hand-written pages from ``website/content``. All pages are written to
 ``website/docs``, which is not tracked by git.
@@ -27,8 +27,8 @@ from keba_keenergy_api import constants
 from keba_keenergy_api import enums
 from keba_keenergy_api import exceptions
 from keba_keenergy_api import models
-from keba_keenergy_api.sections import Endpoint
-from keba_keenergy_api.sections import EndpointDefinition
+from keba_keenergy_api.endpoints import Endpoint
+from keba_keenergy_api.endpoints import EndpointDefinition
 
 ROOT: Final[Path] = Path(__file__).resolve().parent.parent
 OUTPUT: Final[Path] = ROOT / "website" / "docs"
@@ -86,7 +86,7 @@ class DocsGenerator:
         )
         self._write_page("donation.md", self._front_matter("Donation", 90), self._extract("README.md", "donation"))
         self._write_page("api.md", self._front_matter("API client", 10), self._render_client())
-        self._write_page("sections.md", self._front_matter("Sections", 20), self._render_sections())
+        self._write_page("endpoints.md", self._front_matter("Endpoints", 20), self._render_endpoints())
         self._write_page("enums.md", self._front_matter("Enums", 30), self._render_enums())
         self._write_page("models.md", self._front_matter("Models and errors", 40), self._render_models())
         self._write_page(
@@ -324,13 +324,13 @@ class DocsGenerator:
 
         return blocks
 
-    def _render_sections(self) -> str:
+    def _render_endpoints(self) -> str:
         """Render one table per device type with its public endpoints."""
-        definition: griffe.Class = self._get_class("sections", "EndpointDefinition")
+        definition: griffe.Class = self._get_class("endpoints", "EndpointDefinition")
         blocks: list[str] = [
-            "# Sections",
+            "# Endpoints",
             (
-                f"The module `{PACKAGE}.sections` defines one enum per device type, its members are the endpoints "
+                f"The module `{PACKAGE}.endpoints` defines one enum per device type, its members are the endpoints "
                 "for [`read()`](api.md#read), [`filter_supported()`](api.md#filter_supported) and "
                 f"[`write()`](api.md#write). Paths are relative to `{PAYLOAD_PREFIX}`, `%s` is replaced by the "
                 "zero-based device index. *Unit* is the unit of the value, *Display* how the Web HMI shows it (factor "
@@ -358,7 +358,7 @@ class DocsGenerator:
             blocks.extend(
                 [
                     f"## {enum_class.__name__}",
-                    self._render_text(self._get_class("sections", enum_class.__name__).docstring),
+                    self._render_text(self._get_class("endpoints", enum_class.__name__).docstring),
                     self._table(("Member", "Type", "Unit", "Display", "Writable", "Message id", "Path"), rows),
                 ],
             )

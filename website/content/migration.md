@@ -5,15 +5,15 @@ sidebar_position: 6
 # Migration from 2.x
 
 3.0 is a typed low-level API. The section clients (`client.heat_pump`, …) with their `get_*` and `set_*` methods are
-gone, everything is read with `read()` and written with `write()`. Two sections and many endpoints and enum
-members are renamed to the technical terms, see the tables [below](#sections).
+gone, everything is read with `read()` and written with `write()`. Two device types and many endpoints and enum
+members are renamed to the technical terms, see the tables [below](#device-types).
 
 ## Imports
 
 | 2.x                                    | 3.0                                                           |
 |----------------------------------------|---------------------------------------------------------------|
 | `keba_keenergy_api.api`                | `keba_keenergy_api.client` (or `keba_keenergy_api`)           |
-| `keba_keenergy_api.constants` sections | `keba_keenergy_api.sections`                                  |
+| `keba_keenergy_api.constants` sections | `keba_keenergy_api.endpoints`                                 |
 | `keba_keenergy_api.constants` enums    | `keba_keenergy_api.enums`                                     |
 | `keba_keenergy_api.endpoints` types    | `keba_keenergy_api.models`                                    |
 | `keba_keenergy_api.error`              | `keba_keenergy_api.exceptions`                                |
@@ -90,14 +90,14 @@ endpoint or a value of the wrong type instead of ignoring it.
 | `client.heat_circuit.set_heating_curve_points()` | `set_curve_table_points()` |
 | all other `client.<section>.get_*()` / `set_*()` / `has_*()` | `read()` / `write()` |
 
-## Sections
+## Device types
 
 | 2.x | 3.0 |
 |---|---|
 | `HeatCircuit` | `HeatingCircuit` |
 | `HotWaterTank` | `DHWTank` |
 
-`get_device_counts()` returns `DeviceCounts` with the fields `heating_circuit` and `dhw_tank` for these sections.
+`get_device_counts()` returns `DeviceCounts` with the fields `heating_circuit` and `dhw_tank` for these device types.
 
 ## Constants and models
 
@@ -108,9 +108,9 @@ endpoint or a value of the wrong type instead of ignoring it.
 
 ## Endpoints
 
-The section is the 2.x name, see [Sections](#sections) for the renamed ones.
+The device type is the 2.x name, see [Device types](#device-types) for the renamed ones.
 
-| Section | 2.x | 3.0 |
+| Device type | 2.x | 3.0 |
 |---|---|---|
 | `System` | `BUFFER_TANK_NUMBERS` | private, use `get_device_counts()` |
 | `System` | `HOT_WATER_TANK_NUMBERS` | private, use `get_device_counts()` |

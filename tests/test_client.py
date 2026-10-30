@@ -18,6 +18,13 @@ from aiohttp import SocketTimeoutError
 from aiohttp import encode_basic_auth
 
 from keba_keenergy_api.client import KebaKeEnergyAPI
+from keba_keenergy_api.endpoints import BufferTank
+from keba_keenergy_api.endpoints import DHWTank
+from keba_keenergy_api.endpoints import Endpoint
+from keba_keenergy_api.endpoints import HeatingCircuit
+from keba_keenergy_api.endpoints import HeatPump
+from keba_keenergy_api.endpoints import SolarCircuit
+from keba_keenergy_api.endpoints import System
 from keba_keenergy_api.enums import BufferTankOperatingMode
 from keba_keenergy_api.enums import HeatingCircuitOperatingMode
 from keba_keenergy_api.enums import HeatPumpSubState
@@ -36,13 +43,6 @@ from keba_keenergy_api.models import MessageId
 from keba_keenergy_api.models import Reading
 from keba_keenergy_api.models import Readings
 from keba_keenergy_api.models import WriteValue
-from keba_keenergy_api.sections import BufferTank
-from keba_keenergy_api.sections import DHWTank
-from keba_keenergy_api.sections import Endpoint
-from keba_keenergy_api.sections import HeatingCircuit
-from keba_keenergy_api.sections import HeatPump
-from keba_keenergy_api.sections import SolarCircuit
-from keba_keenergy_api.sections import System
 from tests.conftest import READ_URL
 from tests.conftest import TIMEOUT
 from tests.conftest import WRITE_URL
@@ -775,7 +775,7 @@ async def test_filter_supported_api_error(
 
 
 async def test_filter_supported_empty(client: KebaKeEnergyAPI, mock_api: aioresponses, counts: DeviceCounts) -> None:
-    """Test that `filter_supported()` sends no request without sections."""
+    """Test that `filter_supported()` sends no request without endpoints."""
     assert await client.filter_supported([], counts=counts) == []
     mock_api.assert_not_called()
 

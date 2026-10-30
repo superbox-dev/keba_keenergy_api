@@ -18,7 +18,7 @@ uv run pytest --snapshot-update -n 0 # regenerate snapshots (serial only), then 
 ```
 
 Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this order.
-`docs.sh` only when `website/`, docstrings, `sections.py`, `enums.py`, `models.py`, `constants.py`, `README.md`,
+`docs.sh` only when `website/`, docstrings, `endpoints.py`, `enums.py`, `models.py`, `constants.py`, `README.md`,
 `CONTRIBUTING.md` or `CHANGELOG.md` changed.
 
 ## Rules
@@ -77,7 +77,7 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
 
 ## Architecture
 
-- `sections.py`: one `Enum` per device type (`device_type` as class keyword), members are `Endpoint`s
+- `endpoints.py`: one `Enum` per device type (`device_type` as class keyword), members are `Endpoint`s
   - `path` relative to `APPL.CtrlAppl`, `%s` = zero-based device index
   - paths containing `.param.` are writable, other paths only with `writable=True`
   - `message_id`: component node with a `state.msgId`, only when confirmed on a controller
@@ -90,7 +90,7 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
     `[<METER>_]METER_[ACCUMULATED_|DAILY_]<QUANTITY>`, values of `sStatisticalData` without `METER` (`TOTAL_` only
     for the sum of all modes)
     - sensors named `*Meter` with only an `actValue` (e.g. `SourceFlowMeter`) are named like other sensors
-    - `<METER>_` prefix only when a section has several meters of the same kind (`HEATING_`, `DHW_`, `COOLING_`,
+    - `<METER>_` prefix only when a device type has several meters of the same kind (`HEATING_`, `DHW_`, `COOLING_`,
       `SOURCE_` for the heat meters of the heat pump)
   - member order in blocks: identity and equipment (`NAME`, `MODEL`, `TYPE`, all `HAS_*`, `*_METER_TYPE`),
     operation (`OPERATING_MODE`, `USE_*`, parameters), state (`STATE`, requests, `*_ACTIVE`, calculated setpoints),
@@ -105,8 +105,8 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
   `exceptions.py`: `APIError` and subclasses
 - `client.py`: `KebaKeEnergyAPI`, transport (POST to `/var/readWriteVars`), payloads and type conversion
   - **no conversion of values** beyond the type (no rounding, scaling or interpretation), that is up to the caller
-- **Section and enum member names are always the correct technical term for what they deliver**, valid for every
-  controller (e.g. fan or pump), not only for the test device
+- **Device type, endpoint and enum member names are always the correct technical term for what they deliver**, valid
+  for every controller (e.g. fan or pump), not only for the test device
   - based on the KEBA variable and the Web HMI texts (EN and DE), checked against path, type, unit and limits
   - different from KEBA only where its name is ambiguous or technically wrong (e.g. `HeatingCircuit`, not `HeatCircuit`)
   - established technical abbreviations instead of long names (`DHW`, `COP`, `SPF`)
@@ -128,7 +128,7 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
 
 ## Documentation
 
-- Update `website/content/` when the usage or behavior changes, the API reference, sections, enums and models are generated
+- Update `website/content/` when the usage or behavior changes, the API reference, endpoints, enums and models are generated
 - Keep the `<!--start-…-->` / `<!--end-…-->` markers in `README.md`, `CONTRIBUTING.md` and `CHANGELOG.md`
 - Keep `README.md` short (install, a minimal example, the write warning), details go to `website/content/`
 

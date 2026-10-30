@@ -7,16 +7,16 @@ from datetime import datetime
 from typing import Any
 from typing import Final
 
+from keba_keenergy_api.endpoints import BufferTank
+from keba_keenergy_api.endpoints import Endpoint
+from keba_keenergy_api.endpoints import HeatingCircuit
+from keba_keenergy_api.endpoints import HeatPump
+from keba_keenergy_api.endpoints import SolarCircuit
+from keba_keenergy_api.endpoints import System
 from keba_keenergy_api.enums import AlarmPriority
 from keba_keenergy_api.models import Alarm
 from keba_keenergy_api.models import CurvePoint
 from keba_keenergy_api.models import DeviceCounts
-from keba_keenergy_api.sections import BufferTank
-from keba_keenergy_api.sections import Endpoint
-from keba_keenergy_api.sections import HeatingCircuit
-from keba_keenergy_api.sections import HeatPump
-from keba_keenergy_api.sections import SolarCircuit
-from keba_keenergy_api.sections import System
 
 LOGIN: Final = "mocked-login"
 TIMEZONE_RESPONSE: Final = {"timezone": "Europe/Vienna"}
