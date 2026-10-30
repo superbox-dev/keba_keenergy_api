@@ -17,7 +17,7 @@ from keba_keenergy_api.models import HmiInfo
 from keba_keenergy_api.models import MessageId
 from keba_keenergy_api.models import Reading
 from keba_keenergy_api.models import SystemInfo
-from keba_keenergy_api.sections import Endpoint
+from keba_keenergy_api.sections import EndpointDefinition
 
 if TYPE_CHECKING:
     from typing import Any
@@ -30,7 +30,18 @@ def test_device_counts_passive_cooling(counts: DeviceCounts) -> None:
 
 @pytest.mark.parametrize(
     "model",
-    [Alarm, CurvePoint, CurveTable, DeviceCounts, DeviceInfo, Endpoint, HmiInfo, MessageId, Reading, SystemInfo],
+    [
+        Alarm,
+        CurvePoint,
+        CurveTable,
+        DeviceCounts,
+        DeviceInfo,
+        EndpointDefinition,
+        HmiInfo,
+        MessageId,
+        Reading,
+        SystemInfo,
+    ],
     ids=[
         "alarm",
         "curve_point",

@@ -19,8 +19,8 @@
 # ---
 # name: test_filter_supported[all_supported][supported]
   list([
-    <HeatPump.STATE: Endpoint(path='sParam.heatpump[%s].values.heatpumpState', value_type=<enum 'HeatPumpState'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=None, writable=False, message_id=None, quantity=1)>,
-    <HeatPump.COP: Endpoint(path='sParam.heatpump[%s].values.COP', value_type=<class 'float'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=2, writable=False, message_id=None, quantity=1)>,
+    <HeatPump.STATE: EndpointDefinition(path='sParam.heatpump[%s].values.heatpumpState', value_type=<enum 'HeatPumpState'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=None, writable=False, message_id=None, quantity=1)>,
+    <HeatPump.COP: EndpointDefinition(path='sParam.heatpump[%s].values.COP', value_type=<class 'float'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=2, writable=False, message_id=None, quantity=1)>,
   ])
 # ---
 # name: test_filter_supported[none_supported][requests]
@@ -125,8 +125,8 @@
 # ---
 # name: test_filter_supported[unknown_variables][supported]
   list([
-    <HeatPump.STATE: Endpoint(path='sParam.heatpump[%s].values.heatpumpState', value_type=<enum 'HeatPumpState'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=None, writable=False, message_id=None, quantity=1)>,
-    <HeatingCircuit.TYPE: Endpoint(path='sParam.options.heatCircuit[%s].type', value_type=<enum 'HeatingCircuitType'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=None, writable=False, message_id=None, quantity=1)>,
+    <HeatPump.STATE: EndpointDefinition(path='sParam.heatpump[%s].values.heatpumpState', value_type=<enum 'HeatPumpState'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=None, writable=False, message_id=None, quantity=1)>,
+    <HeatingCircuit.TYPE: EndpointDefinition(path='sParam.options.heatCircuit[%s].type', value_type=<enum 'HeatingCircuitType'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=None, writable=False, message_id=None, quantity=1)>,
   ])
 # ---
 # name: test_get_curve_tables[requests]
@@ -1467,9 +1467,9 @@
 # ---
 # name: test_read[readings]
   dict({
-    <BufferTank.TOP_TEMPERATURE: Endpoint(path='sParam.bufferTank[%s].topTemp.values.actValue', value_type=<class 'float'>, raw_unit='°C', display_unit='°C', display_factor=1.0, display_precision=1, writable=False, message_id='sParam.bufferTank[%s].topTemp', quantity=1)>: list([
+    <BufferTank.TOP_TEMPERATURE: EndpointDefinition(path='sParam.bufferTank[%s].topTemp.values.actValue', value_type=<class 'float'>, raw_unit='°C', display_unit='°C', display_factor=1.0, display_precision=1, writable=False, message_id='sParam.bufferTank[%s].topTemp', quantity=1)>: list([
     ]),
-    <HeatPump.OPERATING_TIME: Endpoint(path='sParam.heatpump[%s].operationalData.operationalTimeS', value_type=<class 'int'>, raw_unit='s', display_unit='h', display_factor=0.0002777777777777778, display_precision=0, writable=False, message_id=None, quantity=1)>: list([
+    <HeatPump.OPERATING_TIME: EndpointDefinition(path='sParam.heatpump[%s].operationalData.operationalTimeS', value_type=<class 'int'>, raw_unit='s', display_unit='h', display_factor=0.0002777777777777778, display_precision=0, writable=False, message_id=None, quantity=1)>: list([
       Reading(
         consumer_number=None,
         device_number=1,
@@ -1480,7 +1480,7 @@
         value=3600,
       ),
     ]),
-    <HeatPump.SUB_STATE: Endpoint(path='sParam.heatpump[%s].values.heatpumpSubState', value_type=<enum 'HeatPumpSubState'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=None, writable=False, message_id=None, quantity=1)>: list([
+    <HeatPump.SUB_STATE: EndpointDefinition(path='sParam.heatpump[%s].values.heatpumpSubState', value_type=<enum 'HeatPumpSubState'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=None, writable=False, message_id=None, quantity=1)>: list([
       Reading(
         consumer_number=None,
         device_number=1,
@@ -1491,7 +1491,7 @@
         value=<HeatPumpSubState.DRIP: (13, 25)>,
       ),
     ]),
-    <HeatingCircuit.NAME: Endpoint(path='sParam.heatCircuit[%s].param.name', value_type=<class 'str'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=None, writable=True, message_id=None, quantity=1)>: list([
+    <HeatingCircuit.NAME: EndpointDefinition(path='sParam.heatCircuit[%s].param.name', value_type=<class 'str'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=None, writable=True, message_id=None, quantity=1)>: list([
       Reading(
         consumer_number=None,
         device_number=1,
@@ -1511,7 +1511,7 @@
         value='FBH2',
       ),
     ]),
-    <HeatingCircuit.PUMP_ACTIVE: Endpoint(path='sParam.heatCircuit[%s].pump.values.setValueB', value_type=<class 'bool'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=None, writable=False, message_id='sParam.heatCircuit[%s].pump', quantity=1)>: list([
+    <HeatingCircuit.PUMP_ACTIVE: EndpointDefinition(path='sParam.heatCircuit[%s].pump.values.setValueB', value_type=<class 'bool'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=None, writable=False, message_id='sParam.heatCircuit[%s].pump', quantity=1)>: list([
       Reading(
         consumer_number=None,
         device_number=1,
@@ -1531,7 +1531,7 @@
         value=False,
       ),
     ]),
-    <SolarCircuit.CONSUMER_TEMPERATURE: Endpoint(path='sParam.genericHeat[%s].referenceTemp.values.actValue', value_type=<class 'float'>, raw_unit='°C', display_unit='°C', display_factor=1.0, display_precision=1, writable=False, message_id='sParam.genericHeat[%s].referenceTemp', quantity=2)>: list([
+    <SolarCircuit.CONSUMER_TEMPERATURE: EndpointDefinition(path='sParam.genericHeat[%s].referenceTemp.values.actValue', value_type=<class 'float'>, raw_unit='°C', display_unit='°C', display_factor=1.0, display_precision=1, writable=False, message_id='sParam.genericHeat[%s].referenceTemp', quantity=2)>: list([
       Reading(
         consumer_number=1,
         device_number=1,
@@ -1551,7 +1551,7 @@
         value=38.0,
       ),
     ]),
-    <System.OPERATING_MODE: Endpoint(path='sParam.param.operatingMode', value_type=<enum 'SystemOperatingMode'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=None, writable=True, message_id=None, quantity=1)>: list([
+    <System.OPERATING_MODE: EndpointDefinition(path='sParam.param.operatingMode', value_type=<enum 'SystemOperatingMode'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=None, writable=True, message_id=None, quantity=1)>: list([
       Reading(
         consumer_number=None,
         device_number=1,
@@ -1562,7 +1562,7 @@
         value=<SystemOperatingMode.AUTO: 4>,
       ),
     ]),
-    <System.OUTDOOR_TEMPERATURE: Endpoint(path='sParam.outdoorTemp.values.actValue', value_type=<class 'float'>, raw_unit='°C', display_unit='°C', display_factor=1.0, display_precision=1, writable=False, message_id='sParam.outdoorTemp', quantity=1)>: list([
+    <System.OUTDOOR_TEMPERATURE: EndpointDefinition(path='sParam.outdoorTemp.values.actValue', value_type=<class 'float'>, raw_unit='°C', display_unit='°C', display_factor=1.0, display_precision=1, writable=False, message_id='sParam.outdoorTemp', quantity=1)>: list([
       Reading(
         consumer_number=None,
         device_number=1,
@@ -1661,7 +1661,7 @@
 # ---
 # name: test_read_message_ids[readings]
   dict({
-    <HeatPump.STATE: Endpoint(path='sParam.heatpump[%s].values.heatpumpState', value_type=<enum 'HeatPumpState'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=None, writable=False, message_id=None, quantity=1)>: list([
+    <HeatPump.STATE: EndpointDefinition(path='sParam.heatpump[%s].values.heatpumpState', value_type=<enum 'HeatPumpState'>, raw_unit=None, display_unit=None, display_factor=1.0, display_precision=None, writable=False, message_id=None, quantity=1)>: list([
       Reading(
         consumer_number=None,
         device_number=1,
@@ -1672,7 +1672,7 @@
         value=<HeatPumpState.AUTOMATIC: 2>,
       ),
     ]),
-    <HeatingCircuit.ROOM_TEMPERATURE: Endpoint(path='sParam.heatCircuit[%s].tempRoom.values.actValue', value_type=<class 'float'>, raw_unit='°C', display_unit='°C', display_factor=1.0, display_precision=1, writable=False, message_id='sParam.heatCircuit[%s].tempRoom', quantity=1)>: list([
+    <HeatingCircuit.ROOM_TEMPERATURE: EndpointDefinition(path='sParam.heatCircuit[%s].tempRoom.values.actValue', value_type=<class 'float'>, raw_unit='°C', display_unit='°C', display_factor=1.0, display_precision=1, writable=False, message_id='sParam.heatCircuit[%s].tempRoom', quantity=1)>: list([
       Reading(
         consumer_number=None,
         device_number=1,
@@ -1698,7 +1698,7 @@
         value=21.5,
       ),
     ]),
-    <SolarCircuit.CONSUMER_TEMPERATURE: Endpoint(path='sParam.genericHeat[%s].referenceTemp.values.actValue', value_type=<class 'float'>, raw_unit='°C', display_unit='°C', display_factor=1.0, display_precision=1, writable=False, message_id='sParam.genericHeat[%s].referenceTemp', quantity=2)>: list([
+    <SolarCircuit.CONSUMER_TEMPERATURE: EndpointDefinition(path='sParam.genericHeat[%s].referenceTemp.values.actValue', value_type=<class 'float'>, raw_unit='°C', display_unit='°C', display_factor=1.0, display_precision=1, writable=False, message_id='sParam.genericHeat[%s].referenceTemp', quantity=2)>: list([
       Reading(
         consumer_number=1,
         device_number=1,
@@ -1724,7 +1724,7 @@
         value=38.0,
       ),
     ]),
-    <System.OUTDOOR_TEMPERATURE: Endpoint(path='sParam.outdoorTemp.values.actValue', value_type=<class 'float'>, raw_unit='°C', display_unit='°C', display_factor=1.0, display_precision=1, writable=False, message_id='sParam.outdoorTemp', quantity=1)>: list([
+    <System.OUTDOOR_TEMPERATURE: EndpointDefinition(path='sParam.outdoorTemp.values.actValue', value_type=<class 'float'>, raw_unit='°C', display_unit='°C', display_factor=1.0, display_precision=1, writable=False, message_id='sParam.outdoorTemp', quantity=1)>: list([
       Reading(
         consumer_number=None,
         device_number=1,

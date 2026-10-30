@@ -12,9 +12,9 @@ from keba_keenergy_api.models import Alarm
 from keba_keenergy_api.models import CurvePoint
 from keba_keenergy_api.models import DeviceCounts
 from keba_keenergy_api.sections import BufferTank
+from keba_keenergy_api.sections import Endpoint
 from keba_keenergy_api.sections import HeatingCircuit
 from keba_keenergy_api.sections import HeatPump
-from keba_keenergy_api.sections import Section
 from keba_keenergy_api.sections import SolarCircuit
 from keba_keenergy_api.sections import System
 
@@ -102,7 +102,7 @@ FILTER_COUNTS: Final = DeviceCounts(
     switch_valve=0,
 )
 
-READ_SECTIONS: Final[list[Section]] = [
+READ_ENDPOINTS: Final[list[Endpoint]] = [
     System.OUTDOOR_TEMPERATURE,
     System.OPERATING_MODE,
     HeatPump.SUB_STATE,
@@ -111,7 +111,7 @@ READ_SECTIONS: Final[list[Section]] = [
     HeatingCircuit.PUMP_ACTIVE,
     SolarCircuit.CONSUMER_TEMPERATURE,
     BufferTank.TOP_TEMPERATURE,
-    # A section that is requested twice is read once.
+    # An endpoint that is requested twice is read once.
     System.OUTDOOR_TEMPERATURE,
 ]
 
@@ -142,7 +142,7 @@ READ_RESPONSE: Final[list[dict[str, Any]]] = [
     {"name": "APPL.CtrlAppl.sParam.genericHeat[1].referenceTemp.values.actValue", "value": "38"},
 ]
 
-# The message id follows the value of each section that has one.
+# The message id follows the value of each endpoint that has one.
 READ_WITH_MESSAGE_IDS_RESPONSE: Final = [
     {"name": "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue", "value": "10.5"},
     {"name": "APPL.CtrlAppl.sParam.outdoorTemp.state.msgId", "value": "0"},

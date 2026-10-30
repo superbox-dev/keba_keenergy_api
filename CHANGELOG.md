@@ -18,8 +18,9 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 - Added `write()`, `filter_supported()`, `get_device_counts()` (`DeviceCounts`), `get_system_info()`,
   `get_hmi_info()`, `get_device_info()`, `get_curve_tables()` (`CurveTable`) and
   `set_curve_table_points()` to `KebaKeEnergyAPI` ([Issue #132][issue-132])
-- Added `Endpoint.raw_unit`, `Endpoint.display_unit`, `Endpoint.display_factor`, `Endpoint.display_precision`,
-  `Endpoint.message_id` and `DeviceType` (the device type of a section as `device_type`) ([Issue #132][issue-132])
+- Added `EndpointDefinition.raw_unit`, `EndpointDefinition.display_unit`, `EndpointDefinition.display_factor`,
+  `EndpointDefinition.display_precision`, `EndpointDefinition.message_id` and `DeviceType` (the device type of a
+  section as `device_type`) ([Issue #132][issue-132])
 - Added `read(..., message_ids=True)`, which reads the message ids with the values in the same request
   (`Reading.message_id` with `value` and `kind`). A message id the Web HMI doesn't know is left out, the value is
   still read ([Issue #132][issue-132])
@@ -78,11 +79,11 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 - Changed the values: `read()` returns `bool`, `float`, `int`, `str` or enum members instead of lowercase strings,
   without rounding or scaling, e.g. ratios stay `0..1`, the CPU usage stays per mille and the mixer setpoint is
   returned as it is ([Issue #132][issue-132])
-- Changed `filter_supported()` to drop a section if the Web HMI doesn't know its variable of one of the installed
+- Changed `filter_supported()` to drop an endpoint if the Web HMI doesn't know its variable of one of the installed
   devices, as `read()` would fail with it ([Issue #132][issue-132])
 - Changed the session: a passed session is used as it is, otherwise the client opens one on the first request and
   closes it with `close()`, no session per request anymore ([Issue #132][issue-132])
-- Changed `write()` to raise an `APIError` for a read-only section or a value of the wrong type instead of
+- Changed `write()` to raise an `APIError` for a read-only endpoint or a value of the wrong type instead of
   ignoring it ([Issue #132][issue-132])
 - Changed `InvalidJsonError` to `InvalidResponseError` ([Issue #132][issue-132])
 - Renamed the sections, the endpoints, the enums and their members to the technical terms (e.g. `HeatCircuit` to

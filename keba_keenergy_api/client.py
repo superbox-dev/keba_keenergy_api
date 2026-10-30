@@ -32,7 +32,7 @@ from keba_keenergy_api.constants import _BOOL_VALUES
 from keba_keenergy_api.constants import _CONSUMER_PRIORITY_HIGH
 from keba_keenergy_api.constants import _CONSUMER_PRIORITY_LOW
 from keba_keenergy_api.constants import _CURVE_TABLE_NAME_PREFIX
-from keba_keenergy_api.constants import _DEVICE_COUNT_SECTIONS
+from keba_keenergy_api.constants import _DEVICE_COUNT_ENDPOINTS
 from keba_keenergy_api.constants import _DEVICE_INFO
 from keba_keenergy_api.constants import _HMI_INSTALLED
 from keba_keenergy_api.constants import _LINE_TABLE
@@ -72,7 +72,7 @@ from keba_keenergy_api.models import Readings
 from keba_keenergy_api.models import SystemInfo
 from keba_keenergy_api.models import Value
 from keba_keenergy_api.models import WriteValue
-from keba_keenergy_api.sections import Section
+from keba_keenergy_api.sections import Endpoint
 from keba_keenergy_api.sections import SolarCircuit
 from keba_keenergy_api.sections import System
 
@@ -107,7 +107,7 @@ class _ActivatePayload(TypedDict):
 
 @dataclass(frozen=True, kw_only=True)
 class _Variable:
-    """Variable name of one value of a section, with its 1-based device and consumer number."""
+    """Variable name of one value of an endpoint, with its 1-based device and consumer number."""
 
     name: str
     device_number: int
@@ -241,13 +241,13 @@ class KebaKeEnergyAPI:
             response: _Response = await self._post(
                 _READ_WRITE_VARS,
                 [
-                    _ReadPayload(name=System[section].value.variable, attr="0")
-                    for section in _DEVICE_COUNT_SECTIONS.values()
+                    _ReadPayload(name=System[endpoint].value.variable, attr="0")
+                    for endpoint in _DEVICE_COUNT_ENDPOINTS.values()
                 ],
             )
 
             counts: dict[str, int] = {
-                key: int(item["value"]) for key, item in zip(_DEVICE_COUNT_SECTIONS, response, strict=True)
+                key: int(item["value"]) for key, item in zip(_DEVICE_COUNT_ENDPOINTS, response, strict=True)
             }
             self._device_counts = DeviceCounts(**counts)
 
@@ -501,21 +501,21 @@ class KebaKeEnergyAPI:
 
     async def read(
         self,
-        sections: Iterable[Section],
+        endpoints: Iterable[Endpoint],
         *,
         counts: DeviceCounts | None = None,
         limits: Limits = "all",
         message_ids: bool = False,
     ) -> Readings:
-        """Read the values of the sections with one request.
+        """Read the values of the endpoints with one request.
 
         Values are only converted to the type of the endpoint (``bool``, ``float``, ``int``, ``str`` or an enum
         member), not rounded or scaled.
 
         Parameters
         ----------
-        sections
-            The sections to read, e.g. ``[HeatPump.STATE, HeatingCircuit.ROOM_TEMPERATURE]``.
+        endpoints
+            The endpoints to read, e.g. ``[HeatPump.STATE, HeatingCircuit.ROOM_TEMPERATURE]``.
         counts
             The installed devices, read with :meth:`get_device_counts` if not given.
         limits
@@ -523,15 +523,16 @@ class KebaKeEnergyAPI:
             only the ``read_only`` or only the ``writable`` ones. Limits make the request of the Web HMI about twice
             as slow, the others have ``None``.
         message_ids
-            Also read the message id (``state.msgId``) of the sections that have one (``Endpoint.message_id``)
-            with the same request, see ``Reading.message_id``. A message id the Web HMI doesn't know costs one more
-            request, it is left out from then on and its readings have no message id.
+            Also read the message id (``state.msgId``) of the endpoints that have one
+            (``EndpointDefinition.message_id``) with the same request, see ``Reading.message_id``. A message id the
+            Web HMI doesn't know costs one more request, it is left out from then on and its readings have no message
+            id.
 
         Returns
         -------
         Readings
-            One list per section with one reading per device (and consumer), in the requested order.
-            Sections of devices that are not installed have an empty list.
+            One list per endpoint with one reading per device (and consumer), in the requested order.
+            Endpoints of devices that are not installed have an empty list.
 
         Raises
         ------
@@ -553,7 +554,7 @@ class KebaKeEnergyAPI:
         """
         allowed_limits: tuple[str, ...] = get_args(Limits.__value__)
 
-        # Checked up front, also if no variable is read (e.g. no device of the sections is installed).
+        # Checked up front, also if no variable is read (e.g. no device of the endpoints is installed).
         if limits not in allowed_limits:
             message: str = (
                 f"Invalid limits {limits!r}! Allowed values are "
@@ -561,70 +562,72 @@ class KebaKeEnergyAPI:
             )
             raise APIError(message)
 
-        requested: list[Section] = list(dict.fromkeys(sections))
+        requested: list[Endpoint] = list(dict.fromkeys(endpoints))
         _counts: DeviceCounts = counts or await self.get_device_counts()
 
-        variables: list[tuple[Section, _Variable, str | None]] = [
-            (section, variable, message_id_name)
-            for section in requested
+        variables: list[tuple[Endpoint, _Variable, str | None]] = [
+            (endpoint, variable, message_id_name)
+            for endpoint in requested
             for variable, message_id_name in self._iter_variables_with_message_ids(
-                section, _counts, message_ids=message_ids
+                endpoint, _counts, message_ids=message_ids
             )
         ]
         variables, response = await self._read_values(variables, limits)
         items: Iterator[dict[str, Any]] = iter(response)
-        readings: Readings = {section: [] for section in requested}
+        readings: Readings = {endpoint: [] for endpoint in requested}
 
-        for section, variable, message_id_name in variables:
+        for endpoint, variable, message_id_name in variables:
             item: dict[str, Any] = next(items)
             message_id: MessageId | None = None if message_id_name is None else self._to_message_id(next(items))
-            readings[section].append(self._to_reading(section, variable, item, message_id))
+            readings[endpoint].append(self._to_reading(endpoint, variable, item, message_id))
 
         return readings
 
     def _iter_variables_with_message_ids(
         self,
-        section: Section,
+        endpoint: Endpoint,
         counts: DeviceCounts,
         /,
         *,
         message_ids: bool,
     ) -> Iterator[tuple[_Variable, str | None]]:
-        """Yield the variables of a section with the name of their message id.
+        """Yield the variables of an endpoint with the name of their message id.
 
         The name is ``None`` without message id or if the Web HMI rejected the message id before.
         """
-        template: str | None = section.value.message_id_variable if message_ids else None
-        variables: Iterator[_Variable] = self._iter_variables(section, counts, section.value.variable)
+        template: str | None = endpoint.value.message_id_variable if message_ids else None
+        variables: Iterator[_Variable] = self._iter_variables(endpoint, counts, endpoint.value.variable)
 
         if template is None:
             yield from ((variable, None) for variable in variables)
         else:
             yield from (
                 (variable, None if message_id.name in self._unsupported_message_ids else message_id.name)
-                for variable, message_id in zip(variables, self._iter_variables(section, counts, template), strict=True)
+                for variable, message_id in zip(
+                    variables, self._iter_variables(endpoint, counts, template), strict=True
+                )
             )
 
     async def _read_values(
         self,
-        variables: list[tuple[Section, _Variable, str | None]],
+        variables: list[tuple[Endpoint, _Variable, str | None]],
         limits: Limits,
         /,
-    ) -> tuple[list[tuple[Section, _Variable, str | None]], _Response]:
+    ) -> tuple[list[tuple[Endpoint, _Variable, str | None]], _Response]:
         """Read the values and their message ids with one request.
 
         A message id the Web HMI rejects is left out and the request is sent again, an unknown value is raised.
 
         Returns
         -------
-        tuple[list[tuple[Section, _Variable, str | None]], _Response]
+        tuple[list[tuple[Endpoint, _Variable, str | None]], _Response]
             The variables without the rejected message ids and the response, in the order of the variables.
 
         """
         payload: list[_ReadPayload] = []
 
-        for section, variable, message_id_name in variables:
-            payload.append(_ReadPayload(name=variable.name, attr="1" if self._has_limits(section, limits) else "0"))
+        for endpoint, variable, message_id_name in variables:
+            payload.append(_ReadPayload(name=variable.name, attr="1" if self._has_limits(endpoint, limits) else "0"))
 
             if message_id_name is not None:
                 payload.append(_ReadPayload(name=message_id_name, attr="0"))
@@ -641,40 +644,40 @@ class KebaKeEnergyAPI:
 
         return await self._read_values(
             [
-                (section, variable, None if message_id_name == rejected else message_id_name)
-                for section, variable, message_id_name in variables
+                (endpoint, variable, None if message_id_name == rejected else message_id_name)
+                for endpoint, variable, message_id_name in variables
             ],
             limits,
         )
 
     @staticmethod
-    def _has_limits(section: Section, limits: Limits, /) -> bool:
-        """Return whether the limits of a section are read, ``limits`` is already checked by :meth:`read`."""
+    def _has_limits(endpoint: Endpoint, limits: Limits, /) -> bool:
+        """Return whether the limits of an endpoint are read, ``limits`` is already checked by :meth:`read`."""
         match limits:
             case "all":
                 return True
             case "none":
                 return False
             case "read_only":
-                return not section.value.writable
+                return not endpoint.value.writable
 
-        return section.value.writable
+        return endpoint.value.writable
 
     @staticmethod
-    def _iter_variables(section: Section, counts: DeviceCounts, template: str, /) -> Iterator[_Variable]:
-        """Yield the variables of a section for the installed devices, in the order of the payload."""
-        if not section.value.has_device_index:
+    def _iter_variables(endpoint: Endpoint, counts: DeviceCounts, template: str, /) -> Iterator[_Variable]:
+        """Yield the variables of an endpoint for the installed devices, in the order of the payload."""
+        if not endpoint.value.has_device_index:
             yield _Variable(name=template, device_number=1, consumer_number=None)
             return
 
-        quantity: int = section.value.quantity
-        count: int = getattr(counts, section.device_type.value)
+        quantity: int = endpoint.value.quantity
+        count: int = getattr(counts, endpoint.device_type.value)
 
         for index in range(count):
             if quantity == 1:
                 yield _Variable(name=template % index, device_number=index + 1, consumer_number=None)
             else:
-                # Sections with a quantity > 1 (e.g. two consumers per solar circuit) use a sub index.
+                # Endpoints with a quantity > 1 (e.g. two consumers per solar circuit) use a sub index.
                 yield from (
                     _Variable(
                         name=template % (index * quantity + sub_index),
@@ -693,7 +696,7 @@ class KebaKeEnergyAPI:
 
     def _to_reading(
         self,
-        section: Section,
+        endpoint: Endpoint,
         variable: _Variable,
         item: dict[str, Any],
         message_id: MessageId | None,
@@ -701,7 +704,7 @@ class KebaKeEnergyAPI:
     ) -> Reading:
         """Return the reading of a response item."""
         attributes: dict[str, Any] = item.get("attributes", {})
-        value: Value = self._convert_value(section, item)
+        value: Value = self._convert_value(endpoint, item)
 
         return Reading(
             value=value,
@@ -720,7 +723,7 @@ class KebaKeEnergyAPI:
         return MessageId(value=value, kind=MessageIdKind.from_message_id(value))
 
     @staticmethod
-    def _convert_value(section: Section, item: dict[str, Any], /) -> Value:
+    def _convert_value(endpoint: Endpoint, item: dict[str, Any], /) -> Value:
         """Return the value converted to the type of the endpoint.
 
         Raises
@@ -729,7 +732,7 @@ class KebaKeEnergyAPI:
             The value can't be converted.
 
         """
-        value_type: type = section.value.value_type
+        value_type: type = endpoint.value.value_type
         text: str = str(item["value"])
 
         try:
@@ -741,7 +744,7 @@ class KebaKeEnergyAPI:
 
             return value_type(text)
         except (KeyError, ValueError) as error:
-            message: str = f"Can't convert {text!r} of {section} to {value_type.__name__}"
+            message: str = f"Can't convert {text!r} of {endpoint} to {value_type.__name__}"
             raise InvalidResponseError(message) from error
 
     @staticmethod
@@ -755,7 +758,7 @@ class KebaKeEnergyAPI:
         except ValueError:
             return None
 
-    async def write(self, values: Mapping[Section, Sequence[WriteValue | None]]) -> None:
+    async def write(self, values: Mapping[Endpoint, Sequence[WriteValue | None]]) -> None:
         """Write values with one request.
 
         **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
@@ -764,16 +767,16 @@ class KebaKeEnergyAPI:
         Parameters
         ----------
         values
-            One sequence per section with one value per device, the first item is device 1 and ``None`` skips a
-            device. Sections with more than one value per device (``quantity``) take one value per consumer
-            (device 1 consumer 1, device 1 consumer 2, device 2 consumer 1, ...). System-wide sections take
+            One sequence per endpoint with one value per device, the first item is device 1 and ``None`` skips a
+            device. Endpoints with more than one value per device (``quantity``) take one value per consumer
+            (device 1 consumer 1, device 1 consumer 2, device 2 consumer 1, ...). System-wide endpoints take
             one value.
 
         Raises
         ------
         APIError
-            A section is read-only, the value doesn't match the type of the endpoint or more than one value is given
-            for a system-wide section.
+            An endpoint is read-only, the value doesn't match the type of the endpoint or more than one value is given
+            for a system-wide endpoint.
 
         Examples
         --------
@@ -787,47 +790,47 @@ class KebaKeEnergyAPI:
         """
         payload: list[_WritePayload] = [
             item
-            for section, section_values in values.items()
-            for item in self._get_write_payload(section, section_values)
+            for endpoint, endpoint_values in values.items()
+            for item in self._get_write_payload(endpoint, endpoint_values)
         ]
 
         if payload:
             await self._post(_WRITE_VARS, payload)
 
-    def _get_write_payload(self, section: Section, values: Sequence[WriteValue | None], /) -> list[_WritePayload]:
-        """Return the write payload of one section, including the extra writes it needs.
+    def _get_write_payload(self, endpoint: Endpoint, values: Sequence[WriteValue | None], /) -> list[_WritePayload]:
+        """Return the write payload of one endpoint, including the extra writes it needs.
 
         Raises
         ------
         APIError
-            The section is read-only, a value is invalid or more than one value is given for a system-wide section.
+            The endpoint is read-only, a value is invalid or more than one value is given for a system-wide endpoint.
 
         """
         message: str
 
-        if not section.value.writable:
-            message = f"{section} is read-only"
+        if not endpoint.value.writable:
+            message = f"{endpoint} is read-only"
             raise APIError(message)
 
         if isinstance(values, str):
-            message = f"{section} needs a sequence of values, not a string"
+            message = f"{endpoint} needs a sequence of values, not a string"
             raise APIError(message)
 
-        if not section.value.has_device_index and len(values) > 1:
-            message = f"{section} is system wide, only one value can be written"
+        if not endpoint.value.has_device_index and len(values) > 1:
+            message = f"{endpoint} is system wide, only one value can be written"
             raise APIError(message)
 
-        template: str = section.value.variable
+        template: str = endpoint.value.variable
         payload: list[_WritePayload] = [
             _WritePayload(
-                name=template % index if section.value.has_device_index else template,
-                value=self._to_write_value(section, value),
+                name=template % index if endpoint.value.has_device_index else template,
+                value=self._to_write_value(endpoint, value),
             )
             for index, value in enumerate(values)
             if value is not None
         ]
 
-        if section is SolarCircuit.CONSUMER_1_PRIORITY:
+        if endpoint is SolarCircuit.CONSUMER_1_PRIORITY:
             payload += self._get_write_payload(
                 SolarCircuit["_CONSUMER_PRIORITY"], self._get_consumer_priorities(values)
             )
@@ -835,7 +838,7 @@ class KebaKeEnergyAPI:
         return payload
 
     @staticmethod
-    def _to_write_value(section: Section, value: WriteValue, /) -> str:
+    def _to_write_value(endpoint: Endpoint, value: WriteValue, /) -> str:
         """Return a value as written to the Web HMI.
 
         Raises
@@ -844,7 +847,7 @@ class KebaKeEnergyAPI:
             The value doesn't match the type of the endpoint.
 
         """
-        value_type: type = section.value.value_type
+        value_type: type = endpoint.value.value_type
 
         if isinstance(value, bool):
             if value_type is bool:
@@ -862,7 +865,7 @@ class KebaKeEnergyAPI:
         elif value_type is str:
             return value
 
-        message: str = f"Invalid value {value!r} for {section}, expected {value_type.__name__}"
+        message: str = f"Invalid value {value!r} for {endpoint}, expected {value_type.__name__}"
         raise APIError(message)
 
     @staticmethod
@@ -886,27 +889,27 @@ class KebaKeEnergyAPI:
 
     async def filter_supported(
         self,
-        sections: Iterable[Section],
+        endpoints: Iterable[Endpoint],
         *,
         counts: DeviceCounts | None = None,
-    ) -> list[Section]:
-        """Return the sections that are supported by the Web HMI software version.
+    ) -> list[Endpoint]:
+        """Return the endpoints that are supported by the Web HMI software version.
 
         All variables are read with one request. The Web HMI rejects a request with an unknown variable as a whole,
-        so each unknown variable costs one more request. A section is supported if the Web HMI knows its variables
-        of all installed devices. Sections of devices that are not installed are skipped.
+        so each unknown variable costs one more request. An endpoint is supported if the Web HMI knows its variables
+        of all installed devices. Endpoints of devices that are not installed are skipped.
 
         Parameters
         ----------
-        sections
-            The sections to check, e.g. ``[HeatPump.COP, HeatPump.HEATING_SPF]``.
+        endpoints
+            The endpoints to check, e.g. ``[HeatPump.COP, HeatPump.HEATING_SPF]``.
         counts
             The installed devices, read with :meth:`get_device_counts` if not given.
 
         Returns
         -------
-        list[Section]
-            The supported sections, in the requested order and each once.
+        list[Endpoint]
+            The supported endpoints, in the requested order and each once.
 
         Raises
         ------
@@ -916,9 +919,9 @@ class KebaKeEnergyAPI:
         """
         _counts: DeviceCounts = counts or await self.get_device_counts()
 
-        names: dict[Section, list[str]] = {
-            section: [variable.name for variable in self._iter_variables(section, _counts, section.value.variable)]
-            for section in sections
+        names: dict[Endpoint, list[str]] = {
+            endpoint: [variable.name for variable in self._iter_variables(endpoint, _counts, endpoint.value.variable)]
+            for endpoint in endpoints
         }
         # A variable that is requested more than once is checked once.
         remaining: list[str] = list(dict.fromkeys(name for section_names in names.values() for name in section_names))
@@ -937,8 +940,8 @@ class KebaKeEnergyAPI:
                 break
 
         return [
-            section
-            for section, section_names in names.items()
+            endpoint
+            for endpoint, section_names in names.items()
             if section_names and unsupported.isdisjoint(section_names)
         ]
 

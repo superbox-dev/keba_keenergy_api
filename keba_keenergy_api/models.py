@@ -13,11 +13,11 @@ from typing import TypedDict
 
 from keba_keenergy_api.enums import AlarmPriority
 from keba_keenergy_api.enums import MessageIdKind
-from keba_keenergy_api.sections import Section
+from keba_keenergy_api.sections import Endpoint
 
 type Value = bool | Enum | float | int | str
 type WriteValue = bool | Enum | float | int | str
-type Readings = dict[Section, list[Reading]]
+type Readings = dict[Endpoint, list[Reading]]
 # Endpoints whose limits are read: all, none, only the read-only or only the writable ones.
 type Limits = Literal["all", "none", "read_only", "writable"]
 
@@ -33,18 +33,20 @@ class Reading:
     raw_value
         The value exactly as the Web HMI delivers it, e.g. ``"25"`` for ``HeatPumpSubState.DRIP``, which has the
         values ``13`` and ``25``, or ``"0.54009795"``. ``value`` is its conversion to the type of the endpoint. Its
-        unit is ``Endpoint.raw_unit`` of the section.
+        unit is ``EndpointDefinition.raw_unit`` of the endpoint.
     device_number
         Number of the device, starting at 1.
     consumer_number
         Number of the consumer of the device, starting at 1, only for endpoints with more than one value per device
         (the consumers of a solar circuit).
     lower_limit
-        Lower limit of the value in the ``Endpoint.raw_unit``, as reported by the Web HMI. ``None`` if there is none or
-        it was not read (``read(..., limits=...)``). Multiply it by ``Endpoint.display_factor`` for the display unit.
+        Lower limit of the value in the ``EndpointDefinition.raw_unit``, as reported by the Web HMI. ``None`` if there
+        is none or it was not read (``read(..., limits=...)``). Multiply it by ``EndpointDefinition.display_factor``
+        for the display unit.
     upper_limit
-        Upper limit of the value in the ``Endpoint.raw_unit``, as reported by the Web HMI. ``None`` if there is none or
-        it was not read (``read(..., limits=...)``). Multiply it by ``Endpoint.display_factor`` for the display unit.
+        Upper limit of the value in the ``EndpointDefinition.raw_unit``, as reported by the Web HMI. ``None`` if there
+        is none or it was not read (``read(..., limits=...)``). Multiply it by ``EndpointDefinition.display_factor``
+        for the display unit.
     message_id
         Message id of the component, only if it was read with ``read(..., message_ids=True)`` and the endpoint has
         one.

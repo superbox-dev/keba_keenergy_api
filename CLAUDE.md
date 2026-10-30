@@ -124,7 +124,7 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
 - Class member order: `__init__`, dunder methods, properties, public methods grouped by topic, helpers directly
   below their first caller
   - applies to new methods, existing ones only moved when asked
-- New device type: add its enum to `type Section`
+- New device type: add its enum to `type Endpoint`
 
 ## Documentation
 

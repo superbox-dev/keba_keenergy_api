@@ -28,7 +28,7 @@ from keba_keenergy_api import enums
 from keba_keenergy_api import exceptions
 from keba_keenergy_api import models
 from keba_keenergy_api.sections import Endpoint
-from keba_keenergy_api.sections import Section
+from keba_keenergy_api.sections import EndpointDefinition
 
 ROOT: Final[Path] = Path(__file__).resolve().parent.parent
 OUTPUT: Final[Path] = ROOT / "website" / "docs"
@@ -325,40 +325,40 @@ class DocsGenerator:
         return blocks
 
     def _render_sections(self) -> str:
-        """Render one table per section with the public endpoints."""
-        endpoint: griffe.Class = self._get_class("sections", "Endpoint")
+        """Render one table per device type with its public endpoints."""
+        definition: griffe.Class = self._get_class("sections", "EndpointDefinition")
         blocks: list[str] = [
             "# Sections",
             (
-                f"The module `{PACKAGE}.sections` defines one enum per device type, its members are the sections "
+                f"The module `{PACKAGE}.sections` defines one enum per device type, its members are the endpoints "
                 "for [`read()`](api.md#read), [`filter_supported()`](api.md#filter_supported) and "
                 f"[`write()`](api.md#write). Paths are relative to `{PAYLOAD_PREFIX}`, `%s` is replaced by the "
                 "zero-based device index. *Unit* is the unit of the value, *Display* how the Web HMI shows it (factor "
                 "to the display unit and decimal places, see [Units and display](usage.md#units-and-display)). "
                 "*Message id* is the component node of the message id (`state.msgId`)."
             ),
-            "## Endpoint",
-            self._render_docstring(endpoint.docstring),
+            "## EndpointDefinition",
+            self._render_docstring(definition.docstring),
         ]
 
-        for section_class in get_args(Section.__value__):
+        for enum_class in get_args(Endpoint.__value__):
             rows: list[str] = [
                 self._row(
-                    f"`{section.name}`",
-                    self._type_link(section.value.value_type),
-                    section.value.raw_unit or "",
-                    self._display(section.value),
-                    "yes" if section.value.writable else "no",
-                    f"`{section.value.message_id}`" if section.value.message_id else "",
-                    f"`{section.value.path}`",
+                    f"`{endpoint.name}`",
+                    self._type_link(endpoint.value.value_type),
+                    endpoint.value.raw_unit or "",
+                    self._display(endpoint.value),
+                    "yes" if endpoint.value.writable else "no",
+                    f"`{endpoint.value.message_id}`" if endpoint.value.message_id else "",
+                    f"`{endpoint.value.path}`",
                 )
-                for section in section_class
-                if not section.name.startswith("_")
+                for endpoint in enum_class
+                if not endpoint.name.startswith("_")
             ]
             blocks.extend(
                 [
-                    f"## {section_class.__name__}",
-                    self._render_text(self._get_class("sections", section_class.__name__).docstring),
+                    f"## {enum_class.__name__}",
+                    self._render_text(self._get_class("sections", enum_class.__name__).docstring),
                     self._table(("Member", "Type", "Unit", "Display", "Writable", "Message id", "Path"), rows),
                 ],
             )
@@ -366,20 +366,20 @@ class DocsGenerator:
         return "\n\n".join(block for block in blocks if block)
 
     @staticmethod
-    def _display(endpoint: Endpoint) -> str:
+    def _display(definition: EndpointDefinition) -> str:
         """Return the unit, conversion and decimal places the Web HMI shows, empty if the value is shown unchanged."""
         parts: list[str] = []
 
-        if endpoint.display_factor != 1.0:
+        if definition.display_factor != 1.0:
             factor: str = (
-                f"*{endpoint.display_factor:g}"
-                if endpoint.display_factor > 1
-                else f"/{round(1 / endpoint.display_factor):g}"
+                f"*{definition.display_factor:g}"
+                if definition.display_factor > 1
+                else f"/{round(1 / definition.display_factor):g}"
             )
-            parts.append(f"{factor} → {endpoint.display_unit}" if endpoint.display_unit else factor)
+            parts.append(f"{factor} → {definition.display_unit}" if definition.display_unit else factor)
 
-        if endpoint.display_precision is not None:
-            parts.append(f"{endpoint.display_precision} decimal{'' if endpoint.display_precision == 1 else 's'}")
+        if definition.display_precision is not None:
+            parts.append(f"{definition.display_precision} decimal{'' if definition.display_precision == 1 else 's'}")
 
         return ", ".join(parts)
 

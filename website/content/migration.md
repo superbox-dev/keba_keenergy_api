@@ -41,14 +41,14 @@ readings = await client.read([HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL])
 readings[HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL][0].value  # 20.5
 ```
 
-- The readings are keyed by the section, with one `Reading` per device instead of a dict with `value` and
+- The readings are keyed by the endpoint, with one `Reading` per device instead of a dict with `value` and
   `attributes`.
 - Values are typed: `bool` instead of `"on"` / `"off"`, enum members instead of lowercase names.
 - Values are not rounded or scaled anymore and the mixer setpoint (`MIXER_SETPOINT`, was `MIXER_POSITION`) is the raw
   setpoint `-1..1` instead of `closed` / `off` / `open`.
 - 2.x rounded every float to 2 decimal places (4 for some, e.g. the pump speeds). 3.0 returns the raw value of the
-  Web HMI and describes how the Web HMI shows it with `Endpoint.display_unit`, `display_factor` and
-  `display_precision` (`section.value`): the Web HMI shows `value * display_factor` in the `display_unit` with
+  Web HMI and describes how the Web HMI shows it with `EndpointDefinition.display_unit`, `display_factor`
+  and `display_precision` (`endpoint.value`): the Web HMI shows `value * display_factor` in the `display_unit` with
   `display_precision` decimal places. Round the value yourself if you need the 2.x behavior.
 - The heating curve points are no longer part of the read response, use `get_curve_tables()`.
 - `read_message_ids()` is replaced by `read(..., message_ids=True)`, which reads the message ids with the values in
@@ -70,17 +70,17 @@ await client.write(
 )
 ```
 
-`write()` takes a sequence of values per section (also for one device) and raises an `APIError` for a read-only
-section or a value of the wrong type instead of ignoring it.
+`write()` takes a sequence of values per endpoint (also for one device) and raises an `APIError` for a read-only
+endpoint or a value of the wrong type instead of ignoring it.
 
 ## Methods
 
 | 2.x | 3.0 |
 |---|---|
-| `read_data(request, position, human_readable, extra_attributes)` | `read(sections, *, counts)` |
+| `read_data(request, position, human_readable, extra_attributes)` | `read(endpoints, *, counts)` |
 | `write_data(request)` | `write(values)` |
-| `filter_request(request, position)` | `filter_supported(sections, *, counts)` |
-| `read_message_ids(request, position)` | `read(sections, *, counts, message_ids=True)` |
+| `filter_request(request, position)` | `filter_supported(endpoints, *, counts)` |
+| `read_message_ids(request, position)` | `read(endpoints, *, counts, message_ids=True)` |
 | `client.system.get_positions()` | `get_device_counts()` |
 | `client.system.get_info()` | `get_system_info()` |
 | `client.system.get_hmi_info()` | `get_hmi_info()` |

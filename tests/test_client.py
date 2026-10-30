@@ -38,9 +38,9 @@ from keba_keenergy_api.models import Readings
 from keba_keenergy_api.models import WriteValue
 from keba_keenergy_api.sections import BufferTank
 from keba_keenergy_api.sections import DHWTank
+from keba_keenergy_api.sections import Endpoint
 from keba_keenergy_api.sections import HeatingCircuit
 from keba_keenergy_api.sections import HeatPump
-from keba_keenergy_api.sections import Section
 from keba_keenergy_api.sections import SolarCircuit
 from keba_keenergy_api.sections import System
 from tests.conftest import READ_URL
@@ -55,8 +55,8 @@ from tests.test_client_data import CURVE_TABLE_POINTS
 from tests.test_client_data import DEVICE_COUNTS_RESPONSE
 from tests.test_client_data import FILTER_COUNTS
 from tests.test_client_data import LOGIN
+from tests.test_client_data import READ_ENDPOINTS
 from tests.test_client_data import READ_RESPONSE
-from tests.test_client_data import READ_SECTIONS
 from tests.test_client_data import READ_WITH_MESSAGE_IDS_RESPONSE
 from tests.test_client_data import READ_WITHOUT_UNKNOWN_MESSAGE_ID_RESPONSE
 from tests.test_client_data import TIMEZONE_RESPONSE
@@ -431,7 +431,7 @@ async def test_read(
     mock_api.post(READ_URL, payload=DEVICE_COUNTS_RESPONSE)
     mock_api.post(READ_URL, payload=READ_RESPONSE)
 
-    readings: Readings = await client.read(READ_SECTIONS)
+    readings: Readings = await client.read(READ_ENDPOINTS)
 
     assert readings == snapshot(name="readings")
     assert readings[System.OPERATING_MODE][0].value is SystemOperatingMode.AUTO
@@ -447,7 +447,7 @@ async def test_read(
 
 
 async def test_read_without_variables(client: KebaKeEnergyAPI, mock_api: aioresponses, counts: DeviceCounts) -> None:
-    """Test that `read()` sends no request if no device of the sections is installed."""
+    """Test that `read()` sends no request if no device of the endpoints is installed."""
     assert await client.read([BufferTank.TOP_TEMPERATURE], counts=counts) == {BufferTank.TOP_TEMPERATURE: []}
     mock_api.assert_not_called()
 
@@ -506,7 +506,7 @@ async def test_read_invalid_limits_without_variables(
 
 
 @pytest.mark.parametrize(
-    ("section", "value", "expected_error"),
+    ("endpoint", "value", "expected_error"),
     [
         (HeatingCircuit.PUMP_ACTIVE, "maybe", "^Can't convert 'maybe' of HeatingCircuit.PUMP_ACTIVE to bool$"),
         (System.OPERATING_MODE, "9", "^Can't convert '9' of System.OPERATING_MODE to SystemOperatingMode$"),
@@ -519,7 +519,7 @@ async def test_read_invalid_value(
     client: KebaKeEnergyAPI,
     mock_api: aioresponses,
     counts: DeviceCounts,
-    section: Section,
+    endpoint: Endpoint,
     value: str,
     expected_error: str,
 ) -> None:
@@ -527,7 +527,7 @@ async def test_read_invalid_value(
     mock_api.post(READ_URL, payload=[{"name": "mocked-name", "value": value}])
 
     with pytest.raises(InvalidResponseError, match=expected_error):
-        await client.read([section], counts=counts)
+        await client.read([endpoint], counts=counts)
 
     await client.close()
 
@@ -577,15 +577,15 @@ async def test_read_unknown_message_id(
         body=json.dumps({"developerMessage": f"Reading variable: {UNKNOWN_MESSAGE_ID} failed (-1)", "status": 500}),
     )
     mock_api.post(READ_URL, payload=READ_WITHOUT_UNKNOWN_MESSAGE_ID_RESPONSE, repeat=True)
-    sections: list[Section] = [System.OUTDOOR_TEMPERATURE, HeatingCircuit.ROOM_TEMPERATURE]
+    endpoints: list[Endpoint] = [System.OUTDOOR_TEMPERATURE, HeatingCircuit.ROOM_TEMPERATURE]
 
-    readings: Readings = await client.read(sections, counts=counts, message_ids=True)
+    readings: Readings = await client.read(endpoints, counts=counts, message_ids=True)
 
     assert readings[System.OUTDOOR_TEMPERATURE] == [Reading(value=10.5, raw_value="10.5", device_number=1)]
     assert readings[HeatingCircuit.ROOM_TEMPERATURE][0].message_id == MessageId(
         value=10, kind=MessageIdKind.DEACTIVATED
     )
-    assert await client.read(sections, counts=counts, message_ids=True) == readings
+    assert await client.read(endpoints, counts=counts, message_ids=True) == readings
     assert sent_requests(mock_api) == snapshot(name="requests")
     await client.close()
 
@@ -641,7 +641,7 @@ async def test_write_nothing(client: KebaKeEnergyAPI, mock_api: aioresponses) ->
 
 
 @pytest.mark.parametrize(
-    ("section", "values", "expected_error"),
+    ("endpoint", "values", "expected_error"),
     [
         (HeatPump.STATE, [1], "^HeatPump.STATE is read-only$"),
         (
@@ -697,19 +697,19 @@ async def test_write_nothing(client: KebaKeEnergyAPI, mock_api: aioresponses) ->
 async def test_write_invalid(
     client: KebaKeEnergyAPI,
     mock_api: aioresponses,
-    section: Section,
+    endpoint: Endpoint,
     values: list[WriteValue | None],
     expected_error: str,
 ) -> None:
     """Test that `write()` raises `APIError` for invalid values without a request."""
     with pytest.raises(APIError, match=expected_error):
-        await client.write({section: values})
+        await client.write({endpoint: values})
 
     mock_api.assert_not_called()
 
 
 @pytest.mark.parametrize(
-    ("sections", "unknown"),
+    ("endpoints", "unknown"),
     [
         ([HeatPump.STATE, HeatPump.COP], []),
         (
@@ -722,12 +722,12 @@ async def test_write_invalid(
 )
 async def test_filter_supported(
     mock_api: aioresponses,
-    sections: list[Section],
+    endpoints: list[Endpoint],
     unknown: list[str],
     snapshot: SnapshotAssertion,
     sent_requests: SentRequests,
 ) -> None:
-    """Test that `filter_supported()` drops the sections with a variable the Web HMI rejects."""
+    """Test that `filter_supported()` drops the endpoints with a variable the Web HMI rejects."""
     for name in unknown:
         mock_api.post(
             READ_URL,
@@ -738,7 +738,7 @@ async def test_filter_supported(
     mock_api.post(READ_URL, payload=[])
 
     async with KebaKeEnergyAPI(host="mocked-host") as client:
-        supported: list[Section] = await client.filter_supported(sections, counts=FILTER_COUNTS)
+        supported: list[Endpoint] = await client.filter_supported(endpoints, counts=FILTER_COUNTS)
 
     assert supported == snapshot(name="supported")
     assert sent_requests(mock_api) == snapshot(name="requests")

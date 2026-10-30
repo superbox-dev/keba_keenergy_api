@@ -77,8 +77,8 @@ _BOOL_VALUES: Final[Mapping[str, bool]] = {"true": True, "false": False, "1": Tr
 _WRITE_TRUE: Final = "1"
 _WRITE_FALSE: Final = "0"
 
-# Sections with the number of installed devices, read by get_device_counts().
-_DEVICE_COUNT_SECTIONS: Final[Mapping[str, str]] = {
+# Endpoints with the number of installed devices, read by get_device_counts().
+_DEVICE_COUNT_ENDPOINTS: Final[Mapping[str, str]] = {
     "buffer_tank": "_NUMBER_OF_BUFFER_TANKS",
     "dhw_tank": "_NUMBER_OF_DHW_TANKS",
     "external_heat_source": "_NUMBER_OF_EXTERNAL_HEAT_SOURCES",

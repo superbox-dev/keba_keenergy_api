@@ -45,8 +45,8 @@ async def main():
 asyncio.run(main())
 ```
 
-The sections are the members of the enums in `keba_keenergy_api.sections`, one enum per device type, see
-[Sections](/sections). The installed devices are read once with `get_device_counts()` and reused, sections of
+The endpoints are the members of the enums in `keba_keenergy_api.sections`, one enum per device type, see
+[Sections](/sections). The installed devices are read once with `get_device_counts()` and reused, endpoints of
 devices that are not installed return an empty list.
 
 Each `Reading` has:
@@ -76,7 +76,7 @@ readings = await client.read([DHWTank.TARGET_TEMPERATURE, DHWTank.TOP_TEMPERATUR
 
 The `value` is never rounded, scaled or interpreted, see [Units and display](#units-and-display).
 
-Older Web HMI versions don't know every variable. `filter_supported()` returns the sections the controller supports
+Older Web HMI versions don't know every variable. `filter_supported()` returns the endpoints the controller supports
 (all variables of the installed devices are known), `read()` raises an `UnsupportedVariableError` for an unknown
 variable.
 
@@ -91,14 +91,14 @@ The `value` is the value of the Web HMI, only converted to the type of the endpo
 - Temperature differences (hystereses, offsets, superheat) have the unit `K`.
 - Converting the values is up to the caller.
 
-How the Web HMI shows a value is static data of the section:
+How the Web HMI shows a value is static data of the endpoint:
 
-- `section.value` is its `Endpoint`, a `Reading` doesn't repeat it.
+- `endpoint.value` is its `EndpointDefinition`, a `Reading` doesn't repeat it.
 - It is not read from the controller, so `read()` stays one request.
 - The conversion comes from the `unitId` of the variable (`display = raw * multiplier / divisor`).
 - The decimal places come from the `formatId` of the variable (`postComma`).
 
-The fields of the `Endpoint`:
+The fields of the `EndpointDefinition`:
 
 | Field               | Meaning                                                                                  |
 |---------------------|------------------------------------------------------------------------------------------|
@@ -124,12 +124,12 @@ The conversions of the Web HMI:
 - The [Sections](/sections) page lists these values for every endpoint.
 
 ```python
-endpoint = HeatPump.CIRCULATION_PUMP_SPEED.value
+definition = HeatPump.CIRCULATION_PUMP_SPEED.value
 reading = readings[HeatPump.CIRCULATION_PUMP_SPEED][0]
 
 # The pump speed is delivered as ratio 0.54009795, the Web HMI shows 54 %.
-print(reading.value, endpoint.raw_unit)  # 0.54009795 None
-print(round(reading.value * endpoint.display_factor, endpoint.display_precision), endpoint.display_unit)  # 54.0 %
+print(reading.value, definition.raw_unit)  # 0.54009795 None
+print(round(reading.value * definition.display_factor, definition.display_precision), definition.display_unit)  # 54.0 %
 ```
 
 Good to know:
@@ -194,7 +194,7 @@ Permanent and very frequent writing of values reduces the lifetime of the built-
 
 ## Message ids
 
-Many sensors and components have a message id (`state.msgId`), the section has an `Endpoint.message_id`.
+Many sensors and components have a message id (`state.msgId`), the endpoint has an `EndpointDefinition.message_id`.
 `read(..., message_ids=True)` reads them with the values in the same request and sets `Reading.message_id`
 with the raw `value` and the `kind`, the same way the Web HMI handles them:
 
