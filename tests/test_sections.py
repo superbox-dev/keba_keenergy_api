@@ -29,12 +29,15 @@ if TYPE_CHECKING:
 
 
 def test_sections(snapshot: SnapshotAssertion) -> None:
-    """Test the variables, types, units, writable state, message ids and quantities of all endpoints."""
+    """Test the variables, types, units, display, writable state, message ids and quantities of all endpoints."""
     endpoints: dict[str, dict[str, Any]] = {
         str(section): {
             "variable": section.value.variable,
             "value_type": section.value.value_type.__name__,
-            "unit": section.value.unit,
+            "raw_unit": section.value.raw_unit,
+            "display_unit": section.value.display_unit,
+            "display_factor": section.value.display_factor,
+            "display_precision": section.value.display_precision,
             "writable": section.value.writable,
             "message_id": section.value.message_id_variable,
             "quantity": section.value.quantity,
@@ -87,3 +90,24 @@ def test_endpoint_writable() -> None:
     assert Endpoint(path="sParam.heatpump[%s].param.name", value_type=str).writable
     assert not Endpoint(path="sParam.heatpump[%s].values.COP", value_type=float).writable
     assert Endpoint(path="sParam.hmiRetainData.consumer1PrioritySolar[%s]", value_type=bool, writable=True).writable
+
+
+@pytest.mark.parametrize(
+    ("endpoint", "expected"),
+    [
+        (HeatPump.CIRCULATION_PUMP_SPEED, (None, "%", 100.0, 0)),
+        (HeatPump.COMPRESSOR_ESTIMATED_ELECTRICAL_POWER, ("W", "kW", 0.001, 2)),
+        (HeatPump.COP, (None, None, 1.0, 2)),
+        (System.OUTDOOR_TEMPERATURE, ("°C", "°C", 1.0, 1)),
+        (System.OPERATING_MODE, (None, None, 1.0, None)),
+    ],
+    ids=["ratio_as_percent", "watt_as_kilowatt", "without_unit", "unit_unchanged", "enum"],
+)
+def test_endpoint_display(endpoint: Section, expected: tuple[str | None, str | None, float, int | None]) -> None:
+    """Test the display unit, factor and precision of the Web HMI, the display unit defaults to the unit."""
+    assert (
+        endpoint.value.raw_unit,
+        endpoint.value.display_unit,
+        endpoint.value.display_factor,
+        endpoint.value.display_precision,
+    ) == expected

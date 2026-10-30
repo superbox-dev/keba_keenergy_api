@@ -25,11 +25,11 @@ async def main():
         )
 
         outdoor_temperature = readings[System.OUTDOOR_TEMPERATURE][0]
-        print(outdoor_temperature.value, outdoor_temperature.unit)  # 10.808357 °C
+        print(outdoor_temperature.value, outdoor_temperature.raw_unit)  # 10.808357 °C
 
-        # One reading per heating circuit, the position starts at 1
+        # One reading per heating circuit, the device number starts at 1
         for reading in readings[HeatingCircuit.OPERATING_MODE]:
-            print(reading.position, reading.value)  # 1 HeatingCircuitOperatingMode.AUTO
+            print(reading.device_number, reading.value)  # 1 HeatingCircuitOperatingMode.AUTO
 
         # Write multiple values with one request, one value per device, None skips a device
         await client.write(
@@ -49,10 +49,17 @@ The sections are the members of the enums in `keba_keenergy_api.sections`, one e
 [Sections](/sections). The installed devices are read once with `get_device_counts()` and reused, sections of
 devices that are not installed return an empty list.
 
-Each `Reading` has the value converted to the type of the endpoint (`bool`, `float`, `int`, `str` or an enum member
-of `keba_keenergy_api.enums`), the `position` (and `consumer` for the two consumers of a solar
-circuit), the `lower_limit` and `upper_limit` of the Web HMI and the `unit`. Enum values also have the
-`raw_value` of the Web HMI, as some members stand for several values (`HeatPumpSubState.DRIP` for `13` and `25`).
+Each `Reading` has the `value` converted to the type of the endpoint (`bool`, `float`, `int`, `str` or an enum member
+of `keba_keenergy_api.enums`), the `raw_value` exactly as the Web HMI delivers it (a string, e.g. `"25"` for
+`HeatPumpSubState.DRIP`, as some members stand for several values: `13` and `25`) with its `raw_unit`, the `device_number`
+(and `consumer_number` for the two consumers of a solar circuit) and the `lower_limit` and `upper_limit` of the Web HMI.
+
+The `value` is never scaled or rounded. How the Web HMI shows it is described by `display_unit`, `display_factor`
+and `display_precision`: the Web HMI shows `value * display_factor` in the `display_unit` with `display_precision`
+decimal places (`postComma` of its `formatId`). For example, the speed of a pump delivered as ratio `0.54009795` has the
+`display_factor` `100.0`, the `display_unit` `%` and the `display_precision` `0`, so the Web HMI shows `54 %`. Values
+without a conversion have the `display_factor` `1.0` and the `raw_unit` as `display_unit`, values without a number
+format (`bool`, enums, `str`) have no `display_precision`.
 
 Reading the limits makes the request of the Web HMI about twice as slow. `limits` chooses the endpoints whose limits
 are read, the others have `None`:
@@ -145,7 +152,7 @@ from keba_keenergy_api.sections import HeatingCircuit
 readings = await client.read([HeatingCircuit.ROOM_TEMPERATURE], message_ids=True)
 
 for reading in readings[HeatingCircuit.ROOM_TEMPERATURE]:
-    print(reading.position, reading.message_id)  # 1 MessageId(value=10, kind=<MessageIdKind.DEACTIVATED: ...>)
+    print(reading.device_number, reading.message_id)  # 1 MessageId(value=10, kind=<MessageIdKind.DEACTIVATED: ...>)
 ```
 
 If the Web HMI doesn't know a message id, `read()` sends the request again without it and leaves it out from then on.

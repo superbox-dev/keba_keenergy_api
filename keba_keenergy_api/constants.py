@@ -23,16 +23,31 @@ _MESSAGE_ID_SUFFIX: Final = "state.msgId"
 _BAR: Final = "bar"
 _CELSIUS: Final = "°C"
 _CUBIC_METER_PER_SECOND: Final = "m³/s"
+_HOUR: Final = "h"
 _JOULE: Final = "J"
 # Temperature differences, e.g. hystereses and offsets.
 _KELVIN: Final = "K"
 _KILOBYTE: Final = "kB"
+_KILOGRAM_PER_HOUR: Final = "kg/h"
 _KILOGRAM_PER_SECOND: Final = "kg/s"
+_KILOWATT: Final = "kW"
 _KILOWATT_HOUR: Final = "kWh"
+_LITER_PER_HOUR: Final = "L/h"
+_MINUTE: Final = "min"
 _PER_MILLE: Final = "‰"
 _PERCENT: Final = "%"
 _SECOND: Final = "s"
 _WATT: Final = "W"
+
+# Factors from the raw value to the display unit of the Web HMI (display = raw * multiplier / divisor).
+_CUBIC_METER_PER_SECOND_TO_LITER_PER_HOUR: Final = 3_600_000.0
+_JOULE_TO_KILOWATT_HOUR: Final = 1 / 3_600_000
+_KILOGRAM_PER_SECOND_TO_KILOGRAM_PER_HOUR: Final = 3_600.0
+_PER_MILLE_TO_PERCENT: Final = 0.1
+_RATIO_TO_PERCENT: Final = 100.0
+_SECOND_TO_HOUR: Final = 1 / 3_600
+_SECOND_TO_MINUTE: Final = 1 / 60
+_WATT_TO_KILOWATT: Final = 1 / 1_000
 
 # Message ids (``state.msgId``) with a special meaning in the Web HMI.
 _OK_MESSAGE_ID: Final = 0

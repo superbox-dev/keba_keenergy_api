@@ -439,9 +439,12 @@ async def test_read(
     # `DRIP` has the values 13 and 25, only `raw_value` tells which one was read.
     assert (readings[HeatPump.SUB_STATE][0].value, readings[HeatPump.SUB_STATE][0].raw_value) == (
         HeatPumpSubState.DRIP,
-        25,
+        "25",
     )
-    assert readings[HeatingCircuit.PUMP_ACTIVE][0].raw_value is None
+    assert readings[HeatingCircuit.PUMP_ACTIVE][0].raw_value == "true"
+    # The precision is the number of decimal places the Web HMI shows, the value itself is not rounded.
+    assert readings[System.OUTDOOR_TEMPERATURE][0].display_precision == 1
+    assert readings[HeatingCircuit.PUMP_ACTIVE][0].display_precision is None
     assert sent_requests(mock_api) == snapshot(name="requests")
     await client.close()
 
@@ -581,7 +584,9 @@ async def test_read_unknown_message_id(
 
     readings: Readings = await client.read(sections, counts=counts, message_ids=True)
 
-    assert readings[System.OUTDOOR_TEMPERATURE] == [Reading(value=10.5, position=1, unit="°C")]
+    assert readings[System.OUTDOOR_TEMPERATURE] == [
+        Reading(value=10.5, device_number=1, raw_value="10.5", raw_unit="°C", display_unit="°C", display_precision=1)
+    ]
     assert readings[HeatingCircuit.ROOM_TEMPERATURE][0].message_id == MessageId(
         value=10, kind=MessageIdKind.DEACTIVATED
     )

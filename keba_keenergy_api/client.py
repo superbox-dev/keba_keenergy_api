@@ -107,11 +107,11 @@ class _ActivatePayload(TypedDict):
 
 @dataclass(frozen=True, kw_only=True)
 class _Variable:
-    """Variable name of one value of a section, with its 1-based position and consumer."""
+    """Variable name of one value of a section, with its 1-based device and consumer number."""
 
     name: str
-    position: int
-    consumer: int | None
+    device_number: int
+    consumer_number: int | None
 
 
 type _Payload = _ActivatePayload | list[_ReadPayload] | list[_WritePayload]
@@ -664,7 +664,7 @@ class KebaKeEnergyAPI:
     def _iter_variables(section: Section, counts: DeviceCounts, template: str, /) -> Iterator[_Variable]:
         """Yield the variables of a section for the installed devices, in the order of the payload."""
         if not section.value.has_device_index:
-            yield _Variable(name=template, position=1, consumer=None)
+            yield _Variable(name=template, device_number=1, consumer_number=None)
             return
 
         quantity: int = section.value.quantity
@@ -672,12 +672,14 @@ class KebaKeEnergyAPI:
 
         for index in range(count):
             if quantity == 1:
-                yield _Variable(name=template % index, position=index + 1, consumer=None)
+                yield _Variable(name=template % index, device_number=index + 1, consumer_number=None)
             else:
                 # Sections with a quantity > 1 (e.g. two consumers per solar circuit) use a sub index.
                 yield from (
                     _Variable(
-                        name=template % (index * quantity + sub_index), position=index + 1, consumer=sub_index + 1
+                        name=template % (index * quantity + sub_index),
+                        device_number=index + 1,
+                        consumer_number=sub_index + 1,
                     )
                     for sub_index in range(quantity)
                 )
@@ -703,14 +705,16 @@ class KebaKeEnergyAPI:
 
         return Reading(
             value=value,
-            position=variable.position,
-            consumer=variable.consumer,
+            device_number=variable.device_number,
+            consumer_number=variable.consumer_number,
             lower_limit=self._to_limit(attributes.get("lowerLimit")),
             upper_limit=self._to_limit(attributes.get("upperLimit")),
-            unit=section.value.unit,
             message_id=message_id,
-            # Enum members with several values (e.g. `HeatPumpSubState.DRIP`) don't tell which one was read.
-            raw_value=int(item["value"]) if isinstance(value, Enum) else None,
+            raw_value=str(item["value"]),
+            raw_unit=section.value.raw_unit,
+            display_unit=section.value.display_unit,
+            display_factor=section.value.display_factor,
+            display_precision=section.value.display_precision,
         )
 
     @staticmethod
@@ -764,7 +768,7 @@ class KebaKeEnergyAPI:
         Parameters
         ----------
         values
-            One sequence per section with one value per device, the first item is position 1 and ``None`` skips a
+            One sequence per section with one value per device, the first item is device 1 and ``None`` skips a
             device. Sections with more than one value per device (``quantity``) take one value per consumer
             (device 1 consumer 1, device 1 consumer 2, device 2 consumer 1, ...). System-wide sections take
             one value.

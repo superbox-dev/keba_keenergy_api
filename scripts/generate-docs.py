@@ -343,7 +343,7 @@ class DocsGenerator:
                 self._row(
                     f"`{section.name}`",
                     self._type_link(section.value.value_type),
-                    section.value.unit or "",
+                    section.value.raw_unit or "",
                     "yes" if section.value.writable else "no",
                     f"`{section.value.message_id}`" if section.value.message_id else "",
                     f"`{section.value.path}`",
