@@ -1,7 +1,7 @@
 [build-system]
 requires = [
-    "setuptools>=84.0.0",
-    "setuptools-scm>=10.2.1",
+    "setuptools>=84.2.1",
+    "setuptools-scm>=10.3.4",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -39,9 +39,6 @@ keywords = [
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: 3 :: Only",
     "Operating System :: OS Independent",
@@ -50,7 +47,7 @@ classifiers = [
     "Framework :: AsyncIO",
     "Typing :: Typed",
 ]
-requires-python = ">= 3.11"
+requires-python = ">= 3.14.2"
 dependencies = [
     "aiohttp==3.*"
 ]
@@ -70,25 +67,25 @@ dev = [
     { include-group = "test" },
 ]
 build = [
-    "setuptools>=84.0.0",
-    "build>=1.5.0",
+    "setuptools>=84.2.1",
+    "build>=1.6.1",
 ]
 docs = [
-    "griffelib>=2.3.2",
+    "griffelib>=2.4.1",
 ]
 lint = [
-    "prek>=0.4.13",
-    "ruff>=0.16.2",
-    "rumdl>=0.2.54",
-    "ty>=0.0.70",
+    "prek>=0.5.7",
+    "ruff>=0.17.3",
+    "rumdl>=0.3.0",
+    "ty>=0.0.92",
     "yamllint>=1.38.0",
 ]
 test = [
     "aioresponses-ng>=0.8.2",
-    "coverage>=7.15.2",
+    "coverage>=7.17.0",
     "genbadge[coverage]>=1.1.3",
-    "pytest>=9.0.3",
-    "pytest-asyncio>=1.4.0",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.1",
     "pytest-cov>=7.1.0",
     "pytest-xdist[psutil]>=3.8.0",
     "syrupy>=6.1.1",

@@ -16,6 +16,7 @@ on:
     branches:
       - main
       - develop
+      - develop-*
     tags:
       - v*
 

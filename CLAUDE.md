@@ -18,25 +18,29 @@ uv run pytest --snapshot-update -n 0 # regenerate snapshots (serial only), then 
 ```
 
 Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this order.
-`docs.sh` only when `website/`, docstrings, `constants.py`, `README.md`, `CONTRIBUTING.md` or `CHANGELOG.md` changed.
+`docs.sh` only when `website/`, docstrings, `endpoints.py`, `enums.py`, `models.py`, `constants.py`, `README.md`,
+`CONTRIBUTING.md` or `CHANGELOG.md` changed.
 
 ## Rules
 
 - **No breaking changes** to anything without a `_` prefix (classes, methods, signatures, return values, constants,
-  exceptions, enum members, behaviour that worked before)
+  exceptions, enum members, behavior that worked before)
   - **only** when the user explicitly allows it, then as a major release, otherwise always find a compatible way
   - allowed: renames with the old name as alias that raises a `DeprecationWarning` (note it in the changelog), new
-    optional parameters whose default keeps the old behaviour, turning a crash (uncaught built-in or `aiohttp`
+    optional parameters whose default keeps the old behavior, turning a crash (uncaught built-in or `aiohttp`
     exception) into an `APIError` (or a subclass)
   - `TypedDict`s: new keys only as `NotRequired`, never remove, rename or retype keys
-- **Python 3.11 minimum**, no syntax or features of newer versions
+- **Python 3.14.2 minimum** (same as the Home Assistant integration)
+  - `type` aliases, PEP 695 generics and deferred annotations, no `TypeAlias`, `TypeVar` or string annotations
 - Type annotations also for local variables (not for loop, `with`, `except`, comprehension or unpacking targets)
   - union order, also in `isinstance()`: general before specific types, each alphabetical, containers after
     single types and less nested first, `None` last (`float | int | str`, `Exception | HTTPStatus`,
     `Value | list[Value] | list[list[Value]] | None`)
   - type alias for complex annotations (nested or repeated unions)
 - Module-level constants with `Final` (`NAME: Final = ...`)
+  - containers read-only: `Final[Mapping[...]]`, `Final[Sequence[...]]` or a `tuple`
 - Comments as complete sentences with a trailing period
+- US English everywhere (names, docstrings, comments, docs, changelog), e.g. `behavior`, `tank`
 - `TypedDict` only for JSON data from or to the Web HMI (optional keys as `NotRequired`), `NamedTuple` only for
   small values that are unpacked (points, pairs), otherwise `@dataclass(frozen=True, kw_only=True)`, mutable only
   when needed
@@ -62,6 +66,9 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
 - NumPy-style docstrings everywhere, also in tests
 - No inline lint/type suppressions, no new ones in the config, no `# pragma: no cover`, fix or test the code
 - No real hosts, serial numbers or customer data, use placeholders like `"mocked-host"`
+- Test controller: host and login in `.env` (`KEBA_HOST`, `KEBA_USER`, `KEBA_PASS`, git-ignored)
+  - **only** read-only requests, small batches (≤ 10 variables with `attr`), certificate check on
+  - never print, log or commit its values, never copy them into code, tests or docs
 - No new dependencies (`pyproject.toml`, also dev dependencies) without asking first
 - `git add` new files, the pre-commit hooks only check tracked files
 - Never edit generated or CI-managed files (`version.py`, `coverage-badge.svg`)
@@ -70,28 +77,58 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
 
 ## Architecture
 
-- `constants.py`: one `Enum` per section, members are `FloatEndpoint` / `IntegerEndpoint` / `StringEndpoint`
-  - `%s` in a path = zero-based device index
-  - paths containing `.param.` are writable
-- `endpoints.py`: `BaseEndpoints` (payloads, POST to `/var/readWriteVars`, value conversion), one `*Endpoints` class
-  per section
-- `api.py`: `KebaKeEnergyAPI` with the section clients and `read_data`, `read_message_ids`, `write_data`
+- `endpoints.py`: one `Enum` per device type (`device_type` as class keyword), members are `Endpoint`s
+  - `path` relative to `APPL.CtrlAppl`, `%s` = zero-based device index
+  - paths containing `.param.` are writable, other paths only with `writable=True`
+  - `message_id`: component node with a `state.msgId`, only when confirmed on a controller
+  - `unit`: unit of the raw value as the Web HMI delivers it, `None` for ratios (`0..1`)
+    - always derived from the `unitId` of the variable and its conversion in `var/readAllUnits?action=getUnits`
+      (display = raw × `multiplier` / `divisor`), the `unitId` itself is the display unit (`TimeHour` and `TimeMin`
+      deliver seconds, `kWh` delivers joule, `MassFlow` delivers kg/s)
+  - `HAS_*` options only when the gated endpoints have no `message_id`, the message id already shows availability
+  - values of an energy meter (`*Meter` with `power`, `accumulatedHeat`, `heatDay`, `massFlow`) always as
+    `[<METER>_]METER_[ACCUMULATED_|DAILY_]<QUANTITY>`, values of `sStatisticalData` without `METER` (`TOTAL_` only
+    for the sum of all modes)
+    - sensors named `*Meter` with only an `actValue` (e.g. `SourceFlowMeter`) are named like other sensors
+    - `<METER>_` prefix only when a device type has several meters of the same kind (`HEATING_`, `DHW_`, `COOLING_`,
+      `SOURCE_` for the heat meters of the heat pump)
+  - member order in blocks: identity and equipment (`NAME`, `MODEL`, `TYPE`, all `HAS_*`, `*_METER_TYPE`),
+    operation (`OPERATING_MODE`, `USE_*`, parameters), state (`STATE`, requests, `*_ACTIVE`, calculated setpoints),
+    measured values, excess energy (parameters, state, operational data), meters, statistics (`COP`, `*_SPF`,
+    `sStatisticalData`, excess energy last), operational data, `*_FAILURE`, `CASCADE_*`, `_`-prefixed members
+    - `HAS_*` in the order of the endpoints they enable, `USE_*` directly before the parameters they enable
+    - modes: heating, cooling, DHW, defrost, total, each thermal, electrical, SPF, operating time
+    - meters: `HEATING_`, `DHW_`, `COOLING_`, `SOURCE_`, electrical, each power, accumulated, daily, mass flow
+    - normal, reduced, vacation; target before actual value; flow direction (flow before return, inlet before
+      outlet, refrigerant circuit from evaporator to expansion valve)
+- `enums.py`: values of the Web HMI, `models.py`: `Reading`, `MessageId`, `DeviceCounts`, …,
+  `exceptions.py`: `APIError` and subclasses
+- `client.py`: `KebaKeEnergyAPI`, transport (POST to `/var/readWriteVars`), payloads and type conversion
+  - **no conversion of values** beyond the type (no rounding, scaling or interpretation), that is up to the caller
+- **Device type, endpoint and enum member names are always the correct technical term for what they deliver**, valid
+  for every controller (e.g. fan or pump), not only for the test device
+  - based on the KEBA variable and the Web HMI texts (EN and DE), checked against path, type, unit and limits
+  - different from KEBA only where its name is ambiguous or technically wrong (e.g. `HeatingCircuit`, not `HeatCircuit`)
+  - established technical abbreviations instead of long names (`DHW`, `COP`, `SPF`)
+  - grammatically correct, consistent forms: activities and states as `-ING` form or noun (`AUTO_HEATING`,
+    `WAITING_FOR_COMPRESSOR`), never imperatives or bare verbs (`AUTO_HEAT`, `WAIT_FOR_COMPRESSOR`)
+  - fixed patterns: `TARGET_*`, `HAS_*` (options), `USE_*` (parameters), `*_ACTIVE` (boolean actual values),
+    `EXCESS_ENERGY_*` as prefix, `*_SPEED`, `*_THERMAL_ENERGY` / `*_ELECTRICAL_ENERGY`, `*_FAILURE`
 - Helpers in the package are `_`-prefixed methods of the class that uses them (`@staticmethod` if they need no
   `self`), not module-level functions
   - used by several classes: method of their shared base class
 - All errors are raised as `APIError` or a subclass, never as a raw `aiohttp` or built-in exception
-  - except programming errors in the endpoint definitions (e.g. `has_message_id` without `values.actValue`)
+  - except programming errors in the endpoint definitions (e.g. a `message_id` without the device index of the path)
   - the responses of the Web HMI always have the expected shape, no extra checks of their structure
-- Constants always in `constants.py`
-  - except module-private ones (`_` prefix), otherwise they would become public API
+- Constants always in `constants.py`, also the module-private ones (`_` prefix)
 - Class member order: `__init__`, dunder methods, properties, public methods grouped by topic, helpers directly
   below their first caller
   - applies to new methods, existing ones only moved when asked
-- New section: add the property to `KebaKeEnergyAPI`
+- New device type: add its enum to `type Endpoint`
 
 ## Documentation
 
-- Update `website/content/` when the usage or behaviour changes, the API reference and constants are generated
+- Update `website/content/` when the usage or behavior changes, the API reference, endpoints, enums and models are generated
 - Keep the `<!--start-…-->` / `<!--end-…-->` markers in `README.md`, `CONTRIBUTING.md` and `CHANGELOG.md`
 - Keep `README.md` short (install, a minimal example, the write warning), details go to `website/content/`
 

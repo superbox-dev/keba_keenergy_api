@@ -1,0 +1,1132 @@
+# Copyright 2023-2026 Michael Hacker
+# SPDX-License-Identifier: Apache-2.0
+
+"""Tests for the `KebaKeEnergyAPI` client."""
+
+import json
+from typing import TYPE_CHECKING
+from typing import Any
+from unittest.mock import patch
+
+import pytest
+from aiohttp import ClientConnectionError
+from aiohttp import ClientSession
+from aiohttp import ClientTimeout
+from aiohttp import ConnectionTimeoutError
+from aiohttp import ServerTimeoutError
+from aiohttp import SocketTimeoutError
+from aiohttp import encode_basic_auth
+
+from keba_keenergy_api.client import KebaKeEnergyAPI
+from keba_keenergy_api.endpoints import BufferTank
+from keba_keenergy_api.endpoints import DHWTank
+from keba_keenergy_api.endpoints import Endpoint
+from keba_keenergy_api.endpoints import HeatingCircuit
+from keba_keenergy_api.endpoints import HeatPump
+from keba_keenergy_api.endpoints import SolarCircuit
+from keba_keenergy_api.endpoints import System
+from keba_keenergy_api.enums import BufferTankOperatingMode
+from keba_keenergy_api.enums import HeatingCircuitOperatingMode
+from keba_keenergy_api.enums import HeatPumpSubState
+from keba_keenergy_api.enums import MessageIdKind
+from keba_keenergy_api.enums import SystemOperatingMode
+from keba_keenergy_api.enums import WeekDay
+from keba_keenergy_api.enums import WeekTimerType
+from keba_keenergy_api.exceptions import APIError
+from keba_keenergy_api.exceptions import APITimeoutError
+from keba_keenergy_api.exceptions import AuthenticationError
+from keba_keenergy_api.exceptions import InvalidResponseError
+from keba_keenergy_api.exceptions import UnsupportedVariableError
+from keba_keenergy_api.models import CurvePoint
+from keba_keenergy_api.models import CurveTable
+from keba_keenergy_api.models import DayTimer
+from keba_keenergy_api.models import DeviceCounts
+from keba_keenergy_api.models import Limits
+from keba_keenergy_api.models import MessageId
+from keba_keenergy_api.models import Reading
+from keba_keenergy_api.models import Readings
+from keba_keenergy_api.models import TimeBlock
+from keba_keenergy_api.models import WeekTimer
+from keba_keenergy_api.models import WriteValue
+from tests.conftest import READ_URL
+from tests.conftest import TIMEOUT
+from tests.conftest import WRITE_URL
+from tests.conftest import SentRequests
+from tests.test_client_data import ALARMS
+from tests.test_client_data import ALARMS_RESPONSE
+from tests.test_client_data import CURVE_TABLE_MAX_POINTS
+from tests.test_client_data import CURVE_TABLE_NAMES_RESPONSE
+from tests.test_client_data import CURVE_TABLE_POINTS
+from tests.test_client_data import DEVICE_COUNTS_RESPONSE
+from tests.test_client_data import FILTER_COUNTS
+from tests.test_client_data import LOGIN
+from tests.test_client_data import READ_ENDPOINTS
+from tests.test_client_data import READ_RESPONSE
+from tests.test_client_data import READ_WITH_MESSAGE_IDS_RESPONSE
+from tests.test_client_data import READ_WITHOUT_UNKNOWN_MESSAGE_ID_RESPONSE
+from tests.test_client_data import TIMEZONE_RESPONSE
+from tests.test_client_data import UNKNOWN_MESSAGE_ID
+from tests.test_client_data import UNUSED_TIME_BLOCK
+from tests.test_client_data import WEEK_TIMER_DAY_TO_MIDNIGHT
+from tests.test_client_data import WEEK_TIMER_DAY_TWO_BLOCKS
+from tests.test_client_data import WEEK_TIMER_TO_MIDNIGHT
+from tests.test_client_data import WEEK_TIMER_TWO_BLOCKS
+from tests.test_client_data import curve_table_response
+from tests.test_client_data import week_timer_response
+
+if TYPE_CHECKING:
+    from aioresponses import aioresponses
+    from syrupy.assertion import SnapshotAssertion
+
+TIMEZONE_URL = "http://mocked-host/dateTime?action=getTimeZone"
+ALARMS_URL = "http://mocked-host/alarm?action=getAll"
+
+
+async def test_client_creates_own_session(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that the client opens one session for all requests and closes it with `close()`."""
+    mock_api.post(TIMEZONE_URL, payload=TIMEZONE_RESPONSE, repeat=True)
+    sessions: list[ClientSession] = []
+
+    def create_session(*, timeout: ClientTimeout) -> ClientSession:
+        sessions.append(ClientSession(timeout=timeout))
+        return sessions[-1]
+
+    with patch("keba_keenergy_api.client.ClientSession", side_effect=create_session):
+        assert await client.get_timezone() == "Europe/Vienna"
+        assert await client.get_timezone() == "Europe/Vienna"
+        await client.close()
+
+        assert len(sessions) == 1
+        assert sessions[0].closed
+
+        # A request after close() opens a new session.
+        assert await client.get_timezone() == "Europe/Vienna"
+        await client.close()
+
+    assert [session.closed for session in sessions] == [True, True]
+    mock_api.assert_called_with(url=TIMEZONE_URL, method="POST", headers={}, ssl=False, data=None, timeout=TIMEOUT)
+
+
+async def test_client_uses_passed_session(mock_api: aioresponses) -> None:
+    """Test that a passed session is used and not closed, also not by `async with`."""
+    mock_api.post(TIMEZONE_URL, payload=TIMEZONE_RESPONSE)
+
+    async with ClientSession() as session:
+        with patch("keba_keenergy_api.client.ClientSession", side_effect=AssertionError):
+            async with KebaKeEnergyAPI(host="mocked-host", session=session) as client:
+                assert await client.get_timezone() == "Europe/Vienna"
+
+        assert not session.closed
+
+
+async def test_context_manager_closes_own_session(mock_api: aioresponses) -> None:
+    """Test that `async with` closes the session opened by the client."""
+    mock_api.post(TIMEZONE_URL, payload=TIMEZONE_RESPONSE)
+    sessions: list[ClientSession] = []
+
+    def create_session(*, timeout: ClientTimeout) -> ClientSession:
+        sessions.append(ClientSession(timeout=timeout))
+        return sessions[-1]
+
+    with patch("keba_keenergy_api.client.ClientSession", side_effect=create_session):
+        async with KebaKeEnergyAPI(host="mocked-host") as client:
+            assert await client.get_timezone() == "Europe/Vienna"
+
+    assert len(sessions) == 1
+    assert sessions[0].closed
+
+
+async def test_close_without_session(client: KebaKeEnergyAPI) -> None:
+    """Test that `close()` does nothing if the client opened no session."""
+    await client.close()
+
+
+async def test_request_closed_session(mock_api: aioresponses) -> None:
+    """Test that a closed passed session raises `APIError` without a request."""
+    session: ClientSession = ClientSession()
+    await session.close()
+    client: KebaKeEnergyAPI = KebaKeEnergyAPI(host="mocked-host", session=session)
+
+    with pytest.raises(APIError, match=r"^The session is closed$"):
+        await client.get_timezone()
+
+    mock_api.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("verify_ssl", "expected_ssl"),
+    [(True, True), (False, False)],
+    ids=["verify_ssl", "skip_ssl_verification"],
+)
+async def test_request_https_and_basic_auth(mock_api: aioresponses, *, verify_ssl: bool, expected_ssl: bool) -> None:
+    """Test a request with HTTPS and HTTP Basic authentication."""
+    url: str = "https://mocked-host/dateTime?action=getTimeZone"
+    mock_api.post(url, payload=TIMEZONE_RESPONSE)
+    client: KebaKeEnergyAPI = KebaKeEnergyAPI(
+        host="mocked-host", username=LOGIN, password=LOGIN, ssl=True, verify_ssl=verify_ssl
+    )
+
+    assert client.device_url == "https://mocked-host"
+    assert await client.get_timezone() == "Europe/Vienna"
+    await client.close()
+
+    mock_api.assert_called_once_with(
+        url=url,
+        method="POST",
+        headers={"Authorization": encode_basic_auth(LOGIN, LOGIN)},
+        ssl=expected_ssl,
+        data=None,
+        timeout=TIMEOUT,
+    )
+
+
+async def test_request_invalid_credentials(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that a `401` response raises `AuthenticationError`."""
+    mock_api.post(TIMEZONE_URL, status=401)
+
+    with pytest.raises(AuthenticationError, match=r"^401 Unauthorized: No permission -- see authorization schemes$"):
+        await client.get_timezone()
+
+    await client.close()
+
+
+@pytest.mark.parametrize(
+    ("status", "body", "expected_error"),
+    [
+        (500, '{"developerMessage": "mocked-error"}', "^500 Internal Server Error: .* - mocked-error$"),
+        (500, "[]", r"^500 Internal Server Error: .* - \[]$"),
+        (500, "<html>Error</html>", "^500 Internal Server Error: .* - <html>Error</html>$"),
+        (400, '{"developerMessage": "mocked-error"}', r'^400 Bad Request: .* - \{"developerMessage": "mocked-error"}$'),
+        (502, "<html>Bad Gateway</html>", "^502 Bad Gateway: .* - <html>Bad Gateway</html>$"),
+        (301, "", "^301 Moved Permanently: .*$"),
+    ],
+    ids=["json_message", "json_list", "html", "bad_request", "bad_gateway", "redirect"],
+)
+async def test_request_error_status(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, status: int, body: str, expected_error: str
+) -> None:
+    """Test that every non-2xx status raises `APIError` with the response body or the developer message."""
+    mock_api.post(TIMEZONE_URL, body=body, headers={"Content-Type": "text/html"}, status=status)
+
+    with pytest.raises(APIError, match=expected_error) as error:
+        await client.get_timezone()
+
+    assert type(error.value) is APIError
+    await client.close()
+
+
+async def test_request_unsupported_variable(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, counts: DeviceCounts
+) -> None:
+    """Test that a rejected variable raises `UnsupportedVariableError` with the variable name."""
+    variable: str = "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue"
+    mock_api.post(
+        READ_URL,
+        status=500,
+        body=json.dumps({"developerMessage": f"Reading variable: {variable} failed (-1)", "status": 500}),
+    )
+
+    with pytest.raises(UnsupportedVariableError, match=r"^500 Internal Server Error: .* - Reading variable: ") as error:
+        await client.read([System.OUTDOOR_TEMPERATURE], counts=counts)
+
+    assert error.value.variable == variable
+
+    await client.close()
+
+
+async def test_request_client_error(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that an `aiohttp` client error raises `APIError`."""
+    mock_api.post(TIMEZONE_URL, exception=ClientConnectionError("mocked-error"))
+
+    with pytest.raises(APIError, match=r"^mocked-error$") as error:
+        await client.get_timezone()
+
+    assert not isinstance(error.value, APITimeoutError)
+    await client.close()
+
+
+@pytest.mark.parametrize(
+    ("body", "content_type"),
+    [("not json", "application/json"), ("<html></html>", "text/html")],
+    ids=["invalid_json", "html"],
+)
+async def test_request_invalid_json(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, body: str, content_type: str
+) -> None:
+    """Test that an invalid JSON response raises `InvalidResponseError`."""
+    mock_api.post(TIMEZONE_URL, body=body, headers={"Content-Type": content_type})
+
+    with pytest.raises(InvalidResponseError, match=r"^Invalid JSON response!"):
+        await client.get_timezone()
+
+    await client.close()
+
+
+@pytest.mark.parametrize(
+    ("exception", "expected_message"),
+    [
+        (TimeoutError(), "^Request timed out!$"),
+        (ServerTimeoutError("mocked-error"), "^Request timed out! mocked-error$"),
+        (ConnectionTimeoutError("mocked-error"), "^Request timed out! mocked-error$"),
+        (SocketTimeoutError("mocked-error"), "^Request timed out! mocked-error$"),
+    ],
+    ids=["timeout", "server_timeout", "connection_timeout", "socket_timeout"],
+)
+async def test_request_timeout(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, exception: TimeoutError, expected_message: str
+) -> None:
+    """Test that a timeout raises `APITimeoutError`, which is also an `APIError` and a `TimeoutError`.
+
+    The timeouts of `aiohttp` are also a `ClientError` and must not be raised as a plain `APIError`.
+
+    Parameters
+    ----------
+    client
+        Client for the mocked host.
+    mock_api
+        Mock for the requests.
+    exception
+        The timeout raised by the request.
+    expected_message
+        The expected error message.
+
+    """
+    mock_api.post(TIMEZONE_URL, exception=exception)
+
+    with pytest.raises(APITimeoutError, match=expected_message) as error:
+        await client.get_timezone()
+
+    assert isinstance(error.value, TimeoutError)
+    await client.close()
+
+
+async def test_get_device_counts(client: KebaKeEnergyAPI, mock_api: aioresponses, counts: DeviceCounts) -> None:
+    """Test that the device counts are read once."""
+    mock_api.post(READ_URL, payload=DEVICE_COUNTS_RESPONSE)
+
+    assert await client.get_device_counts() == counts
+    assert await client.get_device_counts() == counts
+
+    mock_api.assert_called_once()
+    await client.close()
+
+
+@pytest.mark.parametrize(
+    ("method", "endpoint", "payload", "expected"),
+    [
+        (
+            "get_system_info",
+            "swupdate?action=getSystemInstalled",
+            [{"ret": "OK", "name": "KeEnergy.MTec", "version": "2.2.2"}],
+            {"name": "KeEnergy.MTec", "version": "2.2.2"},
+        ),
+        (
+            "get_system_info",
+            "swupdate?action=getSystemInstalled",
+            [{"name": "KeEnergy.MTec"}],
+            {"name": "KeEnergy.MTec"},
+        ),
+        (
+            "get_hmi_info",
+            "swupdate?action=getHmiInstalled",
+            {"ret": "OK", "name": "KeEnergy.WebHmi_2.2.0.0"},
+            {"name": "KeEnergy.WebHmi_2.2.0.0"},
+        ),
+        (
+            "get_device_info",
+            "deviceControl?action=getDeviceInfo",
+            [{"ret": "OK", "revNo": 2, "orderNo": 12345678, "serNo": 12345678, "name": "MOCKED-NAME", "variantNo": 0}],
+            {"revNo": 2, "orderNo": 12345678, "serNo": 12345678, "name": "MOCKED-NAME", "variantNo": 0},
+        ),
+        ("get_timezone", "dateTime?action=getTimeZone", TIMEZONE_RESPONSE, "Europe/Vienna"),
+    ],
+    ids=["get_system_info", "get_system_info_without_version", "get_hmi_info", "get_device_info", "get_timezone"],
+)
+async def test_get_info(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    method: str,
+    endpoint: str,
+    payload: dict[str, Any] | list[dict[str, Any]],
+    expected: dict[str, Any] | str,
+) -> None:
+    """Test that the info methods return the known keys of the response."""
+    mock_api.post(f"http://mocked-host/{endpoint}", payload=payload)
+
+    assert await getattr(client, method)() == expected
+
+    await client.close()
+
+
+@pytest.mark.parametrize(
+    ("method", "endpoint", "payload", "expected"),
+    [
+        ("is_remote_maintenance_active", "isRemoteMActive", {"ret": "OK", "active": True}, True),
+        ("is_remote_maintenance_active", "isRemoteMActive", {"ret": "OK", "active": False}, False),
+        ("is_remote_maintenance_connected", "isRemoteMConnectionAlive", {"ret": "OK", "connected": True}, True),
+        ("is_remote_maintenance_connected", "isRemoteMConnectionAlive", {"ret": "OK", "connected": False}, False),
+        ("is_remote_maintenance_server_reachable", "isRemoteMServerReachable", {"ret": "OK", "reachable": True}, True),
+        (
+            "is_remote_maintenance_server_reachable",
+            "isRemoteMServerReachable",
+            {"ret": "OK", "reachable": False},
+            False,
+        ),
+        ("is_modbus_active", "isModbusActive", {"ret": "OK", "active": True}, True),
+        ("is_modbus_active", "isModbusActive", {"ret": "OK", "active": False}, False),
+    ],
+    ids=[
+        "remote_maintenance_active",
+        "remote_maintenance_inactive",
+        "remote_maintenance_connected",
+        "remote_maintenance_not_connected",
+        "remote_maintenance_server_reachable",
+        "remote_maintenance_server_not_reachable",
+        "modbus_active",
+        "modbus_inactive",
+    ],
+)
+async def test_device_control_status(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    method: str,
+    endpoint: str,
+    payload: dict[str, Any],
+    *,
+    expected: bool,
+) -> None:
+    """Test that the device control status methods return the state."""
+    mock_api.post(f"http://mocked-host/deviceControl?action={endpoint}", payload=payload)
+
+    assert await getattr(client, method)() is expected
+
+    await client.close()
+
+
+@pytest.mark.parametrize(
+    ("method", "endpoint", "active"),
+    [
+        ("set_remote_maintenance_active", "activateRemoteM", True),
+        ("set_remote_maintenance_active", "activateRemoteM", False),
+        ("set_modbus_active", "activateModbus", True),
+        ("set_modbus_active", "activateModbus", False),
+    ],
+    ids=["enable_remote_maintenance", "disable_remote_maintenance", "enable_modbus", "disable_modbus"],
+)
+async def test_device_control_activate(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    sent_requests: SentRequests,
+    method: str,
+    endpoint: str,
+    *,
+    active: bool,
+) -> None:
+    """Test that the device control setters send the requested state."""
+    url: str = f"http://mocked-host/deviceControl?action={endpoint}"
+    mock_api.post(url, payload={"ret": "OK"})
+
+    assert await getattr(client, method)(active=active) is None
+    assert sent_requests(mock_api) == [{"method": "POST", "url": url, "data": {"activate": active}}]
+
+    await client.close()
+
+
+async def test_read(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    snapshot: SnapshotAssertion,
+    sent_requests: SentRequests,
+) -> None:
+    """Test that `read()` reads the device counts first and converts the values to the endpoint types."""
+    mock_api.post(READ_URL, payload=DEVICE_COUNTS_RESPONSE)
+    mock_api.post(READ_URL, payload=READ_RESPONSE)
+
+    readings: Readings = await client.read(READ_ENDPOINTS)
+
+    assert readings == snapshot(name="readings")
+    assert readings[System.OPERATING_MODE][0].value is SystemOperatingMode.AUTO
+    assert readings[HeatingCircuit.PUMP_ACTIVE][0].value is True
+    # `DRIP` has the values 13 and 25, only `raw_value` tells which one was read.
+    assert (readings[HeatPump.SUB_STATE][0].value, readings[HeatPump.SUB_STATE][0].raw_value) == (
+        HeatPumpSubState.DRIP,
+        "25",
+    )
+    assert readings[HeatingCircuit.PUMP_ACTIVE][0].raw_value == "true"
+    assert sent_requests(mock_api) == snapshot(name="requests")
+    await client.close()
+
+
+async def test_read_without_variables(client: KebaKeEnergyAPI, mock_api: aioresponses, counts: DeviceCounts) -> None:
+    """Test that `read()` sends no request if no device of the endpoints is installed."""
+    assert await client.read([BufferTank.TOP_TEMPERATURE], counts=counts) == {BufferTank.TOP_TEMPERATURE: []}
+    mock_api.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("limits", "expected_attrs"),
+    [
+        ("all", ["1", "1"]),
+        ("none", ["0", "0"]),
+        ("read_only", ["1", "0"]),
+        ("writable", ["0", "1"]),
+    ],
+    ids=["all", "none", "read_only", "writable"],
+)
+async def test_read_limits(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    counts: DeviceCounts,
+    sent_requests: SentRequests,
+    limits: Limits,
+    expected_attrs: list[str],
+) -> None:
+    """Test that `read(limits=...)` reads the limits of the chosen endpoints only."""
+    mock_api.post(READ_URL, payload=[{"name": "mocked-name", "value": "10.5"}, {"name": "mocked-name", "value": "2"}])
+
+    await client.read([System.OUTDOOR_TEMPERATURE, System.OPERATING_MODE], counts=counts, limits=limits)
+
+    assert [item["attr"] for item in sent_requests(mock_api)[0]["data"]] == expected_attrs
+    await client.close()
+
+
+async def test_read_invalid_limits(client: KebaKeEnergyAPI, counts: DeviceCounts) -> None:
+    """Test that an invalid `limits` value raises `APIError`."""
+    # Typed as Any, as a type checker would reject the invalid value.
+    limits: Any = "some"
+
+    with pytest.raises(
+        APIError, match=r"^Invalid limits 'some'! Allowed values are 'all', 'none', 'read_only' and 'writable'$"
+    ):
+        await client.read([System.OUTDOOR_TEMPERATURE], counts=counts, limits=limits)
+
+    await client.close()
+
+
+async def test_read_invalid_limits_without_variables(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, counts: DeviceCounts
+) -> None:
+    """Test that an invalid `limits` value raises `APIError` also if no variable is read."""
+    # Typed as Any, as a type checker would reject the invalid value.
+    limits: Any = "some"
+
+    with pytest.raises(APIError, match=r"^Invalid limits 'some'!"):
+        await client.read([BufferTank.TOP_TEMPERATURE], counts=counts, limits=limits)
+
+    mock_api.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("endpoint", "value", "expected_error"),
+    [
+        (HeatingCircuit.PUMP_ACTIVE, "maybe", "^Can't convert 'maybe' of HeatingCircuit.PUMP_ACTIVE to bool$"),
+        (System.OPERATING_MODE, "9", "^Can't convert '9' of System.OPERATING_MODE to SystemOperatingMode$"),
+        (System.OPERATING_MODE, "auto", "^Can't convert 'auto' of System.OPERATING_MODE to SystemOperatingMode$"),
+        (System.OUTDOOR_TEMPERATURE, "-", "^Can't convert '-' of System.OUTDOOR_TEMPERATURE to float$"),
+    ],
+    ids=["bool", "enum_value", "enum_name", "float"],
+)
+async def test_read_invalid_value(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    counts: DeviceCounts,
+    endpoint: Endpoint,
+    value: str,
+    expected_error: str,
+) -> None:
+    """Test that a value that can't be converted raises `InvalidResponseError`."""
+    mock_api.post(READ_URL, payload=[{"name": "mocked-name", "value": value}])
+
+    with pytest.raises(InvalidResponseError, match=expected_error):
+        await client.read([endpoint], counts=counts)
+
+    await client.close()
+
+
+async def test_read_message_ids(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    counts: DeviceCounts,
+    snapshot: SnapshotAssertion,
+    sent_requests: SentRequests,
+) -> None:
+    """Test that `read(message_ids=True)` reads the message id after each value in the same request."""
+    mock_api.post(READ_URL, payload=READ_WITH_MESSAGE_IDS_RESPONSE)
+
+    readings: Readings = await client.read(
+        [
+            System.OUTDOOR_TEMPERATURE,
+            HeatPump.STATE,
+            HeatingCircuit.ROOM_TEMPERATURE,
+            SolarCircuit.CONSUMER_TEMPERATURE,
+        ],
+        counts=counts,
+        message_ids=True,
+    )
+
+    assert [reading.message_id for reading in readings[HeatingCircuit.ROOM_TEMPERATURE]] == [
+        MessageId(value=10, kind=MessageIdKind.DEACTIVATED),
+        MessageId(value=0, kind=MessageIdKind.OK),
+    ]
+    assert readings[HeatPump.STATE][0].message_id is None
+    assert readings == snapshot(name="readings")
+    assert sent_requests(mock_api) == snapshot(name="requests")
+    await client.close()
+
+
+async def test_read_unknown_message_id(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    counts: DeviceCounts,
+    snapshot: SnapshotAssertion,
+    sent_requests: SentRequests,
+) -> None:
+    """Test that an unknown message id is left out, also in later reads, and the value is still read."""
+    mock_api.post(
+        READ_URL,
+        status=500,
+        body=json.dumps({"developerMessage": f"Reading variable: {UNKNOWN_MESSAGE_ID} failed (-1)", "status": 500}),
+    )
+    mock_api.post(READ_URL, payload=READ_WITHOUT_UNKNOWN_MESSAGE_ID_RESPONSE, repeat=True)
+    endpoints: list[Endpoint] = [System.OUTDOOR_TEMPERATURE, HeatingCircuit.ROOM_TEMPERATURE]
+
+    readings: Readings = await client.read(endpoints, counts=counts, message_ids=True)
+
+    assert readings[System.OUTDOOR_TEMPERATURE] == [Reading(value=10.5, raw_value="10.5", device_number=1)]
+    assert readings[HeatingCircuit.ROOM_TEMPERATURE][0].message_id == MessageId(
+        value=10, kind=MessageIdKind.DEACTIVATED
+    )
+    assert await client.read(endpoints, counts=counts, message_ids=True) == readings
+    assert sent_requests(mock_api) == snapshot(name="requests")
+    await client.close()
+
+
+async def test_read_unknown_value_with_message_ids(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, counts: DeviceCounts
+) -> None:
+    """Test that an unknown value variable raises `UnsupportedVariableError`, also with message ids."""
+    variable: str = "APPL.CtrlAppl.sParam.outdoorTemp.values.actValue"
+    mock_api.post(
+        READ_URL,
+        status=500,
+        body=json.dumps({"developerMessage": f"Reading variable: {variable} failed (-1)", "status": 500}),
+    )
+
+    with pytest.raises(UnsupportedVariableError, match=r"^500 Internal Server Error: .* - Reading variable: ") as error:
+        await client.read([System.OUTDOOR_TEMPERATURE], counts=counts, message_ids=True)
+
+    assert error.value.variable == variable
+    await client.close()
+
+
+async def test_write(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    snapshot: SnapshotAssertion,
+    sent_requests: SentRequests,
+) -> None:
+    """Test that `write()` writes all values with one request, including the consumer priorities."""
+    mock_api.post(WRITE_URL, payload=[])
+
+    await client.write(
+        {
+            System.OPERATING_MODE: [SystemOperatingMode.AUTO_HEATING],
+            BufferTank.OPERATING_MODE: [None, BufferTankOperatingMode.MANUAL_CHARGE],
+            HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL: [20, None, 21.5],
+            HeatingCircuit.USE_EXCESS_ENERGY: [True, False],
+            HeatingCircuit.HEATING_CURVE: ["HC1"],
+            HeatingCircuit.VACATION_START: [1767225600],
+            SolarCircuit.CONSUMER_1_PRIORITY: [True, None, False],
+            DHWTank.TARGET_TEMPERATURE: [],
+        }
+    )
+
+    assert sent_requests(mock_api) == snapshot
+    await client.close()
+
+
+async def test_write_nothing(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that `write()` sends no request without values."""
+    await client.write({HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL: [None, None]})
+    mock_api.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("endpoint", "values", "expected_error"),
+    [
+        (HeatPump.STATE, [1], "^HeatPump.STATE is read-only$"),
+        (
+            HeatingCircuit.HEATING_CURVE,
+            "HC1",
+            "^HeatingCircuit.HEATING_CURVE needs a sequence of values, not a string$",
+        ),
+        (System.OPERATING_MODE, [None, None], "^System.OPERATING_MODE is system wide, only one value can be written$"),
+        (
+            HeatingCircuit.USE_EXCESS_ENERGY,
+            [1],
+            "^Invalid value 1 for HeatingCircuit.USE_EXCESS_ENERGY, expected bool$",
+        ),
+        (
+            HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL,
+            [True],
+            "^Invalid value True for HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL, expected float$",
+        ),
+        (
+            HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL,
+            ["20"],
+            "^Invalid value '20' for HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL, expected float$",
+        ),
+        (HeatingCircuit.VACATION_START, [1.5], "^Invalid value 1.5 for HeatingCircuit.VACATION_START, expected int$"),
+        (HeatingCircuit.HEATING_CURVE, [1], "^Invalid value 1 for HeatingCircuit.HEATING_CURVE, expected str$"),
+        (
+            BufferTank.OPERATING_MODE,
+            [HeatingCircuitOperatingMode.AUTO],
+            (
+                "^Invalid value <HeatingCircuitOperatingMode.AUTO: 1> for BufferTank.OPERATING_MODE, "
+                "expected BufferTankOperatingMode$"
+            ),
+        ),
+        (
+            BufferTank.OPERATING_MODE,
+            [1],
+            "^Invalid value 1 for BufferTank.OPERATING_MODE, expected BufferTankOperatingMode$",
+        ),
+    ],
+    ids=[
+        "read_only",
+        "string",
+        "system_wide",
+        "int_for_bool",
+        "bool_for_float",
+        "str_for_float",
+        "float_for_int",
+        "int_for_str",
+        "other_enum",
+        "int_for_enum",
+    ],
+)
+async def test_write_invalid(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    endpoint: Endpoint,
+    values: list[WriteValue | None],
+    expected_error: str,
+) -> None:
+    """Test that `write()` raises `APIError` for invalid values without a request."""
+    with pytest.raises(APIError, match=expected_error):
+        await client.write({endpoint: values})
+
+    mock_api.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("endpoints", "unknown"),
+    [
+        ([HeatPump.STATE, HeatPump.COP], []),
+        (
+            [HeatPump.COP, HeatPump.STATE, HeatingCircuit.NAME, HeatingCircuit.TYPE, HeatPump.COP],
+            ["APPL.CtrlAppl.sParam.heatpump[0].values.COP", "APPL.CtrlAppl.sParam.heatCircuit[1].param.name"],
+        ),
+        ([HeatPump.COP, BufferTank.NAME], ["APPL.CtrlAppl.sParam.heatpump[0].values.COP"]),
+    ],
+    ids=["all_supported", "unknown_variables", "none_supported"],
+)
+async def test_filter_supported(
+    mock_api: aioresponses,
+    endpoints: list[Endpoint],
+    unknown: list[str],
+    snapshot: SnapshotAssertion,
+    sent_requests: SentRequests,
+) -> None:
+    """Test that `filter_supported()` drops the endpoints with a variable the Web HMI rejects."""
+    for name in unknown:
+        mock_api.post(
+            READ_URL,
+            status=500,
+            body=json.dumps({"developerMessage": f"Reading variable: {name} failed (-1)", "status": 500}),
+        )
+
+    mock_api.post(READ_URL, payload=[])
+
+    async with KebaKeEnergyAPI(host="mocked-host") as client:
+        supported: list[Endpoint] = await client.filter_supported(endpoints, counts=FILTER_COUNTS)
+
+    assert supported == snapshot(name="supported")
+    assert sent_requests(mock_api) == snapshot(name="requests")
+
+
+@pytest.mark.parametrize(
+    ("status", "body", "expected_error"),
+    [
+        (503, "Service Unavailable", "503 Service Unavailable"),
+        (500, json.dumps({"developerMessage": "Unexpected error", "status": 500}), "Unexpected error"),
+        (
+            500,
+            json.dumps({"developerMessage": "Reading variable: APPL.CtrlAppl.sParam.notRequested failed (-1)"}),
+            "notRequested",
+        ),
+    ],
+    ids=["other_status", "unknown_message", "variable_not_requested"],
+)
+async def test_filter_supported_api_error(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    counts: DeviceCounts,
+    status: int,
+    body: str,
+    expected_error: str,
+) -> None:
+    """Test that `filter_supported()` raises errors that don't name a requested variable."""
+    mock_api.post(READ_URL, status=status, body=body)
+
+    with pytest.raises(APIError, match=expected_error):
+        await client.filter_supported([DHWTank.TOP_TEMPERATURE, HeatPump.STATE], counts=counts)
+
+    await client.close()
+
+
+async def test_filter_supported_empty(client: KebaKeEnergyAPI, mock_api: aioresponses, counts: DeviceCounts) -> None:
+    """Test that `filter_supported()` sends no request without endpoints."""
+    assert await client.filter_supported([], counts=counts) == []
+    mock_api.assert_not_called()
+
+
+async def test_get_curve_tables(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, snapshot: SnapshotAssertion, sent_requests: SentRequests
+) -> None:
+    """Test that `get_curve_tables()` reads the names and the points of the curves in use."""
+    mock_api.post(READ_URL, payload=CURVE_TABLE_NAMES_RESPONSE)
+    mock_api.post(
+        READ_URL,
+        payload=[
+            *curve_table_response("7", CURVE_TABLE_POINTS),
+            # A number of points above the maximum is limited to the maximum.
+            *curve_table_response("20", CURVE_TABLE_MAX_POINTS),
+        ],
+    )
+
+    curves: dict[str, CurveTable] = await client.get_curve_tables()
+
+    assert curves == {
+        "HC1": CurveTable(name="HC1", points=tuple(CURVE_TABLE_POINTS)),
+        "HC2": CurveTable(name="HC2", points=tuple(CURVE_TABLE_MAX_POINTS)),
+    }
+    assert sent_requests(mock_api) == snapshot(name="requests")
+    await client.close()
+
+
+@pytest.mark.parametrize(
+    ("names", "expected_names"),
+    [(["HC2"], ["HC2"]), (["HC2", "HC1"], ["HC2", "HC1"]), (["HC2", "HC2"], ["HC2"])],
+    ids=["single", "requested_order", "duplicate"],
+)
+async def test_get_curve_tables_selected(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    snapshot: SnapshotAssertion,
+    sent_requests: SentRequests,
+    names: list[str],
+    expected_names: list[str],
+) -> None:
+    """Test that `get_curve_tables()` only reads the points of the requested curves, each once."""
+    mock_api.post(READ_URL, payload=CURVE_TABLE_NAMES_RESPONSE)
+    mock_api.post(
+        READ_URL, payload=[item for _ in expected_names for item in curve_table_response("7", CURVE_TABLE_POINTS)]
+    )
+
+    curves: dict[str, CurveTable] = await client.get_curve_tables(names)
+
+    assert list(curves) == expected_names
+    assert curves[names[0]] == CurveTable(name=names[0], points=tuple(CURVE_TABLE_POINTS))
+    assert sent_requests(mock_api) == snapshot(name="requests")
+    await client.close()
+
+
+async def test_get_curve_tables_unknown_curve(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that an unknown curve raises `APIError` without reading the points."""
+    mock_api.post(READ_URL, payload=CURVE_TABLE_NAMES_RESPONSE)
+
+    with pytest.raises(APIError, match=r"^Invalid curve table 'HC3'! Allowed values are \['HC1', 'HC2'\]$"):
+        await client.get_curve_tables(["HC1", "HC3"])
+
+    mock_api.assert_called_once()
+    await client.close()
+
+
+async def test_get_curve_table_names(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that `get_curve_table_names()` returns only the names of the curve tables."""
+    mock_api.post(READ_URL, payload=CURVE_TABLE_NAMES_RESPONSE)
+
+    assert await client.get_curve_table_names() == ("HC1", "HC2")
+
+    mock_api.assert_called_once()
+    await client.close()
+
+
+async def test_get_curve_tables_without_curves(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that `get_curve_tables()` reads no points without curves."""
+    mock_api.post(READ_URL, payload=[{"value": ""} for _ in range(30)])
+
+    assert await client.get_curve_tables() == {}
+
+    mock_api.assert_called_once()
+    await client.close()
+
+
+async def test_set_curve_table_points(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, snapshot: SnapshotAssertion, sent_requests: SentRequests
+) -> None:
+    """Test that `set_curve_table_points()` writes the points, resets the unused ones and saves the curve."""
+    mock_api.post(READ_URL, payload=CURVE_TABLE_NAMES_RESPONSE)
+    mock_api.post(WRITE_URL, payload=[])
+
+    await client.set_curve_table_points("HC2", CURVE_TABLE_POINTS)
+
+    assert sent_requests(mock_api) == snapshot(name="requests")
+    await client.close()
+
+
+async def test_set_curve_table_points_single_point(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, snapshot: SnapshotAssertion, sent_requests: SentRequests
+) -> None:
+    """Test that `set_curve_table_points()` writes a single point and resets the other ones."""
+    mock_api.post(READ_URL, payload=CURVE_TABLE_NAMES_RESPONSE)
+    mock_api.post(WRITE_URL, payload=[])
+
+    await client.set_curve_table_points("HC2", [CurvePoint(outdoor=0, flow=30)])
+
+    assert sent_requests(mock_api) == snapshot(name="requests")
+    await client.close()
+
+
+async def test_set_curve_table_points_unknown_curve(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that an unknown curve raises `APIError` without a write."""
+    mock_api.post(READ_URL, payload=CURVE_TABLE_NAMES_RESPONSE)
+
+    with pytest.raises(APIError, match=r"^Invalid curve table 'HC3'! Allowed values are \['HC1', 'HC2'\]$"):
+        await client.set_curve_table_points("HC3", CURVE_TABLE_POINTS)
+
+    mock_api.assert_called_once()
+    await client.close()
+
+
+@pytest.mark.parametrize("number_of_points", [0, 17], ids=["too_few", "too_many"])
+async def test_set_curve_table_points_invalid_number(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, number_of_points: int
+) -> None:
+    """Test that an invalid number of points raises `APIError` without a request."""
+    points: list[CurvePoint] = [CurvePoint(outdoor=0, flow=30)] * number_of_points
+
+    with pytest.raises(APIError, match=f"^A curve table needs 1 to 16 points, not {number_of_points}$"):
+        await client.set_curve_table_points("HC1", points)
+
+    mock_api.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("timer_type", "device_numbers", "timers"),
+    [
+        (WeekTimerType.HEATING_CIRCUIT_HEATING, [1, 2], [WEEK_TIMER_TWO_BLOCKS, WEEK_TIMER_TO_MIDNIGHT]),
+        (WeekTimerType.HEATING_CIRCUIT_COOLING, [2], [WEEK_TIMER_TWO_BLOCKS]),
+        (WeekTimerType.DHW_TANK, [1], [WEEK_TIMER_TWO_BLOCKS]),
+        (WeekTimerType.HEATING_CIRCUIT_HEATING, [2, 1, 2], [WEEK_TIMER_TWO_BLOCKS, WEEK_TIMER_TO_MIDNIGHT]),
+    ],
+    ids=["heating", "cooling", "dhw_tank", "requested_order"],
+)
+async def test_get_week_timers(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    timer_type: WeekTimerType,
+    device_numbers: list[int],
+    timers: list[WeekTimer],
+) -> None:
+    """Test that `get_week_timers()` reads the timers of the devices, each once, with one request."""
+    mock_api.post(READ_URL, payload=[item for timer in timers for item in week_timer_response(timer)])
+
+    assert await client.get_week_timers(timer_type, device_numbers) == dict(
+        zip(dict.fromkeys(device_numbers), timers, strict=True)
+    )
+    mock_api.assert_called_once()
+    await client.close()
+
+
+@pytest.mark.parametrize(
+    ("timer_type", "device_numbers"),
+    [
+        (WeekTimerType.HEATING_CIRCUIT_HEATING, [1, 2]),
+        (WeekTimerType.HEATING_CIRCUIT_COOLING, [2]),
+        (WeekTimerType.DHW_TANK, [1]),
+    ],
+    ids=["heating", "cooling", "dhw_tank"],
+)
+async def test_get_week_timers_request(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    snapshot: SnapshotAssertion,
+    sent_requests: SentRequests,
+    timer_type: WeekTimerType,
+    device_numbers: list[int],
+) -> None:
+    """Test that `get_week_timers()` requests start and stop of every block of every day and device."""
+    mock_api.post(READ_URL, payload=week_timer_response(WEEK_TIMER_TO_MIDNIGHT) * len(device_numbers))
+
+    await client.get_week_timers(timer_type, device_numbers)
+
+    assert sent_requests(mock_api) == snapshot(name="requests")
+    await client.close()
+
+
+async def test_get_week_timers_without_devices(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that `get_week_timers()` sends no request without devices."""
+    assert await client.get_week_timers(WeekTimerType.DHW_TANK, []) == {}
+    mock_api.assert_not_called()
+
+
+async def test_set_week_timers(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, snapshot: SnapshotAssertion, sent_requests: SentRequests
+) -> None:
+    """Test that `set_week_timers()` writes the timers of the given devices with one request."""
+    mock_api.post(WRITE_URL, payload=[])
+
+    await client.set_week_timers(WeekTimerType.HEATING_CIRCUIT_COOLING, {2: WEEK_TIMER_TWO_BLOCKS})
+
+    assert sent_requests(mock_api) == snapshot(name="requests")
+    await client.close()
+
+
+async def test_set_week_timers_selected_days_and_blocks(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, snapshot: SnapshotAssertion, sent_requests: SentRequests
+) -> None:
+    """Test that `set_week_timers()` only writes the given days and blocks."""
+    mock_api.post(WRITE_URL, payload=[])
+    timer: WeekTimer = WeekTimer(
+        days={
+            WeekDay.SATURDAY: WEEK_TIMER_DAY_TO_MIDNIGHT,
+            WeekDay.MONDAY: DayTimer(blocks=WEEK_TIMER_DAY_TWO_BLOCKS.blocks[:2]),
+        }
+    )
+
+    await client.set_week_timers(WeekTimerType.DHW_TANK, {1: timer})
+
+    assert sent_requests(mock_api) == snapshot(name="requests")
+    await client.close()
+
+
+async def test_set_week_timers_without_days(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that `set_week_timers()` sends no request for a timer without days."""
+    await client.set_week_timers(WeekTimerType.DHW_TANK, {1: WeekTimer(days={})})
+
+    mock_api.assert_not_called()
+
+
+async def test_set_week_timers_nothing(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that `set_week_timers()` sends no request without timers."""
+    await client.set_week_timers(WeekTimerType.DHW_TANK, {})
+
+    mock_api.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("timer", "message"),
+    [
+        (
+            WeekTimer(days={WeekDay.MONDAY: DayTimer(blocks=())}),
+            "^The week timer needs 1 to 3 blocks for MONDAY$",
+        ),
+        (
+            WeekTimer(days={WeekDay.FRIDAY: DayTimer(blocks=(UNUSED_TIME_BLOCK,) * 4)}),
+            "^The week timer needs 1 to 3 blocks for FRIDAY$",
+        ),
+        (
+            WeekTimer(
+                days={
+                    **WEEK_TIMER_TO_MIDNIGHT.days,
+                    WeekDay.MONDAY: DayTimer(blocks=(TimeBlock(start=28_800, stop=25_200),) * 3),
+                }
+            ),
+            r"^Invalid week timer block 28800 to 25200! It needs to be within 0 and 86400 seconds$",
+        ),
+        (
+            WeekTimer(
+                days={
+                    **WEEK_TIMER_TO_MIDNIGHT.days,
+                    WeekDay.MONDAY: DayTimer(blocks=(TimeBlock(start=28_800, stop=90_000),) * 3),
+                }
+            ),
+            r"^Invalid week timer block 28800 to 90000! It needs to be within 0 and 86400 seconds$",
+        ),
+        (
+            WeekTimer(
+                days={
+                    **WEEK_TIMER_TO_MIDNIGHT.days,
+                    WeekDay.MONDAY: DayTimer(blocks=(TimeBlock(start=-3_600, stop=3_600),) * 3),
+                }
+            ),
+            r"^Invalid week timer block -3600 to 3600! It needs to be within 0 and 86400 seconds$",
+        ),
+    ],
+    ids=["no_blocks", "too_many_blocks", "start_after_stop", "stop_after_midnight", "negative_start"],
+)
+async def test_set_week_timers_invalid_timer(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, timer: WeekTimer, message: str
+) -> None:
+    """Test that an invalid timer raises `APIError` without a write."""
+    with pytest.raises(APIError, match=message):
+        await client.set_week_timers(WeekTimerType.DHW_TANK, {1: timer})
+
+    mock_api.assert_not_called()
+
+
+async def test_get_alarm_count(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that the number of pending alarms is returned."""
+    mock_api.post("http://mocked-host/alarm?action=getCount", payload={"value": 1})
+
+    assert await client.get_alarm_count() == 1
+
+    await client.close()
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "language"),
+    [({}, "en"), ({"language": "de"}, "de")],
+    ids=["default_language", "language"],
+)
+async def test_get_alarms(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    sent_requests: SentRequests,
+    kwargs: dict[str, str],
+    language: str,
+) -> None:
+    """Test that the pending alarms are returned in the requested language."""
+    mock_api.post(f"{ALARMS_URL}&languageCode={language}", payload=ALARMS_RESPONSE)
+
+    assert await client.get_alarms(**kwargs) == ALARMS
+    assert sent_requests(mock_api) == [
+        {"method": "POST", "url": f"{ALARMS_URL}&languageCode={language}", "data": None},
+    ]
+
+    await client.close()
+
+
+async def test_get_alarms_without_alarms(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that no pending alarms return an empty list."""
+    mock_api.post(f"{ALARMS_URL}&languageCode=en", payload={"alarms": []})
+
+    assert await client.get_alarms() == []
+
+    await client.close()
+
+
+async def test_get_alarms_invalid_timestamp(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that an alarm with an invalid date raises `InvalidResponseError`."""
+    alarm: dict[str, Any] = {
+        **ALARMS_RESPONSE["alarms"][0],
+        "timeStamp": {"hours": 0, "seconds": 0, "month": 0, "year": 0, "minutes": 0, "day": 0},
+    }
+    mock_api.post(f"{ALARMS_URL}&languageCode=en", payload={"alarms": [alarm]})
+
+    with pytest.raises(InvalidResponseError, match=r"^Invalid timestamp of alarm 700: \{"):
+        await client.get_alarms()
+
+    await client.close()

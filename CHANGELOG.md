@@ -7,6 +7,108 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+The 3.0.0 release is a typed low-level API with the technical terms as names. It breaks every 2.x import, see
+the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration) ([Issue #132][issue-132]).
+
+### Added
+
+- Added `KebaKeEnergyAPI.read()`, which returns a `Reading` per device with the typed `value`, the `raw_value`
+  (as the Web HMI delivers it, e.g. `"25"` for `HeatPumpSubState.DRIP`, which has the values `13` and `25`),
+  `device_number`, `consumer_number`, `lower_limit`, `upper_limit` and `message_id` ([Issue #132][issue-132])
+- Added `write()`, `filter_supported()`, `get_device_counts()` (`DeviceCounts`), `get_system_info()`,
+  `get_hmi_info()`, `get_device_info()`, `get_curve_tables()` (`CurveTable`) and
+  `set_curve_table_points()` to `KebaKeEnergyAPI` ([Issue #132][issue-132])
+- Added `get_week_timers()` and `set_week_timers()` for the week timers of the heating circuits (heating and cooling)
+  and DHW tanks (`WeekTimerType`, `WeekTimer`, `DayTimer`, `TimeBlock` and `WeekDay`), the times are `int` seconds since
+  midnight, `24:00` is `86400`
+- Added `EndpointDefinition.raw_unit`, `EndpointDefinition.display_unit`, `EndpointDefinition.display_factor`,
+  `EndpointDefinition.display_precision`, `EndpointDefinition.message_id` and `DeviceType` (the device type of a
+  section as `device_type`) ([Issue #132][issue-132])
+- Added `read(..., message_ids=True)`, which reads the message ids with the values in the same request
+  (`Reading.message_id` with `value` and `kind`). A message id the Web HMI doesn't know is left out, the value is
+  still read ([Issue #132][issue-132])
+- Added `read(..., limits=...)` to choose the endpoints whose limits are read (`all`, `none`, `read_only` or
+  `writable`), as the limits make a request about twice as slow ([Issue #132][issue-132])
+- Added the message ids of the components of pumps, the compressor, the mixers, the heat and energy meters, the
+  superheat control, the switch valve of the passive cooling and the external heat source ([Issue #132][issue-132])
+- Added `UnsupportedVariableError` (with the `variable` name) and `InvalidResponseError` ([Issue #132][issue-132])
+- Added `ExcessEnergyState`, `HeatingCircuitRequest`, `HeatingCircuitType`, `ElectricalEnergyMeterType`, `HeatMeterType`
+  and `SolarCircuitOperatingMode` ([Issue #132][issue-132])
+- Added the heat pump endpoints `MODEL`, `TYPE` (`HeatPumpType`), `TARGET_TEMPERATURE`, `STATE_DURATION`,
+  `STATE_REMAINING_TIME`, `SUPERHEAT_CONTROL_STATE` (`SuperheatControlState`), the operating times per mode
+  (`HEATING_OPERATING_TIME`, `COOLING_OPERATING_TIME`, `DHW_OPERATING_TIME`), the defrost statistics (`DEFROST_CYCLES`,
+  `FAILED_DEFROST_CYCLES`, `DEFROST_THERMAL_ENERGY`, `DEFROST_ELECTRICAL_ENERGY`, `DEFROST_OPERATING_TIME`,
+  `EXCESS_ENERGY_DEFROST_CONSUMPTION`), the thermal excess energy in total and per mode (`EXCESS_ENERGY_THERMAL_ENERGY`,
+  `EXCESS_ENERGY_HEATING_THERMAL_ENERGY`, `EXCESS_ENERGY_COOLING_THERMAL_ENERGY`, `EXCESS_ENERGY_DHW_THERMAL_ENERGY`,
+  `EXCESS_ENERGY_DEFROST_THERMAL_ENERGY`), the option `HAS_REVERSE_CYCLE_DEFROST` and the failures
+  `HIGH_PRESSURE_FAILURE`, `LOW_PRESSURE_FAILURE`, `PHASE_MONITOR_FAILURE` and `GAS_LEAK_FAILURE` ([Issue
+  #133][issue-133])
+- Added the meter values of the heat pump: power, accumulated and daily energy and mass flow of the heating, DHW,
+  cooling and source meter (`HEATING_METER_*`, `DHW_METER_*`, `COOLING_METER_*`, `SOURCE_METER_*`) and the
+  accumulated and daily energy of the electrical meter (`METER_ACCUMULATED_ELECTRICAL_ENERGY`,
+  `METER_DAILY_ELECTRICAL_ENERGY`) ([Issue #133][issue-133])
+- Added `HeatPump.SOURCE_VOLUME_FLOW`, the volume flow on the source side ([Issue #133][issue-133])
+- Added the `Cascade` section (`DeviceType.CASCADE`) with the settings, power and COP of the cascade and its
+  statistics, the `CASCADE_*` endpoints of the heat pump and the external heat source (state, power level,
+  priorities, lock, forced activation, times) and `CascadeStrategy` and `CascadeState` ([Issue #133][issue-133])
+- Added the sensors and outputs `HeatPump.CONDENSER_OUTLET_TEMPERATURE`, `OIL_TEMPERATURE`, `SOURCE_PRESSURE`,
+  `OUTDOOR_UNIT_TEMPERATURE`, `COOLING_ACTIVE`, `ELECTRIC_DEFROST_ACTIVE`, `OIL_HEATER_ACTIVE`,
+  `CONDENSATE_HEATER_ACTIVE`, `DHWTank.BOTTOM_TEMPERATURE`, the flow and return temperatures of the buffer tank and
+  the passive cooling (`FLOW_TEMPERATURE`, `RETURN_TEMPERATURE`), the temperature and return temperature of the
+  external heat source (`TEMPERATURE`, `RETURN_TEMPERATURE`) and `HeatingCircuit.FILTERED_OUTDOOR_TEMPERATURE` ([Issue
+  #133][issue-133])
+- Added `SolarCircuit.METER_MASS_FLOW` and the solar circuit statistics `THERMAL_ENERGY` and `OPERATING_TIME`
+  ([Issue #133][issue-133])
+- Added the performance factors `HEATING_PF`, `COOLING_PF`, `DHW_PF` and `TOTAL_PF` of the heat pump and the
+  cascade, `HeatPump.TOTAL_OPERATING_TIME`, `HeatPump.MOP_ACTIVE` and the estimated compressor power
+  (`COMPRESSOR_ESTIMATED_ELECTRICAL_POWER`, `COMPRESSOR_ESTIMATED_REFRIGERATING_CAPACITY`) ([Issue #133][issue-133])
+- Added `KebaKeEnergyAPI.get_alarms()` and `get_alarm_count()`, which read the pending alarms of the control unit
+  (`Alarm`, `AlarmPriority`) ([Issue #135][issue-135])
+- Added `KebaKeEnergyAPI.is_remote_maintenance_active()`, `is_remote_maintenance_connected()`,
+  `is_remote_maintenance_server_reachable()` and `set_remote_maintenance_active()` for the remote maintenance and
+  `is_modbus_active()` and `set_modbus_active()` for the Modbus TCP server of the control unit ([Issue
+  #138][issue-138])
+- Added `KebaKeEnergyAPI.get_curve_table_names()`, which reads only the names of the curve tables, and
+  `get_curve_tables(names)`, which reads only the points of the requested curve tables ([Issue #144][issue-144])
+
+### Changed
+
+- Changed the minimum Python version to 3.14.2 ([Issue #132][issue-132])
+- Changed the modules: `constants` became `endpoints`, `enums` (values), `models` and `constants`
+  (`API_DEFAULT_TIMEOUT`, `MIN_CURVE_TABLE_POINTS`, `MAX_CURVE_TABLE_POINTS`), `api` became `client` and
+  `error` became `exceptions` ([Issue #132][issue-132])
+- Changed `KebaKeEnergyAPI()`: `username` and `password` are keyword-only, `verify_ssl` replaced
+  `skip_ssl_verification` ([Issue #132][issue-132])
+- Changed the values: `read()` returns `bool`, `float`, `int`, `str` or enum members instead of lowercase strings,
+  without rounding or scaling, e.g. ratios stay `0..1`, the CPU usage stays per mille and the mixer setpoint is
+  returned as it is ([Issue #132][issue-132])
+- Changed `filter_supported()` to drop an endpoint if the Web HMI doesn't know its variable of one of the installed
+  devices, as `read()` would fail with it ([Issue #132][issue-132])
+- Changed the session: a passed session is used as it is, otherwise the client opens one on the first request and
+  closes it with `close()`, no session per request anymore ([Issue #132][issue-132])
+- Changed `write()` to raise an `APIError` for a read-only endpoint or a value of the wrong type instead of
+  ignoring it ([Issue #132][issue-132])
+- Changed `InvalidJsonError` to `InvalidResponseError` ([Issue #132][issue-132])
+- Renamed the device types, the endpoints, the enums and their members to the technical terms (e.g. `HeatCircuit` to
+  `HeatingCircuit`, `HotWaterTank` to `DHWTank`) and replaced the methods of the section clients, the
+  [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration) has the tables (old name → new name)
+  ([Issue #132][issue-132])
+
+### Removed
+
+- Removed the section clients (`client.heat_pump`, …) with all `get_*`, `set_*`, `has_*` and `get_number_of_*`
+  methods, `read_data()`, `write_data()` and `filter_request()` ([Issue #132][issue-132])
+- Removed `human_readable`, `extra_attributes` and `key_prefix`, the heating curve points are no longer part of the
+  read response ([Issue #132][issue-132])
+- Removed `Position`, `EndpointPath`, `PAYLOAD_PREFIX`, `ACT_VALUE_SUFFIX`, `MESSAGE_ID_SUFFIX`, `BoolEnum`,
+  `HeatPumpOperatingMode` and `MixerSwitchValvePosition` ([Issue #132][issue-132])
+
+[issue-132]: https://github.com/superbox-dev/keba_keenergy_api/issues/132
+[issue-133]: https://github.com/superbox-dev/keba_keenergy_api/issues/133
+[issue-135]: https://github.com/superbox-dev/keba_keenergy_api/issues/135
+[issue-138]: https://github.com/superbox-dev/keba_keenergy_api/issues/138
+[issue-144]: https://github.com/superbox-dev/keba_keenergy_api/issues/144
+
 <!--start-->
 
 ## [2.14.0] - 2026-10-28

@@ -8,41 +8,20 @@ from collections.abc import Callable
 from collections.abc import Iterator
 from typing import Any
 from typing import Final
-from typing import TypeAlias
 
 import pytest
 from aiohttp import ClientTimeout
 from aioresponses import aioresponses
 
-from keba_keenergy_api.api import KebaKeEnergyAPI
+from keba_keenergy_api.client import KebaKeEnergyAPI
 from keba_keenergy_api.constants import API_DEFAULT_TIMEOUT
+from keba_keenergy_api.models import DeviceCounts
 
-READ_URL: Final[str] = "http://mocked-host/var/readWriteVars"
-WRITE_URL: Final[str] = f"{READ_URL}?action=set"
-TIMEOUT: Final[ClientTimeout] = ClientTimeout(total=API_DEFAULT_TIMEOUT)
+READ_URL: Final = "http://mocked-host/var/readWriteVars"
+WRITE_URL: Final = f"{READ_URL}?action=set"
+TIMEOUT: Final = ClientTimeout(total=API_DEFAULT_TIMEOUT)
 
-SentRequests: TypeAlias = Callable[[aioresponses], list[dict[str, Any]]]
-
-
-def case_id(method: str, kwargs: dict[str, Any], /, *values: object) -> str:
-    """Return the test id of an endpoint test case.
-
-    Parameters
-    ----------
-    method
-        Name of the endpoint method.
-    kwargs
-        Keyword arguments of the method call.
-    *values
-        Further values that tell the cases apart, e.g. the raw and the expected value.
-
-    Returns
-    -------
-    str
-        The method, the keyword arguments and the values, joined by ``-``.
-
-    """
-    return "-".join([method, *(f"{key}_{value}" for key, value in kwargs.items()), *(str(value) for value in values)])
+type SentRequests = Callable[[aioresponses], list[dict[str, Any]]]
 
 
 @pytest.fixture
@@ -56,6 +35,27 @@ def client() -> KebaKeEnergyAPI:
 
     """
     return KebaKeEnergyAPI(host="mocked-host")
+
+
+@pytest.fixture
+def counts() -> DeviceCounts:
+    """Return installed devices with none, one and two devices of a type.
+
+    Returns
+    -------
+    DeviceCounts
+        No buffer tank and switch valve, two heating circuits, one of every other device type.
+
+    """
+    return DeviceCounts(
+        buffer_tank=0,
+        dhw_tank=1,
+        external_heat_source=1,
+        heat_pump=1,
+        heating_circuit=2,
+        solar_circuit=1,
+        switch_valve=0,
+    )
 
 
 @pytest.fixture

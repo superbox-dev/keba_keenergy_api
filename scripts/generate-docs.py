@@ -4,29 +4,37 @@
 
 """Generate the Markdown pages of the Docusaurus website.
 
-The API reference is rendered from the NumPy-style docstrings with griffe. The home, donation,
-contributing and changelog pages are copied from the marked sections of the Markdown files in the
-repository root, the hand-written pages from ``website/content``. All pages are written to
+The API reference is rendered from the NumPy-style docstrings with griffe, the endpoints, enums and models pages
+from the modules. The home, donation, contributing and changelog pages are copied from the marked sections of the
+Markdown files in the repository root, the hand-written pages from ``website/content``. All pages are written to
 ``website/docs``, which is not tracked by git.
 """
 
-import importlib
+import annotationlib
 import inspect
 import re
 import shutil
 from enum import Enum
 from pathlib import Path
-from types import ModuleType
 from typing import ClassVar
 from typing import Final
+from typing import TypeAliasType
+from typing import get_args
 
 import griffe
+
+from keba_keenergy_api import constants
+from keba_keenergy_api import enums
+from keba_keenergy_api import exceptions
+from keba_keenergy_api import models
+from keba_keenergy_api.endpoints import Endpoint
+from keba_keenergy_api.endpoints import EndpointDefinition
 
 ROOT: Final[Path] = Path(__file__).resolve().parent.parent
 OUTPUT: Final[Path] = ROOT / "website" / "docs"
 CONTENT: Final[Path] = ROOT / "website" / "content"
 PACKAGE: Final[str] = "keba_keenergy_api"
-CLIENT: Final[str] = "client"
+PAYLOAD_PREFIX: Final[str] = "APPL.CtrlAppl"
 SIGNATURE_WIDTH: Final[int] = 100
 
 
@@ -42,6 +50,7 @@ class DocsGenerator:
         "(CHANGELOG.md)": "(changelog.md)",
         "(CONTRIBUTING.md)": "(contributing.md)",
         "(https://superbox-dev.github.io/keba_keenergy_api/usage": "(usage.md",
+        "(https://superbox-dev.github.io/keba_keenergy_api/migration": "(migration.md",
         "(CLAUDE.md)": "(https://github.com/superbox-dev/keba_keenergy_api/blob/main/CLAUDE.md)",
     }
 
@@ -64,34 +73,22 @@ class DocsGenerator:
     def run(self) -> None:
         """Write all pages."""
         shutil.rmtree(self.output, ignore_errors=True)
-        (self.output / "endpoints").mkdir(parents=True)
-
-        client: griffe.Class = self._get_class("api", "KebaKeEnergyAPI")
-        sections: list[tuple[str, griffe.Class]] = [
-            (name, self._get_class("endpoints", str(member.annotation)))
-            for name, member in client.attributes.items()
-            if "property" in member.labels and str(member.annotation).endswith("Endpoints")
-        ]
+        self.output.mkdir(parents=True)
 
         for page in sorted(CONTENT.glob("*.md")):
             shutil.copyfile(page, self.output / page.name)
 
-        self._write_home()
-        self._write_page("donation.md", self._front_matter("Donation", 90), self._extract("README.md", "donation"))
-        self._write_page("api.md", self._front_matter("API client", 10), self._render_client(client, sections))
-        self._write_page("constants.md", self._front_matter("Constants", 30), self._render_constants())
-
-        for position, (name, section) in enumerate(sections, start=1):
-            self._write_page(
-                f"endpoints/{self._slug(name)}.md",
-                self._front_matter(self._title(name), position),
-                self._render_section(name, section),
-            )
-
         self._write_page(
-            "endpoints/_category_.json",
-            '{\n  "label": "Endpoints",\n  "position": 20,\n  "link": {"type": "generated-index"}\n}',
+            "index.md",
+            self._front_matter("Introduction", 0, slug="/"),
+            "# KEBA KeEnergy API",
+            self._extract("README.md", "home"),
         )
+        self._write_page("donation.md", self._front_matter("Donation", 90), self._extract("README.md", "donation"))
+        self._write_page("api.md", self._front_matter("API client", 10), self._render_client())
+        self._write_page("endpoints.md", self._front_matter("Endpoints", 20), self._render_endpoints())
+        self._write_page("enums.md", self._front_matter("Enums", 30), self._render_enums())
+        self._write_page("models.md", self._front_matter("Models and errors", 40), self._render_models())
         self._write_page(
             "changelog.md",
             self._front_matter("Changelog", 70, hide_toc=True),
@@ -105,60 +102,9 @@ class DocsGenerator:
             self._extract("CONTRIBUTING.md", "contributing"),
         )
 
-    def _get_class(self, module: str, name: str) -> griffe.Class:
-        cls: griffe.Alias | griffe.Object = self.package[module][name]
-
-        if not isinstance(cls, griffe.Class):
-            msg: str = f"{module}.{name} is not a class"
-            raise TypeError(msg)
-
-        return cls
-
-    def _write_home(self) -> None:
-        intro: str = self._extract("README.md", "home")
-        self._write_page(
-            "index.md",
-            self._front_matter("Introduction", 0, slug="/"),
-            "# KEBA KeEnergy API",
-            intro,
-        )
-
-    def _extract(self, filename: str, marker: str) -> str:
-        """Join all sections of a Markdown file between ``<!--start-marker-->`` and ``<!--end-marker-->``."""
-        suffix: str = f"-{marker}" if marker else ""
-        text: str = (ROOT / filename).read_text(encoding="utf-8")
-        pattern: re.Pattern[str] = re.compile(rf"<!--start{suffix}-->(.*?)<!--end{suffix}-->", re.DOTALL)
-        content: str = "\n\n".join(part.strip("\n") for part in pattern.findall(text))
-
-        if not content:
-            msg: str = f"No <!--start{suffix}--> section in {filename}"
-            raise ValueError(msg)
-
-        for link, target in self._LINKS.items():
-            content = content.replace(link, target)
-
-        return content
-
     def _write_page(self, path: str, *blocks: str) -> None:
         content: str = "\n\n".join(block.strip("\n") for block in blocks if block)
         (self.output / path).write_text(f"{content}\n", encoding="utf-8")
-
-    def _get_class(self, module: str, name: str) -> griffe.Class:
-        cls: griffe.Object | griffe.Alias = self.package[module][name]
-
-        if not isinstance(cls, griffe.Class):
-            msg: str = f"{module}.{name} is not a class"
-            raise TypeError(msg)
-
-        return cls
-
-    @staticmethod
-    def _slug(name: str) -> str:
-        return name.replace("_", "-")
-
-    @staticmethod
-    def _title(name: str) -> str:
-        return name.replace("_", " ").capitalize()
 
     @staticmethod
     def _front_matter(title: str, position: int, *, slug: str = "", hide_toc: bool = False) -> str:
@@ -189,27 +135,22 @@ class DocsGenerator:
 
         return content
 
-    def _render_client(self, client: griffe.Class, sections: list[tuple[str, griffe.Class]]) -> str:
+    def _render_client(self) -> str:
+        client: griffe.Class = self._get_class("client", "KebaKeEnergyAPI")
         init: griffe.Function = client.functions["__init__"]
         blocks: list[str] = [
             f"# {client.name}",
             self._code(self._signature(client.name, init, prefix="class ")),
             self._render_text(client.docstring),
             self._render_docstring(init.docstring, skip_summary=True),
-            "## Endpoints",
-            "Each endpoint group is a property of the client:",
-            "\n".join(
-                f"- [`{CLIENT}.{name}`](endpoints/{self._slug(name)}.md): {self._summary(section.docstring)}"
-                for name, section in sections
-            ),
         ]
 
         for name, member in client.attributes.items():
-            if "property" in member.labels and not name.startswith("_") and name not in dict(sections):
+            if "property" in member.labels and not name.startswith("_"):
                 blocks.extend(
                     [
                         f"## {name}",
-                        self._code(f"{CLIENT}.{name}: {member.annotation}"),
+                        self._code(f"client.{name}: {member.annotation}"),
                         self._render_docstring(member.docstring),
                     ],
                 )
@@ -217,112 +158,14 @@ class DocsGenerator:
         blocks.extend(self._render_functions(client))
         return "\n\n".join(block for block in blocks if block)
 
-    def _render_section(self, name: str, section: griffe.Class) -> str:
-        blocks: list[str] = [
-            f"# {self._title(name)}",
-            f"Endpoint group `{CLIENT}.{name}` ({section.name}).",
-            self._render_docstring(section.docstring),
-            *self._render_functions(section),
-        ]
-        return "\n\n".join(block for block in blocks if block)
+    def _get_class(self, module: str, name: str) -> griffe.Class:
+        cls: griffe.Alias | griffe.Object = self.package[module][name]
 
-    def _render_constants(self) -> str:
-        """Render the endpoint enums, the value enums and the other public constants."""
-        module: ModuleType = importlib.import_module(f"{PACKAGE}.constants")
-        classes: list[type] = [
-            cls
-            for name, cls in vars(module).items()
-            if inspect.isclass(cls) and cls.__module__ == module.__name__ and not name.startswith("_")
-        ]
-        sections: list[type[Enum]] = [
-            cls
-            for cls in classes
-            if issubclass(cls, Enum) and len(cls) and all(isinstance(member.value, module.Endpoint) for member in cls)
-        ]
-        values: list[type[Enum]] = [
-            cls for cls in classes if issubclass(cls, module.BaseEnum) and cls is not module.BaseEnum
-        ]
-        blocks: list[str] = [
-            "# Constants",
-            (
-                f"The module `{PACKAGE}.constants` defines the endpoints and their values, e.g. for "
-                "[`read_data()`](api.md#read_data) and [`write_data()`](api.md#write_data). "
-                f"Paths are relative to `PAYLOAD_PREFIX` (`{module.PAYLOAD_PREFIX}`), "
-                "`%s` is replaced by the zero-based device index."
-            ),
-            "## Endpoints",
-        ]
+        if not isinstance(cls, griffe.Class):
+            msg: str = f"{module}.{name} is not a class"
+            raise TypeError(msg)
 
-        for section in sections:
-            rows: list[str] = [
-                self._row(
-                    f"`{member.name}`",
-                    member.value.value_type.__name__,
-                    "no" if member.value.read_only else "yes",
-                    self._enum_link(member.value.human_readable),
-                    f"`{member.value.value.removeprefix(module.PAYLOAD_PREFIX + '.')}`",
-                )
-                for member in section
-                if not member.name.startswith("_")
-            ]
-            blocks.extend(
-                [
-                    f"### {section.__name__}",
-                    self._render_text(self._get_class("constants", section.__name__).docstring),
-                    self._table(("Member", "Type", "Writable", "Values", "Path"), rows),
-                ],
-            )
-
-        blocks.extend(
-            [
-                "## Values",
-                "Enums of the readable names, returned with `human_readable=True` and accepted by the setters.",
-            ],
-        )
-
-        for cls in values:
-            rows = [self._row(f"`{member.name}`", f"`{member.value}`") for member in cls]
-            blocks.extend(
-                [
-                    f"### {cls.__name__}",
-                    self._render_text(self._get_class("constants", cls.__name__).docstring),
-                    self._table(("Member", "Value"), rows),
-                ],
-            )
-
-        blocks.extend(self._render_other_constants(module, [*sections, *values]))
-        return "\n\n".join(block for block in blocks if block)
-
-    def _render_other_constants(self, module: ModuleType, documented: list[type[Enum]]) -> list[str]:
-        blocks: list[str] = ["## Other constants"]
-        rows: list[str] = [
-            self._row(f"`{name}`", f"`{value!r}`")
-            for name, value in vars(module).items()
-            if name.isupper() and not name.startswith("_") and isinstance(value, int | str)
-        ]
-        blocks.append(self._table(("Name", "Value"), rows))
-
-        for name, cls in vars(module).items():
-            if not inspect.isclass(cls) or cls.__module__ != module.__name__ or name.startswith("_"):
-                continue
-
-            if cls in documented or cls is module.BaseEnum or issubclass(cls, module.Endpoint):
-                continue
-
-            members: dict[str, object] = (
-                {member.name: member.value for member in cls}
-                if issubclass(cls, Enum)
-                else {key: value for key, value in vars(cls).items() if key.isupper()}
-            )
-            blocks.extend(
-                [
-                    f"### {name}",
-                    self._render_text(self._get_class("constants", name).docstring),
-                    self._table(("Member", "Value"), [self._row(f"`{k}`", f"`{v!r}`") for k, v in members.items()]),
-                ],
-            )
-
-        return blocks
+        return cls
 
     @staticmethod
     def _code(code: str) -> str:
@@ -370,10 +213,6 @@ class DocsGenerator:
 
         return text
 
-    def _summary(self, docstring: griffe.Docstring | None) -> str:
-        text: str = self._render_text(docstring)
-        return text.split("\n\n", maxsplit=1)[0].replace("\n", " ")
-
     def _render_text(self, docstring: griffe.Docstring | None) -> str:
         if docstring is None:
             return ""
@@ -417,6 +256,8 @@ class DocsGenerator:
                 blocks.append(self._convert(text))
             elif isinstance(section, griffe.DocstringSectionParameters):
                 blocks.append(self._render_items("Parameters", section.value))
+            elif isinstance(section, griffe.DocstringSectionAttributes):
+                blocks.append(self._render_items("Attributes", section.value))
             elif isinstance(section, griffe.DocstringSectionReturns):
                 blocks.append(self._render_items("Returns", section.value))
             elif isinstance(section, griffe.DocstringSectionRaises):
@@ -429,14 +270,17 @@ class DocsGenerator:
     def _render_items(
         self,
         title: str,
-        items: list[griffe.DocstringParameter] | list[griffe.DocstringRaise] | list[griffe.DocstringReturn],
+        items: list[griffe.DocstringAttribute]
+        | list[griffe.DocstringParameter]
+        | list[griffe.DocstringRaise]
+        | list[griffe.DocstringReturn],
     ) -> str:
         lines: list[str] = [f"**{title}**", ""]
 
         for item in items:
             parts: list[str] = []
 
-            if isinstance(item, griffe.DocstringParameter):
+            if isinstance(item, griffe.DocstringAttribute | griffe.DocstringParameter):
                 parts.append(f"**{item.name}**")
 
             if item.annotation is not None:
@@ -462,14 +306,6 @@ class DocsGenerator:
 
         return blocks
 
-    @staticmethod
-    def _slug(name: str) -> str:
-        return name.replace("_", "-")
-
-    def _summary(self, docstring: griffe.Docstring | None) -> str:
-        text: str = self._render_text(docstring)
-        return text.split("\n\n", maxsplit=1)[0].replace("\n", " ")
-
     def _render_functions(self, cls: griffe.Class) -> list[str]:
         blocks: list[str] = []
 
@@ -488,127 +324,171 @@ class DocsGenerator:
 
         return blocks
 
-    def _render_constants(self) -> str:
-        """Render the endpoint enums, the value enums and the other public constants."""
-        module: ModuleType = importlib.import_module(f"{PACKAGE}.constants")
-        classes: list[type] = [
-            cls
-            for name, cls in vars(module).items()
-            if inspect.isclass(cls) and cls.__module__ == module.__name__ and not name.startswith("_")
-        ]
-        sections: list[type[Enum]] = [
-            cls
-            for cls in classes
-            if issubclass(cls, Enum) and len(cls) and all(isinstance(member.value, module.Endpoint) for member in cls)
-        ]
-        values: list[type[Enum]] = [
-            cls for cls in classes if issubclass(cls, module.BaseEnum) and cls is not module.BaseEnum
-        ]
+    def _render_endpoints(self) -> str:
+        """Render one table per device type with its public endpoints."""
+        definition: griffe.Class = self._get_class("endpoints", "EndpointDefinition")
         blocks: list[str] = [
-            "# Constants",
+            "# Endpoints",
             (
-                f"The module `{PACKAGE}.constants` defines the endpoints and their values, e.g. for "
-                "[`read_data()`](api.md#read_data) and [`write_data()`](api.md#write_data). "
-                f"Paths are relative to `PAYLOAD_PREFIX` (`{module.PAYLOAD_PREFIX}`), "
-                "`%s` is replaced by the zero-based device index."
+                f"The module `{PACKAGE}.endpoints` defines one enum per device type, its members are the endpoints "
+                "for [`read()`](api.md#read), [`filter_supported()`](api.md#filter_supported) and "
+                f"[`write()`](api.md#write). Paths are relative to `{PAYLOAD_PREFIX}`, `%s` is replaced by the "
+                "zero-based device index. *Unit* is the unit of the value, *Display* how the Web HMI shows it (factor "
+                "to the display unit and decimal places, see [Units and display](usage.md#units-and-display)). "
+                "*Message id* is the component node of the message id (`state.msgId`)."
             ),
-            "## Endpoints",
+            "## EndpointDefinition",
+            self._render_docstring(definition.docstring),
         ]
 
-        for section in sections:
+        for enum_class in get_args(Endpoint.__value__):
             rows: list[str] = [
                 self._row(
-                    f"`{member.name}`",
-                    member.value.value_type.__name__,
-                    "no" if member.value.read_only else "yes",
-                    self._enum_link(member.value.human_readable),
-                    f"`{member.value.value.removeprefix(module.PAYLOAD_PREFIX + '.')}`",
+                    f"`{endpoint.name}`",
+                    self._type_link(endpoint.value.value_type),
+                    endpoint.value.raw_unit or "",
+                    self._display(endpoint.value),
+                    "yes" if endpoint.value.writable else "no",
+                    f"`{endpoint.value.message_id}`" if endpoint.value.message_id else "",
+                    f"`{endpoint.value.path}`",
                 )
-                for member in section
-                if not member.name.startswith("_")
+                for endpoint in enum_class
+                if not endpoint.name.startswith("_")
             ]
             blocks.extend(
                 [
-                    f"### {section.__name__}",
-                    self._render_text(self._get_class("constants", section.__name__).docstring),
-                    self._table(("Member", "Type", "Writable", "Values", "Path"), rows),
+                    f"## {enum_class.__name__}",
+                    self._render_text(self._get_class("endpoints", enum_class.__name__).docstring),
+                    self._table(("Member", "Type", "Unit", "Display", "Writable", "Message id", "Path"), rows),
                 ],
             )
 
-        blocks.extend(
-            [
-                "## Values",
-                "Enums of the readable names, returned with `human_readable=True` and accepted by the setters.",
-            ],
-        )
-
-        for cls in values:
-            rows = [self._row(f"`{member.name}`", f"`{member.value}`") for member in cls]
-            blocks.extend(
-                [
-                    f"### {cls.__name__}",
-                    self._render_text(self._get_class("constants", cls.__name__).docstring),
-                    self._table(("Member", "Value"), rows),
-                ],
-            )
-
-        blocks.extend(self._render_other_constants(module, [*sections, *values]))
         return "\n\n".join(block for block in blocks if block)
+
+    @staticmethod
+    def _display(definition: EndpointDefinition) -> str:
+        """Return the unit, conversion and decimal places the Web HMI shows, empty if the value is shown unchanged."""
+        parts: list[str] = []
+
+        if definition.display_factor != 1.0:
+            factor: str = (
+                f"*{definition.display_factor:g}"
+                if definition.display_factor > 1
+                else f"/{round(1 / definition.display_factor):g}"
+            )
+            parts.append(f"{factor} → {definition.display_unit}" if definition.display_unit else factor)
+
+        if definition.display_precision is not None:
+            parts.append(f"{definition.display_precision} decimal{'' if definition.display_precision == 1 else 's'}")
+
+        return ", ".join(parts)
+
+    @staticmethod
+    def _type_link(value_type: type) -> str:
+        if issubclass(value_type, Enum):
+            return f"[`{value_type.__name__}`](enums.md#{value_type.__name__.lower()})"
+
+        return f"`{value_type.__name__}`"
 
     @staticmethod
     def _row(*cells: str) -> str:
         return f"| {' | '.join(cells)} |"
 
-    @staticmethod
-    def _enum_link(enum: type[Enum] | None) -> str:
-        return f"[`{enum.__name__}`](#{enum.__name__.lower()})" if enum else ""
-
     def _table(self, header: tuple[str, ...], rows: list[str]) -> str:
         return "\n".join([self._row(*header), self._row(*("---" for _ in header)), *rows])
 
-    def _render_other_constants(self, module: ModuleType, documented: list[type[Enum]]) -> list[str]:
-        blocks: list[str] = ["## Other constants"]
-        rows: list[str] = [
-            self._row(f"`{name}`", f"`{value!r}`")
-            for name, value in vars(module).items()
-            if name.isupper() and not name.startswith("_") and isinstance(value, int | str)
+    def _render_enums(self) -> str:
+        """Render the public enums of the ``enums`` module."""
+        blocks: list[str] = [
+            "# Enums",
+            (
+                f"The module `{PACKAGE}.enums` defines the values of the Web HMI. "
+                "[`read()`](api.md#read) returns them as enum members, [`write()`](api.md#write) accepts them."
+            ),
         ]
-        blocks.append(self._table(("Name", "Value"), rows))
 
-        for name, cls in vars(module).items():
-            if not inspect.isclass(cls) or cls.__module__ != module.__name__ or name.startswith("_"):
-                continue
+        for name, cls in vars(enums).items():
+            if inspect.isclass(cls) and issubclass(cls, Enum) and cls.__module__ == enums.__name__ and len(cls):
+                if name.startswith("_"):
+                    continue
 
-            if cls in documented or cls is module.BaseEnum or issubclass(cls, module.Endpoint):
-                continue
+                blocks.extend(
+                    [
+                        f"## {name}",
+                        self._render_text(self._get_class("enums", name).docstring),
+                        self._table(
+                            ("Member", "Value"),
+                            [self._row(f"`{member.name}`", f"`{member.value!r}`") for member in cls],
+                        ),
+                    ],
+                )
 
-            members: dict[str, object] = (
-                {member.name: member.value for member in cls}
-                if issubclass(cls, Enum)
-                else {key: value for key, value in vars(cls).items() if key.isupper()}
-            )
-            blocks.extend(
-                [
-                    f"### {name}",
-                    self._render_text(self._get_class("constants", name).docstring),
-                    self._table(("Member", "Value"), [self._row(f"`{k}`", f"`{v!r}`") for k, v in members.items()]),
-                ],
-            )
+        return "\n\n".join(block for block in blocks if block)
 
-        return blocks
+    def _render_models(self) -> str:
+        """Render the models, the exceptions and the constants."""
+        blocks: list[str] = ["# Models and errors", f"## Models (`{PACKAGE}.models`)"]
+
+        for name, cls in vars(models).items():
+            if inspect.isclass(cls) and cls.__module__ == models.__name__ and not name.startswith("_"):
+                blocks.extend(
+                    [
+                        f"### {name}",
+                        self._code(self._class_fields(cls)),
+                        self._render_docstring(self._get_class("models", name).docstring),
+                    ],
+                )
+
+        blocks.extend(
+            [
+                "### Type aliases",
+                self._code(
+                    "\n".join(
+                        f"type {name} = {self._type_alias_value(alias)}"
+                        for name, alias in vars(models).items()
+                        if isinstance(alias, TypeAliasType)
+                    ),
+                ),
+                f"## Errors (`{PACKAGE}.exceptions`)",
+            ],
+        )
+
+        for name, cls in vars(exceptions).items():
+            if inspect.isclass(cls) and cls.__module__ == exceptions.__name__:
+                bases: str = ", ".join(base.__name__ for base in cls.__bases__)
+                blocks.extend(
+                    [
+                        f"### {name}",
+                        self._code(f"class {name}({bases})"),
+                        self._render_text(self._get_class("exceptions", name).docstring),
+                    ],
+                )
+
+        blocks.extend(
+            [
+                f"## Constants (`{PACKAGE}.constants`)",
+                self._table(
+                    ("Name", "Value"),
+                    [
+                        self._row(f"`{name}`", f"`{value!r}`")
+                        for name, value in vars(constants).items()
+                        if name.isupper() and not name.startswith("_")
+                    ],
+                ),
+            ],
+        )
+        return "\n\n".join(block for block in blocks if block)
 
     @staticmethod
-    def _title(name: str) -> str:
-        return name.replace("_", " ").capitalize()
+    def _type_alias_value(alias: TypeAliasType) -> str:
+        """Return the value of a type alias as written in the source."""
+        return str(annotationlib.call_evaluate_function(alias.evaluate_value, annotationlib.Format.STRING))
 
-    def _render_section(self, name: str, section: griffe.Class) -> str:
-        blocks: list[str] = [
-            f"# {self._title(name)}",
-            f"Endpoint group `{CLIENT}.{name}` ({section.name}).",
-            self._render_docstring(section.docstring),
-            *self._render_functions(section),
-        ]
-        return "\n\n".join(block for block in blocks if block)
+    @staticmethod
+    def _class_fields(model: type) -> str:
+        """Return the class with its fields as written in the source, e.g. of a dataclass or a typed dict."""
+        annotations: dict[str, str] = annotationlib.get_annotations(model, format=annotationlib.Format.STRING)
+        return "\n".join([f"class {model.__name__}:", *(f"    {key}: {value}" for key, value in annotations.items())])
 
 
 if __name__ == "__main__":
