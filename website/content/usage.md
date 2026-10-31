@@ -245,8 +245,8 @@ device has 7 days with 3 blocks, each with a start and a stop.
   blocks, written from the first one, the following blocks of the day keep their value
 - the numbers are always given, the number of installed devices is not read (see `get_device_counts()`), a device that
   is not installed raises an `UnsupportedVariableError`
-- the days are in the order of the Web HMI (`WeekDay.SUNDAY` first), start and stop are a `timedelta` since midnight
-  and the stop can be `24:00` (`timedelta(hours=24)`), an unused block has the same start and stop (`timedelta(0)`)
+- the days are in the order of the Web HMI (`WeekDay.SUNDAY` first), start and stop are `int` seconds since
+  midnight (`21600` is `06:00`) and the stop can be `24:00` (`86400`), an unused block has the same start and stop (`0`)
 
 ```python
 timers = await client.get_week_timers(WeekTimerType.HEATING_CIRCUIT_HEATING, [1, 2])

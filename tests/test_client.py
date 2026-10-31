@@ -4,7 +4,6 @@
 """Tests for the `KebaKeEnergyAPI` client."""
 
 import json
-from datetime import timedelta
 from typing import TYPE_CHECKING
 from typing import Any
 from unittest.mock import patch
@@ -1042,34 +1041,28 @@ async def test_set_week_timers_nothing(client: KebaKeEnergyAPI, mock_api: aiores
             WeekTimer(
                 days={
                     **WEEK_TIMER_TO_MIDNIGHT.days,
-                    WeekDay.MONDAY: DayTimer(
-                        blocks=(TimeBlock(start=timedelta(hours=8), stop=timedelta(hours=7)),) * 3
-                    ),
+                    WeekDay.MONDAY: DayTimer(blocks=(TimeBlock(start=28_800, stop=25_200),) * 3),
                 }
             ),
-            r"^Invalid week timer block 8:00:00 to 7:00:00! It needs to be within 24 hours$",
+            r"^Invalid week timer block 28800 to 25200! It needs to be within 0 and 86400 seconds$",
         ),
         (
             WeekTimer(
                 days={
                     **WEEK_TIMER_TO_MIDNIGHT.days,
-                    WeekDay.MONDAY: DayTimer(
-                        blocks=(TimeBlock(start=timedelta(hours=8), stop=timedelta(hours=25)),) * 3
-                    ),
+                    WeekDay.MONDAY: DayTimer(blocks=(TimeBlock(start=28_800, stop=90_000),) * 3),
                 }
             ),
-            r"^Invalid week timer block 8:00:00 to 1 day, 1:00:00! It needs to be within 24 hours$",
+            r"^Invalid week timer block 28800 to 90000! It needs to be within 0 and 86400 seconds$",
         ),
         (
             WeekTimer(
                 days={
                     **WEEK_TIMER_TO_MIDNIGHT.days,
-                    WeekDay.MONDAY: DayTimer(
-                        blocks=(TimeBlock(start=timedelta(hours=-1), stop=timedelta(hours=1)),) * 3
-                    ),
+                    WeekDay.MONDAY: DayTimer(blocks=(TimeBlock(start=-3_600, stop=3_600),) * 3),
                 }
             ),
-            r"^Invalid week timer block -1 day, 23:00:00 to 1:00:00! It needs to be within 24 hours$",
+            r"^Invalid week timer block -3600 to 3600! It needs to be within 0 and 86400 seconds$",
         ),
     ],
     ids=["no_blocks", "too_many_blocks", "start_after_stop", "stop_after_midnight", "negative_start"],

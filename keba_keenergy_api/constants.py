@@ -16,7 +16,7 @@ MIN_CURVE_TABLE_POINTS: Final = 1
 MAX_CURVE_TABLE_POINTS: Final = 16
 
 WEEK_TIMER_BLOCKS: Final = 3
-# A week timer block ends at the latest at midnight of its day (24:00).
+# A week timer block ends at the latest at midnight of its day (24:00), in seconds since midnight.
 WEEK_TIMER_MAX_SECONDS: Final = 86_400
 
 # Prefix of all variables of the control application.

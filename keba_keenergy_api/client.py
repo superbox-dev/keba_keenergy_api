@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from datetime import date
 from datetime import datetime
 from datetime import time
-from datetime import timedelta
 from enum import Enum
 from http import HTTPStatus
 from itertools import batched
@@ -1125,7 +1124,7 @@ class KebaKeEnergyAPI:
         --------
         >>> timers = await client.get_week_timers(WeekTimerType.HEATING_CIRCUIT_HEATING, [2])
         >>> timers[2].days[WeekDay.MONDAY].blocks[0]
-        TimeBlock(start=datetime.timedelta(seconds=21600), stop=datetime.timedelta(days=1))
+        TimeBlock(start=21600, stop=86400)
 
         """
         numbers: list[int] = list(dict.fromkeys(device_numbers))
@@ -1141,7 +1140,7 @@ class KebaKeEnergyAPI:
                 for variable in self._iter_week_timer_variables(template % (number - 1))
             ]
         )
-        seconds: Iterator[timedelta] = (timedelta(seconds=int(item["value"])) for item in response)
+        seconds: Iterator[int] = (int(item["value"]) for item in response)
 
         return {
             number: WeekTimer(
@@ -1222,14 +1221,17 @@ class KebaKeEnergyAPI:
                 raise APIError(message)
 
             for index, block in enumerate(day_timer.blocks):
-                if not timedelta(0) <= block.start <= block.stop <= timedelta(seconds=WEEK_TIMER_MAX_SECONDS):
-                    message = f"Invalid week timer block {block.start} to {block.stop}! It needs to be within 24 hours"
+                if not 0 <= block.start <= block.stop <= WEEK_TIMER_MAX_SECONDS:
+                    message = (
+                        f"Invalid week timer block {block.start} to {block.stop}! "
+                        f"It needs to be within 0 and {WEEK_TIMER_MAX_SECONDS} seconds"
+                    )
                     raise APIError(message)
 
                 payload += [
                     _WritePayload(
                         name=self._get_week_timer_variable(template, day, index, edge),
-                        value=str(int(value.total_seconds())),
+                        value=str(value),
                     )
                     for edge, value in (("start", block.start), ("stop", block.stop))
                 ]

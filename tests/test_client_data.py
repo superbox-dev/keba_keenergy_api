@@ -4,7 +4,6 @@
 """Test data for the `KebaKeEnergyAPI` client."""
 
 from datetime import datetime
-from datetime import timedelta
 from typing import Any
 from typing import Final
 
@@ -214,15 +213,15 @@ def curve_table_response(number_of_points: str, points: list[CurvePoint], /) -> 
 
 
 # Unused blocks have the same start and stop.
-UNUSED_TIME_BLOCK: Final = TimeBlock(start=timedelta(0), stop=timedelta(0))
+UNUSED_TIME_BLOCK: Final = TimeBlock(start=0, stop=0)
 # A day from 06:00 to 24:00 and a day from 05:30 to 22:00 with a second block from 23:00 to 23:30.
 WEEK_TIMER_DAY_TO_MIDNIGHT: Final = DayTimer(
-    blocks=(TimeBlock(start=timedelta(hours=6), stop=timedelta(hours=24)), UNUSED_TIME_BLOCK, UNUSED_TIME_BLOCK)
+    blocks=(TimeBlock(start=21_600, stop=86_400), UNUSED_TIME_BLOCK, UNUSED_TIME_BLOCK)
 )
 WEEK_TIMER_DAY_TWO_BLOCKS: Final = DayTimer(
     blocks=(
-        TimeBlock(start=timedelta(hours=5, minutes=30), stop=timedelta(hours=22)),
-        TimeBlock(start=timedelta(hours=23), stop=timedelta(hours=23, minutes=30)),
+        TimeBlock(start=19_800, stop=79_200),
+        TimeBlock(start=82_800, stop=84_600),
         UNUSED_TIME_BLOCK,
     )
 )
@@ -248,7 +247,7 @@ def week_timer_response(timer: WeekTimer, /) -> list[dict[str, Any]]:
 
     """
     return [
-        {"value": str(int(value.total_seconds()))}
+        {"value": str(value)}
         for day in WeekDay
         for block in timer.days[day].blocks
         for value in (block.start, block.stop)

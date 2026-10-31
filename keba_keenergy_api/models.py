@@ -6,7 +6,6 @@
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime
-from datetime import timedelta
 from enum import Enum
 from typing import Literal
 from typing import NamedTuple
@@ -131,15 +130,15 @@ class TimeBlock:
     Attributes
     ----------
     start
-        Start of the block as time since midnight, ``00:00`` is ``timedelta(0)``.
+        Start of the block in seconds since midnight, ``00:00`` is ``0``.
     stop
-        End of the block as time since midnight, up to ``timedelta(hours=24)``. An unused block has the same start
-        and stop, usually ``timedelta(0)``.
+        End of the block in seconds since midnight, up to ``WEEK_TIMER_MAX_SECONDS`` (``24:00``). An unused block
+        has the same start and stop, usually ``0``.
 
     """
 
-    start: timedelta
-    stop: timedelta
+    start: int
+    stop: int
 
 
 @dataclass(frozen=True, kw_only=True)
