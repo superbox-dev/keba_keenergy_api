@@ -1341,6 +1341,7 @@ class HeatingCircuit(_DeviceTypeEnum, device_type=DeviceType.HEATING_CIRCUIT):
         raw_unit=_CELSIUS,
         display_precision=1,
     )
+    # Unix timestamp in seconds (UTC), the Web HMI sets the start to 00:00:00 and the end to 23:59:59 local time.
     VACATION_START = EndpointDefinition(
         path="sParam.heatCircuit[%s].param.holiday.start",
         value_type=int,

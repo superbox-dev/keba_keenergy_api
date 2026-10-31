@@ -255,6 +255,22 @@ block = timers[1].days[WeekDay.MONDAY].blocks[0]
 await client.set_week_timers(WeekTimerType.HEATING_CIRCUIT_HEATING, {2: timers[1]})
 ```
 
+## Vacation period
+
+The vacation period of a heating circuit is the pair `HeatingCircuit.VACATION_START` and `VACATION_END`, normal
+endpoints for `read()` and `write()`. The values are Unix timestamps in seconds (UTC). The Web HMI sets the start to
+`00:00:00` and the end to `23:59:59` of the local day, the time zone is returned by `get_timezone()`. The limits that
+`read(..., limits=...)` returns for them (`0` to `86400`) don't match these values.
+
+```python
+await client.write(
+    {
+        HeatingCircuit.VACATION_START: [1793314800, 1793314800],
+        HeatingCircuit.VACATION_END: [1793401199, 1793401199],
+    }
+)
+```
+
 ## Alarms
 
 `get_alarms()` returns the pending alarms, the same list as on the display and in the Web HMI. The texts are in the
