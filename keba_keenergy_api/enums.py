@@ -41,6 +41,26 @@ class DeviceType(StrEnum):
     SYSTEM = "system"
 
 
+class WeekTimerType(StrEnum):
+    """Week timers of the control unit, each with one timer per device."""
+
+    DHW_TANK = "dhw_tank"
+    HEATING_CIRCUIT_COOLING = "heating_circuit_cooling"
+    HEATING_CIRCUIT_HEATING = "heating_circuit_heating"
+
+
+class WeekDay(Enum):
+    """Days of a week timer, the Web HMI starts the week with Sunday."""
+
+    SUNDAY = 0
+    MONDAY = 1
+    TUESDAY = 2
+    WEDNESDAY = 3
+    THURSDAY = 4
+    FRIDAY = 5
+    SATURDAY = 6
+
+
 class MessageIdKind(Enum):
     """Kinds of a message id (``state.msgId``), like ``MsgIdKind`` of the Web HMI.
 

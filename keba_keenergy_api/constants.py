@@ -15,6 +15,10 @@ API_DEFAULT_TIMEOUT: Final = 10
 MIN_CURVE_TABLE_POINTS: Final = 1
 MAX_CURVE_TABLE_POINTS: Final = 16
 
+WEEK_TIMER_BLOCKS: Final = 3
+# A week timer block ends at the latest at midnight of its day (24:00).
+WEEK_TIMER_MAX_SECONDS: Final = 86_400
+
 # Prefix of all variables of the control application.
 _PAYLOAD_PREFIX: Final = "APPL.CtrlAppl"
 _MESSAGE_ID_SUFFIX: Final = "state.msgId"
@@ -98,3 +102,10 @@ _LINE_TABLE_POOL_SIZE: Final = 30
 _CURVE_TABLE_NAME_PREFIX: Final = "HC"
 # The Web HMI writes this value to the version counter to save a line table.
 _SAVE_LINE_TABLE: Final = "192"
+
+# The variable templates of the week timers by type of ``WeekTimerType``, ``%s`` is the zero-based device index.
+_WEEK_TIMERS: Final[Mapping[str, str]] = {
+    "dhw_tank": f"{_PAYLOAD_PREFIX}.sParam.hotWaterTank[%s].param.weekTimer",
+    "heating_circuit_cooling": f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.weekTimerCool",
+    "heating_circuit_heating": f"{_PAYLOAD_PREFIX}.sParam.heatCircuit[%s].param.weekTimer",
+}

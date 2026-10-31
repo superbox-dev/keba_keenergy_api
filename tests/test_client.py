@@ -4,6 +4,7 @@
 """Tests for the `KebaKeEnergyAPI` client."""
 
 import json
+from datetime import timedelta
 from typing import TYPE_CHECKING
 from typing import Any
 from unittest.mock import patch
@@ -30,6 +31,8 @@ from keba_keenergy_api.enums import HeatingCircuitOperatingMode
 from keba_keenergy_api.enums import HeatPumpSubState
 from keba_keenergy_api.enums import MessageIdKind
 from keba_keenergy_api.enums import SystemOperatingMode
+from keba_keenergy_api.enums import WeekDay
+from keba_keenergy_api.enums import WeekTimerType
 from keba_keenergy_api.exceptions import APIError
 from keba_keenergy_api.exceptions import APITimeoutError
 from keba_keenergy_api.exceptions import AuthenticationError
@@ -37,11 +40,14 @@ from keba_keenergy_api.exceptions import InvalidResponseError
 from keba_keenergy_api.exceptions import UnsupportedVariableError
 from keba_keenergy_api.models import CurvePoint
 from keba_keenergy_api.models import CurveTable
+from keba_keenergy_api.models import DayTimer
 from keba_keenergy_api.models import DeviceCounts
 from keba_keenergy_api.models import Limits
 from keba_keenergy_api.models import MessageId
 from keba_keenergy_api.models import Reading
 from keba_keenergy_api.models import Readings
+from keba_keenergy_api.models import TimeBlock
+from keba_keenergy_api.models import WeekTimer
 from keba_keenergy_api.models import WriteValue
 from tests.conftest import READ_URL
 from tests.conftest import TIMEOUT
@@ -61,7 +67,13 @@ from tests.test_client_data import READ_WITH_MESSAGE_IDS_RESPONSE
 from tests.test_client_data import READ_WITHOUT_UNKNOWN_MESSAGE_ID_RESPONSE
 from tests.test_client_data import TIMEZONE_RESPONSE
 from tests.test_client_data import UNKNOWN_MESSAGE_ID
+from tests.test_client_data import UNUSED_TIME_BLOCK
+from tests.test_client_data import WEEK_TIMER_DAY_TO_MIDNIGHT
+from tests.test_client_data import WEEK_TIMER_DAY_TWO_BLOCKS
+from tests.test_client_data import WEEK_TIMER_TO_MIDNIGHT
+from tests.test_client_data import WEEK_TIMER_TWO_BLOCKS
 from tests.test_client_data import curve_table_response
+from tests.test_client_data import week_timer_response
 
 if TYPE_CHECKING:
     from aioresponses import aioresponses
@@ -908,6 +920,166 @@ async def test_set_curve_table_points_invalid_number(
 
     with pytest.raises(APIError, match=f"^A curve table needs 1 to 16 points, not {number_of_points}$"):
         await client.set_curve_table_points("HC1", points)
+
+    mock_api.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("timer_type", "device_numbers", "timers"),
+    [
+        (WeekTimerType.HEATING_CIRCUIT_HEATING, [1, 2], [WEEK_TIMER_TWO_BLOCKS, WEEK_TIMER_TO_MIDNIGHT]),
+        (WeekTimerType.HEATING_CIRCUIT_COOLING, [2], [WEEK_TIMER_TWO_BLOCKS]),
+        (WeekTimerType.DHW_TANK, [1], [WEEK_TIMER_TWO_BLOCKS]),
+        (WeekTimerType.HEATING_CIRCUIT_HEATING, [2, 1, 2], [WEEK_TIMER_TWO_BLOCKS, WEEK_TIMER_TO_MIDNIGHT]),
+    ],
+    ids=["heating", "cooling", "dhw_tank", "requested_order"],
+)
+async def test_get_week_timers(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    timer_type: WeekTimerType,
+    device_numbers: list[int],
+    timers: list[WeekTimer],
+) -> None:
+    """Test that `get_week_timers()` reads the timers of the devices, each once, with one request."""
+    mock_api.post(READ_URL, payload=[item for timer in timers for item in week_timer_response(timer)])
+
+    assert await client.get_week_timers(timer_type, device_numbers) == dict(
+        zip(dict.fromkeys(device_numbers), timers, strict=True)
+    )
+    mock_api.assert_called_once()
+    await client.close()
+
+
+@pytest.mark.parametrize(
+    ("timer_type", "device_numbers"),
+    [
+        (WeekTimerType.HEATING_CIRCUIT_HEATING, [1, 2]),
+        (WeekTimerType.HEATING_CIRCUIT_COOLING, [2]),
+        (WeekTimerType.DHW_TANK, [1]),
+    ],
+    ids=["heating", "cooling", "dhw_tank"],
+)
+async def test_get_week_timers_request(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    snapshot: SnapshotAssertion,
+    sent_requests: SentRequests,
+    timer_type: WeekTimerType,
+    device_numbers: list[int],
+) -> None:
+    """Test that `get_week_timers()` requests start and stop of every block of every day and device."""
+    mock_api.post(READ_URL, payload=week_timer_response(WEEK_TIMER_TO_MIDNIGHT) * len(device_numbers))
+
+    await client.get_week_timers(timer_type, device_numbers)
+
+    assert sent_requests(mock_api) == snapshot(name="requests")
+    await client.close()
+
+
+async def test_get_week_timers_without_devices(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that `get_week_timers()` sends no request without devices."""
+    assert await client.get_week_timers(WeekTimerType.DHW_TANK, []) == {}
+    mock_api.assert_not_called()
+
+
+async def test_set_week_timers(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, snapshot: SnapshotAssertion, sent_requests: SentRequests
+) -> None:
+    """Test that `set_week_timers()` writes the timers of the given devices with one request."""
+    mock_api.post(WRITE_URL, payload=[])
+
+    await client.set_week_timers(WeekTimerType.HEATING_CIRCUIT_COOLING, {2: WEEK_TIMER_TWO_BLOCKS})
+
+    assert sent_requests(mock_api) == snapshot(name="requests")
+    await client.close()
+
+
+async def test_set_week_timers_selected_days_and_blocks(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, snapshot: SnapshotAssertion, sent_requests: SentRequests
+) -> None:
+    """Test that `set_week_timers()` only writes the given days and blocks."""
+    mock_api.post(WRITE_URL, payload=[])
+    timer: WeekTimer = WeekTimer(
+        days={
+            WeekDay.SATURDAY: WEEK_TIMER_DAY_TO_MIDNIGHT,
+            WeekDay.MONDAY: DayTimer(blocks=WEEK_TIMER_DAY_TWO_BLOCKS.blocks[:2]),
+        }
+    )
+
+    await client.set_week_timers(WeekTimerType.DHW_TANK, {1: timer})
+
+    assert sent_requests(mock_api) == snapshot(name="requests")
+    await client.close()
+
+
+async def test_set_week_timers_without_days(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that `set_week_timers()` sends no request for a timer without days."""
+    await client.set_week_timers(WeekTimerType.DHW_TANK, {1: WeekTimer(days={})})
+
+    mock_api.assert_not_called()
+
+
+async def test_set_week_timers_nothing(client: KebaKeEnergyAPI, mock_api: aioresponses) -> None:
+    """Test that `set_week_timers()` sends no request without timers."""
+    await client.set_week_timers(WeekTimerType.DHW_TANK, {})
+
+    mock_api.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("timer", "message"),
+    [
+        (
+            WeekTimer(days={WeekDay.MONDAY: DayTimer(blocks=())}),
+            "^The week timer needs 1 to 3 blocks for MONDAY$",
+        ),
+        (
+            WeekTimer(days={WeekDay.FRIDAY: DayTimer(blocks=(UNUSED_TIME_BLOCK,) * 4)}),
+            "^The week timer needs 1 to 3 blocks for FRIDAY$",
+        ),
+        (
+            WeekTimer(
+                days={
+                    **WEEK_TIMER_TO_MIDNIGHT.days,
+                    WeekDay.MONDAY: DayTimer(
+                        blocks=(TimeBlock(start=timedelta(hours=8), stop=timedelta(hours=7)),) * 3
+                    ),
+                }
+            ),
+            r"^Invalid week timer block 8:00:00 to 7:00:00! It needs to be within 24 hours$",
+        ),
+        (
+            WeekTimer(
+                days={
+                    **WEEK_TIMER_TO_MIDNIGHT.days,
+                    WeekDay.MONDAY: DayTimer(
+                        blocks=(TimeBlock(start=timedelta(hours=8), stop=timedelta(hours=25)),) * 3
+                    ),
+                }
+            ),
+            r"^Invalid week timer block 8:00:00 to 1 day, 1:00:00! It needs to be within 24 hours$",
+        ),
+        (
+            WeekTimer(
+                days={
+                    **WEEK_TIMER_TO_MIDNIGHT.days,
+                    WeekDay.MONDAY: DayTimer(
+                        blocks=(TimeBlock(start=timedelta(hours=-1), stop=timedelta(hours=1)),) * 3
+                    ),
+                }
+            ),
+            r"^Invalid week timer block -1 day, 23:00:00 to 1:00:00! It needs to be within 24 hours$",
+        ),
+    ],
+    ids=["no_blocks", "too_many_blocks", "start_after_stop", "stop_after_midnight", "negative_start"],
+)
+async def test_set_week_timers_invalid_timer(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, timer: WeekTimer, message: str
+) -> None:
+    """Test that an invalid timer raises `APIError` without a write."""
+    with pytest.raises(APIError, match=message):
+        await client.set_week_timers(WeekTimerType.DHW_TANK, {1: timer})
 
     mock_api.assert_not_called()
 

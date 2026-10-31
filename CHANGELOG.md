@@ -18,6 +18,9 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 - Added `write()`, `filter_supported()`, `get_device_counts()` (`DeviceCounts`), `get_system_info()`,
   `get_hmi_info()`, `get_device_info()`, `get_curve_tables()` (`CurveTable`) and
   `set_curve_table_points()` to `KebaKeEnergyAPI` ([Issue #132][issue-132])
+- Added `get_week_timers()` and `set_week_timers()` for the week timers of the heating circuits (heating and cooling)
+  and DHW tanks (`WeekTimerType`, `WeekTimer`, `DayTimer`, `TimeBlock` and `WeekDay`), the times are `timedelta`
+  since midnight, so `24:00` is possible
 - Added `EndpointDefinition.raw_unit`, `EndpointDefinition.display_unit`, `EndpointDefinition.display_factor`,
   `EndpointDefinition.display_precision`, `EndpointDefinition.message_id` and `DeviceType` (the device type of a
   section as `device_type`) ([Issue #132][issue-132])

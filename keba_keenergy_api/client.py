@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from datetime import date
 from datetime import datetime
 from datetime import time
+from datetime import timedelta
 from enum import Enum
 from http import HTTPStatus
 from itertools import batched
@@ -46,17 +47,22 @@ from keba_keenergy_api.constants import _REMOTE_MAINTENANCE_SERVER_REACHABLE
 from keba_keenergy_api.constants import _SAVE_LINE_TABLE
 from keba_keenergy_api.constants import _SYSTEM_INSTALLED
 from keba_keenergy_api.constants import _TIME_ZONE
+from keba_keenergy_api.constants import _WEEK_TIMERS
 from keba_keenergy_api.constants import _WRITE_FALSE
 from keba_keenergy_api.constants import _WRITE_TRUE
 from keba_keenergy_api.constants import _WRITE_VARS
 from keba_keenergy_api.constants import API_DEFAULT_TIMEOUT
 from keba_keenergy_api.constants import MAX_CURVE_TABLE_POINTS
 from keba_keenergy_api.constants import MIN_CURVE_TABLE_POINTS
+from keba_keenergy_api.constants import WEEK_TIMER_BLOCKS
+from keba_keenergy_api.constants import WEEK_TIMER_MAX_SECONDS
 from keba_keenergy_api.endpoints import Endpoint
 from keba_keenergy_api.endpoints import SolarCircuit
 from keba_keenergy_api.endpoints import System
 from keba_keenergy_api.enums import AlarmPriority
 from keba_keenergy_api.enums import MessageIdKind
+from keba_keenergy_api.enums import WeekDay
+from keba_keenergy_api.enums import WeekTimerType
 from keba_keenergy_api.exceptions import APIError
 from keba_keenergy_api.exceptions import APITimeoutError
 from keba_keenergy_api.exceptions import AuthenticationError
@@ -65,6 +71,7 @@ from keba_keenergy_api.exceptions import UnsupportedVariableError
 from keba_keenergy_api.models import Alarm
 from keba_keenergy_api.models import CurvePoint
 from keba_keenergy_api.models import CurveTable
+from keba_keenergy_api.models import DayTimer
 from keba_keenergy_api.models import DeviceCounts
 from keba_keenergy_api.models import DeviceInfo
 from keba_keenergy_api.models import HmiInfo
@@ -73,7 +80,9 @@ from keba_keenergy_api.models import MessageId
 from keba_keenergy_api.models import Reading
 from keba_keenergy_api.models import Readings
 from keba_keenergy_api.models import SystemInfo
+from keba_keenergy_api.models import TimeBlock
 from keba_keenergy_api.models import Value
+from keba_keenergy_api.models import WeekTimer
 from keba_keenergy_api.models import WriteValue
 
 if TYPE_CHECKING:
@@ -1084,6 +1093,148 @@ class KebaKeEnergyAPI:
         payload.append(_WritePayload(name=f"{line_table}.verCnt", value=_SAVE_LINE_TABLE))
 
         await self._post(_WRITE_VARS, payload)
+
+    async def get_week_timers(
+        self,
+        timer_type: WeekTimerType,
+        device_numbers: Iterable[int],
+    ) -> dict[int, WeekTimer]:
+        """Return the week timers of the selected devices of a type with one request.
+
+        The blocks of a day are the times with normal operation (day), outside of them the operation is reduced
+        (night).
+
+        Parameters
+        ----------
+        timer_type
+            The week timer to read, e.g. ``WeekTimerType.HEATING_CIRCUIT_HEATING``.
+        device_numbers
+            The numbers of the devices to read (the first device is 1, like ``Reading.device_number``).
+
+        Returns
+        -------
+        dict[int, WeekTimer]
+            The timers by device number, in the requested order and each once.
+
+        Raises
+        ------
+        UnsupportedVariableError
+            The Web HMI doesn't know a variable, e.g. a device that is not installed, see :meth:`filter_supported`.
+
+        Examples
+        --------
+        >>> timers = await client.get_week_timers(WeekTimerType.HEATING_CIRCUIT_HEATING, [2])
+        >>> timers[2].days[WeekDay.MONDAY].blocks[0]
+        TimeBlock(start=datetime.timedelta(seconds=21600), stop=datetime.timedelta(days=1))
+
+        """
+        numbers: list[int] = list(dict.fromkeys(device_numbers))
+
+        if not numbers:
+            return {}
+
+        template: str = _WEEK_TIMERS[timer_type.value]
+        response: _Response = await self._read_payload(
+            [
+                _ReadPayload(name=variable, attr="0")
+                for number in numbers
+                for variable in self._iter_week_timer_variables(template % (number - 1))
+            ]
+        )
+        seconds: Iterator[timedelta] = (timedelta(seconds=int(item["value"])) for item in response)
+
+        return {
+            number: WeekTimer(
+                days={
+                    day: DayTimer(
+                        blocks=tuple(
+                            TimeBlock(start=next(seconds), stop=next(seconds)) for _ in range(WEEK_TIMER_BLOCKS)
+                        )
+                    )
+                    for day in WeekDay
+                }
+            )
+            for number in numbers
+        }
+
+    async def set_week_timers(
+        self,
+        timer_type: WeekTimerType,
+        timers: Mapping[int, WeekTimer],
+    ) -> None:
+        """Write the week timers of the selected devices of a type with one request.
+
+        **Attention!** Writing values should remain within normal limits, as is the case with typical use of the
+        Web HMI. Permanent and very frequent writing of values reduces the lifetime of the built-in flash memory.
+
+        Parameters
+        ----------
+        timer_type
+            The week timer to write, e.g. ``WeekTimerType.HEATING_CIRCUIT_HEATING``.
+        timers
+            The timers by device number (the first device is 1, like ``Reading.device_number``). Only the days of a
+            timer are written, with 1 to ``WEEK_TIMER_BLOCKS`` blocks each. The blocks are written from the first
+            one, the following ones of the day keep their value.
+
+        Raises
+        ------
+        APIError
+            A day has no or too many blocks or a block is not between ``00:00`` and ``24:00``
+            with the start not after the stop.
+
+        Examples
+        --------
+        >>> timers = await client.get_week_timers(WeekTimerType.HEATING_CIRCUIT_HEATING, [1])
+        >>> await client.set_week_timers(WeekTimerType.HEATING_CIRCUIT_HEATING, {2: timers[1]})
+
+        """
+        payload: list[_WritePayload] = [
+            item for number, timer in timers.items() for item in self._get_week_timer_payload(timer_type, number, timer)
+        ]
+
+        if payload:
+            await self._post(_WRITE_VARS, payload)
+
+    def _iter_week_timer_variables(self, timer: str, /) -> Iterator[str]:
+        """Return the variables of the week timer of a device by day, block, start and stop."""
+        return (
+            self._get_week_timer_variable(timer, day, block, edge)
+            for day in WeekDay
+            for block in range(WEEK_TIMER_BLOCKS)
+            for edge in ("start", "stop")
+        )
+
+    @staticmethod
+    def _get_week_timer_variable(timer: str, day: WeekDay, block: int, edge: str, /) -> str:
+        """Return the variable of the start or stop of a block of the week timer of a device."""
+        return f"{timer}.day[{day.value}].enableTime[{block}].{edge}"
+
+    def _get_week_timer_payload(
+        self, timer_type: WeekTimerType, number: int, timer: WeekTimer, /
+    ) -> list[_WritePayload]:
+        """Return the write payload of the given days and blocks, raise `APIError` for an invalid timer."""
+        template: str = _WEEK_TIMERS[timer_type.value] % (number - 1)
+        payload: list[_WritePayload] = []
+
+        for day, day_timer in timer.days.items():
+            if not 1 <= len(day_timer.blocks) <= WEEK_TIMER_BLOCKS:
+                message: str = f"The week timer needs 1 to {WEEK_TIMER_BLOCKS} blocks for {day.name}"
+                raise APIError(message)
+
+            for index, block in enumerate(day_timer.blocks):
+                if not timedelta(0) <= block.start <= block.stop <= timedelta(seconds=WEEK_TIMER_MAX_SECONDS):
+                    message = f"Invalid week timer block {block.start} to {block.stop}! It needs to be within 24 hours"
+                    raise APIError(message)
+
+                payload += [
+                    _WritePayload(
+                        name=self._get_week_timer_variable(template, day, index, edge),
+                        value=str(int(value.total_seconds())),
+                    )
+                    for edge, value in (("start", block.start), ("stop", block.stop))
+                ]
+
+        return payload
 
     async def get_alarm_count(self) -> int:
         """Return the number of pending alarms.

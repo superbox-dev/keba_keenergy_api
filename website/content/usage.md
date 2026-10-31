@@ -232,6 +232,29 @@ names = await client.get_curve_table_names()
 curves = await client.get_curve_tables(["HC1"])
 ```
 
+## Week timers
+
+The week timers set the times with normal operation (day), outside of them the operation is reduced (night). Each
+device has 7 days with 3 blocks, each with a start and a stop.
+
+- `WeekTimerType.HEATING_CIRCUIT_HEATING` and `HEATING_CIRCUIT_COOLING`: the timers of the heating circuits
+- `WeekTimerType.DHW_TANK`: the timer of the DHW tanks (the buffer tanks have none)
+- `get_week_timers()` reads the timers of the given device numbers with one request (the first device is 1, like
+  `Reading.device_number`), `set_week_timers()` writes the timers of the devices given by number with one request
+- `set_week_timers()` only writes the given days and blocks: a `WeekTimer` can have any days and a day 1 to 3
+  blocks, written from the first one, the following blocks of the day keep their value
+- the numbers are always given, the number of installed devices is not read (see `get_device_counts()`), a device that
+  is not installed raises an `UnsupportedVariableError`
+- the days are in the order of the Web HMI (`WeekDay.SUNDAY` first), start and stop are a `timedelta` since midnight
+  and the stop can be `24:00` (`timedelta(hours=24)`), an unused block has the same start and stop (`timedelta(0)`)
+
+```python
+timers = await client.get_week_timers(WeekTimerType.HEATING_CIRCUIT_HEATING, [1, 2])
+block = timers[1].days[WeekDay.MONDAY].blocks[0]
+
+await client.set_week_timers(WeekTimerType.HEATING_CIRCUIT_HEATING, {2: timers[1]})
+```
+
 ## Alarms
 
 `get_alarms()` returns the pending alarms, the same list as on the display and in the Web HMI. The texts are in the

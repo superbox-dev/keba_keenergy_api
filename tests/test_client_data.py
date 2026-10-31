@@ -4,6 +4,7 @@
 """Test data for the `KebaKeEnergyAPI` client."""
 
 from datetime import datetime
+from datetime import timedelta
 from typing import Any
 from typing import Final
 
@@ -14,9 +15,13 @@ from keba_keenergy_api.endpoints import HeatPump
 from keba_keenergy_api.endpoints import SolarCircuit
 from keba_keenergy_api.endpoints import System
 from keba_keenergy_api.enums import AlarmPriority
+from keba_keenergy_api.enums import WeekDay
 from keba_keenergy_api.models import Alarm
 from keba_keenergy_api.models import CurvePoint
+from keba_keenergy_api.models import DayTimer
 from keba_keenergy_api.models import DeviceCounts
+from keba_keenergy_api.models import TimeBlock
+from keba_keenergy_api.models import WeekTimer
 
 LOGIN: Final = "mocked-login"
 TIMEZONE_RESPONSE: Final = {"timezone": "Europe/Vienna"}
@@ -172,7 +177,6 @@ CURVE_TABLE_NAMES_RESPONSE: Final = [
     {"name": f"APPL.CtrlAppl.sParam.linTabPool[{index}].name", "value": name}
     for index, name in enumerate(["HC1", "", "", "HC2", "LT5", *[""] * 25])
 ]
-
 CURVE_TABLE_POINTS: Final = [
     CurvePoint(outdoor=-20.0, flow=50.0),
     CurvePoint(outdoor=-10.0, flow=45.0),
@@ -207,3 +211,45 @@ def curve_table_response(number_of_points: str, points: list[CurvePoint], /) -> 
     values += [0.0] * (32 - len(values))
 
     return [{"value": number_of_points}, *({"value": str(value)} for value in values)]
+
+
+# Unused blocks have the same start and stop.
+UNUSED_TIME_BLOCK: Final = TimeBlock(start=timedelta(0), stop=timedelta(0))
+# A day from 06:00 to 24:00 and a day from 05:30 to 22:00 with a second block from 23:00 to 23:30.
+WEEK_TIMER_DAY_TO_MIDNIGHT: Final = DayTimer(
+    blocks=(TimeBlock(start=timedelta(hours=6), stop=timedelta(hours=24)), UNUSED_TIME_BLOCK, UNUSED_TIME_BLOCK)
+)
+WEEK_TIMER_DAY_TWO_BLOCKS: Final = DayTimer(
+    blocks=(
+        TimeBlock(start=timedelta(hours=5, minutes=30), stop=timedelta(hours=22)),
+        TimeBlock(start=timedelta(hours=23), stop=timedelta(hours=23, minutes=30)),
+        UNUSED_TIME_BLOCK,
+    )
+)
+WEEK_TIMER_TO_MIDNIGHT: Final = WeekTimer(days=dict.fromkeys(WeekDay, WEEK_TIMER_DAY_TO_MIDNIGHT))
+# Sunday with two blocks, the other days until midnight.
+WEEK_TIMER_TWO_BLOCKS: Final = WeekTimer(
+    days={day: WEEK_TIMER_DAY_TWO_BLOCKS if day is WeekDay.SUNDAY else WEEK_TIMER_DAY_TO_MIDNIGHT for day in WeekDay}
+)
+
+
+def week_timer_response(timer: WeekTimer, /) -> list[dict[str, Any]]:
+    """Return the response for the week timer of one device.
+
+    Parameters
+    ----------
+    timer
+        The week timer, its days in the order of the read payload.
+
+    Returns
+    -------
+    list[dict[str, Any]]
+        The response items with the start and stop in seconds since midnight.
+
+    """
+    return [
+        {"value": str(int(value.total_seconds()))}
+        for day in WeekDay
+        for block in timer.days[day].blocks
+        for value in (block.start, block.stop)
+    ]

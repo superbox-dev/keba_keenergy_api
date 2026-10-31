@@ -1465,6 +1465,708 @@
     }),
   ])
 # ---
+# name: test_get_week_timers_request[cooling][requests]
+  list([
+    dict({
+      'data': list([
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[0].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[0].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[0].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[0].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[0].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[0].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[1].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[1].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[1].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[1].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[1].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[1].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[2].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[2].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[2].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[2].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[2].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[2].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[3].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[3].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[3].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[3].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[3].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[3].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[4].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[4].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[4].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[4].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[4].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[4].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[5].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[5].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[5].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[5].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[5].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[5].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[6].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[6].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[6].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[6].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[6].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[6].enableTime[2].stop',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+  ])
+# ---
+# name: test_get_week_timers_request[dhw_tank][requests]
+  list([
+    dict({
+      'data': list([
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[0].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[0].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[0].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[0].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[0].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[0].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[1].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[1].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[1].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[1].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[1].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[1].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[2].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[2].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[2].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[2].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[2].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[2].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[3].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[3].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[3].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[3].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[3].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[3].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[4].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[4].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[4].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[4].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[4].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[4].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[5].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[5].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[5].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[5].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[5].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[5].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[6].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[6].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[6].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[6].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[6].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[6].enableTime[2].stop',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+  ])
+# ---
+# name: test_get_week_timers_request[heating][requests]
+  list([
+    dict({
+      'data': list([
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[0].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[0].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[0].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[0].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[0].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[0].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[1].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[1].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[1].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[1].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[1].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[1].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[2].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[2].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[2].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[2].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[2].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[2].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[3].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[3].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[3].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[3].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[3].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[3].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[4].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[4].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[4].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[4].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[4].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[4].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[5].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[5].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[5].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[5].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[5].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[5].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[6].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[6].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[6].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[6].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[6].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[0].param.weekTimer.day[6].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[0].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[0].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[0].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[0].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[0].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[0].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[1].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[1].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[1].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[1].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[1].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[1].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[2].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[2].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[2].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[2].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[2].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[2].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[3].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[3].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[3].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[3].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[3].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[3].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[4].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[4].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[4].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[4].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[4].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[4].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[5].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[5].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[5].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[5].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[5].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[5].enableTime[2].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[6].enableTime[0].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[6].enableTime[0].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[6].enableTime[1].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[6].enableTime[1].stop',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[6].enableTime[2].start',
+        }),
+        dict({
+          'attr': '0',
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimer.day[6].enableTime[2].stop',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars',
+    }),
+  ])
+# ---
 # name: test_read[readings]
   dict({
     <BufferTank.TOP_TEMPERATURE: EndpointDefinition(path='sParam.bufferTank[%s].topTemp.values.actValue', value_type=<class 'float'>, raw_unit='°C', display_unit='°C', display_factor=1.0, display_precision=1, writable=False, message_id='sParam.bufferTank[%s].topTemp', quantity=1)>: list([
@@ -2417,6 +3119,234 @@
         dict({
           'name': 'APPL.CtrlAppl.sParam.linTabPool[3].verCnt',
           'value': '192',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars?action=set',
+    }),
+  ])
+# ---
+# name: test_set_week_timers[requests]
+  list([
+    dict({
+      'data': list([
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[0].enableTime[0].start',
+          'value': '19800',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[0].enableTime[0].stop',
+          'value': '79200',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[0].enableTime[1].start',
+          'value': '82800',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[0].enableTime[1].stop',
+          'value': '84600',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[0].enableTime[2].start',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[0].enableTime[2].stop',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[1].enableTime[0].start',
+          'value': '21600',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[1].enableTime[0].stop',
+          'value': '86400',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[1].enableTime[1].start',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[1].enableTime[1].stop',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[1].enableTime[2].start',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[1].enableTime[2].stop',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[2].enableTime[0].start',
+          'value': '21600',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[2].enableTime[0].stop',
+          'value': '86400',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[2].enableTime[1].start',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[2].enableTime[1].stop',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[2].enableTime[2].start',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[2].enableTime[2].stop',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[3].enableTime[0].start',
+          'value': '21600',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[3].enableTime[0].stop',
+          'value': '86400',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[3].enableTime[1].start',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[3].enableTime[1].stop',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[3].enableTime[2].start',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[3].enableTime[2].stop',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[4].enableTime[0].start',
+          'value': '21600',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[4].enableTime[0].stop',
+          'value': '86400',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[4].enableTime[1].start',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[4].enableTime[1].stop',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[4].enableTime[2].start',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[4].enableTime[2].stop',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[5].enableTime[0].start',
+          'value': '21600',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[5].enableTime[0].stop',
+          'value': '86400',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[5].enableTime[1].start',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[5].enableTime[1].stop',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[5].enableTime[2].start',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[5].enableTime[2].stop',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[6].enableTime[0].start',
+          'value': '21600',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[6].enableTime[0].stop',
+          'value': '86400',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[6].enableTime[1].start',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[6].enableTime[1].stop',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[6].enableTime[2].start',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.heatCircuit[1].param.weekTimerCool.day[6].enableTime[2].stop',
+          'value': '0',
+        }),
+      ]),
+      'method': 'POST',
+      'url': 'http://mocked-host/var/readWriteVars?action=set',
+    }),
+  ])
+# ---
+# name: test_set_week_timers_selected_days_and_blocks[requests]
+  list([
+    dict({
+      'data': list([
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[6].enableTime[0].start',
+          'value': '21600',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[6].enableTime[0].stop',
+          'value': '86400',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[6].enableTime[1].start',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[6].enableTime[1].stop',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[6].enableTime[2].start',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[6].enableTime[2].stop',
+          'value': '0',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[1].enableTime[0].start',
+          'value': '19800',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[1].enableTime[0].stop',
+          'value': '79200',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[1].enableTime[1].start',
+          'value': '82800',
+        }),
+        dict({
+          'name': 'APPL.CtrlAppl.sParam.hotWaterTank[0].param.weekTimer.day[1].enableTime[1].stop',
+          'value': '84600',
         }),
       ]),
       'method': 'POST',

@@ -3,8 +3,10 @@
 
 """Data models of the KEBA KeEnergy API."""
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime
+from datetime import timedelta
 from enum import Enum
 from typing import Literal
 from typing import NamedTuple
@@ -14,6 +16,7 @@ from typing import TypedDict
 from keba_keenergy_api.endpoints import Endpoint
 from keba_keenergy_api.enums import AlarmPriority
 from keba_keenergy_api.enums import MessageIdKind
+from keba_keenergy_api.enums import WeekDay
 
 type Value = bool | Enum | float | int | str
 type WriteValue = bool | Enum | float | int | str
@@ -119,6 +122,54 @@ class CurveTable:
 
     name: str
     points: tuple[CurvePoint, ...]
+
+
+@dataclass(frozen=True, kw_only=True)
+class TimeBlock:
+    """A block of a week timer, the time of the day with normal operation (day) instead of reduced (night).
+
+    Attributes
+    ----------
+    start
+        Start of the block as time since midnight, ``00:00`` is ``timedelta(0)``.
+    stop
+        End of the block as time since midnight, up to ``timedelta(hours=24)``. An unused block has the same start
+        and stop, usually ``timedelta(0)``.
+
+    """
+
+    start: timedelta
+    stop: timedelta
+
+
+@dataclass(frozen=True, kw_only=True)
+class DayTimer:
+    """The blocks of one day of a week timer.
+
+    Attributes
+    ----------
+    blocks
+        The blocks of the day, up to ``WEEK_TIMER_BLOCKS``. When reading, always all of them, when writing, the
+        following blocks keep their value.
+
+    """
+
+    blocks: tuple[TimeBlock, ...]
+
+
+@dataclass(frozen=True, kw_only=True)
+class WeekTimer:
+    """The week timer of one device, e.g. of a heating circuit.
+
+    Attributes
+    ----------
+    days
+        The timer of the days of the week. When reading, always every day, when writing, only the given days are
+        written.
+
+    """
+
+    days: Mapping[WeekDay, DayTimer]
 
 
 @dataclass(frozen=True, kw_only=True)
