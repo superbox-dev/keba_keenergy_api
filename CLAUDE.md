@@ -136,6 +136,7 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
 
 - Every change users notice gets an entry under `## [Unreleased]` in `CHANGELOG.md` (not refactorings, tests, CI,
   `CLAUDE.md` or skills), use the `changelog` skill
+- Tickets: create and update them with the `issue` skill
 - Version: comes from the git tag (`setuptools-scm`), only release when asked, use the `release` skill
 - Work on `develop`
 - Only commit or push when asked

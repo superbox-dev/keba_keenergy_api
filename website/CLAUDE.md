@@ -1,5 +1,6 @@
 # Website
 
+- Texts: short sentences, few adjectives and adverbs, no filler and no digressions
 - Never edit `website/docs/`, `scripts/generate-docs.py` generates it:
   - API reference from the docstrings (griffe), the endpoints, enums and models pages from the modules
   - home, donation, contributing and changelog from the markers in `README.md`, `CONTRIBUTING.md` and `CHANGELOG.md`
