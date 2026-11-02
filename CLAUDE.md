@@ -1,7 +1,7 @@
 # CLAUDE.md
 
-Async Python client (`aiohttp`) for the KEBA KeEnergy Web HMI API (heat pump controllers), published on PyPI and
-used by the Home Assistant integration.
+Async Python client (`aiohttp`) for the KEBA KeEnergy Web HMI API, published on PyPI, used by the Home Assistant
+integration.
 
 ## Commands
 
@@ -105,12 +105,12 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
   `exceptions.py`: `APIError` and subclasses
 - `client.py`: `KebaKeEnergyAPI`, transport (POST to `/var/readWriteVars`), payloads and type conversion
   - **no conversion of values** beyond the type (no rounding, scaling or interpretation), that is up to the caller
-- **Device type, endpoint and enum member names are always the correct technical term for what they deliver**, valid
-  for every controller (e.g. fan or pump), not only for the test device
+- **Device type, endpoint and enum member names are the correct technical term for what they deliver**, for every
+  controller (e.g. fan or pump), not only the test device
   - based on the KEBA variable and the Web HMI texts (EN and DE), checked against path, type, unit and limits
-  - different from KEBA only where its name is ambiguous or technically wrong (e.g. `HeatingCircuit`, not `HeatCircuit`)
-  - established technical abbreviations instead of long names (`DHW`, `COP`, `SPF`)
-  - grammatically correct, consistent forms: activities and states as `-ING` form or noun (`AUTO_HEATING`,
+  - different from KEBA only where its name is ambiguous or wrong (e.g. `HeatingCircuit`, not `HeatCircuit`)
+  - established abbreviations instead of long names (`DHW`, `COP`, `SPF`)
+  - consistent forms: activities and states as `-ING` form or noun (`AUTO_HEATING`,
     `WAITING_FOR_COMPRESSOR`), never imperatives or bare verbs (`AUTO_HEAT`, `WAIT_FOR_COMPRESSOR`)
   - fixed patterns: `TARGET_*`, `HAS_*` (options), `USE_*` (parameters), `*_ACTIVE` (boolean actual values),
     `EXCESS_ENERGY_*` as prefix, `*_SPEED`, `*_THERMAL_ENERGY` / `*_ELECTRICAL_ENERGY`, `*_FAILURE`
@@ -128,7 +128,7 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
 
 ## Documentation
 
-- Update `website/content/` when the usage or behavior changes, the API reference, endpoints, enums and models are generated
+- Update `website/content/` when usage or behavior changes, API reference, endpoints, enums and models are generated
 - Keep the `<!--start-…-->` / `<!--end-…-->` markers in `README.md`, `CONTRIBUTING.md` and `CHANGELOG.md`
 - Keep `README.md` short (install, a minimal example, the write warning), details go to `website/content/`
 
