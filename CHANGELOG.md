@@ -103,11 +103,16 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 - Removed `Position`, `EndpointPath`, `PAYLOAD_PREFIX`, `ACT_VALUE_SUFFIX`, `MESSAGE_ID_SUFFIX`, `BoolEnum`,
   `HeatPumpOperatingMode` and `MixerSwitchValvePosition` ([Issue #132][issue-132])
 
+### Fixed
+
+- Fixed requests failing with `Server disconnected` after an idle connection ([Issue #145][issue-145])
+
 [issue-132]: https://github.com/superbox-dev/keba_keenergy_api/issues/132
 [issue-133]: https://github.com/superbox-dev/keba_keenergy_api/issues/133
 [issue-135]: https://github.com/superbox-dev/keba_keenergy_api/issues/135
 [issue-138]: https://github.com/superbox-dev/keba_keenergy_api/issues/138
 [issue-144]: https://github.com/superbox-dev/keba_keenergy_api/issues/144
+[issue-145]: https://github.com/superbox-dev/keba_keenergy_api/issues/145
 
 <!--start-->
 

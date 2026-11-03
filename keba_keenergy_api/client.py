@@ -22,6 +22,7 @@ from aiohttp import ClientError
 from aiohttp import ClientSession
 from aiohttp import ClientTimeout
 from aiohttp import ContentTypeError
+from aiohttp import ServerDisconnectedError
 from aiohttp import encode_basic_auth
 
 from keba_keenergy_api.constants import _ACTIVATE_MODBUS
@@ -264,6 +265,8 @@ class KebaKeEnergyAPI:
     async def _post(self, endpoint: str, payload: _Payload | None = None, /) -> _Response:
         """Send a POST request to the Web HMI and return the JSON response as a list.
 
+        A request is repeated once if the Web HMI closed the idle keep-alive connection (``Server disconnected``).
+
         Raises
         ------
         AuthenticationError
@@ -286,24 +289,14 @@ class KebaKeEnergyAPI:
             raise APIError(message)
 
         headers: dict[str, str] = {} if self._auth is None else {"Authorization": self._auth}
+        response: _Response | dict[str, Any]
 
         try:
-            async with session.post(
-                f"{self.device_url}{endpoint}",
-                headers=headers,
-                ssl=self._ssl and self._verify_ssl,
-                data=None if payload is None else json.dumps(payload),
-                # Also for a passed session, which has no timeout of its own.
-                timeout=ClientTimeout(total=API_DEFAULT_TIMEOUT),
-            ) as resp:
-                if resp.status == HTTPStatus.UNAUTHORIZED:
-                    raise AuthenticationError(status=HTTPStatus.UNAUTHORIZED)
-
-                # Everything else than 2xx is an error, e.g. also a redirect or a 502 of a reverse proxy.
-                if not HTTPStatus.OK <= resp.status < HTTPStatus.MULTIPLE_CHOICES:
-                    raise self._get_status_error(HTTPStatus(resp.status), await resp.text())
-
-                response: _Response | dict[str, Any] = await resp.json()
+            try:
+                response = await self._send(session, endpoint, payload, headers)
+            except ServerDisconnectedError:
+                # The Web HMI closed the idle keep-alive connection, aiohttp drops it and the retry opens a new one.
+                response = await self._send(session, endpoint, payload, headers)
         except (json.JSONDecodeError, ContentTypeError) as error:
             message = f"Invalid JSON response! {error}"
             raise InvalidResponseError(message) from error
@@ -315,6 +308,35 @@ class KebaKeEnergyAPI:
             raise APIError(str(error)) from error
 
         return [response] if isinstance(response, dict) else response
+
+    async def _send(
+        self,
+        session: ClientSession,
+        endpoint: str,
+        payload: _Payload | None,
+        headers: Mapping[str, str],
+        /,
+    ) -> _Response | dict[str, Any]:
+        """Send one POST request to the Web HMI and return the decoded JSON response.
+
+        The `aiohttp` errors are raised as they are, :meth:`_post` turns them into an `APIError`.
+        """
+        async with session.post(
+            f"{self.device_url}{endpoint}",
+            headers=headers,
+            ssl=self._ssl and self._verify_ssl,
+            data=None if payload is None else json.dumps(payload),
+            # Also for a passed session, which has no timeout of its own.
+            timeout=ClientTimeout(total=API_DEFAULT_TIMEOUT),
+        ) as resp:
+            if resp.status == HTTPStatus.UNAUTHORIZED:
+                raise AuthenticationError(status=HTTPStatus.UNAUTHORIZED)
+
+            # Everything else than 2xx is an error, e.g. also a redirect or a 502 of a reverse proxy.
+            if not HTTPStatus.OK <= resp.status < HTTPStatus.MULTIPLE_CHOICES:
+                raise self._get_status_error(HTTPStatus(resp.status), await resp.text())
+
+            return await resp.json()
 
     def _get_session(self) -> ClientSession:
         """Return the passed session, otherwise the session opened by the client."""

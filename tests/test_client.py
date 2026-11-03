@@ -13,6 +13,7 @@ from aiohttp import ClientConnectionError
 from aiohttp import ClientSession
 from aiohttp import ClientTimeout
 from aiohttp import ConnectionTimeoutError
+from aiohttp import ServerDisconnectedError
 from aiohttp import ServerTimeoutError
 from aiohttp import SocketTimeoutError
 from aiohttp import encode_basic_auth
@@ -242,6 +243,33 @@ async def test_request_client_error(client: KebaKeEnergyAPI, mock_api: aiorespon
         await client.get_timezone()
 
     assert not isinstance(error.value, APITimeoutError)
+    await client.close()
+
+
+async def test_request_server_disconnected_retry(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, sent_requests: SentRequests
+) -> None:
+    """Test that a request is repeated once if the Web HMI closed the idle keep-alive connection."""
+    mock_api.post(TIMEZONE_URL, exception=ServerDisconnectedError())
+    mock_api.post(TIMEZONE_URL, payload=TIMEZONE_RESPONSE)
+
+    assert await client.get_timezone() == "Europe/Vienna"
+    assert sent_requests(mock_api) == [{"method": "POST", "url": TIMEZONE_URL, "data": None}] * 2
+
+    await client.close()
+
+
+async def test_request_server_disconnected_twice(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, sent_requests: SentRequests
+) -> None:
+    """Test that a second `ServerDisconnectedError` raises `APIError` without a further retry."""
+    mock_api.post(TIMEZONE_URL, exception=ServerDisconnectedError(), repeat=True)
+
+    with pytest.raises(APIError, match=r"^Server disconnected$"):
+        await client.get_timezone()
+
+    assert sent_requests(mock_api) == [{"method": "POST", "url": TIMEZONE_URL, "data": None}] * 2
+
     await client.close()
 
 
