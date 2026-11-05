@@ -118,7 +118,18 @@ class DocsGenerator:
         intro: str = self._extract("README.md", "home")
         self._write_page(
             "index.md",
-            self._front_matter("Introduction", 0, slug="/"),
+            self._front_matter(
+                "Python client for the KEBA KeEnergy Web HMI API",
+                0,
+                slug="/",
+                extra={
+                    "sidebar_label": "Introduction",
+                    "description": (
+                        "Async and fully typed Python client for the KEBA KeEnergy Web HMI API. "
+                        "Read values and control heat pumps from M-TEC, ino and Windhager."
+                    ),
+                },
+            ),
             "# KEBA KeEnergy API",
             intro,
         )
@@ -161,8 +172,16 @@ class DocsGenerator:
         return name.replace("_", " ").capitalize()
 
     @staticmethod
-    def _front_matter(title: str, position: int, *, slug: str = "", hide_toc: bool = False) -> str:
+    def _front_matter(
+        title: str,
+        position: int,
+        *,
+        extra: dict[str, str] | None = None,
+        hide_toc: bool = False,
+        slug: str = "",
+    ) -> str:
         lines: list[str] = ["---", f"title: {title}", f"sidebar_position: {position}"]
+        lines.extend(f"{key}: {value}" for key, value in (extra or {}).items())
 
         if slug:
             lines.append(f"slug: {slug}")
