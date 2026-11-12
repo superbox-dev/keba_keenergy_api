@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+<!--start-->
+
+## [3.0.0] - 2026-11-12
+
 The 3.0.0 release is a typed low-level API with the technical terms as names. It breaks every 2.x import, see
 the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration) ([Issue #132][issue-132]).
 
@@ -113,8 +117,6 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 [issue-138]: https://github.com/superbox-dev/keba_keenergy_api/issues/138
 [issue-144]: https://github.com/superbox-dev/keba_keenergy_api/issues/144
 [issue-145]: https://github.com/superbox-dev/keba_keenergy_api/issues/145
-
-<!--start-->
 
 ## [2.14.0] - 2026-10-28
 
@@ -942,7 +944,8 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 
 - Initial release
 
-[Unreleased]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.14.0...HEAD
+[Unreleased]: https://github.com/superbox-dev/keba_keenergy_api/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.14.0...v3.0.0
 [2.14.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.13.0...v2.14.0
 [2.13.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.12.2...v2.13.0
 [2.12.2]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.12.1...v2.12.2
