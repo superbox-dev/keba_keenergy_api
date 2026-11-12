@@ -29,8 +29,8 @@ I put a lot of time into this project. If you like it, you can support me with a
 [![PayPal](https://img.shields.io/badge/PayPal-Donate-003087?style=for-the-badge&logo=paypal&logoColor=white)][paypal]
 
 [sponsors]: https://github.com/sponsors/superbox-dev
-[kofi]: https://ko-fi.com/F2F0KXO6D
-[paypal]: https://www.paypal.com/donate?hosted_button_id=34ZFWTH4TNLXS
+[kofi]: https://ko-fi.com/superbox
+[paypal]: https://www.paypal.biz/superboxdev
 
 <!--end-donation-->
 
@@ -46,25 +46,28 @@ pip install keba-keenergy-api
 import asyncio
 
 from keba_keenergy_api import KebaKeEnergyAPI
+from keba_keenergy_api.endpoints import System
 
 
 async def main():
     async with KebaKeEnergyAPI(
-        host="ap4400.local", username="test", password="test", ssl=True, skip_ssl_verification=True
+        host="ap4400.local", username="test", password="test", ssl=True, verify_ssl=False
     ) as client:
-        print(await client.system.get_outdoor_temperature())
+        readings = await client.read([System.OUTDOOR_TEMPERATURE])
+        print(readings[System.OUTDOOR_TEMPERATURE][0].value)
 
 
 asyncio.run(main())
 ```
 
 See [Usage](https://superbox-dev.github.io/keba_keenergy_api/usage) for reading and writing multiple values
-and sharing a session.
+and sharing a session, and [Migration](https://superbox-dev.github.io/keba_keenergy_api/migration) for upgrading
+from 2.x.
 
 ### ⚠️ Write warnings
 
 This is a low-level API that allows writing values outside the safe operating range.
-Improper use can damage heating systems and hardware. Always check the `attributes` for minimum and maximum values,
+Improper use can damage heating systems and hardware. Always check `lower_limit` and `upper_limit` of a reading,
 and write values only as often as the Web HMI would, as frequent writes wear out the built-in flash memory.
 *Use at your own risk!* Read the full [write warnings](https://superbox-dev.github.io/keba_keenergy_api/usage#write-warnings)
 before writing values.

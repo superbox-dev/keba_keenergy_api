@@ -3,8 +3,7 @@
 
 """KEBA KeEnergy API client."""
 
+from keba_keenergy_api.client import KebaKeEnergyAPI
 from keba_keenergy_api.version import __version__
-
-from .api import KebaKeEnergyAPI
 
 __all__ = ["KebaKeEnergyAPI", "__version__"]
