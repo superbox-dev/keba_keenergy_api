@@ -32,6 +32,7 @@ class Reading:
     ----------
     value
         The value converted to the type of the endpoint: ``bool``, ``float``, ``int``, ``str`` or an enum member.
+        ``None`` if it can't be converted and was read with ``read(..., strict=False)``, ``raw_value`` keeps it.
     raw_value
         The value exactly as the Web HMI delivers it, e.g. ``"25"`` for ``HeatPumpSubState.DRIP``, which has the
         values ``13`` and ``25``, or ``"0.54009795"``. ``value`` is its conversion to the type of the endpoint. Its
@@ -55,7 +56,7 @@ class Reading:
 
     """
 
-    value: Value
+    value: Value | None
     raw_value: str
     device_number: int
     consumer_number: int | None = None

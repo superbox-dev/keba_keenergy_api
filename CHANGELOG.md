@@ -9,11 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--start-->
 
+### Added
+
+- Added `strict=False` to `read()`, which reads values that can't be converted as `None` ([Issue #156][issue-156])
+
+### Changed
+
+- Changed `Reading.value` to `Value | None` ([Issue #156][issue-156])
+
 ### Fixed
 
 - Fixed `read()` failing on operating times of the statistics with decimals ([Issue #155][issue-155])
 
 [issue-155]: https://github.com/superbox-dev/keba_keenergy_api/issues/155
+[issue-156]: https://github.com/superbox-dev/keba_keenergy_api/issues/156
 
 ## [3.0.0] - 2026-11-12
 

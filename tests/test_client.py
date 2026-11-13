@@ -572,6 +572,24 @@ async def test_read_invalid_value(
     await client.close()
 
 
+async def test_read_not_strict(client: KebaKeEnergyAPI, mock_api: aioresponses, counts: DeviceCounts) -> None:
+    """Test that `read(strict=False)` reads a value that can't be converted as None and keeps its raw value."""
+    mock_api.post(
+        READ_URL,
+        payload=[{"name": "mocked-name", "value": "9"}, {"name": "mocked-name", "value": "10.5"}],
+    )
+
+    readings: Readings = await client.read(
+        [System.OPERATING_MODE, System.OUTDOOR_TEMPERATURE], counts=counts, limits="none", strict=False
+    )
+
+    assert readings == {
+        System.OPERATING_MODE: [Reading(value=None, raw_value="9", device_number=1)],
+        System.OUTDOOR_TEMPERATURE: [Reading(value=10.5, raw_value="10.5", device_number=1)],
+    }
+    await client.close()
+
+
 @pytest.mark.parametrize(
     ("value", "expected_value"),
     [

@@ -76,6 +76,14 @@ readings = await client.read([DHWTank.TARGET_TEMPERATURE, DHWTank.TOP_TEMPERATUR
 
 The `value` is never rounded, scaled or interpreted, see [Units and display](#units-and-display).
 
+A value that can't be converted to the type of its endpoint (e.g. an enum value of a newer firmware) raises an
+`InvalidResponseError` and fails the whole request. With `strict=False`, its `value` is `None` and `raw_value` keeps
+it, all other values are read:
+
+```python
+readings = await client.read([HeatPump.HEAT_METER_TYPE, HeatPump.STATE], strict=False)
+```
+
 Older Web HMI versions don't know every variable. `filter_supported()` returns the endpoints the controller supports
 (all variables of the installed devices are known), `read()` raises an `UnsupportedVariableError` for an unknown
 variable.
@@ -323,12 +331,12 @@ very frequently, see [write warnings](#write-warnings).
 
 All errors are subclasses of `APIError` (`keba_keenergy_api.exceptions`):
 
-| Exception                  | Raised when                                                                                         |
-|----------------------------|-----------------------------------------------------------------------------------------------------|
-| `AuthenticationError`      | The credentials were rejected (HTTP 401)                                                            |
-| `UnsupportedVariableError` | The Web HMI doesn't know a variable, `variable` holds its name                                      |
-| `InvalidResponseError`     | The response is not valid JSON, a value can't be converted or an alarm has an invalid timestamp     |
-| `APITimeoutError`          | A request timed out, it is also a `TimeoutError`                                                    |
-| `APIError`                 | Any other HTTP or connection error, an invalid or read-only value for `write()` or an unknown curve |
+| Exception                  | Raised when                                                                                                |
+|----------------------------|------------------------------------------------------------------------------------------------------------|
+| `AuthenticationError`      | The credentials were rejected (HTTP 401)                                                                   |
+| `UnsupportedVariableError` | The Web HMI doesn't know a variable, `variable` holds its name                                             |
+| `InvalidResponseError`     | The response is not valid JSON, a value can't be converted (`strict`) or an alarm has an invalid timestamp |
+| `APITimeoutError`          | A request timed out, it is also a `TimeoutError`                                                           |
+| `APIError`                 | Any other HTTP or connection error, an invalid or read-only value for `write()` or an unknown curve        |
 
 `status` holds the HTTP status, if any.
