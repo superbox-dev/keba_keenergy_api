@@ -295,19 +295,22 @@ class ExternalHeatSourceOperatingMode(_BaseEnum):
 
 
 class ElectricalEnergyMeterType(_BaseEnum):
-    """Types of the electric energy meter of a heat pump (not existing, S0 meter, via inverter)."""
+    """Types of the electric energy meter of a heat pump (none, S0 meter, compressor polynomial, via inverter)."""
 
     NONE = 0
     S0 = 2
+    COMPRESSOR_POLYNOMIAL = 4
     INVERTER = 5
 
 
 class HeatMeterType(_BaseEnum):
-    """Types of the heat meter of a heat pump (not existing, S0 meter, vortex)."""
+    """Types of the heat meter of a heat pump (none, estimated flow, S0 meter, vortex, compressor polynomial)."""
 
     NONE = 0
+    ESTIMATED_FLOW = 1
     S0 = 2
     VORTEX = 3
+    COMPRESSOR_POLYNOMIAL = 4
 
 
 class AlarmPriority(Enum):

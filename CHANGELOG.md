@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added `strict=False` to `read()`, which reads values that can't be converted as `None` ([Issue #156][issue-156])
+- Added the missing values of `HeatMeterType` and `ElectricalEnergyMeterType` ([Issue #155][issue-155])
 
 ### Changed
 
