@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--start-->
 
+### Fixed
+
+- Fixed `read()` failing on operating times of the statistics with decimals ([Issue #155][issue-155])
+
+[issue-155]: https://github.com/superbox-dev/keba_keenergy_api/issues/155
+
 ## [3.0.0] - 2026-11-12
 
 The 3.0.0 release is a typed low-level API with the technical terms as names. It breaks every 2.x import, see

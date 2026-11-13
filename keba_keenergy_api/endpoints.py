@@ -931,7 +931,7 @@ class HeatPump(_DeviceTypeEnum, device_type=DeviceType.HEAT_PUMP):
     )
     HEATING_OPERATING_TIME = EndpointDefinition(
         path="sStatisticalData.heatpump[%s].consumption.heating.operatingtime",
-        value_type=int,
+        value_type=float,
         raw_unit=_SECOND,
         display_unit=_HOUR,
         display_factor=_SECOND_TO_HOUR,
@@ -961,7 +961,7 @@ class HeatPump(_DeviceTypeEnum, device_type=DeviceType.HEAT_PUMP):
     )
     COOLING_OPERATING_TIME = EndpointDefinition(
         path="sStatisticalData.heatpump[%s].consumption.cooling.operatingtime",
-        value_type=int,
+        value_type=float,
         raw_unit=_SECOND,
         display_unit=_HOUR,
         display_factor=_SECOND_TO_HOUR,
@@ -990,7 +990,7 @@ class HeatPump(_DeviceTypeEnum, device_type=DeviceType.HEAT_PUMP):
     )
     DHW_OPERATING_TIME = EndpointDefinition(
         path="sStatisticalData.heatpump[%s].consumption.domHotWater.operatingtime",
-        value_type=int,
+        value_type=float,
         raw_unit=_SECOND,
         display_unit=_HOUR,
         display_factor=_SECOND_TO_HOUR,
@@ -1010,7 +1010,7 @@ class HeatPump(_DeviceTypeEnum, device_type=DeviceType.HEAT_PUMP):
     )
     DEFROST_OPERATING_TIME = EndpointDefinition(
         path="sStatisticalData.heatpump[%s].consumption.defrost.data.operatingtime",
-        value_type=int,
+        value_type=float,
         raw_unit=_SECOND,
         display_unit=_HOUR,
         display_factor=_SECOND_TO_HOUR,
@@ -1050,7 +1050,7 @@ class HeatPump(_DeviceTypeEnum, device_type=DeviceType.HEAT_PUMP):
     )
     TOTAL_OPERATING_TIME = EndpointDefinition(
         path="sStatisticalData.heatpump[%s].consumption.operatingtime",
-        value_type=int,
+        value_type=float,
         raw_unit=_SECOND,
         display_unit=_HOUR,
         display_factor=_SECOND_TO_HOUR,
@@ -1647,7 +1647,7 @@ class SolarCircuit(_DeviceTypeEnum, device_type=DeviceType.SOLAR_CIRCUIT):
     )
     OPERATING_TIME = EndpointDefinition(
         path="sStatisticalData.solarCircuit[%s].consumption.operatingtime",
-        value_type=int,
+        value_type=float,
         raw_unit=_SECOND,
         display_unit=_HOUR,
         display_factor=_SECOND_TO_HOUR,
@@ -1945,7 +1945,7 @@ class Cascade(_DeviceTypeEnum, device_type=DeviceType.CASCADE):
     )
     HEATING_OPERATING_TIME = EndpointDefinition(
         path="sStatisticalData.cascade.consumption.heating.operatingtime",
-        value_type=int,
+        value_type=float,
         raw_unit=_SECOND,
         display_unit=_HOUR,
         display_factor=_SECOND_TO_HOUR,
@@ -1975,7 +1975,7 @@ class Cascade(_DeviceTypeEnum, device_type=DeviceType.CASCADE):
     )
     COOLING_OPERATING_TIME = EndpointDefinition(
         path="sStatisticalData.cascade.consumption.cooling.operatingtime",
-        value_type=int,
+        value_type=float,
         raw_unit=_SECOND,
         display_unit=_HOUR,
         display_factor=_SECOND_TO_HOUR,
@@ -2004,7 +2004,7 @@ class Cascade(_DeviceTypeEnum, device_type=DeviceType.CASCADE):
     )
     DHW_OPERATING_TIME = EndpointDefinition(
         path="sStatisticalData.cascade.consumption.domHotWater.operatingtime",
-        value_type=int,
+        value_type=float,
         raw_unit=_SECOND,
         display_unit=_HOUR,
         display_factor=_SECOND_TO_HOUR,
@@ -2024,7 +2024,7 @@ class Cascade(_DeviceTypeEnum, device_type=DeviceType.CASCADE):
     )
     DEFROST_OPERATING_TIME = EndpointDefinition(
         path="sStatisticalData.cascade.consumption.defrost.data.operatingtime",
-        value_type=int,
+        value_type=float,
         raw_unit=_SECOND,
         display_unit=_HOUR,
         display_factor=_SECOND_TO_HOUR,
@@ -2064,7 +2064,7 @@ class Cascade(_DeviceTypeEnum, device_type=DeviceType.CASCADE):
     )
     TOTAL_OPERATING_TIME = EndpointDefinition(
         path="sStatisticalData.cascade.consumption.operatingtime",
-        value_type=int,
+        value_type=float,
         raw_unit=_SECOND,
         display_unit=_HOUR,
         display_factor=_SECOND_TO_HOUR,
