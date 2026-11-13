@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+<!--start-->
+
+## [3.1.0] - 2026-11-13
+
+### Added
+
+- Added `strict=False` to `read()`, which reads values that can't be converted as `None` ([Issue #156][issue-156])
+- Added the missing values of `HeatMeterType` and `ElectricalEnergyMeterType` ([Issue #155][issue-155])
+
+### Changed
+
+- Changed `Reading.value` to `Value | None` ([Issue #156][issue-156])
+
+### Fixed
+
+- Fixed `read()` failing on operating times of the statistics with decimals ([Issue #155][issue-155])
+
+[issue-155]: https://github.com/superbox-dev/keba_keenergy_api/issues/155
+[issue-156]: https://github.com/superbox-dev/keba_keenergy_api/issues/156
+
+## [3.0.0] - 2026-11-12
+
 The 3.0.0 release is a typed low-level API with the technical terms as names. It breaks every 2.x import, see
 the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration) ([Issue #132][issue-132]).
 
@@ -113,8 +135,6 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 [issue-138]: https://github.com/superbox-dev/keba_keenergy_api/issues/138
 [issue-144]: https://github.com/superbox-dev/keba_keenergy_api/issues/144
 [issue-145]: https://github.com/superbox-dev/keba_keenergy_api/issues/145
-
-<!--start-->
 
 ## [2.14.0] - 2026-10-28
 
@@ -942,7 +962,9 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 
 - Initial release
 
-[Unreleased]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.14.0...HEAD
+[Unreleased]: https://github.com/superbox-dev/keba_keenergy_api/compare/v3.1.0...HEAD
+[3.1.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v3.0.0...v3.1.0
+[3.0.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.14.0...v3.0.0
 [2.14.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.13.0...v2.14.0
 [2.13.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.12.2...v2.13.0
 [2.12.2]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.12.1...v2.12.2

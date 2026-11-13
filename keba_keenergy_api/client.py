@@ -536,6 +536,7 @@ class KebaKeEnergyAPI:
         counts: DeviceCounts | None = None,
         limits: Limits = "all",
         message_ids: bool = False,
+        strict: bool = True,
     ) -> Readings:
         """Read the values of the endpoints with one request.
 
@@ -557,6 +558,10 @@ class KebaKeEnergyAPI:
             (``EndpointDefinition.message_id``) with the same request, see ``Reading.message_id``. A message id the
             Web HMI doesn't know costs one more request, it is left out from then on and its readings have no message
             id.
+        strict
+            Raise an ``InvalidResponseError`` for a value that can't be converted to the type of its endpoint (e.g. an
+            enum value of a newer firmware). ``False`` reads it as ``Reading.value`` ``None``, ``Reading.raw_value``
+            keeps it.
 
         Returns
         -------
@@ -571,7 +576,7 @@ class KebaKeEnergyAPI:
         UnsupportedVariableError
             The Web HMI doesn't know a variable, see :meth:`filter_supported`.
         InvalidResponseError
-            A value can't be converted to the type of its endpoint.
+            A value can't be converted to the type of its endpoint and ``strict`` is ``True``.
 
         Examples
         --------
@@ -609,7 +614,7 @@ class KebaKeEnergyAPI:
         for endpoint, variable, message_id_name in variables:
             item: dict[str, Any] = next(items)
             message_id: MessageId | None = None if message_id_name is None else self._to_message_id(next(items))
-            readings[endpoint].append(self._to_reading(endpoint, variable, item, message_id))
+            readings[endpoint].append(self._to_reading(endpoint, variable, item, message_id, strict=strict))
 
         return readings
 
@@ -731,10 +736,20 @@ class KebaKeEnergyAPI:
         item: dict[str, Any],
         message_id: MessageId | None,
         /,
+        *,
+        strict: bool,
     ) -> Reading:
-        """Return the reading of a response item."""
+        """Return the reading of a response item, its value is None if it can't be converted and not strict."""
         attributes: dict[str, Any] = item.get("attributes", {})
-        value: Value = self._convert_value(endpoint, item)
+        value: Value | None
+
+        try:
+            value = self._convert_value(endpoint, item)
+        except InvalidResponseError:
+            if strict:
+                raise
+
+            value = None
 
         return Reading(
             value=value,

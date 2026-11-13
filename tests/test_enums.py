@@ -6,6 +6,8 @@
 import pytest
 
 from keba_keenergy_api.enums import AlarmPriority
+from keba_keenergy_api.enums import ElectricalEnergyMeterType
+from keba_keenergy_api.enums import HeatMeterType
 from keba_keenergy_api.enums import HeatPumpSubState
 from keba_keenergy_api.enums import MessageIdKind
 from keba_keenergy_api.enums import SystemOperatingMode
@@ -19,6 +21,24 @@ from keba_keenergy_api.enums import SystemOperatingMode
 def test_enum_with_more_values(value: int, expected: HeatPumpSubState) -> None:
     """Test that a member with more than one value is found by each of them."""
     assert HeatPumpSubState(value) is expected
+
+
+@pytest.mark.parametrize(
+    ("enum", "value", "expected"),
+    [
+        (HeatMeterType, 1, HeatMeterType.ESTIMATED_FLOW),
+        (HeatMeterType, 4, HeatMeterType.COMPRESSOR_POLYNOMIAL),
+        (ElectricalEnergyMeterType, 4, ElectricalEnergyMeterType.COMPRESSOR_POLYNOMIAL),
+    ],
+    ids=["heat_meter_estimated_flow", "heat_meter_compressor_polynomial", "electrical_meter_compressor_polynomial"],
+)
+def test_meter_type_calculated_values(
+    enum: type[ElectricalEnergyMeterType | HeatMeterType],
+    value: int,
+    expected: ElectricalEnergyMeterType | HeatMeterType,
+) -> None:
+    """Test that the meter types without a physical meter are found by their value."""
+    assert enum(value) is expected
 
 
 def test_enum_invalid_value() -> None:
