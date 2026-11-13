@@ -551,8 +551,9 @@ async def test_read_invalid_limits_without_variables(
         (System.OPERATING_MODE, "9", "^Can't convert '9' of System.OPERATING_MODE to SystemOperatingMode$"),
         (System.OPERATING_MODE, "auto", "^Can't convert 'auto' of System.OPERATING_MODE to SystemOperatingMode$"),
         (System.OUTDOOR_TEMPERATURE, "-", "^Can't convert '-' of System.OUTDOOR_TEMPERATURE to float$"),
+        (HeatPump.OPERATING_TIME, "1.5", r"^Can't convert '1\.5' of HeatPump.OPERATING_TIME to int$"),
     ],
-    ids=["bool", "enum_value", "enum_name", "float"],
+    ids=["bool", "enum_value", "enum_name", "float", "int"],
 )
 async def test_read_invalid_value(
     client: KebaKeEnergyAPI,
@@ -568,6 +569,48 @@ async def test_read_invalid_value(
     with pytest.raises(InvalidResponseError, match=expected_error):
         await client.read([endpoint], counts=counts)
 
+    await client.close()
+
+
+async def test_read_not_strict(client: KebaKeEnergyAPI, mock_api: aioresponses, counts: DeviceCounts) -> None:
+    """Test that `read(strict=False)` reads a value that can't be converted as None and keeps its raw value."""
+    mock_api.post(
+        READ_URL,
+        payload=[{"name": "mocked-name", "value": "9"}, {"name": "mocked-name", "value": "10.5"}],
+    )
+
+    readings: Readings = await client.read(
+        [System.OPERATING_MODE, System.OUTDOOR_TEMPERATURE], counts=counts, limits="none", strict=False
+    )
+
+    assert readings == {
+        System.OPERATING_MODE: [Reading(value=None, raw_value="9", device_number=1)],
+        System.OUTDOOR_TEMPERATURE: [Reading(value=10.5, raw_value="10.5", device_number=1)],
+    }
+    await client.close()
+
+
+@pytest.mark.parametrize(
+    ("value", "expected_value"),
+    [
+        ("6862971.5", 6862971.5),
+        ("1.8054563e+08", 180545630.0),
+    ],
+    ids=["decimal", "exponent"],
+)
+async def test_read_statistical_operating_time(
+    client: KebaKeEnergyAPI,
+    mock_api: aioresponses,
+    counts: DeviceCounts,
+    value: str,
+    expected_value: float,
+) -> None:
+    """Test that an operating time of the statistics is read as float, the Web HMI sends decimals and exponents."""
+    mock_api.post(READ_URL, payload=[{"name": "mocked-name", "value": value}])
+
+    readings: Readings = await client.read([HeatPump.DHW_OPERATING_TIME], counts=counts, limits="none")
+
+    assert readings[HeatPump.DHW_OPERATING_TIME][0].value == expected_value
     await client.close()
 
 
