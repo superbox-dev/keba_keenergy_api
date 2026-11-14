@@ -748,6 +748,16 @@ async def test_write_nothing(client: KebaKeEnergyAPI, mock_api: aioresponses) ->
             "^Invalid value '20' for HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL, expected float$",
         ),
         (HeatingCircuit.VACATION_START, [1.5], "^Invalid value 1.5 for HeatingCircuit.VACATION_START, expected int$"),
+        (
+            HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL,
+            [float("nan")],
+            "^Invalid value nan for HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL, expected float$",
+        ),
+        (
+            HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL,
+            [float("inf")],
+            "^Invalid value inf for HeatingCircuit.TARGET_ROOM_TEMPERATURE_NORMAL, expected float$",
+        ),
         (HeatingCircuit.HEATING_CURVE, [1], "^Invalid value 1 for HeatingCircuit.HEATING_CURVE, expected str$"),
         (
             BufferTank.OPERATING_MODE,
@@ -771,6 +781,8 @@ async def test_write_nothing(client: KebaKeEnergyAPI, mock_api: aioresponses) ->
         "bool_for_float",
         "str_for_float",
         "float_for_int",
+        "nan",
+        "infinity",
         "int_for_str",
         "other_enum",
         "int_for_enum",
@@ -990,6 +1002,30 @@ async def test_set_curve_table_points_invalid_number(
 
     with pytest.raises(APIError, match=f"^A curve table needs 1 to 16 points, not {number_of_points}$"):
         await client.set_curve_table_points("HC1", points)
+
+    mock_api.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("point", "expected_error"),
+    [
+        (
+            CurvePoint(outdoor=float("nan"), flow=30),
+            r"^Invalid curve point CurvePoint\(outdoor=nan, flow=30\), the values must be finite$",
+        ),
+        (
+            CurvePoint(outdoor=0, flow=float("inf")),
+            r"^Invalid curve point CurvePoint\(outdoor=0, flow=inf\), the values must be finite$",
+        ),
+    ],
+    ids=["nan_outdoor", "infinite_flow"],
+)
+async def test_set_curve_table_points_not_finite(
+    client: KebaKeEnergyAPI, mock_api: aioresponses, point: CurvePoint, expected_error: str
+) -> None:
+    """Test that a point with NaN or infinity raises `APIError` without a request."""
+    with pytest.raises(APIError, match=expected_error):
+        await client.set_curve_table_points("HC1", [CurvePoint(outdoor=-20, flow=55), point])
 
     mock_api.assert_not_called()
 

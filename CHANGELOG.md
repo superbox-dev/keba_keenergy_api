@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--start-->
 
+## [3.1.2] - 2026-11-14
+
+### Fixed
+
+- Fixed `write()` and `set_curve_table_points()`, which sent `nan` and `inf` to the control unit instead of raising
+  an `APIError`
+
 ## [3.1.1] - 2026-11-14
 
 ### Security
@@ -968,7 +975,8 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 
 - Initial release
 
-[Unreleased]: https://github.com/superbox-dev/keba_keenergy_api/compare/v3.1.1...HEAD
+[Unreleased]: https://github.com/superbox-dev/keba_keenergy_api/compare/v3.1.2...HEAD
+[3.1.2]: https://github.com/superbox-dev/keba_keenergy_api/compare/v3.1.1...v3.1.2
 [3.1.1]: https://github.com/superbox-dev/keba_keenergy_api/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.14.0...v3.0.0
