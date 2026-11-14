@@ -16,7 +16,6 @@ on:
     branches:
       - main
       - develop
-      - develop-*
     tags:
       - v*
 
@@ -28,7 +27,9 @@ jobs:
       environments: ${{ steps.set-environments.outputs.environments }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: False
       - name: Set environments
         id: set-environments
         run: echo "environments=$(jq -c . < ./.github/environments.json)" >> $GITHUB_OUTPUT
@@ -44,7 +45,9 @@ jobs:
         python-version: ${{ fromJson(needs.configure.outputs.environments).python-version }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: False
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
@@ -66,13 +69,15 @@ jobs:
     if: github.event_name != 'schedule'
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: False
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
           python-version: 3.14
       - name: Set up Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
           node-version: lts/*
           cache: npm
@@ -83,7 +88,6 @@ jobs:
   security:
     name: Audit packages using Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
-    continue-on-error: True
     needs: configure
     strategy:
       fail-fast: False
@@ -91,7 +95,9 @@ jobs:
         python-version: ${{ fromJson(needs.configure.outputs.environments).python-version }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: False
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
@@ -110,7 +116,9 @@ jobs:
         python-version: ${{ fromJson(needs.configure.outputs.environments).python-version }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: False
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
@@ -118,7 +126,7 @@ jobs:
       - name: Run tests
         run: uv run pytest
       - name: Upload coverage
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: coverage-xml-${{ matrix.python-version }}
           path: coverage.xml
@@ -136,13 +144,13 @@ jobs:
       contents: write
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
           python-version: ${{ fromJson(needs.configure.outputs.environments).python-version[0] }}
       - name: Download coverage
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         with:
           name: coverage-xml-${{ fromJson(needs.configure.outputs.environments).python-version[0] }}
           path: .
@@ -180,11 +188,12 @@ jobs:
     needs:
       - configure
       - code-analysis
-      - security
       - tests
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: False
       - name: Set up project
         uses: ./.github/actions/setup-project
         with:
@@ -192,7 +201,7 @@ jobs:
       - name: Build package
         run: uv run python -m build
       - name: Upload package files
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: python-package
           path: dist
@@ -203,19 +212,16 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref_type == 'tag'
     needs:
-      - configure
       - build-python-package
     permissions:
       contents: write
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
-      - name: Set up project
-        uses: ./.github/actions/setup-project
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          python-version: ${{ fromJson(needs.configure.outputs.environments).python-version[0] }}
+          persist-credentials: False
       - name: Download files
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         with:
           name: python-package
           path: dist
@@ -254,7 +260,7 @@ jobs:
           echo "See the [changelog](${URL}) for all changes." > release-notes.md
           cat release-notes.md
       - name: Release on GitHub
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3  # v3.0.4
         with:
           body_path: release-notes.md
           files: |
@@ -294,14 +300,18 @@ jobs:
     if: github.ref_type == 'tag'
     needs:
       - release
+    environment:
+      name: pypi
+      url: https://pypi.org/project/keba-keenergy-api/
+    permissions:
+      id-token: write
     steps:
       - name: Download files
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         with:
           name: python-package
           path: dist
       - name: Publish on PyPi
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086  # v1.14.3
         with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: dist
