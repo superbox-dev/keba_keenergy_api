@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+<!--start-->
+
+## [3.1.1] - 2026-11-14
+
 ### Security
 
 - Added a `SECURITY.md` that describes how to report a vulnerability
-
-<!--start-->
 
 ## [3.1.0] - 2026-11-13
 
@@ -966,7 +968,8 @@ the [migration guide](https://superbox-dev.github.io/keba_keenergy_api/migration
 
 - Initial release
 
-[Unreleased]: https://github.com/superbox-dev/keba_keenergy_api/compare/v3.1.0...HEAD
+[Unreleased]: https://github.com/superbox-dev/keba_keenergy_api/compare/v3.1.1...HEAD
+[3.1.1]: https://github.com/superbox-dev/keba_keenergy_api/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.14.0...v3.0.0
 [2.14.0]: https://github.com/superbox-dev/keba_keenergy_api/compare/v2.13.0...v2.14.0
