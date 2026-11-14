@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed `write()` and `set_curve_table_points()`, which sent `nan` and `inf` to the control unit instead of raising
+  an `APIError`
+
 <!--start-->
 
 ## [3.1.1] - 2026-11-14

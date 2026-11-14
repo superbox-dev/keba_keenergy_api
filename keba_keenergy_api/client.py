@@ -4,6 +4,7 @@
 """Asynchronous client for the KEBA KeEnergy Web HMI API."""
 
 import json
+import math
 from dataclasses import dataclass
 from datetime import date
 from datetime import datetime
@@ -905,7 +906,8 @@ class KebaKeEnergyAPI:
             if value_type in {float, int}:
                 return str(value)
         elif isinstance(value, float):
-            if value_type is float:
+            # The Web HMI has no use for NaN and infinity.
+            if value_type is float and math.isfinite(value):
                 return str(value)
         elif value_type is str:
             return value
@@ -1097,7 +1099,7 @@ class KebaKeEnergyAPI:
         Raises
         ------
         APIError
-            The curve doesn't exist or the number of points is invalid.
+            The curve doesn't exist, the number of points is invalid or a point is not finite (NaN or infinity).
 
         Examples
         --------
@@ -1113,6 +1115,11 @@ class KebaKeEnergyAPI:
             )
             raise APIError(message)
 
+        for point in points:
+            if not (math.isfinite(point.outdoor) and math.isfinite(point.flow)):
+                message = f"Invalid curve point {point!r}, the values must be finite"
+                raise APIError(message)
+
         indexes: dict[str, int] = await self._get_curve_table_indexes()
         line_table: str = _LINE_TABLE % self._get_curve_table_index(name, indexes)
 
@@ -1120,10 +1127,10 @@ class KebaKeEnergyAPI:
 
         # Unused points are reset, like the Web HMI does.
         for point_index in range(MAX_CURVE_TABLE_POINTS):
-            point: CurvePoint = points[point_index] if point_index < len(points) else CurvePoint(outdoor=0, flow=0)
+            written: CurvePoint = points[point_index] if point_index < len(points) else CurvePoint(outdoor=0, flow=0)
             payload += [
-                _WritePayload(name=f"{line_table}.points[{point_index}].x", value=str(point.outdoor)),
-                _WritePayload(name=f"{line_table}.points[{point_index}].y", value=str(point.flow)),
+                _WritePayload(name=f"{line_table}.points[{point_index}].x", value=str(written.outdoor)),
+                _WritePayload(name=f"{line_table}.points[{point_index}].y", value=str(written.flow)),
             ]
 
         payload.append(_WritePayload(name=f"{line_table}.verCnt", value=_SAVE_LINE_TABLE))
