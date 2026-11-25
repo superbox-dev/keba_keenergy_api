@@ -1,7 +1,7 @@
 [build-system]
 requires = [
-    "setuptools>=84.2.1",
-    "setuptools-scm>=10.3.4",
+  "setuptools>=84.2.1",
+  "setuptools-scm>=10.3.4",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -10,46 +10,46 @@ name = "keba_keenergy_api"
 description = "A Python wrapper for the KEBA KeEnergy API used by the Web HMI."
 readme = "README.md"
 authors = [
-    { name = "Michael Hacker", email = "mh@superbox.one" },
+  { name = "Michael Hacker", email = "mh@superbox.one" },
 ]
 maintainers = [
-    { name = "Michael Hacker", email = "mh@superbox.one" },
+  { name = "Michael Hacker", email = "mh@superbox.one" },
 ]
 license = "Apache-2.0"
 license-files = [
-    "LICENSE"
+  "LICENSE"
 ]
 keywords = [
-    "api",
-    "component",
-    "custom component",
-    "custom integration",
-    "keba",
-    "keenergy",
-    "hacs-component",
-    "hacs-integration",
-    "hacs-repository",
-    "hacs",
-    "hass",
-    "home assistant",
-    "home-assistant",
-    "homeassistant",
-    "integration",
+  "api",
+  "component",
+  "custom component",
+  "custom integration",
+  "keba",
+  "keenergy",
+  "hacs-component",
+  "hacs-integration",
+  "hacs-repository",
+  "hacs",
+  "hass",
+  "home assistant",
+  "home-assistant",
+  "homeassistant",
+  "integration",
 ]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.14",
-    "Programming Language :: Python :: 3 :: Only",
-    "Operating System :: OS Independent",
-    "Topic :: Software Development :: Libraries",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Framework :: AsyncIO",
-    "Typing :: Typed",
+  "Development Status :: 5 - Production/Stable",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3 :: Only",
+  "Operating System :: OS Independent",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Framework :: AsyncIO",
+  "Typing :: Typed",
 ]
 requires-python = ">= 3.14.2"
 dependencies = [
-    "aiohttp==3.*"
+  "aiohttp==3.*"
 ]
 dynamic = ["version"]
 
@@ -61,34 +61,34 @@ dynamic = ["version"]
 
 [dependency-groups]
 dev = [
-    { include-group = "build" },
-    { include-group = "docs" },
-    { include-group = "lint" },
-    { include-group = "test" },
+  { include-group = "build" },
+  { include-group = "docs" },
+  { include-group = "lint" },
+  { include-group = "test" },
 ]
 build = [
-    "setuptools>=84.2.1",
-    "build>=1.6.1",
+  "setuptools>=84.2.1",
+  "build>=1.6.1",
 ]
 docs = [
-    "griffelib>=2.4.1",
+  "griffelib>=2.4.1",
 ]
 lint = [
-    "prek>=0.5.7",
-    "ruff>=0.17.3",
-    "rumdl>=0.3.0",
-    "ty>=0.0.92",
-    "yamllint>=1.38.0",
+  "prek>=0.5.7",
+  "ruff>=0.17.3",
+  "rumdl>=0.3.0",
+  "ty>=0.0.92",
+  "yamllint>=1.38.0",
 ]
 test = [
-    "aioresponses-ng>=0.8.2",
-    "coverage>=7.17.0",
-    "genbadge[coverage]>=1.1.3",
-    "pytest>=9.1.1",
-    "pytest-asyncio>=1.4.1",
-    "pytest-cov>=7.1.0",
-    "pytest-xdist[psutil]>=3.8.0",
-    "syrupy>=6.1.1",
+  "aioresponses-ng>=0.8.2",
+  "coverage>=7.17.0",
+  "genbadge[coverage]>=1.1.3",
+  "pytest>=9.1.1",
+  "pytest-asyncio>=1.4.1",
+  "pytest-cov>=7.1.0",
+  "pytest-xdist[psutil]>=3.8.0",
+  "syrupy>=6.1.1",
 ]
 
 [tool.setuptools]

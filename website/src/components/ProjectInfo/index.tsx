@@ -34,7 +34,8 @@ export default function ProjectInfo(): ReactNode {
                     An asynchronous Python client for the KEBA KeEnergy Web HMI, used by the Home Assistant integration.
                 </p>
                 <p className={styles.section}>
-                    A community project, not affiliated with or endorsed by KEBA. KEBA is a registered trademark of its owner.
+                    A community project, not affiliated with or endorsed by KEBA. KEBA is a registered trademark of its
+                    owner.
                 </p>
                 <p className={styles.section}>
                     <FileCode className={styles.icon} aria-hidden="true" /> Requires Python 3.14 or newer.
@@ -66,7 +67,12 @@ export default function ProjectInfo(): ReactNode {
                     <HeartHandshake className={styles.icon} aria-hidden="true" /> Maintainer
                 </h2>
                 <Link className={styles.owner} href={`https://github.com/${maintainer}`}>
-                    <img src={`https://avatars.githubusercontent.com/${maintainer}?size=96`} alt="" width={32} height={32} />
+                    <img
+                        src={`https://avatars.githubusercontent.com/${maintainer}?size=96`}
+                        alt=""
+                        width={32}
+                        height={32}
+                    />
                     @{maintainer}
                 </Link>
             </section>
