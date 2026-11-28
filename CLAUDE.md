@@ -55,14 +55,9 @@ Before finishing a change, run `ruff format`, `lint.sh` and `pytest`, in this or
 - Log messages start with a capital letter, no trailing period, values as `%s` arguments
 - Every file follows `.editorconfig`, whether a linter checks it or not
 - Style rules apply to new and changed code, existing code only adapted when asked
-- Every `.py` file starts with (after the shebang of an executable script, update the end year when editing a
-  file, a single year while it equals the start year):
-
-  ```python
-  # Copyright 2023-<current year> Michael Hacker
-  # SPDX-License-Identifier: Apache-2.0
-  ```
-
+- Every `.py` file starts with the lines `# Copyright 2023-<current year> Michael Hacker` and
+  `# SPDX-License-Identifier: Apache-2.0` (after the shebang of an executable script)
+  - update the end year when editing a file, a single year while it equals the start year
 - NumPy-style docstrings everywhere, also in tests
 - No inline lint/type suppressions, no new ones in the config, no `# pragma: no cover`, fix or test the code
 - No real hosts, serial numbers or customer data, use placeholders like `"mocked-host"`
